@@ -5,5 +5,9 @@ public enum SiteQuality {
     POOR,
     NORMAL,
     RICH,
-    MOTHERLODE
+    MOTHERLODE;
+
+    public boolean isProductive() {
+        return this != DRY;
+    }
 }

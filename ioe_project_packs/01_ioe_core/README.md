@@ -6,7 +6,20 @@ Shared API, resource policy, config primitives, registry scanning, and province 
 Phase 1
 
 ## Status
-Production skeleton and Codex implementation pack.
+Verified alpha foundation.
+
+Current verified version: `0.1.1-alpha`.
+
+Implemented:
+- Resource whitelist / blacklist policy service.
+- Runtime resource scanner for loaded mods, blocks, fluids, items, and tags.
+- Shared data contracts for resources, provinces, expedition anchors, site quality rolls, and crystal-growth site types.
+- Common NeoForge config registration for resource policy safety switches.
+- Unit tests for policy decisions and site-quality roll behavior.
+
+Verified with:
+- `.\gradlew.bat clean build`
+- Installed jar metadata/hash readback in the NeoForge 1.21.1 Prism LAB mods directory.
 
 ## Start here
 1. Read `docs/PROJECT_SPEC.md`.

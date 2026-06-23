@@ -40,4 +40,13 @@ Open one module folder at a time, read its `docs/` directory, and use its `CODEX
 
 ## Build Status
 
-The bundle does not include Gradle wrapper files. Each module contains a Gradle skeleton, but build verification requires adding or restoring an approved wrapper/template for the target NeoForge 1.21.1 project before producing runtime jars.
+`ioe_core` has been advanced to a verified alpha foundation:
+
+- Version: `0.1.1-alpha`
+- Build root: `ioe_project_packs/01_ioe_core`
+- Wrapper: Gradle 8.8
+- Verification: `.\gradlew.bat clean build`
+- Test coverage: resource policy decisions and site-quality roll helpers
+- LAB install target: `C:\Users\Emmanuel Tremblay\AppData\Roaming\PrismLauncher\instances\1.21.1 TesT LaB\minecraft\mods`
+
+The remaining module packs are still production skeletons. They have the shared repository-mode fix needed for ModDevGradle to load, but they have not yet been implemented, built, tested, or installed.
