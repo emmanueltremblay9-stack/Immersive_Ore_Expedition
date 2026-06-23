@@ -1,15 +1,19 @@
 # Roadmap — IOE Worldgen
 
 ## Milestone A — Core loop proof
-- Disable or reduce random vanilla/IE ore density via config/data strategy.
-- Add tiny mine entrance and simple ore chamber.
-- Confirm ore chamber is linked to anchor.
+- Done: config-backed random ore density reduction policy.
+- Done: structure ID catalog for tiny mine entrance and ore chamber.
+- Done: ore-load planning enforces anchor distance and resource-policy validation.
+- Remaining: register runtime configured features/structures and prove generated placement in a dev world.
 
 ## Milestone B — Province system
-- Add biome rules.
+- Done: immutable province rule contract.
+- Done: province resource validation through IOE Core.
+- Remaining: add data-driven biome rules.
 - Add BOP/Tectonic biome tag support.
-- Add dry/poor/normal/rich/motherlode rolls.
+- Done in core: dry/poor/normal/rich/motherlode roll helper.
 
 ## Milestone C — Structure variety
-- Add miner camp, collapsed shaft, survey marker.
+- Done: catalog IDs for miner camp, collapsed shaft, and survey marker.
+- Remaining: implement actual structure templates/processors.
 - Add branch paths and dry dead-ends.

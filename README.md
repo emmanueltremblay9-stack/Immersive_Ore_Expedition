@@ -40,13 +40,13 @@ Open one module folder at a time, read its `docs/` directory, and use its `CODEX
 
 ## Build Status
 
-`ioe_core` has been advanced to a verified alpha foundation:
+Verified alpha foundations:
 
-- Version: `0.1.1-alpha`
-- Build root: `ioe_project_packs/01_ioe_core`
-- Wrapper: Gradle 8.8
-- Verification: `.\gradlew.bat clean build`
-- Test coverage: resource policy decisions and site-quality roll helpers
-- LAB install target: `C:\Users\Emmanuel Tremblay\AppData\Roaming\PrismLauncher\instances\1.21.1 TesT LaB\minecraft\mods`
+| Module | Version | Build root | Verification | LAB status |
+| --- | --- | --- | --- | --- |
+| `ioe_core` | `0.1.1-alpha` | `ioe_project_packs/01_ioe_core` | `.\gradlew.bat clean build` | Installed and hash-verified |
+| `ioe_expedition_worldgen` | `0.1.1-alpha` | `ioe_project_packs/02_ioe_expedition_worldgen` | `.\gradlew.bat clean build` | Installed and hash-verified |
+
+Both verified modules use Gradle 8.8 wrappers and install into `C:\Users\Emmanuel Tremblay\AppData\Roaming\PrismLauncher\instances\1.21.1 TesT LaB\minecraft\mods`.
 
 The remaining module packs are still production skeletons. They have the shared repository-mode fix needed for ModDevGradle to load, but they have not yet been implemented, built, tested, or installed.
