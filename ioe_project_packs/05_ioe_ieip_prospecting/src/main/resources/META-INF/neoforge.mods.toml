@@ -1,0 +1,45 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="ioe_ieip_prospecting"
+version="${mod_version}"
+displayName="Immersive Ore Expedition: IE/IP Prospecting"
+authors="${mod_authors}"
+description='''Immersive Engineering mineral outcrop clues, IE deposit quantity nerf, and Immersive Petroleum surface seep clues.'''
+
+[[dependencies.ioe_ieip_prospecting]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.ioe_ieip_prospecting]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1,1.22)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.ioe_ieip_prospecting]]
+    modId="ioe_core"
+    type="required"
+    versionRange="[0.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.ioe_ieip_prospecting]]
+    modId="immersiveengineering"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.ioe_ieip_prospecting]]
+    modId="immersivepetroleum"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+

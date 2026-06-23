@@ -1,0 +1,29 @@
+[crystal_growth]
+enabled = true
+require_structure_anchor = true
+allow_random_free_crystal_sites = false
+
+[amethyst]
+structure_anchored_sites = true
+meteorite_wrapped_variant = true
+
+[ae2]
+enabled_if_loaded = true
+surface_meteorites = false
+buried_meteorites = true
+allow_budding_certus_sites = true
+allow_fluix_ore_generation = false
+sky_stone_crust_around_geodes = true
+
+[geore]
+enabled_if_loaded = true
+disable_free_geore_worldgen = true
+anchor_all_geores_to_expedition_structures = true
+existing_resources_only = true
+skip_missing_geores = true
+
+[meteoritic_geode]
+enabled = true
+requires_ae2 = true
+allowed_cores = ["minecraft_amethyst", "ae2_certus", "geore_loaded_resources"]
+outer_crust = "ae2_sky_stone"

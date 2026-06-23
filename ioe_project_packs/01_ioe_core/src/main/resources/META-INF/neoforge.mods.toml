@@ -1,0 +1,24 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="ioe_core"
+version="${mod_version}"
+displayName="Immersive Ore Expedition: Core"
+authors="${mod_authors}"
+description='''Shared API, resource policy, config primitives, registry scanning, and province abstractions for the Immersive Ore Expedition ecosystem.'''
+
+[[dependencies.ioe_core]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.ioe_core]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1,1.22)"
+    ordering="NONE"
+    side="BOTH"
+

@@ -1,0 +1,19 @@
+[retrogen]
+enabled = false
+default_mode = "unexplored_chunks_only"
+require_admin_command = true
+chunk_marker_version = 1
+max_chunks_per_tick = 1
+
+[modes]
+ore_pocket_only = true
+clue_plus_pocket = true
+full_province = false
+admin_radius_only = true
+
+[commands]
+locate_province = true
+locate_anchor = true
+retrogen_status = true
+retrogen_start = true
+retrogen_pause = true

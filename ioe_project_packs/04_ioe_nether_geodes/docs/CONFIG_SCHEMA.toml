@@ -1,0 +1,20 @@
+[nether.sub_lava_geodes]
+enabled = true
+dimension = "minecraft:the_nether"
+require_giant_lava_lake_above = true
+allow_random_nether_geodes = false
+
+[lava_lake_anchor]
+lava_sample_radius = 64
+minimum_lava_coverage = 0.60
+minimum_lava_depth = 4
+
+[placement]
+min_blocks_below_lava = 8
+max_blocks_below_lava = 48
+require_safe_crust = true
+
+[resources]
+nether_quartz = true
+ancient_debris_extreme_rare = true
+ancient_debris_motherlode_chance = 0.005

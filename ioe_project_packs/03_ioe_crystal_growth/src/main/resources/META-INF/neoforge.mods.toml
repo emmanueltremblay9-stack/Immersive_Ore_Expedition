@@ -1,0 +1,45 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="ioe_crystal_growth"
+version="${mod_version}"
+displayName="Immersive Ore Expedition: Crystal Growth"
+authors="${mod_authors}"
+description='''AE2, vanilla amethyst, and optional GeOre crystal-growth sites anchored to expedition structures.'''
+
+[[dependencies.ioe_crystal_growth]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.ioe_crystal_growth]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1,1.22)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.ioe_crystal_growth]]
+    modId="ioe_core"
+    type="required"
+    versionRange="[0.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.ioe_crystal_growth]]
+    modId="ae2"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.ioe_crystal_growth]]
+    modId="geore"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
+

@@ -1,0 +1,6 @@
+- 01_Immersive_Ore_Expedition_Core.zip — Immersive Ore Expedition: Core
+- 02_Immersive_Ore_Expedition_Worldgen.zip — Immersive Ore Expedition: Worldgen
+- 03_Immersive_Ore_Expedition_Crystal_Growth.zip — Immersive Ore Expedition: Crystal Growth
+- 04_Immersive_Ore_Expedition_Nether_Geodes.zip — Immersive Ore Expedition: Nether Geodes
+- 05_Immersive_Ore_Expedition_IEIP_Prospecting.zip — Immersive Ore Expedition: IE/IP Prospecting
+- 06_Immersive_Ore_Expedition_Retrogen_Admin.zip — Immersive Ore Expedition: Retrogen & Admin

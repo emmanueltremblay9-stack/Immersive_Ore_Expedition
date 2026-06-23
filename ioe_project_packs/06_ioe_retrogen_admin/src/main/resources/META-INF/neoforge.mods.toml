@@ -1,0 +1,38 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="ioe_retrogen_admin"
+version="${mod_version}"
+displayName="Immersive Ore Expedition: Retrogen & Admin"
+authors="${mod_authors}"
+description='''Safe retrogen, admin commands, chunk markers, and diagnostic tools for Immersive Ore Expedition.'''
+
+[[dependencies.ioe_retrogen_admin]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.ioe_retrogen_admin]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1,1.22)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.ioe_retrogen_admin]]
+    modId="ioe_core"
+    type="required"
+    versionRange="[0.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.ioe_retrogen_admin]]
+    modId="ioe_expedition_worldgen"
+    type="optional"
+    versionRange="[0.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+

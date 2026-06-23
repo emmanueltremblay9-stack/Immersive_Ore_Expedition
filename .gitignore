@@ -1,0 +1,23 @@
+# Gradle and Java outputs
+.gradle/
+build/
+out/
+*.class
+
+# Minecraft / NeoForge generated outputs
+run/
+runs/
+logs/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Local-only configuration
+.env
+.codex/local.env

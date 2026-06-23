@@ -1,0 +1,33 @@
+You are Codex working on the Immersive Ore Expedition multi-mod ecosystem.
+
+Hard constraints:
+- Target Minecraft 1.21.1, NeoForge, Java 21.
+- Implement modules as independent projects, not one giant mod.
+- Do not invent ores/resources.
+- Use only approved loaded resources and skip missing resources.
+- Keep GeOre optional. If GeOre is loaded, free/random geode worldgen must be disabled or avoided, and GeOre sites must be structure-anchored.
+- AE2 is handled through buried meteorite / Certus crystal-growth sites. Do not add fake Fluix ore.
+- Nether crystal geodes spawn only beneath giant Nether lava lakes.
+- IE/IP get surface clues only, not full underground deposit rendering.
+- IE mineral deposit quantities must be drastically reduced using the safest supported method.
+- No Immersive Petro-Machinery, MineColonies, or CIVITAS integration.
+
+Development order:
+1. Start with IOE Core resource policy and shared models.
+2. Build IOE Worldgen core loop: surface clue → mineshaft → anchored ore load.
+3. Add IE/IP clue module.
+4. Add Crystal Growth module.
+5. Add Nether Geodes module.
+6. Add Retrogen/Admin module last.
+
+Before editing code:
+- Inspect the actual loaded registry and mod IDs.
+- Verify exact NeoForge template version in the workspace.
+- Do not rely on guessed registry IDs.
+- Document every skipped resource.
+
+Final output requirements:
+- Include build/test evidence.
+- Include config examples.
+- Include list of implemented modules.
+- Include known limitations.

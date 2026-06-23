@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="ioe_expedition_worldgen"
+version="${mod_version}"
+displayName="Immersive Ore Expedition: Worldgen"
+authors="${mod_authors}"
+description='''Surface clues, mineshaft anchors, biome provinces, and structure-linked ore loads.'''
+
+[[dependencies.ioe_expedition_worldgen]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.ioe_expedition_worldgen]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1,1.22)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.ioe_expedition_worldgen]]
+    modId="ioe_core"
+    type="required"
+    versionRange="[0.1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+

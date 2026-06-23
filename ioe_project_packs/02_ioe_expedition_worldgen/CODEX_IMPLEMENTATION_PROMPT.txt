@@ -1,0 +1,45 @@
+You are Codex implementing Immersive Ore Expedition: Worldgen.
+
+Surface clues, mineshaft anchors, biome provinces, and structure-linked ore loads.
+
+Read these files first:
+- docs/PROJECT_SPEC.md
+- docs/SHARED_DECISIONS.md
+- docs/RESOURCE_POLICY.md
+- docs/CONFIG_SCHEMA.toml
+- docs/ACCEPTANCE_CRITERIA.md
+
+Implement only this module's scope. Do not expand scope into other Immersive Ore Expedition modules.
+
+Hard constraints:
+- Minecraft 1.21.1, NeoForge, Java 21.
+- No fake ores/resources.
+- Use registry/tag checks and skip missing entries.
+- Preserve optional dependency gates.
+- Do not integrate IPM, MineColonies, or CIVITAS.
+- Do not hardcode guessed registry IDs unless verified in the workspace.
+- Add tests or debug commands where appropriate.
+
+Module-specific spec:
+# Project Spec — IOE Worldgen
+
+## Responsibility
+This module owns the main anti-branch-mining gameplay loop.
+
+## Must implement
+- Random ore suppression hooks/config strategy.
+- Biome province rules.
+- Surface clue structures: tiny vertical mine entrance, collapsed shaft, miner camp, survey marker.
+- Underground mineshaft anchors and ore-load chambers.
+- Site quality roll: dry, poor, normal, rich, motherlode.
+- Ore loads must be near/connected to expedition anchors.
+
+## Must not implement
+- No GeOre-specific code.
+- No AE2-specific code.
+- No IE/IP-specific clue logic.
+- No retrogen beyond hooks for future retrogen module.
+
+## Design rule
+The player should find resources by following clues and mine networks, not by branch-mining at a universal Y-level.
+

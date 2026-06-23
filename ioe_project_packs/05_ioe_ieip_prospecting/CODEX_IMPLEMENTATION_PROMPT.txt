@@ -1,0 +1,42 @@
+You are Codex implementing Immersive Ore Expedition: IE/IP Prospecting.
+
+Immersive Engineering mineral outcrop clues, IE deposit quantity nerf, and Immersive Petroleum surface seep clues.
+
+Read these files first:
+- docs/PROJECT_SPEC.md
+- docs/SHARED_DECISIONS.md
+- docs/RESOURCE_POLICY.md
+- docs/CONFIG_SCHEMA.toml
+- docs/ACCEPTANCE_CRITERIA.md
+
+Implement only this module's scope. Do not expand scope into other Immersive Ore Expedition modules.
+
+Hard constraints:
+- Minecraft 1.21.1, NeoForge, Java 21.
+- No fake ores/resources.
+- Use registry/tag checks and skip missing entries.
+- Preserve optional dependency gates.
+- Do not integrate IPM, MineColonies, or CIVITAS.
+- Do not hardcode guessed registry IDs unless verified in the workspace.
+- Add tests or debug commands where appropriate.
+
+Module-specific spec:
+# Project Spec — IOE IE/IP Prospecting
+
+## Responsibility
+This module adds subtle surface clue features for Immersive Engineering mineral deposits and Immersive Petroleum reservoirs.
+
+## Must implement
+- IE mineral outcrop clues: small surface boulders/rubble made from resources present in the IE deposit.
+- IE mineral deposit quantity reduction to keep Excavator deposits limited.
+- IP reservoir seep clues: small surface pocket lake/seep/vent made from reservoir resource/fluid.
+
+## Must not implement
+- No full underground IE mineral deposit rendering.
+- No full underground IP reservoir rendering.
+- No fake ore/resource blocks.
+- No Immersive Petro-Machinery integration.
+
+## Design rule
+Render clues, not deposits.
+

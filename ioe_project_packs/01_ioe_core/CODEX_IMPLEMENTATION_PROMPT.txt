@@ -1,0 +1,50 @@
+You are Codex implementing Immersive Ore Expedition: Core.
+
+Shared API, resource policy, config primitives, registry scanning, and province abstractions for the Immersive Ore Expedition ecosystem.
+
+Read these files first:
+- docs/PROJECT_SPEC.md
+- docs/SHARED_DECISIONS.md
+- docs/RESOURCE_POLICY.md
+- docs/CONFIG_SCHEMA.toml
+- docs/ACCEPTANCE_CRITERIA.md
+
+Implement only this module's scope. Do not expand scope into other Immersive Ore Expedition modules.
+
+Hard constraints:
+- Minecraft 1.21.1, NeoForge, Java 21.
+- No fake ores/resources.
+- Use registry/tag checks and skip missing entries.
+- Preserve optional dependency gates.
+- Do not integrate IPM, MineColonies, or CIVITAS.
+- Do not hardcode guessed registry IDs unless verified in the workspace.
+- Add tests or debug commands where appropriate.
+
+Module-specific spec:
+# Project Spec — IOE Core
+
+## Responsibility
+This module owns shared concepts used by every other Immersive Ore Expedition sub-mod.
+
+## Must implement
+- Resource whitelist / blacklist policy.
+- Runtime registry scanner for blocks, fluids, tags, and optional loaded mods.
+- Shared data types: ResourceRef, ProvinceId, SiteQuality, ExpeditionAnchor, CrystalGrowthSiteType.
+- Config loading primitives.
+- Logging helpers for skipped resources.
+- No direct worldgen beyond shared helpers.
+
+## Must not implement
+- No structures.
+- No ore pocket generation.
+- No GeOre placement.
+- No AE2 meteorite placement.
+- No IE/IP clue placement.
+
+## Public API targets
+- `ResourcePolicyService`
+- `LoadedResourceScanner`
+- `ExpeditionAnchorRef`
+- `ProvinceRule`
+- `SiteQualityRoll`
+
