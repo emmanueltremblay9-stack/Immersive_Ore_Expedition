@@ -7,4 +7,9 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.PREFER_PROJECT); repositories { mavenCentral(); maven { url = 'https://maven.neoforged.net/releases' } } }
+includeBuild('../01_ioe_core') {
+    dependencySubstitution {
+        substitute module('com.oblixorprime.immersiveoreexpedition:ioe_core') using project(':')
+    }
+}
 rootProject.name = '04_ioe_nether_geodes'
