@@ -53,4 +53,4 @@ Verified alpha foundations:
 
 The verified modules use Gradle 8.8 wrappers and install into `C:\Users\Emmanuel Tremblay\AppData\Roaming\PrismLauncher\instances\1.21.1 TesT LaB\minecraft\mods`.
 
-All six module packs now have installed alpha foundations. These are verified planning/policy foundations, not a completed gameplay loop: runtime feature placement, live client/server smoke, and full retrogen mutation are still later milestones.
+All six module packs now have installed alpha foundations. A Prism LAB client load smoke reached resource reload with all six IOE mods present and no crash/fatal signatures in the checked log window. These are still foundation slices, not a completed gameplay loop: world-entry testing, runtime feature placement, server smoke, and full retrogen mutation are later milestones.

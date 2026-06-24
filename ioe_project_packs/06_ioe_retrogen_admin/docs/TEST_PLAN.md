@@ -11,7 +11,7 @@
 - Confirm mod loads.
 - Confirm config file is generated or read.
 - Confirm missing optional mods do not crash.
-- Pending: live client/server smoke has not been run for this module.
+- Prism LAB client load smoke passed for the installed six-module stack on 2026-06-24: the fresh client log reached resource reload with `mod/ioe_retrogen_admin` and the other IOE modules present. Dedicated server and world-entry smoke remain pending.
 
 ## Gameplay checks
 Use module-specific debug commands or logs to prove generation rules.
