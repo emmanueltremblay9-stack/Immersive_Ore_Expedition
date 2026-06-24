@@ -13,22 +13,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class GeOreSiteProvider implements CrystalGrowthSiteProvider {
+public final class AmethystGrowthSiteProvider implements CrystalGrowthSiteProvider {
     private final LoadedResourceScanner scanner;
     private final ResourcePolicyService policyService;
 
-    public GeOreSiteProvider() {
+    public AmethystGrowthSiteProvider() {
         this(LoadedResourceScanner.runtime(), new ResourcePolicyService());
     }
 
-    public GeOreSiteProvider(LoadedResourceScanner scanner, ResourcePolicyService policyService) {
+    public AmethystGrowthSiteProvider(LoadedResourceScanner scanner, ResourcePolicyService policyService) {
         this.scanner = Objects.requireNonNull(scanner, "scanner");
         this.policyService = Objects.requireNonNull(policyService, "policyService");
     }
 
     @Override
     public boolean isAvailable() {
-        return CrystalGrowthCompatGates.georeEnabled(scanner);
+        return IoeCrystalGrowthConfig.enabled() && IoeCrystalGrowthConfig.amethystStructureAnchoredSites();
     }
 
     @Override
@@ -38,21 +38,10 @@ public final class GeOreSiteProvider implements CrystalGrowthSiteProvider {
             LoadedResourceScanner scanner,
             ResourcePolicyService policyService
     ) {
-        return planGeOreSite(anchor, coreResource, scanner, policyService);
-    }
-
-    public Optional<CrystalGrowthSitePlan> planGeOreSite(
-            ExpeditionAnchorRef anchor,
-            ResourceRef coreResource,
-            LoadedResourceScanner scanner,
-            ResourcePolicyService policyService
-    ) {
         Objects.requireNonNull(scanner, "scanner");
         Objects.requireNonNull(policyService, "policyService");
 
-        if (!CrystalGrowthCompatGates.georeEnabled(scanner)
-                || !CrystalGrowthSiteRules.canPlanAnchoredSite(anchor)
-                || !IoeCrystalGrowthConfig.anchorAllGeoresToExpeditionStructures()) {
+        if (!isAvailable() || !CrystalGrowthSiteRules.canPlanAnchoredSite(anchor)) {
             return Optional.empty();
         }
 
@@ -62,17 +51,21 @@ public final class GeOreSiteProvider implements CrystalGrowthSiteProvider {
         }
 
         return Optional.of(new CrystalGrowthSitePlan(
-                CrystalGrowthSiteType.GEORE,
+                CrystalGrowthSiteType.AMETHYST,
                 anchor,
                 coreResource,
                 Optional.empty(),
                 true,
                 false,
+                IoeCrystalGrowthConfig.amethystMeteoriteWrappedVariant(),
                 false,
-                IoeCrystalGrowthConfig.disableFreeGeoreWorldgen(),
                 List.of(),
                 List.of()
         ));
+    }
+
+    public Optional<CrystalGrowthSitePlan> planAmethystSite(ExpeditionAnchorRef anchor, ResourceRef coreResource) {
+        return planSite(anchor, coreResource, scanner, policyService);
     }
 
     @Override
@@ -86,7 +79,7 @@ public final class GeOreSiteProvider implements CrystalGrowthSiteProvider {
     public boolean generate(WorldGenLevel level, BlockPos anchorPos) {
         Objects.requireNonNull(level, "level");
         Objects.requireNonNull(anchorPos, "anchorPos");
-        IoeCrystalGrowthMod.LOGGER.debug("Skipping direct GeOre site placement at {}; alpha planning is enabled but GeOre placement hooks are not registered.", anchorPos);
+        IoeCrystalGrowthMod.LOGGER.debug("Skipping direct amethyst site placement at {}; alpha planning is enabled but configured-feature placement is not registered.", anchorPos);
         return false;
     }
 }
