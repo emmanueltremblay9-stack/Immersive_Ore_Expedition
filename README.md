@@ -49,7 +49,8 @@ Verified alpha foundations:
 | `ioe_ieip_prospecting` | `0.1.2-alpha` | `ioe_project_packs/05_ioe_ieip_prospecting` | `.\gradlew.bat clean build` | Installed and hash-verified |
 | `ioe_crystal_growth` | `0.1.1-alpha` | `ioe_project_packs/03_ioe_crystal_growth` | `.\gradlew.bat clean build` | Installed and hash-verified |
 | `ioe_nether_geodes` | `0.1.1-alpha` | `ioe_project_packs/04_ioe_nether_geodes` | `.\gradlew.bat clean build` | Installed and hash-verified |
+| `ioe_retrogen_admin` | `0.1.1-alpha` | `ioe_project_packs/06_ioe_retrogen_admin` | `.\gradlew.bat clean build` | Installed and hash-verified |
 
 The verified modules use Gradle 8.8 wrappers and install into `C:\Users\Emmanuel Tremblay\AppData\Roaming\PrismLauncher\instances\1.21.1 TesT LaB\minecraft\mods`.
 
-The remaining module packs are still production skeletons. They have the shared repository-mode fix needed for ModDevGradle to load, but they have not yet been implemented, built, tested, or installed.
+All six module packs now have installed alpha foundations. These are verified planning/policy foundations, not a completed gameplay loop: runtime feature placement, live client/server smoke, and full retrogen mutation are still later milestones.
