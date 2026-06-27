@@ -1,6 +1,7 @@
 package com.oblixorprime.ioe.retrogen;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -19,25 +20,49 @@ public final class IoeAdminCommands {
     }
 
     public static void registerCommands(RegisterCommandsEvent event) {
-        event.getDispatcher().register(Commands.literal("ioe")
-                .requires(IoeAdminCommands::canUseAdminCommands)
-                .then(Commands.literal("locate")
-                        .then(Commands.literal("province")
-                                .executes(context -> send(context, "IOE province diagnostics are available; runtime province index binding is pending.")))
-                        .then(Commands.literal("anchor")
-                                .executes(context -> send(context, "IOE anchor diagnostics are available; runtime anchor index binding is pending."))))
-                .then(Commands.literal("retrogen")
-                        .then(Commands.literal("status")
-                                .executes(IoeAdminCommands::status))
-                        .then(Commands.literal("pause")
-                                .executes(IoeAdminCommands::pause))
+        event.getDispatcher().register(buildRootCommand(IoeAdminCommandSettings.fromConfig()));
+    }
+
+    static LiteralArgumentBuilder<CommandSourceStack> buildRootCommand(IoeAdminCommandSettings settings) {
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("ioe")
+                .requires(IoeAdminCommands::canUseAdminCommands);
+
+        if (settings.anyLocateCommandEnabled()) {
+            LiteralArgumentBuilder<CommandSourceStack> locate = Commands.literal("locate");
+            if (settings.locateProvinceEnabled()) {
+                locate.then(Commands.literal("province")
+                        .executes(context -> send(context, "IOE province diagnostics are available; runtime province index binding is pending.")));
+            }
+            if (settings.locateAnchorEnabled()) {
+                locate.then(Commands.literal("anchor")
+                        .executes(context -> send(context, "IOE anchor diagnostics are available; runtime anchor index binding is pending.")));
+            }
+            root.then(locate);
+        }
+
+        if (settings.anyRetrogenCommandEnabled()) {
+            LiteralArgumentBuilder<CommandSourceStack> retrogen = Commands.literal("retrogen");
+            if (settings.retrogenStatusEnabled()) {
+                retrogen.then(Commands.literal("status")
+                        .executes(IoeAdminCommands::status));
+            }
+            if (settings.retrogenPauseEnabled()) {
+                retrogen.then(Commands.literal("pause")
+                        .executes(IoeAdminCommands::pause));
+            }
+            if (settings.adminRadiusStartEnabled()) {
+                retrogen.then(Commands.literal("radius")
+                        .then(Commands.argument("blocks", IntegerArgumentType.integer(0, 1024))
+                                .executes(context -> startRadius(context, IntegerArgumentType.getInteger(context, "blocks")))));
+                retrogen.then(Commands.literal("start")
                         .then(Commands.literal("radius")
                                 .then(Commands.argument("blocks", IntegerArgumentType.integer(0, 1024))
-                                        .executes(context -> startRadius(context, IntegerArgumentType.getInteger(context, "blocks")))))
-                        .then(Commands.literal("start")
-                                .then(Commands.literal("radius")
-                                        .then(Commands.argument("blocks", IntegerArgumentType.integer(0, 1024))
-                                                .executes(context -> startRadius(context, IntegerArgumentType.getInteger(context, "blocks"))))))));
+                                        .executes(context -> startRadius(context, IntegerArgumentType.getInteger(context, "blocks"))))));
+            }
+            root.then(retrogen);
+        }
+
+        return root;
     }
 
     static RetrogenController controller() {

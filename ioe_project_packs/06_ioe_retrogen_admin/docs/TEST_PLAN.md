@@ -5,6 +5,7 @@
 - Confirm optional dependency gates.
 - Confirm excluded resources are absent.
 - `0.1.1-alpha` adds unit coverage for mode parsing, config fallback behavior, marker version semantics, resource diagnostics, and safe queue filtering.
+- `0.1.2-alpha` adds command-tree unit coverage proving disabled `commands.*` toggles and disabled admin-radius mode remove their Brigadier command paths.
 
 ## Runtime smoke checks
 - Launch dev client/server.

@@ -16,6 +16,9 @@ Implemented in `0.1.1-alpha`:
 - Resource diagnostics that reuse IOE Core policy and loaded-resource scanning.
 - Unit tests for config parsing, markers, duplicate prevention, radius filtering, queue ticking, and resource diagnostics.
 
+Fixed in `0.1.2-alpha`:
+- Admin command registration now honors `commands.*` config toggles and the admin-radius mode gate before exposing locate/status/start/pause/radius command paths.
+
 ## Start here
 1. Read `docs/PROJECT_SPEC.md`.
 2. Read `docs/DECISION_LOG.md`.
