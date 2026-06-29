@@ -40,6 +40,7 @@ public final class ImmersiveOreExpeditionConfig {
     private static final boolean DEFAULT_WORLDGEN_REQUIRE_TUNNEL_CONNECTION = true;
     private static final String DEFAULT_WORLDGEN_PROVINCE_NAMESPACE = "immersive_ore_expedition";
     private static final boolean DEFAULT_WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES = false;
+    private static final boolean DEFAULT_WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED = false;
     private static final boolean DEFAULT_WORLDGEN_PROVINCE_DEBUG_DIAGNOSTICS = false;
     private static final List<String> DEFAULT_WORLDGEN_PROVINCE_ALLOW_BIOMES = List.of();
     private static final List<String> DEFAULT_WORLDGEN_PROVINCE_DENY_BIOMES = List.of();
@@ -160,6 +161,10 @@ public final class ImmersiveOreExpeditionConfig {
     private static final ModConfigSpec.BooleanValue WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES = BUILDER
             .comment("Allow explicitly documented old split IOE namespaces while reading legacy province references.")
             .define("worldgen.provinces.allowLegacyNamespaces", DEFAULT_WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED = BUILDER
+            .comment("Enable Province System runtime decisions for ore-load planning. Default false preserves the existing planning path.")
+            .define("worldgen.provinces.runtimeIntegrationEnabled",
+                    DEFAULT_WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED);
     private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_PROVINCE_ALLOW_BIOMES = BUILDER
             .comment("Default biome id/tag allow list for province matching. Empty means rules decide locally.")
             .defineList("worldgen.provinces.allowBiomes",
@@ -460,6 +465,11 @@ public final class ImmersiveOreExpeditionConfig {
     public static boolean worldgenAllowLegacyProvinceNamespaces() {
         return getOrDefault(WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES,
                 DEFAULT_WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES);
+    }
+
+    public static boolean worldgenProvinceRuntimeIntegrationEnabled() {
+        return getOrDefault(WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED,
+                DEFAULT_WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED);
     }
 
     public static List<String> worldgenProvinceAllowBiomes() {

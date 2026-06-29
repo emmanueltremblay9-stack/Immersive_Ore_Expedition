@@ -27,11 +27,32 @@ public final class OreLoadGenerator {
             LoadedResourceScanner scanner,
             ResourcePolicyService policyService
     ) {
+        Objects.requireNonNull(scanner, "scanner");
+        Objects.requireNonNull(policyService, "policyService");
+        return planAnchoredOreLoad(
+                anchor,
+                resource,
+                candidateLoadCenter,
+                scanner,
+                policyService,
+                ProvinceRuntimeIntegration.fromConfig(policyService, scanner)
+        );
+    }
+
+    Optional<OreLoadPlan> planAnchoredOreLoad(
+            ExpeditionAnchorRef anchor,
+            ResourceRef resource,
+            BlockPos candidateLoadCenter,
+            LoadedResourceScanner scanner,
+            ResourcePolicyService policyService,
+            ProvinceRuntimeIntegration provinceRuntimeIntegration
+    ) {
         Objects.requireNonNull(anchor, "anchor");
         Objects.requireNonNull(resource, "resource");
         Objects.requireNonNull(candidateLoadCenter, "candidateLoadCenter");
         Objects.requireNonNull(scanner, "scanner");
         Objects.requireNonNull(policyService, "policyService");
+        Objects.requireNonNull(provinceRuntimeIntegration, "provinceRuntimeIntegration");
 
         if (IoeWorldgenConfig.requireStructureAnchorForMajorOreLoads()
                 && !ExpeditionStructureRegistry.isEnabledStructureId(anchor.anchorType())) {
@@ -47,7 +68,9 @@ public final class OreLoadGenerator {
             return Optional.empty();
         }
 
-        ResourcePolicyDecision decision = policyService.evaluate(resource, scanner);
+        ResourcePolicyDecision decision = provinceRuntimeIntegration.enabled()
+                ? provinceRuntimeIntegration.evaluateOreLoadResource(anchor, resource)
+                : policyService.evaluate(resource, scanner);
         if (!decision.shouldUse()) {
             return Optional.empty();
         }

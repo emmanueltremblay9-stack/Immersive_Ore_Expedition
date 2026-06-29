@@ -40,6 +40,10 @@ public final class IoeWorldgenConfig {
         return ImmersiveOreExpeditionConfig.worldgenAllowLegacyProvinceNamespaces();
     }
 
+    public static boolean provinceRuntimeIntegrationEnabled() {
+        return ImmersiveOreExpeditionConfig.worldgenProvinceRuntimeIntegrationEnabled();
+    }
+
     public static List<String> provinceAllowBiomes() {
         return ImmersiveOreExpeditionConfig.worldgenProvinceAllowBiomes();
     }
