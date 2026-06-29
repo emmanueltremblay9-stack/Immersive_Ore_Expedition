@@ -35,6 +35,24 @@ final class ProvinceRuleValidatorTest {
         assertFalse(result.rejectedResources().getFirst().reason().isBlank());
     }
 
+    @Test
+    void rejectsLoadedResourcesWhenProvinceHasNoEnabledAnchorStructure() {
+        ResourceRef loadedIron = ResourceRef.block("minecraft", "iron_ore");
+        ProvinceRule rule = new ProvinceRule(
+                ProvinceId.of("ioe_expedition_worldgen", "unanchored_iron"),
+                List.of(ResourceLocation.fromNamespaceAndPath("minecraft", "is_overworld")),
+                List.of(loadedIron),
+                List.of(ResourceLocation.fromNamespaceAndPath("example", "random_spot"))
+        );
+
+        ProvinceValidationResult result = new ProvinceRuleValidator(new ResourcePolicyService(), scannerWithLoaded(loadedIron)).validate(rule);
+
+        assertFalse(result.hasUsableResources());
+        assertTrue(result.usableResources().isEmpty());
+        assertEquals(1, result.rejectedResources().size());
+        assertFalse(result.rejectedResources().getFirst().reason().isBlank());
+    }
+
     private static LoadedResourceScanner scannerWithLoaded(ResourceRef loaded) {
         return new LoadedResourceScanner() {
             @Override

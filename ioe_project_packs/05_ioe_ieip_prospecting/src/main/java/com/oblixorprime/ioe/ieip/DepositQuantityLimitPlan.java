@@ -23,8 +23,8 @@ public record DepositQuantityLimitPlan(
         if (scaledQuantity > originalQuantity) {
             throw new IllegalArgumentException("scaledQuantity must not exceed originalQuantity");
         }
-        if (multiplier < 0.0D || multiplier > 1.0D) {
-            throw new IllegalArgumentException("multiplier must be between 0 and 1");
+        if (!Double.isFinite(multiplier) || multiplier < 0.0D || multiplier > 1.0D) {
+            throw new IllegalArgumentException("multiplier must be finite and between 0 and 1");
         }
     }
 }

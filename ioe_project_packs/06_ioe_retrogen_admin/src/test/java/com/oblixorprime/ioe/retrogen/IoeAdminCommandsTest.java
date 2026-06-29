@@ -2,13 +2,23 @@ package com.oblixorprime.ioe.retrogen;
 
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.minecraft.commands.CommandSourceStack;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class IoeAdminCommandsTest {
+    @AfterEach
+    void resetControllerFactory() {
+        IoeAdminCommands.resetControllerForTesting(RetrogenController::createDefault);
+    }
+
     @Test
     void allConfiguredCommandsAreRegisteredWhenEnabled() {
         LiteralCommandNode<CommandSourceStack> root = IoeAdminCommands.buildRootCommand(
@@ -58,5 +68,48 @@ class IoeAdminCommandsTest {
         ).build();
 
         assertTrue(root.getChildren().isEmpty());
+    }
+
+    @Test
+    void commandModeHonorsGlobalAndPerModeConfigGates() {
+        assertEquals(RetrogenMode.OFF, IoeAdminCommands.resolveCommandMode(
+                false,
+                RetrogenMode.ADMIN_RADIUS,
+                mode -> true
+        ));
+        assertEquals(RetrogenMode.OFF, IoeAdminCommands.resolveCommandMode(
+                true,
+                RetrogenMode.ORE_POCKET_ONLY,
+                mode -> mode != RetrogenMode.ORE_POCKET_ONLY
+        ));
+        assertEquals(RetrogenMode.ADMIN_RADIUS, IoeAdminCommands.resolveCommandMode(
+                true,
+                RetrogenMode.UNEXPLORED_CHUNKS_ONLY,
+                mode -> mode == RetrogenMode.ADMIN_RADIUS
+        ));
+        assertEquals(RetrogenMode.OFF, IoeAdminCommands.resolveCommandMode(
+                true,
+                RetrogenMode.UNEXPLORED_CHUNKS_ONLY,
+                mode -> false
+        ));
+    }
+
+    @Test
+    void controllerIsCreatedLazilyFromCurrentFactory() {
+        AtomicInteger created = new AtomicInteger();
+        IoeAdminCommands.resetControllerForTesting(() -> {
+            created.incrementAndGet();
+            return new RetrogenController(7, 3);
+        });
+
+        assertEquals(0, created.get());
+
+        RetrogenController controller = IoeAdminCommands.controller();
+
+        assertEquals(1, created.get());
+        assertEquals(7, controller.status().markerVersion());
+        assertEquals(3, controller.status().maxChunksPerTick());
+        assertSame(controller, IoeAdminCommands.controller());
+        assertEquals(1, created.get());
     }
 }

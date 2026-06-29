@@ -11,5 +11,7 @@ final class ExpeditionStructureRegistryTest {
         assertEquals(6, ExpeditionStructureRegistry.enabledStructureIds().size());
         assertTrue(ExpeditionStructureRegistry.enabledStructureIds().contains(ExpeditionStructureRegistry.TINY_VERTICAL_MINE_ENTRANCE));
         assertTrue(ExpeditionStructureRegistry.enabledStructureIds().contains(ExpeditionStructureRegistry.ORE_LOAD_CHAMBER));
+        assertTrue(ExpeditionStructureRegistry.isEnabledStructureId("tiny_vertical_mine_entrance"));
+        assertTrue(ExpeditionStructureRegistry.isEnabledStructureId(ExpeditionStructureRegistry.TINY_VERTICAL_MINE_ENTRANCE.toString()));
     }
 }

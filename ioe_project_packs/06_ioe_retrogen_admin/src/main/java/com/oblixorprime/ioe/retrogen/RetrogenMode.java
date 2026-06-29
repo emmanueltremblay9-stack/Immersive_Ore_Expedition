@@ -21,7 +21,7 @@ public enum RetrogenMode {
 
     public static RetrogenMode fromConfig(String value) {
         if (value == null || value.isBlank()) {
-            return UNEXPLORED_CHUNKS_ONLY;
+            return OFF;
         }
         String normalized = value.toLowerCase(Locale.ROOT).replace('-', '_').trim();
         for (RetrogenMode mode : values()) {
@@ -29,6 +29,6 @@ public enum RetrogenMode {
                 return mode;
             }
         }
-        return UNEXPLORED_CHUNKS_ONLY;
+        return OFF;
     }
 }

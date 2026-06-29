@@ -60,7 +60,7 @@ public final class IeMineralOutcropFeature {
         List<ResourcePolicyDecision> rejected = new ArrayList<>();
         for (ResourceRef resource : deposit.presentResources()) {
             if (!canRenderAsSurfaceBlock(resource)) {
-                rejected.add(ResourcePolicyDecision.reject("IE outcrop clues require a block or block tag resource: " + resource.id()));
+                rejected.add(ResourcePolicyDecision.reject("IE outcrop clues require a concrete block resource: " + resource.id()));
                 continue;
             }
 
@@ -88,7 +88,7 @@ public final class IeMineralOutcropFeature {
     }
 
     private static boolean canRenderAsSurfaceBlock(ResourceRef resource) {
-        return resource.type() == ResourceType.BLOCK || resource.type() == ResourceType.BLOCK_TAG;
+        return resource.type() == ResourceType.BLOCK;
     }
 
     private static int clampBoulderCount(int requestedBoulderCount) {

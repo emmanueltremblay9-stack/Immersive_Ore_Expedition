@@ -5,6 +5,9 @@ public record ChunkRetrogenMarker(int version, boolean processed) {
         if (version < 0) {
             throw new IllegalArgumentException("version must not be negative");
         }
+        if (processed && version < 1) {
+            throw new IllegalArgumentException("processed marker version must be positive");
+        }
     }
 
     public static ChunkRetrogenMarker missing() {
@@ -16,6 +19,9 @@ public record ChunkRetrogenMarker(int version, boolean processed) {
     }
 
     public boolean currentFor(int targetVersion) {
+        if (targetVersion < 1) {
+            throw new IllegalArgumentException("targetVersion must be positive");
+        }
         return processed && version >= targetVersion;
     }
 

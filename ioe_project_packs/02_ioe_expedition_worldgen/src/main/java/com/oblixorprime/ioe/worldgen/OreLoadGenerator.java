@@ -5,6 +5,7 @@ import com.oblixorprime.ioe.core.LoadedResourceScanner;
 import com.oblixorprime.ioe.core.ResourcePolicyDecision;
 import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.ResourceRef;
+import com.oblixorprime.ioe.core.ResourceType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 
@@ -32,13 +33,17 @@ public final class OreLoadGenerator {
         Objects.requireNonNull(scanner, "scanner");
         Objects.requireNonNull(policyService, "policyService");
 
-        if (IoeWorldgenConfig.requireStructureAnchorForMajorOreLoads() && anchor.anchorType().isBlank()) {
+        if (IoeWorldgenConfig.requireStructureAnchorForMajorOreLoads()
+                && !ExpeditionStructureRegistry.isEnabledStructureId(anchor.anchorType())) {
             return Optional.empty();
         }
 
         int distance = anchor.pos().distManhattan(candidateLoadCenter);
         AnchorRule anchorRule = AnchorRule.fromConfig();
         if (!anchorRule.isDistanceAllowed(distance)) {
+            return Optional.empty();
+        }
+        if (!canUseOreLoadResource(resource)) {
             return Optional.empty();
         }
 
@@ -55,5 +60,10 @@ public final class OreLoadGenerator {
                 anchorRule.requireTunnelConnection(),
                 distance
         ));
+    }
+
+    static boolean canUseOreLoadResource(ResourceRef resource) {
+        Objects.requireNonNull(resource, "resource");
+        return resource.type() == ResourceType.BLOCK || resource.type() == ResourceType.BLOCK_TAG;
     }
 }

@@ -7,6 +7,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.neoforged.fml.ModList;
 
+import java.util.Objects;
+
 public interface LoadedResourceScanner {
     LoadedResourceScanner RUNTIME = new RuntimeLoadedResourceScanner();
 
@@ -25,6 +27,7 @@ public interface LoadedResourceScanner {
     boolean itemTagHasValues(ResourceLocation id);
 
     default boolean isPresent(ResourceRef resourceRef) {
+        Objects.requireNonNull(resourceRef, "resourceRef");
         return switch (resourceRef.type()) {
             case BLOCK -> blockExists(resourceRef.id());
             case FLUID -> fluidExists(resourceRef.id());
