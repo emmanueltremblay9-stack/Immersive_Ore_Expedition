@@ -23,3 +23,5 @@ Config options were moved under these top-level sections:
 - `retrogen`
 
 No previous config option was intentionally dropped. Existing server configs need a manual one-time copy into the new file if non-default values were used.
+
+Province runtime integration remains opt-in through `worldgen.provinces.runtimeIntegrationEnabled`, which defaults to `false`. With the default, existing ore-load planning behavior and validation flow stay unchanged. The active validation path is the consolidated module at `ioe_project_packs/immersive_ore_expedition` with mod id `immersive_ore_expedition`; local validation is disabled by default, GitHub Actions is the validation source of truth, and legacy split modules are not part of the active validation path.

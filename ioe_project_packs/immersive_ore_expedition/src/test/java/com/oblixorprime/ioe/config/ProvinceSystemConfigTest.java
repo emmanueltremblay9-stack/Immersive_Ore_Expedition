@@ -14,6 +14,7 @@ final class ProvinceSystemConfigTest {
     void defaultProvinceAndResourcePolicyConfigIsConservative() {
         assertEquals("immersive_ore_expedition", IoeWorldgenConfig.provinceNamespace());
         assertFalse(IoeWorldgenConfig.allowLegacyProvinceNamespaces());
+        assertFalse(IoeWorldgenConfig.provinceRuntimeIntegrationEnabled());
         assertFalse(IoeWorldgenConfig.provinceDebugDiagnostics());
 
         assertTrue(IoeCoreConfig.allowedResourceCategories().contains("vanilla"));
