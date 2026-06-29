@@ -1,6 +1,7 @@
 package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.core.LoadedResourceScanner;
+import com.oblixorprime.ioe.core.ProvinceResourcePolicy;
 import com.oblixorprime.ioe.core.ResourcePolicyDecision;
 import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.ResourceRef;
@@ -11,11 +12,18 @@ import java.util.Objects;
 
 public final class ProvinceRuleValidator {
     private final ResourcePolicyService policyService;
+    private final ProvinceResourcePolicy provinceResourcePolicy;
     private final LoadedResourceScanner scanner;
 
     public ProvinceRuleValidator(ResourcePolicyService policyService, LoadedResourceScanner scanner) {
+        this(policyService, scanner, ProvinceResourcePolicy.fromConfig());
+    }
+
+    public ProvinceRuleValidator(ResourcePolicyService policyService, LoadedResourceScanner scanner,
+                                 ProvinceResourcePolicy provinceResourcePolicy) {
         this.policyService = Objects.requireNonNull(policyService, "policyService");
         this.scanner = Objects.requireNonNull(scanner, "scanner");
+        this.provinceResourcePolicy = Objects.requireNonNull(provinceResourcePolicy, "provinceResourcePolicy");
     }
 
     public ProvinceValidationResult validate(ProvinceRule rule) {
@@ -26,6 +34,12 @@ public final class ProvinceRuleValidator {
         boolean hasEnabledAnchorStructure = hasEnabledAnchorStructure(rule);
 
         for (ResourceRef resource : rule.resources()) {
+            ResourcePolicyDecision categoryDecision = provinceResourcePolicy.evaluate(resource);
+            if (!categoryDecision.shouldUse()) {
+                rejected.add(categoryDecision);
+                continue;
+            }
+
             ResourcePolicyDecision decision = policyService.evaluate(resource, scanner);
             if (decision.shouldUse() && hasEnabledAnchorStructure) {
                 usable.add(resource);

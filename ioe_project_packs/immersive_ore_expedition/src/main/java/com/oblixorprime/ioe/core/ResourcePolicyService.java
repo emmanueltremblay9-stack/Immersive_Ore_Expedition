@@ -2,11 +2,24 @@ package com.oblixorprime.ioe.core;
 
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
 public final class ResourcePolicyService {
+    public static final List<String> STRICT_EXCLUDED_RESOURCE_NAMES = List.of(
+            "Apatite",
+            "Tin",
+            "Forestry Copper",
+            "Platinum",
+            "Osmium",
+            "Tungsten",
+            "Black Quartz",
+            "Uraninite",
+            "Monazite"
+    );
+
     private static final Set<String> EXCLUDED_TOKENS = Set.of(
             "apatite",
             "tin",
@@ -89,7 +102,11 @@ public final class ResourcePolicyService {
         if (id == null) {
             return true;
         }
+        String namespace = normalize(id.getNamespace());
         String path = normalize(id.getPath());
+        if ("forestry".equals(namespace) && containsTokenInSegment(path, "copper")) {
+            return true;
+        }
         return path.contains("forestry_copper") || containsAnyToken(path, EXCLUDED_TOKENS);
     }
 

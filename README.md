@@ -1,20 +1,16 @@
 # Immersive Ore Expedition
 
-Immersive Ore Expedition is a split NeoForge 1.21.1 / Java 21 mod ecosystem focused on replacing random branch mining with structure- and province-anchored resource expeditions.
+Immersive Ore Expedition is a consolidated NeoForge 1.21.1 / Java 21 mod focused on replacing random branch mining with structure- and province-anchored resource expeditions.
 
-This repository currently contains the Codex implementation packs from `Immersive_Ore_Expedition_All_Modules_Bundle.zip`. The packs are production skeletons and planning documents, not completed runtime mods.
+The active mod source lives in `ioe_project_packs/immersive_ore_expedition` with the mod id `immersive_ore_expedition`. The older six source packs remain in the repository as legacy reference material and are not the active build target.
 
 ## Repository Layout
 
 | Path | Purpose |
 | --- | --- |
+| `ioe_project_packs/immersive_ore_expedition` | Active consolidated NeoForge module and CI build root. |
 | `ioe_project_packs/00_master_planning_pack` | Shared plan, scope decisions, module order, resource policy, and workspace scripts. |
-| `ioe_project_packs/01_ioe_core` | Shared API, resource policy, config primitives, registry scanning, and province abstractions. |
-| `ioe_project_packs/02_ioe_expedition_worldgen` | Surface clues, mineshaft anchors, biome provinces, and structure-linked ore loads. |
-| `ioe_project_packs/03_ioe_crystal_growth` | Amethyst, AE2 Certus, and optional GeOre crystal-growth sites. |
-| `ioe_project_packs/04_ioe_nether_geodes` | Sub-lava Nether geodes and rare ancient debris hearts. |
-| `ioe_project_packs/05_ioe_ieip_prospecting` | Immersive Engineering outcrop clues and Immersive Petroleum seep clues. |
-| `ioe_project_packs/06_ioe_retrogen_admin` | Conservative retrogen, chunk markers, diagnostics, and admin commands. |
+| `ioe_project_packs/01_ioe_core` through `ioe_project_packs/06_ioe_retrogen_admin` | Legacy split-module source retained for audit and reference only. |
 
 ## Development Order
 
@@ -37,6 +33,13 @@ Open one module folder at a time, read its `docs/` directory, and use its `CODEX
 - License policy in module packs: All Rights Reserved
 - Out of scope unless explicitly re-added later: Immersive Petro-Machinery, MineColonies, and CIVITAS integration
 - Resource policy: skip missing resources and log them; do not invent fake ores or substitute unavailable registry entries
+- Province namespace: new province ids use `immersive_ore_expedition`; old split ids are legacy references only.
+
+## Province System
+
+Province System v1 is a safe foundation layer for biome/province matching and resource category policy. It adds config-backed allow, deny, exclude, and diagnostic primitives without registering new blocks, items, ores, gems, mixins, access transformers, or destructive worldgen hooks.
+
+See `docs/PROVINCE_SYSTEM_V1.md` for scope, config keys, strict exclusions, and follow-up risks.
 
 ## Validation Policy
 

@@ -26,6 +26,7 @@ final class ResourcePolicyServiceTest {
     void rejectsExplicitlyExcludedResources() {
         assertFalse(policy.isApprovedResource(ResourceLocation.fromNamespaceAndPath("minecraft", "tin_ore")));
         assertFalse(policy.isApprovedResource(ResourceLocation.fromNamespaceAndPath("forestry", "apatite_ore")));
+        assertFalse(policy.isApprovedResource(ResourceLocation.fromNamespaceAndPath("forestry", "copper_ore")));
         assertFalse(policy.isApprovedResource(ResourceLocation.fromNamespaceAndPath("minecraft", "platinum_block")));
         assertFalse(policy.isApprovedResource(ResourceLocation.fromNamespaceAndPath("minecraft", "black_quartz_ore")));
     }
