@@ -1,0 +1,62 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.80'
+}
+
+import org.gradle.api.tasks.testing.Test
+import org.gradle.language.jvm.tasks.ProcessResources
+import org.gradle.jvm.tasks.Jar
+
+version = mod_version
+group = mod_group_id
+
+base { archivesName = mod_id }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    version = neo_version
+}
+
+def replacementProperties = [
+        minecraft_version   : minecraft_version,
+        neo_version         : neo_version,
+        loader_version_range: loader_version_range,
+        mod_id              : mod_id,
+        mod_name            : mod_name,
+        mod_license         : mod_license,
+        mod_version         : mod_version,
+        mod_authors         : mod_authors,
+        mod_description     : mod_description
+]
+
+tasks.named('processResources', ProcessResources).configure {
+    inputs.properties replacementProperties
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand replacementProperties
+    }
+}
+
+tasks.named('jar', Jar).configure {
+    from(sourceSets.main.output.classesDirs)
+    archiveFileName = "${mod_id}-${mod_version}-neoforge-${minecraft_version}.jar"
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+sourceSets.named('test').configure {
+    compileClasspath += sourceSets.main.compileClasspath
+    runtimeClasspath += sourceSets.main.runtimeClasspath
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
