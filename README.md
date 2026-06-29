@@ -38,7 +38,13 @@ Open one module folder at a time, read its `docs/` directory, and use its `CODEX
 - Out of scope unless explicitly re-added later: Immersive Petro-Machinery, MineColonies, and CIVITAS integration
 - Resource policy: skip missing resources and log them; do not invent fake ores or substitute unavailable registry entries
 
+## Validation Policy
+
+Local Gradle validation, local builds, and local Minecraft or Prism runtime smoke tests are disabled by default for this project workflow. GitHub Actions is the source of truth for automated validation. Runtime Prism testing requires explicit manual approval before launching anything locally.
+
 ## Build Status
+
+The module statuses below are retained as historical alpha-foundation notes. New automated validation runs in CI from the consolidated build root at `ioe_project_packs/immersive_ore_expedition`.
 
 Verified alpha foundations:
 
@@ -51,6 +57,6 @@ Verified alpha foundations:
 | `ioe_nether_geodes` | `0.1.1-alpha` | `ioe_project_packs/04_ioe_nether_geodes` | `.\gradlew.bat clean build` | Installed and hash-verified |
 | `ioe_retrogen_admin` | `0.1.2-alpha` | `ioe_project_packs/06_ioe_retrogen_admin` | `.\gradlew.bat clean build` | Installed and hash-verified |
 
-The verified modules use Gradle 8.8 wrappers and install into `C:\Users\Emmanuel Tremblay\AppData\Roaming\PrismLauncher\instances\1.21.1 TesT LaB\minecraft\mods`.
+The historical module foundations used Gradle 8.8 wrappers and a local LAB mods folder placeholder: `<local-mods-folder>`.
 
 All six module packs now have installed alpha foundations. A Prism LAB client load smoke reached resource reload with all six IOE mods present and no crash/fatal signatures in the checked log window. These are still foundation slices, not a completed gameplay loop: world-entry testing, runtime feature placement, server smoke, and full retrogen mutation are later milestones.

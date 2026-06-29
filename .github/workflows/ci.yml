@@ -1,0 +1,142 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  consolidated-neoforge-module:
+    name: Consolidated NeoForge module
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ioe_project_packs/immersive_ore_expedition
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.8"
+
+      - name: Clean
+        run: gradle --no-daemon clean
+
+      - name: Test
+        run: gradle --no-daemon test
+
+      - name: Process resources
+        run: gradle --no-daemon processResources
+
+      - name: Jar
+        run: gradle --no-daemon jar
+
+      - name: Build
+        run: gradle --no-daemon build
+
+      - name: Inspect consolidated jar
+        run: |
+          python3 <<'PY'
+          from collections import Counter
+          from pathlib import Path
+          import re
+          import sys
+          import zipfile
+
+          expected_mod_id = "immersive_ore_expedition"
+          old_mod_ids = {
+              "ioe_core",
+              "ioe_expedition_worldgen",
+              "ioe_crystal_growth",
+              "ioe_nether_geodes",
+              "ioe_ieip_prospecting",
+              "ioe_retrogen_admin",
+          }
+
+          build_libs = Path("build/libs")
+          excluded_name_parts = ("sources", "javadoc", "dev", "plain", "test", "api")
+          candidates = [
+              path for path in sorted(build_libs.glob("*.jar"))
+              if not any(part in path.name.lower() for part in excluded_name_parts)
+          ]
+
+          if len(candidates) != 1:
+              print("Expected exactly one runtime jar candidate in build/libs.")
+              print("Candidates:", [path.name for path in candidates])
+              sys.exit(1)
+
+          jar_path = candidates[0]
+          with zipfile.ZipFile(jar_path) as jar:
+              entries = jar.namelist()
+              counts = Counter(entries)
+              duplicates = sorted(name for name, count in counts.items() if count > 1)
+              neoforge_metadata = [name for name in entries if name == "META-INF/neoforge.mods.toml"]
+              pack_metadata = [name for name in entries if name == "pack.mcmeta"]
+              embedded_jars = sorted(name for name in entries if name.lower().endswith(".jar"))
+
+              failures = []
+              if duplicates:
+                  failures.append(f"Duplicate jar entries found: {duplicates}")
+              if len(neoforge_metadata) != 1:
+                  failures.append(f"Expected exactly one META-INF/neoforge.mods.toml, found {len(neoforge_metadata)}")
+              if len(pack_metadata) != 1:
+                  failures.append(f"Expected exactly one pack.mcmeta, found {len(pack_metadata)}")
+              if embedded_jars:
+                  failures.append(f"Embedded jar files found: {embedded_jars}")
+
+              if neoforge_metadata:
+                  metadata_text = jar.read(neoforge_metadata[0]).decode("utf-8")
+                  mod_blocks = re.findall(r"(?ms)^\s*\[\[mods\]\]\s*(.*?)(?=^\s*\[\[|\Z)", metadata_text)
+                  active_mod_ids = []
+                  for block in mod_blocks:
+                      match = re.search(r'(?m)^\s*modId\s*=\s*"([^"]+)"', block)
+                      if match:
+                          active_mod_ids.append(match.group(1))
+
+                  if active_mod_ids != [expected_mod_id]:
+                      failures.append(f"Expected active mod ids [{expected_mod_id!r}], found {active_mod_ids!r}")
+
+                  old_active_ids = sorted(old_mod_ids.intersection(active_mod_ids))
+                  if old_active_ids:
+                      failures.append(f"Old IOE mod ids are still active in metadata: {old_active_ids}")
+
+              if failures:
+                  print(f"Jar inspection failed for {jar_path}:")
+                  for failure in failures:
+                      print(f"- {failure}")
+                  sys.exit(1)
+
+              print(f"Jar inspection passed: {jar_path}")
+              print(f"Active mod id: {expected_mod_id}")
+              print("No embedded jars or duplicate entries found.")
+          PY
+
+      - name: Upload final jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: immersive-ore-expedition-neoforge-1.21.1
+          path: ioe_project_packs/immersive_ore_expedition/build/libs/immersive_ore_expedition-*-neoforge-1.21.1.jar
+          if-no-files-found: error
+
+      - name: Upload test and build reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: immersive-ore-expedition-build-reports
+          path: |
+            ioe_project_packs/immersive_ore_expedition/build/reports/**
+            ioe_project_packs/immersive_ore_expedition/build/test-results/**
+          if-no-files-found: ignore
