@@ -3,11 +3,34 @@ package com.oblixorprime.ioe.config;
 import com.oblixorprime.ioe.retrogen.RetrogenMode;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
+import java.util.List;
+
 public final class ImmersiveOreExpeditionConfig {
     private static final boolean DEFAULT_CORE_EXISTING_RESOURCES_ONLY = true;
     private static final boolean DEFAULT_CORE_ALLOW_NEW_ORES = false;
     private static final boolean DEFAULT_CORE_SKIP_MISSING_RESOURCES = true;
     private static final boolean DEFAULT_CORE_LOG_MISSING_RESOURCES = true;
+    private static final boolean DEFAULT_RESOURCE_POLICY_DEBUG_DIAGNOSTICS = false;
+    private static final List<String> DEFAULT_RESOURCE_POLICY_ALLOWED_CATEGORIES = List.of(
+            "vanilla",
+            "immersive_engineering",
+            "ae2",
+            "geore",
+            "draconic_evolution",
+            "common_ore_tag"
+    );
+    private static final List<String> DEFAULT_RESOURCE_POLICY_DENIED_CATEGORIES = List.of();
+    private static final List<String> DEFAULT_RESOURCE_POLICY_EXCLUDED_RESOURCES = List.of(
+            "Apatite",
+            "Tin",
+            "Forestry Copper",
+            "Platinum",
+            "Osmium",
+            "Tungsten",
+            "Black Quartz",
+            "Uraninite",
+            "Monazite"
+    );
 
     private static final double DEFAULT_WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER = 0.03D;
     private static final boolean DEFAULT_WORLDGEN_REQUIRE_STRUCTURE_ANCHOR = true;
@@ -15,6 +38,12 @@ public final class ImmersiveOreExpeditionConfig {
     private static final int DEFAULT_WORLDGEN_MIN_DISTANCE = 16;
     private static final int DEFAULT_WORLDGEN_MAX_DISTANCE = 96;
     private static final boolean DEFAULT_WORLDGEN_REQUIRE_TUNNEL_CONNECTION = true;
+    private static final String DEFAULT_WORLDGEN_PROVINCE_NAMESPACE = "immersive_ore_expedition";
+    private static final boolean DEFAULT_WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES = false;
+    private static final boolean DEFAULT_WORLDGEN_PROVINCE_DEBUG_DIAGNOSTICS = false;
+    private static final List<String> DEFAULT_WORLDGEN_PROVINCE_ALLOW_BIOMES = List.of();
+    private static final List<String> DEFAULT_WORLDGEN_PROVINCE_DENY_BIOMES = List.of();
+    private static final List<String> DEFAULT_WORLDGEN_PROVINCE_EXCLUDE_BIOMES = List.of();
 
     private static final boolean DEFAULT_CRYSTAL_ENABLED = true;
     private static final boolean DEFAULT_CRYSTAL_REQUIRE_STRUCTURE_ANCHOR = true;
@@ -88,6 +117,21 @@ public final class ImmersiveOreExpeditionConfig {
     private static final ModConfigSpec.BooleanValue CORE_LOG_MISSING_RESOURCES = BUILDER
             .comment("Log skipped missing resources so pack configuration mistakes are visible.")
             .define("resourcePolicy.logMissingResources", DEFAULT_CORE_LOG_MISSING_RESOURCES);
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> RESOURCE_POLICY_ALLOWED_CATEGORIES = BUILDER
+            .comment("Resource categories that province rules may use. No blocks or items are registered from this list.")
+            .defineList("resourcePolicy.allowedCategories",
+                    DEFAULT_RESOURCE_POLICY_ALLOWED_CATEGORIES, ImmersiveOreExpeditionConfig::isNonBlankString);
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> RESOURCE_POLICY_DENIED_CATEGORIES = BUILDER
+            .comment("Resource categories that province rules must reject even if an individual resource is otherwise valid.")
+            .defineList("resourcePolicy.deniedCategories",
+                    DEFAULT_RESOURCE_POLICY_DENIED_CATEGORIES, ImmersiveOreExpeditionConfig::isNonBlankString);
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> RESOURCE_POLICY_EXCLUDED_RESOURCES = BUILDER
+            .comment("Strict resource exclusions preserved by Province System v1.")
+            .defineList("resourcePolicy.excludedResources",
+                    DEFAULT_RESOURCE_POLICY_EXCLUDED_RESOURCES, ImmersiveOreExpeditionConfig::isNonBlankString);
+    private static final ModConfigSpec.BooleanValue RESOURCE_POLICY_DEBUG_DIAGNOSTICS = BUILDER
+            .comment("Emit diagnostic resource policy lines when a caller chooses to log province checks.")
+            .define("resourcePolicy.debugDiagnostics", DEFAULT_RESOURCE_POLICY_DEBUG_DIAGNOSTICS);
 
     private static final ModConfigSpec.DoubleValue WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER = BUILDER
             .comment("Multiplier applied by future ore-suppression hooks to non-expedition useful ore placement.")
@@ -110,6 +154,27 @@ public final class ImmersiveOreExpeditionConfig {
     private static final ModConfigSpec.BooleanValue WORLDGEN_REQUIRE_TUNNEL_CONNECTION = BUILDER
             .comment("Require future generated ore loads to be connected to the expedition route.")
             .define("worldgen.anchorRules.requireTunnelConnection", DEFAULT_WORLDGEN_REQUIRE_TUNNEL_CONNECTION);
+    private static final ModConfigSpec.ConfigValue<String> WORLDGEN_PROVINCE_NAMESPACE = BUILDER
+            .comment("Namespace used by new IOE province ids.")
+            .define("worldgen.provinces.namespace", DEFAULT_WORLDGEN_PROVINCE_NAMESPACE);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES = BUILDER
+            .comment("Allow explicitly documented old split IOE namespaces while reading legacy province references.")
+            .define("worldgen.provinces.allowLegacyNamespaces", DEFAULT_WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES);
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_PROVINCE_ALLOW_BIOMES = BUILDER
+            .comment("Default biome id/tag allow list for province matching. Empty means rules decide locally.")
+            .defineList("worldgen.provinces.allowBiomes",
+                    DEFAULT_WORLDGEN_PROVINCE_ALLOW_BIOMES, ImmersiveOreExpeditionConfig::isNonBlankString);
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_PROVINCE_DENY_BIOMES = BUILDER
+            .comment("Default biome id/tag deny list for province matching.")
+            .defineList("worldgen.provinces.denyBiomes",
+                    DEFAULT_WORLDGEN_PROVINCE_DENY_BIOMES, ImmersiveOreExpeditionConfig::isNonBlankString);
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_PROVINCE_EXCLUDE_BIOMES = BUILDER
+            .comment("Default hard biome id/tag exclusion list for province matching.")
+            .defineList("worldgen.provinces.excludeBiomes",
+                    DEFAULT_WORLDGEN_PROVINCE_EXCLUDE_BIOMES, ImmersiveOreExpeditionConfig::isNonBlankString);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_PROVINCE_DEBUG_DIAGNOSTICS = BUILDER
+            .comment("Emit diagnostic province/biome match lines when a caller chooses to log province checks.")
+            .define("worldgen.provinces.debugDiagnostics", DEFAULT_WORLDGEN_PROVINCE_DEBUG_DIAGNOSTICS);
     private static final ModConfigSpec.BooleanValue WORLDGEN_TINY_VERTICAL_MINE_ENTRANCE =
             worldgenStructure("tinyVerticalMineEntrance");
     private static final ModConfigSpec.BooleanValue WORLDGEN_COLLAPSED_SHAFT = worldgenStructure("collapsedShaft");
@@ -345,6 +410,22 @@ public final class ImmersiveOreExpeditionConfig {
         return getOrDefault(CORE_LOG_MISSING_RESOURCES, DEFAULT_CORE_LOG_MISSING_RESOURCES);
     }
 
+    public static List<String> resourcePolicyAllowedCategories() {
+        return getOrDefault(RESOURCE_POLICY_ALLOWED_CATEGORIES, DEFAULT_RESOURCE_POLICY_ALLOWED_CATEGORIES);
+    }
+
+    public static List<String> resourcePolicyDeniedCategories() {
+        return getOrDefault(RESOURCE_POLICY_DENIED_CATEGORIES, DEFAULT_RESOURCE_POLICY_DENIED_CATEGORIES);
+    }
+
+    public static List<String> resourcePolicyExcludedResources() {
+        return getOrDefault(RESOURCE_POLICY_EXCLUDED_RESOURCES, DEFAULT_RESOURCE_POLICY_EXCLUDED_RESOURCES);
+    }
+
+    public static boolean resourcePolicyDebugDiagnostics() {
+        return getOrDefault(RESOURCE_POLICY_DEBUG_DIAGNOSTICS, DEFAULT_RESOURCE_POLICY_DEBUG_DIAGNOSTICS);
+    }
+
     public static double worldgenRandomOreDensityMultiplier() {
         return getOrDefault(WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER,
                 DEFAULT_WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER);
@@ -370,6 +451,32 @@ public final class ImmersiveOreExpeditionConfig {
 
     public static boolean worldgenRequireTunnelConnection() {
         return getOrDefault(WORLDGEN_REQUIRE_TUNNEL_CONNECTION, DEFAULT_WORLDGEN_REQUIRE_TUNNEL_CONNECTION);
+    }
+
+    public static String worldgenProvinceNamespace() {
+        return getOrDefault(WORLDGEN_PROVINCE_NAMESPACE, DEFAULT_WORLDGEN_PROVINCE_NAMESPACE);
+    }
+
+    public static boolean worldgenAllowLegacyProvinceNamespaces() {
+        return getOrDefault(WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES,
+                DEFAULT_WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES);
+    }
+
+    public static List<String> worldgenProvinceAllowBiomes() {
+        return getOrDefault(WORLDGEN_PROVINCE_ALLOW_BIOMES, DEFAULT_WORLDGEN_PROVINCE_ALLOW_BIOMES);
+    }
+
+    public static List<String> worldgenProvinceDenyBiomes() {
+        return getOrDefault(WORLDGEN_PROVINCE_DENY_BIOMES, DEFAULT_WORLDGEN_PROVINCE_DENY_BIOMES);
+    }
+
+    public static List<String> worldgenProvinceExcludeBiomes() {
+        return getOrDefault(WORLDGEN_PROVINCE_EXCLUDE_BIOMES, DEFAULT_WORLDGEN_PROVINCE_EXCLUDE_BIOMES);
+    }
+
+    public static boolean worldgenProvinceDebugDiagnostics() {
+        return getOrDefault(WORLDGEN_PROVINCE_DEBUG_DIAGNOSTICS,
+                DEFAULT_WORLDGEN_PROVINCE_DEBUG_DIAGNOSTICS);
     }
 
     public static boolean worldgenTinyVerticalMineEntranceEnabled() {
@@ -688,5 +795,18 @@ public final class ImmersiveOreExpeditionConfig {
         } catch (IllegalStateException ignored) {
             return defaultValue;
         }
+    }
+
+    private static List<String> getOrDefault(ModConfigSpec.ConfigValue<List<? extends String>> value,
+                                             List<String> defaultValue) {
+        try {
+            return value.get().stream().map(String::valueOf).toList();
+        } catch (IllegalStateException ignored) {
+            return List.copyOf(defaultValue);
+        }
+    }
+
+    private static boolean isNonBlankString(Object value) {
+        return value instanceof String string && !string.isBlank();
     }
 }

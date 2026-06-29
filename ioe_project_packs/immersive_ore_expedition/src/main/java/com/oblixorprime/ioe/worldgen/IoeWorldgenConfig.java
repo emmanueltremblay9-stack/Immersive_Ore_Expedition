@@ -2,6 +2,8 @@ package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.config.ImmersiveOreExpeditionConfig;
 
+import java.util.List;
+
 public final class IoeWorldgenConfig {
     private IoeWorldgenConfig() {
     }
@@ -28,6 +30,30 @@ public final class IoeWorldgenConfig {
 
     public static boolean requireTunnelConnection() {
         return ImmersiveOreExpeditionConfig.worldgenRequireTunnelConnection();
+    }
+
+    public static String provinceNamespace() {
+        return ImmersiveOreExpeditionConfig.worldgenProvinceNamespace();
+    }
+
+    public static boolean allowLegacyProvinceNamespaces() {
+        return ImmersiveOreExpeditionConfig.worldgenAllowLegacyProvinceNamespaces();
+    }
+
+    public static List<String> provinceAllowBiomes() {
+        return ImmersiveOreExpeditionConfig.worldgenProvinceAllowBiomes();
+    }
+
+    public static List<String> provinceDenyBiomes() {
+        return ImmersiveOreExpeditionConfig.worldgenProvinceDenyBiomes();
+    }
+
+    public static List<String> provinceExcludeBiomes() {
+        return ImmersiveOreExpeditionConfig.worldgenProvinceExcludeBiomes();
+    }
+
+    public static boolean provinceDebugDiagnostics() {
+        return ImmersiveOreExpeditionConfig.worldgenProvinceDebugDiagnostics();
     }
 
     public static boolean tinyVerticalMineEntranceEnabled() {
