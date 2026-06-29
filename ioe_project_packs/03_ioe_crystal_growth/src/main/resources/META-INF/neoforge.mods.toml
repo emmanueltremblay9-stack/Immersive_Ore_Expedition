@@ -25,7 +25,7 @@ description='''AE2, vanilla amethyst, and optional GeOre crystal-growth sites an
 [[dependencies.ioe_crystal_growth]]
     modId="ioe_core"
     type="required"
-    versionRange="[0.1.0,)"
+    versionRange="[0.1.4,)"
     ordering="AFTER"
     side="BOTH"
 
@@ -42,4 +42,3 @@ description='''AE2, vanilla amethyst, and optional GeOre crystal-growth sites an
     versionRange="[0,)"
     ordering="AFTER"
     side="BOTH"
-

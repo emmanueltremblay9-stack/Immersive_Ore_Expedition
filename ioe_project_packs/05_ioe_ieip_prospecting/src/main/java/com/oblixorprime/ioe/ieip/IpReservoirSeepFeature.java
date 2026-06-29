@@ -77,8 +77,11 @@ public final class IpReservoirSeepFeature {
             LoadedResourceScanner scanner,
             ResourcePolicyService policyService
     ) {
-        if (fluid.type() != ResourceType.FLUID && fluid.type() != ResourceType.FLUID_TAG) {
-            return ResourcePolicyDecision.reject("IP reservoir clues require a fluid or fluid tag resource: " + fluid.id());
+        if (fluid.type() != ResourceType.FLUID) {
+            return ResourcePolicyDecision.reject("IP reservoir clues require a concrete fluid resource: " + fluid.id());
+        }
+        if (!ProspectingCompatGates.IMMERSIVE_PETROLEUM.equals(fluid.id().getNamespace())) {
+            return ResourcePolicyDecision.reject("IP reservoir clues require an Immersive Petroleum fluid: " + fluid.id());
         }
         if (policyService.isExcludedResource(fluid.id())) {
             return ResourcePolicyDecision.reject("IP reservoir fluid is explicitly excluded by IOE policy: " + fluid.id());

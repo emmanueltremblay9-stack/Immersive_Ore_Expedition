@@ -6,6 +6,9 @@ public record ResourcePolicyDecision(Action action, String reason) {
     public ResourcePolicyDecision {
         Objects.requireNonNull(action, "action");
         Objects.requireNonNull(reason, "reason");
+        if (reason.isBlank()) {
+            throw new IllegalArgumentException("reason must not be blank");
+        }
     }
 
     public boolean shouldUse() {

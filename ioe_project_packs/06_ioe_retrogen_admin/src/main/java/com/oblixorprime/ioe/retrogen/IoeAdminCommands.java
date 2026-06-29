@@ -11,10 +11,13 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public final class IoeAdminCommands {
-    private static final RetrogenController CONTROLLER = RetrogenController.createDefault();
+    private static Supplier<RetrogenController> controllerFactory = RetrogenController::createDefault;
+    private static RetrogenController controller;
 
     private IoeAdminCommands() {
     }
@@ -52,11 +55,11 @@ public final class IoeAdminCommands {
             }
             if (settings.adminRadiusStartEnabled()) {
                 retrogen.then(Commands.literal("radius")
-                        .then(Commands.argument("blocks", IntegerArgumentType.integer(0, 1024))
+                        .then(Commands.argument("blocks", IntegerArgumentType.integer(0, RetrogenController.MAX_ADMIN_RADIUS_BLOCKS))
                                 .executes(context -> startRadius(context, IntegerArgumentType.getInteger(context, "blocks")))));
                 retrogen.then(Commands.literal("start")
                         .then(Commands.literal("radius")
-                                .then(Commands.argument("blocks", IntegerArgumentType.integer(0, 1024))
+                                .then(Commands.argument("blocks", IntegerArgumentType.integer(0, RetrogenController.MAX_ADMIN_RADIUS_BLOCKS))
                                         .executes(context -> startRadius(context, IntegerArgumentType.getInteger(context, "blocks"))))));
             }
             root.then(retrogen);
@@ -65,8 +68,16 @@ public final class IoeAdminCommands {
         return root;
     }
 
-    static RetrogenController controller() {
-        return CONTROLLER;
+    static synchronized RetrogenController controller() {
+        if (controller == null) {
+            controller = Objects.requireNonNull(controllerFactory.get(), "controller");
+        }
+        return controller;
+    }
+
+    static synchronized void resetControllerForTesting(Supplier<RetrogenController> factory) {
+        controllerFactory = Objects.requireNonNull(factory, "factory");
+        controller = null;
     }
 
     private static boolean canUseAdminCommands(CommandSourceStack source) {
@@ -74,7 +85,7 @@ public final class IoeAdminCommands {
     }
 
     private static int status(CommandContext<CommandSourceStack> context) {
-        RetrogenStatus status = CONTROLLER.status();
+        RetrogenStatus status = controller().status();
         return send(context, "IOE retrogen mode=" + status.mode().configValue()
                 + ", queued=" + status.queuedChunks()
                 + ", paused=" + status.paused()
@@ -83,7 +94,7 @@ public final class IoeAdminCommands {
     }
 
     private static int pause(CommandContext<CommandSourceStack> context) {
-        CONTROLLER.pause();
+        controller().pause();
         return send(context, "IOE retrogen queue paused.");
     }
 
@@ -92,18 +103,34 @@ public final class IoeAdminCommands {
         int centerChunkX = Mth.floor(position.x) >> 4;
         int centerChunkZ = Mth.floor(position.z) >> 4;
         List<RetrogenChunkSnapshot> candidates = RetrogenController.placeholderRadiusCandidates(centerChunkX, centerChunkZ, radiusBlocks);
-        RetrogenMode mode = IoeRetrogenAdminConfig.enabled()
-                ? IoeRetrogenAdminConfig.defaultMode()
-                : RetrogenMode.OFF;
-        if (mode == RetrogenMode.UNEXPLORED_CHUNKS_ONLY) {
-            mode = RetrogenMode.ADMIN_RADIUS;
-        }
-        RetrogenStartResult result = CONTROLLER.startAdminRadiusRetrogen(centerChunkX, centerChunkZ, radiusBlocks, mode, candidates);
+        RetrogenMode mode = resolveCommandMode(
+                IoeRetrogenAdminConfig.enabled(),
+                IoeRetrogenAdminConfig.defaultMode(),
+                IoeRetrogenAdminConfig::modeAllowed
+        );
+        RetrogenStartResult result = controller().startAdminRadiusRetrogen(centerChunkX, centerChunkZ, radiusBlocks, mode, candidates);
         return send(context, "IOE retrogen radius request: " + result.reason()
                 + " accepted=" + result.acceptedChunks()
                 + " skippedMarked=" + result.skippedAlreadyMarked()
                 + " skippedExplored=" + result.skippedExplored()
-                + " skippedOutOfRadius=" + result.skippedOutOfRadius());
+                + " skippedOutOfRadius=" + result.skippedOutOfRadius()
+                + " skippedInvalid=" + result.skippedInvalidCandidates());
+    }
+
+    static RetrogenMode resolveCommandMode(
+            boolean retrogenEnabled,
+            RetrogenMode configuredDefaultMode,
+            Predicate<RetrogenMode> modeAllowed
+    ) {
+        Objects.requireNonNull(configuredDefaultMode, "configuredDefaultMode");
+        Objects.requireNonNull(modeAllowed, "modeAllowed");
+        if (!retrogenEnabled || configuredDefaultMode == RetrogenMode.OFF) {
+            return RetrogenMode.OFF;
+        }
+        RetrogenMode effectiveMode = configuredDefaultMode == RetrogenMode.UNEXPLORED_CHUNKS_ONLY
+                ? RetrogenMode.ADMIN_RADIUS
+                : configuredDefaultMode;
+        return modeAllowed.test(effectiveMode) ? effectiveMode : RetrogenMode.OFF;
     }
 
     private static int send(CommandContext<CommandSourceStack> context, String message) {

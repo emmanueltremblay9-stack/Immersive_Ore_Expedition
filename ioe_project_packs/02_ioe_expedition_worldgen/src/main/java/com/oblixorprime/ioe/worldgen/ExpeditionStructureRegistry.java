@@ -31,6 +31,14 @@ public final class ExpeditionStructureRegistry {
         return List.copyOf(enabled);
     }
 
+    public static boolean isEnabledStructureId(String anchorType) {
+        if (anchorType == null || anchorType.isBlank()) {
+            return false;
+        }
+        return enabledStructureIds().stream()
+                .anyMatch(id -> anchorType.equals(id.toString()) || anchorType.equals(id.getPath()));
+    }
+
     private static void addIfEnabled(List<ResourceLocation> enabled, boolean condition, ResourceLocation id) {
         if (condition) {
             enabled.add(id);

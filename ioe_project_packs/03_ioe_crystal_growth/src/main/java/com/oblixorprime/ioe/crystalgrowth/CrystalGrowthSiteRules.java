@@ -7,9 +7,23 @@ public final class CrystalGrowthSiteRules {
     }
 
     public static boolean canPlanAnchoredSite(ExpeditionAnchorRef anchor) {
-        if (!IoeCrystalGrowthConfig.enabled() || IoeCrystalGrowthConfig.allowRandomFreeCrystalSites()) {
+        return canPlanAnchoredSite(
+                IoeCrystalGrowthConfig.enabled(),
+                IoeCrystalGrowthConfig.allowRandomFreeCrystalSites(),
+                IoeCrystalGrowthConfig.requireStructureAnchor(),
+                anchor
+        );
+    }
+
+    static boolean canPlanAnchoredSite(
+            boolean enabled,
+            boolean allowRandomFreeCrystalSites,
+            boolean requireStructureAnchor,
+            ExpeditionAnchorRef anchor
+    ) {
+        if (!enabled) {
             return false;
         }
-        return !IoeCrystalGrowthConfig.requireStructureAnchor() || anchor != null;
+        return anchor != null;
     }
 }

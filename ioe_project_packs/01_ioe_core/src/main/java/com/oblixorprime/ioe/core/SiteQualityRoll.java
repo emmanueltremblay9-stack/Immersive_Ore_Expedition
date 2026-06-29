@@ -46,6 +46,10 @@ public record SiteQualityRoll(int dryWeight, int poorWeight, int normalWeight, i
     }
 
     private static int totalWeight(int dryWeight, int poorWeight, int normalWeight, int richWeight, int motherlodeWeight) {
-        return dryWeight + poorWeight + normalWeight + richWeight + motherlodeWeight;
+        long total = (long) dryWeight + poorWeight + normalWeight + richWeight + motherlodeWeight;
+        if (total > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Site quality total weight must not exceed Integer.MAX_VALUE");
+        }
+        return (int) total;
     }
 }

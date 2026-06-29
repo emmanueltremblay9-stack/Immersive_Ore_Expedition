@@ -25,7 +25,6 @@ description='''Surface clues, mineshaft anchors, biome provinces, and structure-
 [[dependencies.ioe_expedition_worldgen]]
     modId="ioe_core"
     type="required"
-    versionRange="[0.1.0,)"
+    versionRange="[0.1.7,)"
     ordering="AFTER"
     side="BOTH"
-

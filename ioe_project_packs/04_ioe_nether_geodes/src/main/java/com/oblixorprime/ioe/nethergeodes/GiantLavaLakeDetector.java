@@ -16,11 +16,22 @@ public final class GiantLavaLakeDetector {
 
     public boolean isValidAnchor(LavaLakeAnchorSample sample) {
         Objects.requireNonNull(sample, "sample");
-        if (!IoeNetherGeodesConfig.enabled() || !IoeNetherGeodesConfig.requireGiantLavaLakeAbove()) {
+        return isValidAnchor(
+                IoeNetherGeodesConfig.enabled(),
+                IoeNetherGeodesConfig.requireGiantLavaLakeAbove(),
+                sample
+        );
+    }
+
+    static boolean isValidAnchor(boolean enabled, boolean requireGiantLavaLakeAbove, LavaLakeAnchorSample sample) {
+        Objects.requireNonNull(sample, "sample");
+        if (!enabled || !Level.NETHER.equals(sample.dimension())) {
             return false;
         }
-        return Level.NETHER.equals(sample.dimension())
-                && sample.sampleRadius() >= IoeNetherGeodesConfig.lavaSampleRadius()
+        if (!requireGiantLavaLakeAbove) {
+            return true;
+        }
+        return sample.sampleRadius() >= IoeNetherGeodesConfig.lavaSampleRadius()
                 && sample.lavaCoverage() >= IoeNetherGeodesConfig.minimumLavaCoverage()
                 && sample.minimumLavaDepth() >= IoeNetherGeodesConfig.minimumLavaDepth();
     }

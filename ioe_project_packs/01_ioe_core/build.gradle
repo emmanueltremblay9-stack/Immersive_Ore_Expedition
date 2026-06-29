@@ -5,6 +5,7 @@ plugins {
 
 import org.gradle.api.tasks.testing.Test
 import org.gradle.language.jvm.tasks.ProcessResources
+import org.gradle.jvm.tasks.Jar
 
 version = mod_version
 group = mod_group_id
@@ -34,6 +35,10 @@ tasks.named('processResources', ProcessResources).configure {
     filesMatching('META-INF/neoforge.mods.toml') {
         expand replacementProperties
     }
+}
+
+tasks.named('jar', Jar).configure {
+    from(sourceSets.main.output.classesDirs)
 }
 
 dependencies {

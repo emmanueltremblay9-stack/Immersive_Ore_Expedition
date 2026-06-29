@@ -32,6 +32,7 @@ final class AmethystGrowthSiteProviderTest {
         assertEquals(amethyst, plan.get().coreResource());
         assertTrue(plan.get().structureAnchored());
         assertFalse(plan.get().randomFreeSite());
+        assertFalse(plan.get().meteoriticVariant());
         assertFalse(plan.get().hasOuterCrust());
     }
 
@@ -40,6 +41,24 @@ final class AmethystGrowthSiteProviderTest {
         ResourceRef amethyst = ResourceRef.block("minecraft", "amethyst_block");
 
         Optional<CrystalGrowthSitePlan> plan = provider.planSite(anchor(), amethyst, scanner(Set.of()), policy);
+
+        assertTrue(plan.isEmpty());
+    }
+
+    @Test
+    void rejectsApprovedLoadedNonAmethystResourceAsAmethystCore() {
+        ResourceRef diamond = ResourceRef.block("minecraft", "diamond_ore");
+
+        Optional<CrystalGrowthSitePlan> plan = provider.planSite(anchor(), diamond, scanner(Set.of(diamond)), policy);
+
+        assertTrue(plan.isEmpty());
+    }
+
+    @Test
+    void rejectsLoadedAmethystItemAsAmethystSiteCore() {
+        ResourceRef shard = ResourceRef.item("minecraft", "amethyst_shard");
+
+        Optional<CrystalGrowthSitePlan> plan = provider.planSite(anchor(), shard, scanner(Set.of(shard)), policy);
 
         assertTrue(plan.isEmpty());
     }

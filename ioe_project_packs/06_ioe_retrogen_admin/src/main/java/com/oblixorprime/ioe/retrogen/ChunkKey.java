@@ -5,11 +5,13 @@ public record ChunkKey(int x, int z) {
         if (radiusBlocks < 0) {
             throw new IllegalArgumentException("radiusBlocks must not be negative");
         }
-        return Math.max(0, (radiusBlocks + 15) / 16);
+        return (int) ((radiusBlocks + 15L) / 16L);
     }
 
     public boolean withinRadius(int centerChunkX, int centerChunkZ, int radiusBlocks) {
         int radiusChunks = radiusBlocksToChunks(radiusBlocks);
-        return Math.abs(x - centerChunkX) <= radiusChunks && Math.abs(z - centerChunkZ) <= radiusChunks;
+        long dx = (long) x - centerChunkX;
+        long dz = (long) z - centerChunkZ;
+        return Math.abs(dx) <= radiusChunks && Math.abs(dz) <= radiusChunks;
     }
 }

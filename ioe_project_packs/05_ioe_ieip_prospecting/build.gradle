@@ -5,6 +5,7 @@ plugins {
 
 import org.gradle.api.tasks.testing.Test
 import org.gradle.language.jvm.tasks.ProcessResources
+import org.gradle.jvm.tasks.Jar
 
 version = mod_version
 group = mod_group_id
@@ -36,8 +37,12 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
+tasks.named('jar', Jar).configure {
+    from(sourceSets.main.output.classesDirs)
+}
+
 dependencies {
-    implementation 'com.oblixorprime.immersiveoreexpedition:ioe_core:0.1.1-alpha'
+    implementation 'com.oblixorprime.immersiveoreexpedition:ioe_core:0.1.5-alpha'
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'

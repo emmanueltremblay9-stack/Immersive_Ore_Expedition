@@ -1,24 +1,19 @@
 [global]
-random_ore_density_multiplier = 0.03
-require_structure_anchor_for_major_ore_loads = true
-allow_tiny_scrap_ore_outside_provinces = true
+randomOreDensityMultiplier = 0.03
+requireStructureAnchorForMajorOreLoads = true
+allowTinyScrapOreOutsideProvinces = true
 
-[site_quality]
-dry_chance = 0.20
-poor_chance = 0.35
-normal_chance = 0.30
-rich_chance = 0.12
-motherlode_chance = 0.03
+# Site-quality chances are owned by ioe_core SiteQualityRoll defaults.
 
-[anchor_rules]
-ore_load_min_distance_from_anchor = 16
-ore_load_max_distance_from_anchor = 96
-require_tunnel_connection = true
+[anchorRules]
+oreLoadMinDistanceFromAnchor = 16
+oreLoadMaxDistanceFromAnchor = 96
+requireTunnelConnection = true
 
 [structures]
-tiny_vertical_mine_entrance = true
-collapsed_shaft = true
-miner_camp = true
-buried_survey_marker = true
-basic_mineshaft_connector = true
-ore_load_chamber = true
+tinyVerticalMineEntrance = true
+collapsedShaft = true
+minerCamp = true
+buriedSurveyMarker = true
+basicMineshaftConnector = true
+oreLoadChamber = true

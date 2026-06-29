@@ -19,8 +19,8 @@ public record LavaLakeAnchorSample(
         if (sampleRadius < 1) {
             throw new IllegalArgumentException("sampleRadius must be positive");
         }
-        if (lavaCoverage < 0.0D || lavaCoverage > 1.0D) {
-            throw new IllegalArgumentException("lavaCoverage must be between 0 and 1");
+        if (!Double.isFinite(lavaCoverage) || lavaCoverage < 0.0D || lavaCoverage > 1.0D) {
+            throw new IllegalArgumentException("lavaCoverage must be finite and between 0 and 1");
         }
         if (minimumLavaDepth < 0) {
             throw new IllegalArgumentException("minimumLavaDepth must not be negative");

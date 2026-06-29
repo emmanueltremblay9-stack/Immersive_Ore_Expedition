@@ -9,6 +9,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class IpReservoirSeepFeatureTest {
@@ -66,11 +67,50 @@ final class IpReservoirSeepFeatureTest {
     @Test
     void rejectsNonFluidSeepResources() {
         ResourceRef leadOre = ResourceRef.block("immersiveengineering", "lead_ore");
-        IpReservoirRef reservoir = new IpReservoirRef("ip:not_fluid", leadOre, false);
 
-        Optional<ReservoirSeepPlan> plan = feature.planSeepClue(reservoir, scanner(Set.of(leadOre)), policy);
+        assertThrows(IllegalArgumentException.class, () -> new IpReservoirRef("ip:not_fluid", leadOre, false));
+    }
 
-        assertTrue(plan.isEmpty());
+    @Test
+    void rejectsLoadedNonPetroleumFluidInsteadOfPlanningFakeSeep() {
+        ResourceRef fakeFluid = ResourceRef.fluid("example", "liquid_gold");
+
+        assertThrows(IllegalArgumentException.class, () -> new IpReservoirRef("ip:fake", fakeFluid, false));
+    }
+
+    @Test
+    void rejectsFluidTagsInsteadOfPlanningAmbiguousSeeps() {
+        ResourceRef crudeOilTag = ResourceRef.fluidTag("immersivepetroleum", "crude_oil");
+
+        assertThrows(IllegalArgumentException.class, () -> new IpReservoirRef("ip:crude_oil", crudeOilTag, false));
+    }
+
+    @Test
+    void rejectsNonFluidSeepPlanResources() {
+        ResourceRef oilBlock = ResourceRef.block("immersivepetroleum", "crude_oil");
+
+        assertThrows(IllegalArgumentException.class, () -> new ReservoirSeepPlan(
+                "ip:crude_oil",
+                oilBlock,
+                12,
+                true,
+                false,
+                false
+        ));
+    }
+
+    @Test
+    void rejectsFullReservoirRenderPlans() {
+        ResourceRef crudeOil = ResourceRef.fluid("immersivepetroleum", "crude_oil");
+
+        assertThrows(IllegalArgumentException.class, () -> new ReservoirSeepPlan(
+                "ip:crude_oil",
+                crudeOil,
+                12,
+                true,
+                false,
+                true
+        ));
     }
 
     private static ProspectingTestScanner scanner(Set<ResourceRef> resources) {

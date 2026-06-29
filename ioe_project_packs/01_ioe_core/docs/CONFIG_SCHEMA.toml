@@ -1,44 +1,5 @@
-[resource_policy]
-existing_resources_only = true
-allow_new_ores = false
-skip_missing_resources = true
-log_missing_resources = true
-
-[approved_resources.vanilla]
-coal = true
-iron = true
-copper = true
-gold = true
-redstone = true
-lapis = true
-diamond = true
-emerald = true
-amethyst = true
-nether_quartz = true
-ancient_debris = true
-
-[approved_resources.immersive_engineering]
-bauxite_aluminum = true
-lead = true
-silver = true
-nickel = true
-uranium = true
-
-[approved_resources.ae2]
-certus_quartz = true
-budding_certus = true
-sky_stone = true
-
-[approved_resources.draconic_evolution]
-draconium = true
-
-[excluded_resources]
-apatite = true
-tin = true
-forestry_copper = true
-platinum = true
-osmium = true
-tungsten = true
-black_quartz = true
-uraninite = true
-monazite = true
+[resourcePolicy]
+existingResourcesOnly = true
+allowNewOres = false
+skipMissingResources = true
+logMissingResources = true
