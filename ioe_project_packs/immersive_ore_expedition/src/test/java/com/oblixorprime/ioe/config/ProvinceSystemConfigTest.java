@@ -15,6 +15,8 @@ final class ProvinceSystemConfigTest {
         assertEquals("immersive_ore_expedition", IoeWorldgenConfig.provinceNamespace());
         assertFalse(IoeWorldgenConfig.allowLegacyProvinceNamespaces());
         assertFalse(IoeWorldgenConfig.provinceRuntimeIntegrationEnabled());
+        assertEquals("immersive_ore_expedition:default", IoeWorldgenConfig.defaultProvince());
+        assertTrue(IoeWorldgenConfig.biomeProvinceBindings().isEmpty());
         assertFalse(IoeWorldgenConfig.provinceDebugDiagnostics());
 
         assertTrue(IoeCoreConfig.allowedResourceCategories().contains("vanilla"));

@@ -41,6 +41,8 @@ public final class ImmersiveOreExpeditionConfig {
     private static final String DEFAULT_WORLDGEN_PROVINCE_NAMESPACE = "immersive_ore_expedition";
     private static final boolean DEFAULT_WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES = false;
     private static final boolean DEFAULT_WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED = false;
+    private static final String DEFAULT_WORLDGEN_DEFAULT_PROVINCE = "immersive_ore_expedition:default";
+    private static final List<String> DEFAULT_WORLDGEN_BIOME_PROVINCE_BINDINGS = List.of();
     private static final boolean DEFAULT_WORLDGEN_PROVINCE_DEBUG_DIAGNOSTICS = false;
     private static final List<String> DEFAULT_WORLDGEN_PROVINCE_ALLOW_BIOMES = List.of();
     private static final List<String> DEFAULT_WORLDGEN_PROVINCE_DENY_BIOMES = List.of();
@@ -165,6 +167,13 @@ public final class ImmersiveOreExpeditionConfig {
             .comment("Enable Province System runtime decisions for ore-load planning. Default false preserves the existing planning path.")
             .define("worldgen.provinces.runtimeIntegrationEnabled",
                     DEFAULT_WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED);
+    private static final ModConfigSpec.ConfigValue<String> WORLDGEN_DEFAULT_PROVINCE = BUILDER
+            .comment("Default province id used when no biome binding matches. No content is generated from this id.")
+            .define("worldgen.provinces.defaultProvince", DEFAULT_WORLDGEN_DEFAULT_PROVINCE);
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_BIOME_PROVINCE_BINDINGS = BUILDER
+            .comment("Biome province bindings as biome_selector=province_id. Supports exact biome ids and namespace:* selectors.")
+            .defineList("worldgen.provinces.biomeProvinceBindings",
+                    DEFAULT_WORLDGEN_BIOME_PROVINCE_BINDINGS, ImmersiveOreExpeditionConfig::isNonBlankString);
     private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_PROVINCE_ALLOW_BIOMES = BUILDER
             .comment("Default biome id/tag allow list for province matching. Empty means rules decide locally.")
             .defineList("worldgen.provinces.allowBiomes",
@@ -470,6 +479,14 @@ public final class ImmersiveOreExpeditionConfig {
     public static boolean worldgenProvinceRuntimeIntegrationEnabled() {
         return getOrDefault(WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED,
                 DEFAULT_WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED);
+    }
+
+    public static String worldgenDefaultProvince() {
+        return getOrDefault(WORLDGEN_DEFAULT_PROVINCE, DEFAULT_WORLDGEN_DEFAULT_PROVINCE);
+    }
+
+    public static List<String> worldgenBiomeProvinceBindings() {
+        return getOrDefault(WORLDGEN_BIOME_PROVINCE_BINDINGS, DEFAULT_WORLDGEN_BIOME_PROVINCE_BINDINGS);
     }
 
     public static List<String> worldgenProvinceAllowBiomes() {
