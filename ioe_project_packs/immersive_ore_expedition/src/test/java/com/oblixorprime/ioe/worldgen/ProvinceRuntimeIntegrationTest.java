@@ -36,6 +36,10 @@ final class ProvinceRuntimeIntegrationTest {
                         false
                 ),
                 denyingProvincePolicy("vanilla"),
+                ProvinceResourcePolicyResolver.parse(
+                        List.of("default|minecraft:iron_ore|deny"),
+                        false
+                ),
                 resourcePolicyService,
                 scannerWithLoaded(iron)
         );
@@ -134,11 +138,15 @@ final class ProvinceRuntimeIntegrationTest {
             ProvinceRuntimeIntegration integration = new ProvinceRuntimeIntegration(
                     true,
                     ProvinceBindingResolver.parse(
-                            "ioe_core:default",
-                            Set.of("minecraft:plains=ioe_core:temperate_iron"),
-                            false
+                        "ioe_core:default",
+                        Set.of("minecraft:plains=ioe_core:temperate_iron"),
+                        false
                     ),
                     ProvinceResourcePolicy.defaults(),
+                    ProvinceResourcePolicyResolver.parse(
+                        List.of("default|" + resource.id() + "|allow"),
+                        false
+                    ),
                     resourcePolicyService,
                     scannerWithLoaded(resource)
             );
@@ -162,6 +170,7 @@ final class ProvinceRuntimeIntegrationTest {
                         false
                 ),
                 ProvinceResourcePolicy.defaults(),
+                ProvinceResourcePolicyResolver.empty(),
                 resourcePolicyService,
                 scannerWithLoaded(iron)
         );
@@ -196,15 +205,94 @@ final class ProvinceRuntimeIntegrationTest {
         assertEquals(first, second);
     }
 
+    @Test
+    void perProvinceResourceRulesCanAllowDenyAndExcludeExistingResources() {
+        ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
+        ProvinceRuntimeIntegration allowed = enabledIntegration(
+                ProvinceResourcePolicy.defaults(),
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.defaults(),
+                ProvinceResourcePolicyResolver.parse(
+                        List.of("default|minecraft:iron_ore|allow"),
+                        false
+                )
+        );
+        ProvinceRuntimeIntegration denied = enabledIntegration(
+                ProvinceResourcePolicy.defaults(),
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.defaults(),
+                ProvinceResourcePolicyResolver.parse(
+                        List.of("default|minecraft:iron_ore|deny"),
+                        false
+                )
+        );
+        ProvinceRuntimeIntegration excluded = enabledIntegration(
+                ProvinceResourcePolicy.defaults(),
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.defaults(),
+                ProvinceResourcePolicyResolver.parse(
+                        List.of("default|minecraft:iron_ore|exclude"),
+                        false
+                )
+        );
+
+        assertTrue(allowed.evaluateOreLoadResource(anchor(), iron).shouldUse());
+        assertEquals(ResourcePolicyDecision.Action.REJECT, denied.evaluateOreLoadResource(anchor(), iron).action());
+        assertEquals(ResourcePolicyDecision.Action.REJECT, excluded.evaluateOreLoadResource(anchor(), iron).action());
+        assertTrue(excluded.evaluateOreLoadResource(anchor(), iron).reason().contains("excludes"));
+    }
+
+    @Test
+    void resourceRulesUseResolvedProvinceFromBiomeBindings() {
+        ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
+        ProvinceRuntimeIntegration integration = enabledIntegration(
+                ProvinceResourcePolicy.defaults(),
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.parse(
+                        "immersive_ore_expedition:default",
+                        Set.of("minecraft:plains=temperate_iron"),
+                        false
+                ),
+                ProvinceResourcePolicyResolver.parse(
+                        List.of("temperate_iron|minecraft:iron_ore|deny"),
+                        false
+                )
+        );
+
+        ResourcePolicyDecision decision = integration.evaluateOreLoadResource(
+                anchor(),
+                iron,
+                ResourceLocation.fromNamespaceAndPath("minecraft", "plains")
+        );
+
+        assertEquals(ResourcePolicyDecision.Action.REJECT, decision.action());
+        assertTrue(decision.reason().contains("immersive_ore_expedition:temperate_iron"));
+    }
+
     private ProvinceRuntimeIntegration enabledIntegration(
             ProvinceResourcePolicy provincePolicy,
             LoadedResourceScanner scanner,
             ProvinceBindingResolver bindingResolver
     ) {
+        return enabledIntegration(
+                provincePolicy,
+                scanner,
+                bindingResolver,
+                ProvinceResourcePolicyResolver.empty()
+        );
+    }
+
+    private ProvinceRuntimeIntegration enabledIntegration(
+            ProvinceResourcePolicy provincePolicy,
+            LoadedResourceScanner scanner,
+            ProvinceBindingResolver bindingResolver,
+            ProvinceResourcePolicyResolver resourcePolicyResolver
+    ) {
         return new ProvinceRuntimeIntegration(
                 true,
                 bindingResolver,
                 provincePolicy,
+                resourcePolicyResolver,
                 resourcePolicyService,
                 scanner
         );

@@ -43,6 +43,7 @@ public final class ImmersiveOreExpeditionConfig {
     private static final boolean DEFAULT_WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED = false;
     private static final String DEFAULT_WORLDGEN_DEFAULT_PROVINCE = "immersive_ore_expedition:default";
     private static final List<String> DEFAULT_WORLDGEN_BIOME_PROVINCE_BINDINGS = List.of();
+    private static final List<String> DEFAULT_WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES = List.of();
     private static final boolean DEFAULT_WORLDGEN_PROVINCE_DEBUG_DIAGNOSTICS = false;
     private static final List<String> DEFAULT_WORLDGEN_PROVINCE_ALLOW_BIOMES = List.of();
     private static final List<String> DEFAULT_WORLDGEN_PROVINCE_DENY_BIOMES = List.of();
@@ -174,6 +175,11 @@ public final class ImmersiveOreExpeditionConfig {
             .comment("Biome province bindings as biome_selector=province_id. Supports exact biome ids and namespace:* selectors.")
             .defineList("worldgen.provinces.biomeProvinceBindings",
                     DEFAULT_WORLDGEN_BIOME_PROVINCE_BINDINGS, ImmersiveOreExpeditionConfig::isNonBlankString);
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES =
+            BUILDER.comment("Per-province resource policy rules as province_id|resource_id|decision; decisions are allow, deny, or exclude. Empty preserves Province v1 resource behavior.")
+                    .defineList("worldgen.provinces.resourcePolicyRules",
+                            DEFAULT_WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES,
+                            ImmersiveOreExpeditionConfig::isNonBlankString);
     private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_PROVINCE_ALLOW_BIOMES = BUILDER
             .comment("Default biome id/tag allow list for province matching. Empty means rules decide locally.")
             .defineList("worldgen.provinces.allowBiomes",
@@ -487,6 +493,11 @@ public final class ImmersiveOreExpeditionConfig {
 
     public static List<String> worldgenBiomeProvinceBindings() {
         return getOrDefault(WORLDGEN_BIOME_PROVINCE_BINDINGS, DEFAULT_WORLDGEN_BIOME_PROVINCE_BINDINGS);
+    }
+
+    public static List<String> worldgenProvinceResourcePolicyRules() {
+        return getOrDefault(WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES,
+                DEFAULT_WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES);
     }
 
     public static List<String> worldgenProvinceAllowBiomes() {

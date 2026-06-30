@@ -52,6 +52,10 @@ public final class IoeWorldgenConfig {
         return ImmersiveOreExpeditionConfig.worldgenBiomeProvinceBindings();
     }
 
+    public static List<String> provinceResourcePolicyRules() {
+        return ImmersiveOreExpeditionConfig.worldgenProvinceResourcePolicyRules();
+    }
+
     public static List<String> provinceAllowBiomes() {
         return ImmersiveOreExpeditionConfig.worldgenProvinceAllowBiomes();
     }
