@@ -15,6 +15,7 @@ public final class ProvinceRuntimeIntegration {
     private final boolean enabled;
     private final ProvinceBindingResolver bindingResolver;
     private final ProvinceResourcePolicy provinceResourcePolicy;
+    private final ProvinceResourcePolicyResolver resourcePolicyResolver;
     private final ResourcePolicyService resourcePolicyService;
     private final LoadedResourceScanner scanner;
 
@@ -22,12 +23,14 @@ public final class ProvinceRuntimeIntegration {
             boolean enabled,
             ProvinceBindingResolver bindingResolver,
             ProvinceResourcePolicy provinceResourcePolicy,
+            ProvinceResourcePolicyResolver resourcePolicyResolver,
             ResourcePolicyService resourcePolicyService,
             LoadedResourceScanner scanner
     ) {
         this.enabled = enabled;
         this.bindingResolver = Objects.requireNonNull(bindingResolver, "bindingResolver");
         this.provinceResourcePolicy = Objects.requireNonNull(provinceResourcePolicy, "provinceResourcePolicy");
+        this.resourcePolicyResolver = Objects.requireNonNull(resourcePolicyResolver, "resourcePolicyResolver");
         this.resourcePolicyService = Objects.requireNonNull(resourcePolicyService, "resourcePolicyService");
         this.scanner = Objects.requireNonNull(scanner, "scanner");
     }
@@ -43,6 +46,7 @@ public final class ProvinceRuntimeIntegration {
                 true,
                 ProvinceBindingResolver.fromConfig(),
                 ProvinceResourcePolicy.fromConfig(),
+                ProvinceResourcePolicyResolver.fromConfig(),
                 resourcePolicyService,
                 scanner
         );
@@ -56,6 +60,7 @@ public final class ProvinceRuntimeIntegration {
                 false,
                 ProvinceBindingResolver.defaults(),
                 ProvinceResourcePolicy.defaults(),
+                ProvinceResourcePolicyResolver.empty(),
                 resourcePolicyService,
                 scanner
         );
@@ -89,6 +94,11 @@ public final class ProvinceRuntimeIntegration {
         }
 
         ProvinceId runtimeProvince = bindingResolver.resolve(biomeId);
+        ResourcePolicyDecision provinceResourceRuleDecision =
+                resourcePolicyResolver.evaluate(runtimeProvince, resource);
+        if (!provinceResourceRuleDecision.shouldUse()) {
+            return provinceResourceRuleDecision;
+        }
 
         ResourcePolicyDecision runtimeDecision = resourcePolicyService.evaluate(resource, scanner);
         if (!runtimeDecision.shouldUse()) {
