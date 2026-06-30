@@ -37,7 +37,7 @@ final class ProvinceRuntimeIntegrationTest {
                 ),
                 denyingProvincePolicy("vanilla"),
                 ProvinceResourcePolicyResolver.parse(
-                        List.of("default|minecraft:iron_ore|deny"),
+                        List.of("default|minecraft:*|deny"),
                         false
                 ),
                 resourcePolicyService,
@@ -160,6 +160,39 @@ final class ProvinceRuntimeIntegrationTest {
     }
 
     @Test
+    void strictExclusionsOverrideNamespaceWildcardAllowRules() {
+        List<ResourceRef> strictExclusions = List.of(
+                ResourceRef.block("minecraft", "apatite_ore"),
+                ResourceRef.block("minecraft", "tin_ore"),
+                ResourceRef.block("forestry", "copper_ore"),
+                ResourceRef.block("minecraft", "platinum_ore"),
+                ResourceRef.block("minecraft", "osmium_ore"),
+                ResourceRef.block("minecraft", "tungsten_ore"),
+                ResourceRef.block("minecraft", "black_quartz_ore"),
+                ResourceRef.block("minecraft", "uraninite_ore"),
+                ResourceRef.block("minecraft", "monazite_ore")
+        );
+
+        for (ResourceRef resource : strictExclusions) {
+            ProvinceRuntimeIntegration integration = enabledIntegration(
+                    ProvinceResourcePolicy.defaults(),
+                    scannerWithLoaded(resource),
+                    ProvinceBindingResolver.defaults(),
+                    ProvinceResourcePolicyResolver.parse(
+                            List.of("default|" + resource.id().getNamespace() + ":*|allow"),
+                            false
+                    )
+            );
+
+            ResourcePolicyDecision decision = integration.evaluateOreLoadResource(anchor(), resource);
+
+            assertFalse(decision.shouldUse());
+            assertEquals(ResourcePolicyDecision.Action.REJECT, decision.action());
+            assertTrue(decision.reason().contains("explicitly excluded"));
+        }
+    }
+
+    @Test
     void oldSplitProvinceNamespacesAreRejectedByDefault() {
         ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
         ProvinceRuntimeIntegration integration = new ProvinceRuntimeIntegration(
@@ -254,7 +287,7 @@ final class ProvinceRuntimeIntegrationTest {
                         false
                 ),
                 ProvinceResourcePolicyResolver.parse(
-                        List.of("temperate_iron|minecraft:iron_ore|deny"),
+                        List.of("temperate_iron|minecraft:*|deny"),
                         false
                 )
         );

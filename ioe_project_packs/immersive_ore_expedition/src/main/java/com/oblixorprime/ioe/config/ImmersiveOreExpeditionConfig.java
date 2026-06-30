@@ -176,7 +176,7 @@ public final class ImmersiveOreExpeditionConfig {
             .defineList("worldgen.provinces.biomeProvinceBindings",
                     DEFAULT_WORLDGEN_BIOME_PROVINCE_BINDINGS, ImmersiveOreExpeditionConfig::isNonBlankString);
     private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES =
-            BUILDER.comment("Per-province resource policy rules as province_id|resource_id|decision; decisions are allow, deny, or exclude. Empty preserves Province v1 resource behavior.")
+            BUILDER.comment("Per-province resource policy rules as province_id|resource_selector|decision; selectors are exact resource ids or namespace:* wildcards, and decisions are allow, deny, or exclude. Empty preserves Province v1 resource behavior.")
                     .defineList("worldgen.provinces.resourcePolicyRules",
                             DEFAULT_WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES,
                             ImmersiveOreExpeditionConfig::isNonBlankString);
