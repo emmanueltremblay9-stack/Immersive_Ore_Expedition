@@ -44,7 +44,14 @@ public final class ProvinceResourcePolicyResolver {
         Objects.requireNonNull(resourceRef, "resourceRef");
 
         for (ResourceRule rule : rules) {
-            if (rule.matches(provinceId, resourceRef.id())) {
+            if (rule.selector().specificity() == SelectorSpecificity.EXACT
+                    && rule.matches(provinceId, resourceRef.id())) {
+                return rule.toDecision(resourceRef);
+            }
+        }
+        for (ResourceRule rule : rules) {
+            if (rule.selector().specificity() == SelectorSpecificity.NAMESPACE
+                    && rule.matches(provinceId, resourceRef.id())) {
                 return rule.toDecision(resourceRef);
             }
         }
@@ -68,7 +75,7 @@ public final class ProvinceResourcePolicyResolver {
         }
 
         Optional<ProvinceId> province = parseProvince(parts[0], allowLegacyNamespaces);
-        Optional<ResourceLocation> resource = parseResourceId(parts[1]);
+        Optional<ResourceSelector> resource = ResourceSelector.parse(parts[1]);
         Optional<RuleDecision> decision = RuleDecision.parse(parts[2]);
         if (province.isEmpty() || resource.isEmpty() || decision.isEmpty()) {
             return Optional.empty();
@@ -87,34 +94,15 @@ public final class ProvinceResourcePolicyResolver {
         }
     }
 
-    private static Optional<ResourceLocation> parseResourceId(String resourceSpec) {
-        if (resourceSpec == null) {
-            return Optional.empty();
-        }
-        String candidate = resourceSpec.trim();
-        int separator = candidate.indexOf(':');
-        if (separator <= 0 || separator == candidate.length() - 1) {
-            return Optional.empty();
-        }
-        try {
-            return Optional.of(ResourceLocation.fromNamespaceAndPath(
-                    candidate.substring(0, separator),
-                    candidate.substring(separator + 1)
-            ));
-        } catch (RuntimeException exception) {
-            return Optional.empty();
-        }
-    }
-
-    private record ResourceRule(ProvinceId province, ResourceLocation resourceId, RuleDecision decision) {
+    private record ResourceRule(ProvinceId province, ResourceSelector selector, RuleDecision decision) {
         private ResourceRule {
             Objects.requireNonNull(province, "province");
-            Objects.requireNonNull(resourceId, "resourceId");
+            Objects.requireNonNull(selector, "selector");
             Objects.requireNonNull(decision, "decision");
         }
 
         private boolean matches(ProvinceId runtimeProvince, ResourceLocation resource) {
-            return province.equals(runtimeProvince) && resourceId.equals(resource);
+            return province.equals(runtimeProvince) && selector.matches(resource);
         }
 
         private ResourcePolicyDecision toDecision(ResourceRef resourceRef) {
@@ -130,6 +118,72 @@ public final class ProvinceResourcePolicyResolver {
                 );
             };
         }
+    }
+
+    private record ResourceSelector(ResourceLocation exactId, String namespace, SelectorSpecificity specificity) {
+        private ResourceSelector {
+            Objects.requireNonNull(specificity, "specificity");
+            if (specificity == SelectorSpecificity.EXACT) {
+                Objects.requireNonNull(exactId, "exactId");
+            } else if (namespace == null || namespace.isBlank()) {
+                throw new IllegalArgumentException("namespace selector must not be blank");
+            }
+        }
+
+        private static Optional<ResourceSelector> parse(String resourceSpec) {
+            if (resourceSpec == null) {
+                return Optional.empty();
+            }
+            String candidate = resourceSpec.trim();
+            if (candidate.endsWith(":*")) {
+                String namespace = candidate.substring(0, candidate.length() - 2).trim();
+                if (isValidNamespace(namespace)) {
+                    return Optional.of(new ResourceSelector(null, namespace, SelectorSpecificity.NAMESPACE));
+                }
+                return Optional.empty();
+            }
+
+            return parseExactId(candidate).map(id -> new ResourceSelector(id, "", SelectorSpecificity.EXACT));
+        }
+
+        private boolean matches(ResourceLocation resource) {
+            return switch (specificity) {
+                case EXACT -> exactId.equals(resource);
+                case NAMESPACE -> namespace.equals(resource.getNamespace());
+            };
+        }
+
+        private static Optional<ResourceLocation> parseExactId(String candidate) {
+            int separator = candidate.indexOf(':');
+            if (separator <= 0 || separator == candidate.length() - 1) {
+                return Optional.empty();
+            }
+            try {
+                return Optional.of(ResourceLocation.fromNamespaceAndPath(
+                        candidate.substring(0, separator),
+                        candidate.substring(separator + 1)
+                ));
+            } catch (RuntimeException exception) {
+                return Optional.empty();
+            }
+        }
+
+        private static boolean isValidNamespace(String namespace) {
+            if (namespace == null || namespace.isBlank()) {
+                return false;
+            }
+            try {
+                ResourceLocation.fromNamespaceAndPath(namespace, "placeholder");
+                return true;
+            } catch (RuntimeException exception) {
+                return false;
+            }
+        }
+    }
+
+    private enum SelectorSpecificity {
+        EXACT,
+        NAMESPACE
     }
 
     private enum RuleDecision {
