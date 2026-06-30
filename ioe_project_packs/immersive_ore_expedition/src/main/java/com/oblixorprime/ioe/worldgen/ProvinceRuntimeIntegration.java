@@ -7,28 +7,26 @@ import com.oblixorprime.ioe.core.ProvinceResourcePolicy;
 import com.oblixorprime.ioe.core.ResourcePolicyDecision;
 import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.ResourceRef;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
 public final class ProvinceRuntimeIntegration {
     private final boolean enabled;
-    private final String provinceNamespace;
-    private final boolean allowLegacyNamespaces;
+    private final ProvinceBindingResolver bindingResolver;
     private final ProvinceResourcePolicy provinceResourcePolicy;
     private final ResourcePolicyService resourcePolicyService;
     private final LoadedResourceScanner scanner;
 
     ProvinceRuntimeIntegration(
             boolean enabled,
-            String provinceNamespace,
-            boolean allowLegacyNamespaces,
+            ProvinceBindingResolver bindingResolver,
             ProvinceResourcePolicy provinceResourcePolicy,
             ResourcePolicyService resourcePolicyService,
             LoadedResourceScanner scanner
     ) {
         this.enabled = enabled;
-        this.provinceNamespace = Objects.requireNonNull(provinceNamespace, "provinceNamespace").trim();
-        this.allowLegacyNamespaces = allowLegacyNamespaces;
+        this.bindingResolver = Objects.requireNonNull(bindingResolver, "bindingResolver");
         this.provinceResourcePolicy = Objects.requireNonNull(provinceResourcePolicy, "provinceResourcePolicy");
         this.resourcePolicyService = Objects.requireNonNull(resourcePolicyService, "resourcePolicyService");
         this.scanner = Objects.requireNonNull(scanner, "scanner");
@@ -43,8 +41,7 @@ public final class ProvinceRuntimeIntegration {
         }
         return new ProvinceRuntimeIntegration(
                 true,
-                IoeWorldgenConfig.provinceNamespace(),
-                IoeWorldgenConfig.allowLegacyProvinceNamespaces(),
+                ProvinceBindingResolver.fromConfig(),
                 ProvinceResourcePolicy.fromConfig(),
                 resourcePolicyService,
                 scanner
@@ -57,8 +54,7 @@ public final class ProvinceRuntimeIntegration {
     ) {
         return new ProvinceRuntimeIntegration(
                 false,
-                ProvinceId.CONSOLIDATED_NAMESPACE,
-                false,
+                ProvinceBindingResolver.defaults(),
                 ProvinceResourcePolicy.defaults(),
                 resourcePolicyService,
                 scanner
@@ -70,6 +66,14 @@ public final class ProvinceRuntimeIntegration {
     }
 
     public ResourcePolicyDecision evaluateOreLoadResource(ExpeditionAnchorRef anchor, ResourceRef resource) {
+        return evaluateOreLoadResource(anchor, resource, null);
+    }
+
+    public ResourcePolicyDecision evaluateOreLoadResource(
+            ExpeditionAnchorRef anchor,
+            ResourceRef resource,
+            ResourceLocation biomeId
+    ) {
         Objects.requireNonNull(anchor, "anchor");
         Objects.requireNonNull(resource, "resource");
 
@@ -84,12 +88,7 @@ public final class ProvinceRuntimeIntegration {
             return provinceDecision;
         }
 
-        ProvinceId runtimeProvince;
-        try {
-            runtimeProvince = runtimeProvinceFor(anchor);
-        } catch (IllegalArgumentException exception) {
-            return ResourcePolicyDecision.reject(exception.getMessage());
-        }
+        ProvinceId runtimeProvince = bindingResolver.resolve(biomeId);
 
         ResourcePolicyDecision runtimeDecision = resourcePolicyService.evaluate(resource, scanner);
         if (!runtimeDecision.shouldUse()) {
@@ -99,23 +98,5 @@ public final class ProvinceRuntimeIntegration {
         return ResourcePolicyDecision.use(
                 "Province runtime integration allowed " + resource.id() + " for " + runtimeProvince
         );
-    }
-
-    private ProvinceId runtimeProvinceFor(ExpeditionAnchorRef anchor) {
-        String anchorType = anchor.anchorType().trim();
-        String candidate = anchorType.contains(":") ? anchorType : provinceNamespace + ":" + anchorType;
-        try {
-            return ProvinceId.parse(candidate, allowLegacyNamespaces);
-        } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException(rejectReason(candidate, exception), exception);
-        }
-    }
-
-    private static String rejectReason(String candidate, IllegalArgumentException exception) {
-        String message = exception.getMessage();
-        if (message == null || message.isBlank()) {
-            message = "invalid province id";
-        }
-        return "Province runtime integration rejected province id " + candidate + ": " + message;
     }
 }

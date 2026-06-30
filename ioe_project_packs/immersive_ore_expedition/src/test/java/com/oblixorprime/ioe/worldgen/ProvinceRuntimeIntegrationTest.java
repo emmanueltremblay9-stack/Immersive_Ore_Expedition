@@ -2,7 +2,6 @@ package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.core.ExpeditionAnchorRef;
 import com.oblixorprime.ioe.core.LoadedResourceScanner;
-import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.core.ProvinceResourcePolicy;
 import com.oblixorprime.ioe.core.ResourcePolicyDecision;
 import com.oblixorprime.ioe.core.ResourcePolicyService;
@@ -14,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,8 +30,11 @@ final class ProvinceRuntimeIntegrationTest {
         ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
         ProvinceRuntimeIntegration integration = new ProvinceRuntimeIntegration(
                 false,
-                "ioe_core",
-                false,
+                ProvinceBindingResolver.parse(
+                        "ioe_core:default",
+                        Set.of("minecraft:plains=ioe_core:temperate_iron"),
+                        false
+                ),
                 denyingProvincePolicy("vanilla"),
                 resourcePolicyService,
                 scannerWithLoaded(iron)
@@ -54,11 +57,13 @@ final class ProvinceRuntimeIntegrationTest {
         ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
         ProvinceRuntimeIntegration allowed = enabledIntegration(
                 ProvinceResourcePolicy.defaults(),
-                scannerWithLoaded(iron)
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.defaults()
         );
         ProvinceRuntimeIntegration denied = enabledIntegration(
                 denyingProvincePolicy("vanilla"),
-                scannerWithLoaded(iron)
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.defaults()
         );
 
         assertTrue(allowed.evaluateOreLoadResource(anchor(), iron).shouldUse());
@@ -66,22 +71,84 @@ final class ProvinceRuntimeIntegrationTest {
     }
 
     @Test
-    void strictExclusionsOverrideEnabledRuntimeIntegration() {
-        ResourceRef tin = ResourceRef.block("minecraft", "tin_ore");
-        ProvinceRuntimeIntegration integration = new ProvinceRuntimeIntegration(
-                true,
-                "ioe_core",
-                false,
+    void defaultProvinceIsUsedWhenNoBiomeBindingMatches() {
+        ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
+        ProvinceRuntimeIntegration integration = enabledIntegration(
                 ProvinceResourcePolicy.defaults(),
-                resourcePolicyService,
-                scannerWithLoaded(tin)
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.parse(
+                        "immersive_ore_expedition:default",
+                        Set.of("minecraft:desert=immersive_ore_expedition:arid"),
+                        false
+                )
         );
 
-        ResourcePolicyDecision decision = integration.evaluateOreLoadResource(anchor(), tin);
+        ResourcePolicyDecision decision = integration.evaluateOreLoadResource(
+                anchor(),
+                iron,
+                ResourceLocation.fromNamespaceAndPath("minecraft", "plains")
+        );
 
-        assertFalse(decision.shouldUse());
-        assertEquals(ResourcePolicyDecision.Action.REJECT, decision.action());
-        assertTrue(decision.reason().contains("explicitly excluded"));
+        assertTrue(decision.shouldUse());
+        assertTrue(decision.reason().contains("immersive_ore_expedition:default"));
+    }
+
+    @Test
+    void exactBiomeBindingFeedsResolvedProvinceIntoRuntimeDecision() {
+        ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
+        ProvinceRuntimeIntegration integration = enabledIntegration(
+                ProvinceResourcePolicy.defaults(),
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.parse(
+                        "immersive_ore_expedition:default",
+                        Set.of("minecraft:plains=temperate_iron"),
+                        false
+                )
+        );
+
+        ResourcePolicyDecision decision = integration.evaluateOreLoadResource(
+                anchor(),
+                iron,
+                ResourceLocation.fromNamespaceAndPath("minecraft", "plains")
+        );
+
+        assertTrue(decision.shouldUse());
+        assertTrue(decision.reason().contains("immersive_ore_expedition:temperate_iron"));
+    }
+
+    @Test
+    void strictExclusionsOverrideEnabledRuntimeIntegration() {
+        List<ResourceRef> strictExclusions = List.of(
+                ResourceRef.block("minecraft", "apatite_ore"),
+                ResourceRef.block("minecraft", "tin_ore"),
+                ResourceRef.block("forestry", "copper_ore"),
+                ResourceRef.block("minecraft", "platinum_ore"),
+                ResourceRef.block("minecraft", "osmium_ore"),
+                ResourceRef.block("minecraft", "tungsten_ore"),
+                ResourceRef.block("minecraft", "black_quartz_ore"),
+                ResourceRef.block("minecraft", "uraninite_ore"),
+                ResourceRef.block("minecraft", "monazite_ore")
+        );
+
+        for (ResourceRef resource : strictExclusions) {
+            ProvinceRuntimeIntegration integration = new ProvinceRuntimeIntegration(
+                    true,
+                    ProvinceBindingResolver.parse(
+                            "ioe_core:default",
+                            Set.of("minecraft:plains=ioe_core:temperate_iron"),
+                            false
+                    ),
+                    ProvinceResourcePolicy.defaults(),
+                    resourcePolicyService,
+                    scannerWithLoaded(resource)
+            );
+
+            ResourcePolicyDecision decision = integration.evaluateOreLoadResource(anchor(), resource);
+
+            assertFalse(decision.shouldUse());
+            assertEquals(ResourcePolicyDecision.Action.REJECT, decision.action());
+            assertTrue(decision.reason().contains("explicitly excluded"));
+        }
     }
 
     @Test
@@ -89,17 +156,24 @@ final class ProvinceRuntimeIntegrationTest {
         ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
         ProvinceRuntimeIntegration integration = new ProvinceRuntimeIntegration(
                 true,
-                "ioe_core",
-                false,
+                ProvinceBindingResolver.parse(
+                        "ioe_core:default",
+                        Set.of("minecraft:plains=ioe_core:temperate_iron"),
+                        false
+                ),
                 ProvinceResourcePolicy.defaults(),
                 resourcePolicyService,
                 scannerWithLoaded(iron)
         );
 
-        ResourcePolicyDecision decision = integration.evaluateOreLoadResource(anchor(), iron);
+        ResourcePolicyDecision decision = integration.evaluateOreLoadResource(
+                anchor(),
+                iron,
+                ResourceLocation.fromNamespaceAndPath("minecraft", "plains")
+        );
 
-        assertFalse(decision.shouldUse());
-        assertTrue(decision.reason().contains(ProvinceId.CONSOLIDATED_NAMESPACE));
+        assertTrue(decision.shouldUse());
+        assertTrue(decision.reason().contains("immersive_ore_expedition:default"));
     }
 
     @Test
@@ -107,23 +181,29 @@ final class ProvinceRuntimeIntegrationTest {
         ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
         ProvinceRuntimeIntegration integration = enabledIntegration(
                 ProvinceResourcePolicy.defaults(),
-                scannerWithLoaded(iron)
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.parse(
+                        "immersive_ore_expedition:default",
+                        Set.of("minecraft:plains=temperate_iron"),
+                        false
+                )
         );
 
-        ResourcePolicyDecision first = integration.evaluateOreLoadResource(anchor(), iron);
-        ResourcePolicyDecision second = integration.evaluateOreLoadResource(anchor(), iron);
+        ResourceLocation biome = ResourceLocation.fromNamespaceAndPath("minecraft", "plains");
+        ResourcePolicyDecision first = integration.evaluateOreLoadResource(anchor(), iron, biome);
+        ResourcePolicyDecision second = integration.evaluateOreLoadResource(anchor(), iron, biome);
 
         assertEquals(first, second);
     }
 
     private ProvinceRuntimeIntegration enabledIntegration(
             ProvinceResourcePolicy provincePolicy,
-            LoadedResourceScanner scanner
+            LoadedResourceScanner scanner,
+            ProvinceBindingResolver bindingResolver
     ) {
         return new ProvinceRuntimeIntegration(
                 true,
-                ProvinceId.CONSOLIDATED_NAMESPACE,
-                false,
+                bindingResolver,
                 provincePolicy,
                 resourcePolicyService,
                 scanner
