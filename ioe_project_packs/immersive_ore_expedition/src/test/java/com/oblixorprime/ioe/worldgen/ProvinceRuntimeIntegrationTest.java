@@ -57,6 +57,162 @@ final class ProvinceRuntimeIntegrationTest {
     }
 
     @Test
+    void biomeAwarePlanningUsesResolvedProvinceResourceRules() {
+        ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
+        ProvinceBindingResolver plainsBinding = ProvinceBindingResolver.parse(
+                "immersive_ore_expedition:default",
+                Set.of("minecraft:plains=temperate_iron"),
+                false
+        );
+        ResourceLocation plains = ResourceLocation.fromNamespaceAndPath("minecraft", "plains");
+
+        ProvinceRuntimeIntegration denied = enabledIntegration(
+                ProvinceResourcePolicy.defaults(),
+                scannerWithLoaded(iron),
+                plainsBinding,
+                ProvinceResourcePolicyResolver.parse(
+                        List.of("temperate_iron|minecraft:iron_ore|deny"),
+                        false
+                )
+        );
+        ProvinceRuntimeIntegration allowed = enabledIntegration(
+                ProvinceResourcePolicy.defaults(),
+                scannerWithLoaded(iron),
+                plainsBinding,
+                ProvinceResourcePolicyResolver.parse(
+                        List.of("temperate_iron|minecraft:iron_ore|allow"),
+                        false
+                )
+        );
+
+        Optional<OreLoadPlan> deniedPlan = generator.planAnchoredOreLoad(
+                anchor(),
+                iron,
+                new BlockPos(16, 64, 0),
+                plains,
+                scannerWithLoaded(iron),
+                resourcePolicyService,
+                denied
+        );
+        Optional<OreLoadPlan> allowedPlan = generator.planAnchoredOreLoad(
+                anchor(),
+                iron,
+                new BlockPos(16, 64, 0),
+                plains,
+                scannerWithLoaded(iron),
+                resourcePolicyService,
+                allowed
+        );
+
+        assertTrue(deniedPlan.isEmpty());
+        assertTrue(allowedPlan.isPresent());
+    }
+
+    @Test
+    void biomeAwarePlanningFallsBackToDefaultProvinceForUnmatchedBiome() {
+        ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
+        ProvinceRuntimeIntegration integration = enabledIntegration(
+                ProvinceResourcePolicy.defaults(),
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.parse(
+                        "immersive_ore_expedition:default",
+                        Set.of("minecraft:plains=temperate_iron"),
+                        false
+                ),
+                ProvinceResourcePolicyResolver.parse(
+                        List.of(
+                                "temperate_iron|minecraft:iron_ore|allow",
+                                "default|minecraft:iron_ore|deny"
+                        ),
+                        false
+                )
+        );
+
+        Optional<OreLoadPlan> matchingPlan = generator.planAnchoredOreLoad(
+                anchor(),
+                iron,
+                new BlockPos(16, 64, 0),
+                ResourceLocation.fromNamespaceAndPath("minecraft", "plains"),
+                scannerWithLoaded(iron),
+                resourcePolicyService,
+                integration
+        );
+        Optional<OreLoadPlan> fallbackPlan = generator.planAnchoredOreLoad(
+                anchor(),
+                iron,
+                new BlockPos(16, 64, 0),
+                ResourceLocation.fromNamespaceAndPath("minecraft", "desert"),
+                scannerWithLoaded(iron),
+                resourcePolicyService,
+                integration
+        );
+
+        assertTrue(matchingPlan.isPresent());
+        assertTrue(fallbackPlan.isEmpty());
+    }
+
+    @Test
+    void oldPlanningOverloadUsesNullBiomeContext() {
+        ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
+        ProvinceRuntimeIntegration integration = enabledIntegration(
+                ProvinceResourcePolicy.defaults(),
+                scannerWithLoaded(iron),
+                ProvinceBindingResolver.parse(
+                        "immersive_ore_expedition:default",
+                        Set.of("minecraft:plains=temperate_iron"),
+                        false
+                ),
+                ProvinceResourcePolicyResolver.parse(
+                        List.of("temperate_iron|minecraft:iron_ore|deny"),
+                        false
+                )
+        );
+
+        Optional<OreLoadPlan> plan = generator.planAnchoredOreLoad(
+                anchor(),
+                iron,
+                new BlockPos(16, 64, 0),
+                scannerWithLoaded(iron),
+                resourcePolicyService,
+                integration
+        );
+
+        assertTrue(plan.isPresent());
+    }
+
+    @Test
+    void disabledIntegrationIgnoresBiomeAwareProvinceRules() {
+        ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
+        ProvinceRuntimeIntegration integration = new ProvinceRuntimeIntegration(
+                false,
+                ProvinceBindingResolver.parse(
+                        "immersive_ore_expedition:default",
+                        Set.of("minecraft:plains=temperate_iron"),
+                        false
+                ),
+                ProvinceResourcePolicy.defaults(),
+                ProvinceResourcePolicyResolver.parse(
+                        List.of("temperate_iron|minecraft:iron_ore|deny"),
+                        false
+                ),
+                resourcePolicyService,
+                scannerWithLoaded(iron)
+        );
+
+        Optional<OreLoadPlan> plan = generator.planAnchoredOreLoad(
+                anchor(),
+                iron,
+                new BlockPos(16, 64, 0),
+                ResourceLocation.fromNamespaceAndPath("minecraft", "plains"),
+                scannerWithLoaded(iron),
+                resourcePolicyService,
+                integration
+        );
+
+        assertTrue(plan.isPresent());
+    }
+
+    @Test
     void enabledIntegrationUsesProvincePolicyDecisions() {
         ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
         ProvinceRuntimeIntegration allowed = enabledIntegration(

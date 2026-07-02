@@ -7,6 +7,7 @@ import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.ResourceRef;
 import com.oblixorprime.ioe.core.ResourceType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.WorldGenLevel;
 
 import java.util.Objects;
@@ -27,12 +28,31 @@ public final class OreLoadGenerator {
             LoadedResourceScanner scanner,
             ResourcePolicyService policyService
     ) {
+        return planAnchoredOreLoad(
+                anchor,
+                resource,
+                candidateLoadCenter,
+                null,
+                scanner,
+                policyService
+        );
+    }
+
+    public Optional<OreLoadPlan> planAnchoredOreLoad(
+            ExpeditionAnchorRef anchor,
+            ResourceRef resource,
+            BlockPos candidateLoadCenter,
+            ResourceLocation biomeId,
+            LoadedResourceScanner scanner,
+            ResourcePolicyService policyService
+    ) {
         Objects.requireNonNull(scanner, "scanner");
         Objects.requireNonNull(policyService, "policyService");
         return planAnchoredOreLoad(
                 anchor,
                 resource,
                 candidateLoadCenter,
+                biomeId,
                 scanner,
                 policyService,
                 ProvinceRuntimeIntegration.fromConfig(policyService, scanner)
@@ -43,6 +63,26 @@ public final class OreLoadGenerator {
             ExpeditionAnchorRef anchor,
             ResourceRef resource,
             BlockPos candidateLoadCenter,
+            LoadedResourceScanner scanner,
+            ResourcePolicyService policyService,
+            ProvinceRuntimeIntegration provinceRuntimeIntegration
+    ) {
+        return planAnchoredOreLoad(
+                anchor,
+                resource,
+                candidateLoadCenter,
+                null,
+                scanner,
+                policyService,
+                provinceRuntimeIntegration
+        );
+    }
+
+    Optional<OreLoadPlan> planAnchoredOreLoad(
+            ExpeditionAnchorRef anchor,
+            ResourceRef resource,
+            BlockPos candidateLoadCenter,
+            ResourceLocation biomeId,
             LoadedResourceScanner scanner,
             ResourcePolicyService policyService,
             ProvinceRuntimeIntegration provinceRuntimeIntegration
@@ -69,7 +109,7 @@ public final class OreLoadGenerator {
         }
 
         ResourcePolicyDecision decision = provinceRuntimeIntegration.enabled()
-                ? provinceRuntimeIntegration.evaluateOreLoadResource(anchor, resource)
+                ? provinceRuntimeIntegration.evaluateOreLoadResource(anchor, resource, biomeId)
                 : policyService.evaluate(resource, scanner);
         if (!decision.shouldUse()) {
             return Optional.empty();
