@@ -12,6 +12,7 @@ public final class IoeExpeditionWorldgenMod {
     }
 
     public static void bootstrap() {
+        IoeWorldgenBootstrap.bootstrap();
         LOGGER.info("Initializing Immersive Ore Expedition: Worldgen alpha services");
     }
 }
