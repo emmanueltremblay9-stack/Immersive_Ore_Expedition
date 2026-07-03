@@ -42,4 +42,12 @@ This is still scaffold-only planning. Runtime worldgen remains default-off and n
 
 Suppression planning preserves the existing `ResourcePolicyService` checks, keeps strict exclusions enforced, records optional biome/province context only as metadata, and does not carry block-state lists, world references, or runtime placement hooks. v11 is expected to handle live biome-to-province worldgen binding scaffold work.
 
+## Province System v11 live biome-to-province binding scaffold
+
+v11 adds a deterministic live biome-to-province context-binding scaffold. It models how future worldgen callers can resolve a live biome id into province metadata and pass that optional context into anchor placement planning, ore-load planning, ore-load chamber planning, and random ore suppression planning.
+
+This remains scaffold-only planning. Runtime worldgen remains default-off and no-op, province runtime integration remains controlled by the existing `worldgen.provinces.runtimeIntegrationEnabled` gate, no worldgen placement is added, no configured features or placed features are registered, no biome modifiers are registered, no blocks are placed or removed, no ore generation is intercepted, and no retrogen mutation is added.
+
+The binding adapter uses the existing `worldgen.provinces.defaultProvince` and `worldgen.provinces.biomeProvinceBindings` behavior, preserves malformed-binding safety and legacy namespace policy, and stores no world references, block-state lists, or runtime placement hooks. v12 is expected to handle IE/IP surface clue placement planning scaffold work.
+
 Validation for this project remains GitHub Actions on the consolidated NeoForge module. Local Gradle, tests, builds, Minecraft, PrismLauncher, smoke tests, and local CI simulation are disabled by default unless explicitly requested.
