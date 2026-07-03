@@ -27,6 +27,10 @@ public final class IoeWorldgenFeatureKeys {
             BASIC_MINESHAFT_CONNECTOR
     );
 
+    private static final List<ResourceLocation> ORE_LOAD_CHAMBER_FEATURE_KEYS = List.of(
+            ORE_LOAD_CHAMBER
+    );
+
     private static final List<ResourceLocation> ALL_FEATURE_KEYS = List.of(
             ORE_LOAD_CHAMBER,
             TINY_VERTICAL_MINE_ENTRANCE,
@@ -51,6 +55,10 @@ public final class IoeWorldgenFeatureKeys {
 
     public static List<ResourceLocation> anchorFeatureKeys() {
         return ANCHOR_FEATURE_KEYS;
+    }
+
+    public static List<ResourceLocation> oreLoadChamberFeatureKeys() {
+        return ORE_LOAD_CHAMBER_FEATURE_KEYS;
     }
 
     private static ResourceLocation id(String path) {
