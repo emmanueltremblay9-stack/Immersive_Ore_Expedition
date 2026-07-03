@@ -34,4 +34,12 @@ This remains scaffold-only planning. Runtime worldgen remains default-off and no
 
 The planner preserves the existing `ResourcePolicyService` path, keeps strict exclusions enforced, rejects unloaded or policy-denied resources safely, and does not carry block-state lists or world references. v10 is expected to handle random ore suppression integration scaffold work.
 
+## Province System v10 random ore suppression integration scaffold
+
+v10 adds a deterministic random ore suppression decision scaffold. It models how future hooks would decide whether a random ore attempt should keep original density, scale density through `OreSuppressionPolicy`, suppress placement, skip unloaded resources, or reject policy-denied and strictly excluded resources.
+
+This is still scaffold-only planning. Runtime worldgen remains default-off and no-op, no live ore generation is intercepted, no ore blocks are removed or placed, no configured features or placed features are registered, no biome modifiers are registered, no mixins or access transformers are added, and no retrogen mutation is added.
+
+Suppression planning preserves the existing `ResourcePolicyService` checks, keeps strict exclusions enforced, records optional biome/province context only as metadata, and does not carry block-state lists, world references, or runtime placement hooks. v11 is expected to handle live biome-to-province worldgen binding scaffold work.
+
 Validation for this project remains GitHub Actions on the consolidated NeoForge module. Local Gradle, tests, builds, Minecraft, PrismLauncher, smoke tests, and local CI simulation are disabled by default unless explicitly requested.
