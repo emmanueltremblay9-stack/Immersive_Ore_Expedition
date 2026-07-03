@@ -19,6 +19,14 @@ public final class IoeWorldgenFeatureKeys {
     public static final ResourceLocation GEORE_GROWTH_SITE = id("geore_growth_site");
     public static final ResourceLocation SUB_LAVA_GEODE = id("sub_lava_geode");
 
+    private static final List<ResourceLocation> ANCHOR_FEATURE_KEYS = List.of(
+            TINY_VERTICAL_MINE_ENTRANCE,
+            COLLAPSED_SHAFT,
+            MINER_CAMP,
+            BURIED_SURVEY_MARKER,
+            BASIC_MINESHAFT_CONNECTOR
+    );
+
     private static final List<ResourceLocation> ALL_FEATURE_KEYS = List.of(
             ORE_LOAD_CHAMBER,
             TINY_VERTICAL_MINE_ENTRANCE,
@@ -39,6 +47,10 @@ public final class IoeWorldgenFeatureKeys {
 
     public static List<ResourceLocation> allFeatureKeys() {
         return ALL_FEATURE_KEYS;
+    }
+
+    public static List<ResourceLocation> anchorFeatureKeys() {
+        return ANCHOR_FEATURE_KEYS;
     }
 
     private static ResourceLocation id(String path) {

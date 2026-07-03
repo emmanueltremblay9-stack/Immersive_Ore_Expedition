@@ -7,6 +7,7 @@ import java.util.Objects;
 
 public record IoeWorldgenRegistration(
         List<ResourceLocation> futureFeatureKeys,
+        List<ResourceLocation> anchorPlacementPlanKeys,
         IoeWorldgenPlacementGates placementGates,
         boolean configuredFeaturesRegistered,
         boolean placedFeaturesRegistered,
@@ -14,6 +15,7 @@ public record IoeWorldgenRegistration(
 ) {
     public IoeWorldgenRegistration {
         futureFeatureKeys = List.copyOf(Objects.requireNonNull(futureFeatureKeys, "futureFeatureKeys"));
+        anchorPlacementPlanKeys = List.copyOf(Objects.requireNonNull(anchorPlacementPlanKeys, "anchorPlacementPlanKeys"));
         Objects.requireNonNull(placementGates, "placementGates");
     }
 
@@ -23,6 +25,7 @@ public record IoeWorldgenRegistration(
     ) {
         return new IoeWorldgenRegistration(
                 futureFeatureKeys,
+                IoeWorldgenFeatureKeys.anchorFeatureKeys(),
                 placementGates,
                 false,
                 false,
@@ -38,5 +41,9 @@ public record IoeWorldgenRegistration(
 
     public boolean runtimePlacementNoOp() {
         return placementGates.shouldNoOpRuntimePlacement();
+    }
+
+    public boolean anchorPlacementPlanningReady() {
+        return !anchorPlacementPlanKeys.isEmpty();
     }
 }
