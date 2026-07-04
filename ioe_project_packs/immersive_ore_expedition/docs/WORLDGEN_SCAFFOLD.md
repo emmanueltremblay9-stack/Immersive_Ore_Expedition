@@ -50,4 +50,10 @@ This remains scaffold-only planning. Runtime worldgen remains default-off and no
 
 The binding adapter uses the existing `worldgen.provinces.defaultProvince` and `worldgen.provinces.biomeProvinceBindings` behavior, preserves malformed-binding safety and legacy namespace policy, and stores no world references, block-state lists, or runtime placement hooks. v12 is expected to handle IE/IP surface clue placement planning scaffold work.
 
+## Runtime visibility proof
+
+Current IOE worldgen milestones are scaffold/planning-only, so no visible world or JourneyMap changes are expected yet. Anchors, ore-load chambers, IE/IP surface clues, crystal/geode sites, map markers, overlays, and retrogen mutation remain not live until later gated PRs add placement or marker integration.
+
+Use `/ioe status` to verify that the consolidated mod is loaded and that the scaffold/planning systems are reachable. The command reports the active mod id/version when available, runtime worldgen gates, province runtime integration, diagnostics, scaffold readiness, live placement registration flags, and an explicit planning-only explanation. It does not mutate the world, register features, add JourneyMap integration, or require client-only classes.
+
 Validation for this project remains GitHub Actions on the consolidated NeoForge module. Local Gradle, tests, builds, Minecraft, PrismLauncher, smoke tests, and local CI simulation are disabled by default unless explicitly requested.

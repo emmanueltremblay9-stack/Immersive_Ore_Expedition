@@ -1,10 +1,14 @@
 package com.oblixorprime.ioe.retrogen;
 
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.oblixorprime.ioe.worldgen.IoeRuntimeScaffoldStatus;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenPlacementGates;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenRegistration;
 import net.minecraft.commands.CommandSourceStack;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,6 +29,7 @@ class IoeAdminCommandsTest {
                 new IoeAdminCommandSettings(true, true, true, true, true, true)
         ).build();
 
+        assertNotNull(root.getChild("status"));
         assertNotNull(root.getChild("locate").getChild("province"));
         assertNotNull(root.getChild("locate").getChild("anchor"));
         assertNotNull(root.getChild("retrogen").getChild("status"));
@@ -39,6 +44,7 @@ class IoeAdminCommandsTest {
                 new IoeAdminCommandSettings(false, true, false, false, true, true)
         ).build();
 
+        assertNotNull(root.getChild("status"));
         assertNotNull(root.getChild("locate"));
         assertNull(root.getChild("locate").getChild("province"));
         assertNotNull(root.getChild("locate").getChild("anchor"));
@@ -55,6 +61,7 @@ class IoeAdminCommandsTest {
                 new IoeAdminCommandSettings(false, false, true, true, false, false)
         ).build();
 
+        assertNotNull(root.getChild("status"));
         assertNull(root.getChild("locate"));
         assertNotNull(root.getChild("retrogen").getChild("status"));
         assertNull(root.getChild("retrogen").getChild("radius"));
@@ -62,12 +69,33 @@ class IoeAdminCommandsTest {
     }
 
     @Test
-    void allCommandsDisabledLeavesOnlyRootNode() {
+    void allConfigGatedCommandsDisabledLeavesStatusProofOnly() {
         LiteralCommandNode<CommandSourceStack> root = IoeAdminCommands.buildRootCommand(
                 new IoeAdminCommandSettings(false, false, false, false, false, false)
         ).build();
 
-        assertTrue(root.getChildren().isEmpty());
+        assertEquals(1, root.getChildren().size());
+        assertNotNull(root.getChild("status"));
+    }
+
+    @Test
+    void statusMessagesExplainPlanningOnlyRuntimeVisibility() {
+        IoeWorldgenRegistration registration = IoeWorldgenRegistration.scaffold(
+                List.of(),
+                IoeWorldgenPlacementGates.disabled()
+        );
+        IoeRuntimeScaffoldStatus status = IoeRuntimeScaffoldStatus.fromRegistration(
+                "test",
+                registration,
+                true
+        );
+
+        String output = String.join("\n", IoeAdminCommands.runtimeStatusMessages(status));
+
+        assertTrue(output.contains("runtimeWorldgenEnabled=false"));
+        assertTrue(output.contains("provinceRuntimeIntegrationEnabled=false"));
+        assertTrue(output.contains("planning-only"));
+        assertTrue(output.contains("No visible world or JourneyMap changes are expected"));
     }
 
     @Test
