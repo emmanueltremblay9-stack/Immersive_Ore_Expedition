@@ -50,4 +50,12 @@ This remains scaffold-only planning. Runtime worldgen remains default-off and no
 
 The binding adapter uses the existing `worldgen.provinces.defaultProvince` and `worldgen.provinces.biomeProvinceBindings` behavior, preserves malformed-binding safety and legacy namespace policy, and stores no world references, block-state lists, or runtime placement hooks. v12 is expected to handle IE/IP surface clue placement planning scaffold work.
 
+## Province System v12 IE/IP surface clue placement planning
+
+v12 adds deterministic IE/IP surface clue placement planning scaffold for Immersive Engineering mineral outcrop clues and Immersive Petroleum seep, pocket-lake, and gas-vent clue metadata.
+
+This remains scaffold-only planning. Runtime worldgen remains default-off and no-op, no live boulders, seep pockets, lakes, or gas vents are placed, full underground IE/IP deposit rendering remains out of scope, no configured features or placed features are registered, no biome modifiers are registered, no blocks are placed or removed, no ore generation is intercepted, and no retrogen mutation is added.
+
+The planner preserves optional IE/IP mod safety, uses only existing resource references, carries optional biome/province context as metadata, and keeps strict exclusions enforced before future placement hooks can use a clue plan. v13 is expected to handle crystal and AE2 site placement planning scaffold work.
+
 Validation for this project remains GitHub Actions on the consolidated NeoForge module. Local Gradle, tests, builds, Minecraft, PrismLauncher, smoke tests, and local CI simulation are disabled by default unless explicitly requested.
