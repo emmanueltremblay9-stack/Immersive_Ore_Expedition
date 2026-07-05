@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v18 with default config. Current systems are scaffold, planning, policy, validation layers, and a default-off placement proof gate unless a future PR explicitly enables broader live placement.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v19 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, and a default-off registration smoke bridge unless a future PR explicitly enables broader live placement.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -49,6 +49,21 @@ worldgen.runtimePlacementDiagnostics = true
 Evidence must include the normal smoke fields plus the exact config values above and the fresh log lines showing whether the v18 runtime placement proof was skipped, ready, or placed. A valid proof still requires anchor validation, a loaded block resource, resource-policy approval, strict-exclusion safety, a writable generation region, and an empty target block. Missing or denied resources must be recorded as skipped, not replaced with fallback blocks.
 
 v18 does not register configured features, placed features, biome modifiers, structures, or the complete surface clue to ore-load gameplay loop. Do not mark live gameplay proof complete unless a manual world smoke run captures actual placement evidence.
+
+## v19 Runtime Registration Smoke Bridge
+
+v19 registers one custom feature type, `immersive_ore_expedition:tiny_vertical_mine_entrance`, for future controlled smoke profiles. It does not add a configured feature, placed feature, biome modifier, datapack JSON, or gameplay-loop placement by itself.
+
+With default config, registered feature invocations remain no-op:
+
+```toml
+worldgen.runtimeProofFeatureEnabled = false
+worldgen.runtimeProofFeatureDiagnostics = false
+worldgen.runtimePlacementEnabled = false
+worldgen.runtimePlacementDiagnostics = false
+```
+
+A controlled future smoke profile must explicitly enable the v19 bridge and the v18 runtime placement gate before any proof placement can be attempted. Evidence must record whether the registered bridge was skipped because a gate was disabled, skipped because resource policy denied or skipped the proof resource, skipped by world safety checks, ready, attempted, or placed. Manual client/server/world smoke was not run unless a smoke report records the evidence listed above.
 
 ## Dedicated Server Smoke
 

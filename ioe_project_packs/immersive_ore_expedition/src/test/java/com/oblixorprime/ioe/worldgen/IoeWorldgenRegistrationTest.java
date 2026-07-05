@@ -37,10 +37,25 @@ final class IoeWorldgenRegistrationTest {
 
         assertTrue(registration.scaffoldOnly());
         assertTrue(registration.runtimePlacementNoOp());
+        assertFalse(registration.customFeaturesRegistered());
         assertFalse(registration.configuredFeaturesRegistered());
         assertFalse(registration.placedFeaturesRegistered());
         assertFalse(registration.biomeModifiersRegistered());
         assertTrue(registration.futureFeatureKeys().contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER));
+    }
+
+    @Test
+    void runtimeBridgeRegistrationStatusTracksCustomFeatureOnly() {
+        IoeWorldgenRegistration registration = IoeWorldgenBootstrap.registration(
+                IoeWorldgenPlacementGates.disabled(),
+                true
+        );
+
+        assertFalse(registration.scaffoldOnly());
+        assertTrue(registration.customFeaturesRegistered());
+        assertFalse(registration.configuredFeaturesRegistered());
+        assertFalse(registration.placedFeaturesRegistered());
+        assertFalse(registration.biomeModifiersRegistered());
     }
 
     @Test

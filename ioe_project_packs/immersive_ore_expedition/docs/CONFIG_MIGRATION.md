@@ -38,3 +38,10 @@ Province System v18 adds the first default-off runtime placement proof gates:
 - `worldgen.runtimePlacementDiagnostics`, default `false`
 
 With defaults, runtime placement remains no-op. When explicitly enabled by a caller, the v18 proof path runs anchor planning and existing resource-policy validation before attempting a single existing block placement; unloaded, denied, unsupported, or strictly excluded resources are skipped instead of substituted. v18 does not register configured features, placed features, biome modifiers, structures, new blocks, items, entities, ores, gems, datapacks, or dependencies, and it is not the complete surface clue to ore-load gameplay loop.
+
+Province System v19 adds a default-off runtime worldgen registration smoke bridge:
+
+- `worldgen.runtimeProofFeatureEnabled`, default `false`
+- `worldgen.runtimeProofFeatureDiagnostics`, default `false`
+
+v19 registers one custom feature type under the existing `immersive_ore_expedition:tiny_vertical_mine_entrance` key so a future controlled smoke profile can invoke the v18 proof path from runtime worldgen registration. It does not add configured features, placed features, biome modifiers, datapack JSON, blocks, items, entities, ores, gems, dependencies, or full gameplay-loop placement. With defaults, registered feature invocations return no-op before placement; even when the v19 bridge is enabled, `worldgen.runtimePlacementEnabled` must also be enabled before the v18 proof path can attempt a resource-policy-checked placement. Manual client/server/world smoke was not run by default and must be evidenced separately.
