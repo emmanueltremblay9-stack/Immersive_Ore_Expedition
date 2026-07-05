@@ -11,6 +11,7 @@ v31 does not run smoke, accept runtime behavior by itself, authorize a runtime P
 - V29 traceability matrix source: `../v29_worldgen_runtime_traceability_matrix/V29_WORLDGEN_RUNTIME_TRACEABILITY_MATRIX_TEMPLATE.md`
 - V30 evidence packet source: `../v30_runtime_evidence_packet/V30_RUNTIME_EVIDENCE_PACKET_TEMPLATE.md`
 - V31 review checklist: `V31_RUNTIME_EVIDENCE_REVIEW_CHECKLIST.md`
+- Next docs-only decision record: `../v32_runtime_evidence_decision_record/V32_RUNTIME_EVIDENCE_DECISION_RECORD.md`
 
 ## Review Purpose
 
@@ -32,6 +33,7 @@ The reviewer must verify that evidence is not invented, inferred, backfilled, st
 - No runtime evidence is invented or accepted by this package alone.
 - `ACCEPTED` means the reviewed evidence packet is acceptable for its stated scope only; it does not activate worldgen or authorize active resource/source changes.
 - A future runtime PR must still be separate, explicitly scoped, validated, and reviewed.
+- The v32 runtime evidence decision record is the next docs-only profile for recording the final disposition of a completed v31 review. It does not create smoke evidence or authorize runtime/resource changes by itself.
 
 ## Hard Boundaries
 

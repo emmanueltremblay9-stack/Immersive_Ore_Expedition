@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v31 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, runtime evidence packet, and runtime evidence review checklist documentation.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v32 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, runtime evidence packet, runtime evidence review checklist, and runtime evidence decision record documentation.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -176,6 +176,12 @@ v30 does not execute smoke, does not activate runtime worldgen, does not authori
 v31 adds a docs-only runtime evidence review checklist at `docs/smoke_profiles/v31_runtime_evidence_review_checklist/`. It lets a reviewer inspect a filled v30 packet after a future real smoke run and classify proof as `ABSENT`, `INCOMPLETE`, `CONTRADICTORY`, or `SUFFICIENT` before selecting `ACCEPTED`, `REJECTED`, `NEEDS_MORE_EVIDENCE`, or `OUT_OF_SCOPE`.
 
 v31 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `ACCEPTED` applies only to the reviewed evidence packet scope and does not authorize active runtime/resource changes by itself.
+
+## v32 Runtime Evidence Decision Record
+
+v32 adds a docs-only runtime evidence decision record at `docs/smoke_profiles/v32_runtime_evidence_decision_record/`. It turns a completed v31 review of a filled v30 packet into a traceable final decision with required reason codes, evidence sufficiency matrix, gap ledger, remediation/next-action section, audit trail, and closure criteria.
+
+v32 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not replace v29, v30, or v31, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `ACCEPTED` applies only to the recorded evidence decision scope and does not authorize active runtime/resource changes by itself.
 
 ## Dedicated Server Smoke
 
