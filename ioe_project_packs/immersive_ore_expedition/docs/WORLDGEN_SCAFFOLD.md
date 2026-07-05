@@ -74,4 +74,12 @@ This remains scaffold-only planning. Runtime worldgen remains default-off and no
 
 The planner preserves optional AE2 safety, uses only supplied existing AE2 resource references, rejects unloaded, policy-denied, strictly excluded, malformed, or fake Fluix resources safely, and stores no world references, block-state lists, or runtime placement hooks. v15 is expected to handle Nether sub-lava geode planning scaffold work.
 
+## Province System v15 Nether sub-lava geode planning
+
+v15 adds deterministic Nether sub-lava geode placement planning scaffold for future quartz geode sites anchored below explicit giant lava-lake samples. Plans can record supplied existing-resource references for Nether Quartz and optional Ancient Debris heart metadata, Nether dimension/depth metadata, lava-lake anchor metadata, shell/core radii, and optional biome/province/anchor context.
+
+This remains scaffold-only planning. Runtime worldgen remains default-off and no-op, no live quartz geodes or Ancient Debris hearts are placed, no configured features or placed features are registered, no biome modifiers are registered, no blocks are placed or removed, no ore generation is intercepted, and no retrogen mutation is added.
+
+The planner preserves vanilla resource safety, uses only supplied existing resource references, rejects non-Nether dimensions, invalid lava anchors, invalid depths, unloaded, policy-denied, or strictly excluded resources safely, and stores no world references, block-state lists, or runtime placement hooks. v16 is expected to handle persistent conservative retrogen scaffold work.
+
 Validation for this project remains GitHub Actions on the consolidated NeoForge module. Local Gradle, tests, builds, Minecraft, PrismLauncher, smoke tests, and local CI simulation are disabled by default unless explicitly requested.
