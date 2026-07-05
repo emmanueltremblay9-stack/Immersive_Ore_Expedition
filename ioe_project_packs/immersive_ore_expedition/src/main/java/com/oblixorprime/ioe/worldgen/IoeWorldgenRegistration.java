@@ -20,7 +20,12 @@ public record IoeWorldgenRegistration(
         boolean customFeaturesRegistered,
         boolean configuredFeaturesRegistered,
         boolean placedFeaturesRegistered,
-        boolean biomeModifiersRegistered
+        boolean biomeModifiersRegistered,
+        boolean configuredFeatureDeclarationPresent,
+        boolean placedFeatureDeclarationPresent,
+        boolean datapackResourceJsonPresent,
+        boolean runtimeBiomeBindingPresent,
+        boolean livePlacementProofComplete
 ) {
     public IoeWorldgenRegistration {
         futureFeatureKeys = List.copyOf(Objects.requireNonNull(futureFeatureKeys, "futureFeatureKeys"));
@@ -48,6 +53,11 @@ public record IoeWorldgenRegistration(
                 placementGates,
                 customFeaturesRegistered,
                 false,
+                false,
+                false,
+                true,
+                true,
+                true,
                 false,
                 false
         );
