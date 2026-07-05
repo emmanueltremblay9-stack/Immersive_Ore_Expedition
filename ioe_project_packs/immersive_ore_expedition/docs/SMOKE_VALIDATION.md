@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v21 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, and a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v22 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and a docs-only controlled external smoke profile package.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -92,6 +92,34 @@ worldgen.runtimePlacementDiagnostics = true
 ```
 
 That external smoke setup is not shipped as a default binding and does not prove live placement unless manual client/server/world evidence is captured. Missing, denied, unsupported, or strictly excluded resources must still be recorded as skipped, not replaced with fallback blocks. Manual client/server/world smoke was not run unless a smoke report records the evidence listed above.
+
+## v22 Controlled External Worldgen Smoke Profile
+
+v22 adds a docs-only smoke profile package at `docs/smoke_profiles/v22_worldgen_smoke_profile/`. It is a manual setup aid only, not active shipped data and not smoke evidence by itself.
+
+The profile datapack appends exactly one explicit vanilla biome id to the IOE smoke tag:
+
+```json
+{
+  "replace": false,
+  "values": [
+    "minecraft:plains"
+  ]
+}
+```
+
+The profile config template enables both default-off gates for a disposable test world:
+
+```toml
+worldgen.runtimeProofFeatureEnabled = true
+worldgen.runtimeProofFeatureDiagnostics = true
+worldgen.runtimePlacementEnabled = true
+worldgen.runtimePlacementDiagnostics = true
+worldgen.provinces.runtimeIntegrationEnabled = false
+worldgen.provinces.resourcePolicyRules = []
+```
+
+Do not use broad biome tags, modded biomes, or multiple test biomes for this controlled profile. Do not claim live placement unless the evidence template records a fresh log, enabled datapack, exact config values, checked coordinates, and observed placement evidence. Manual client/server/world smoke was not run by v22.
 
 ## Dedicated Server Smoke
 

@@ -40,6 +40,7 @@ Use this checklist before publishing an Immersive Ore Expedition release from th
 - Confirm any configured/placed feature declarations remain unbound from real biome generation by default unless a later explicit release changes that policy.
 - Confirm v20 declaration-only configured/placed feature resources do not claim live placement or smoke proof.
 - Confirm the v21 biome modifier smoke bridge targets only the IOE smoke biome tag and that the shipped tag binds zero real biomes by default.
+- Confirm any v22 controlled smoke profile remains docs-only and does not modify active shipped `src/main/resources` biome bindings.
 - Confirm no broad biome tags such as `#minecraft:is_overworld` or `#c:is_overworld` are used by default.
 - Confirm retrogen mutation remains default-off and admin-controlled.
 - Confirm no configured features, placed features, or biome modifiers were enabled unexpectedly.

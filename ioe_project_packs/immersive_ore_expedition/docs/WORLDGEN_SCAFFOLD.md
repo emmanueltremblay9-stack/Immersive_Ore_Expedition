@@ -161,3 +161,18 @@ This is still a default-safe bridge, not live gameplay proof. Runtime invocation
 - `worldgen.runtimePlacementEnabled`, default `false`
 
 The v19 custom feature and v18 placement proof path still preserve resource-policy validation, loaded-resource checks, strict exclusions, missing-resource skips, writable-region checks, and opt-in diagnostics. v21 does not add real biome binding by default, structures, blocks, items, entities, ores, gems, fluids, mixins, access transformers, dependencies, IE/IP clues, crystal growth, Nether geodes, Ancient Debris hearts, retrogen mutation, or the complete surface clue to ore-load gameplay loop. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.
+
+## Province System v22 controlled external worldgen smoke profile
+
+v22 adds a docs-only controlled smoke profile package at `docs/smoke_profiles/v22_worldgen_smoke_profile/`. The package includes an external datapack template, a config template, and an evidence template for a future manual smoke run.
+
+The datapack template appends exactly one explicit vanilla test biome, `minecraft:plains`, to `immersive_ore_expedition:worldgen_smoke_test_biomes`. It does not use broad biome tags, modded biome ids, or multiple biome ids, and it is not copied into active `src/main/resources`.
+
+The config template explicitly enables both default-off smoke gates for a disposable test world:
+
+- `worldgen.runtimeProofFeatureEnabled = true`
+- `worldgen.runtimeProofFeatureDiagnostics = true`
+- `worldgen.runtimePlacementEnabled = true`
+- `worldgen.runtimePlacementDiagnostics = true`
+
+The active shipped smoke tag still contains zero biome ids, all runtime gates still default to `false`, and province runtime integration remains disabled by default. v22 does not run smoke, does not prove live placement, and does not add blocks, items, entities, ores, gems, fluids, mixins, access transformers, dependencies, generated content, or the complete surface clue to ore-load gameplay loop.
