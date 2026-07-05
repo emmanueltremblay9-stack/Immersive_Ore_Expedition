@@ -127,3 +127,21 @@ The bridge is guarded separately from the v18 placement proof:
 - `worldgen.runtimePlacementDiagnostics`, default `false`
 
 With defaults, registered feature invocations are no-op and non-noisy. When a future controlled smoke profile explicitly enables both the v19 bridge gate and the v18 placement gate, the registered feature delegates to `OreLoadGenerator.generateAnchoredOreLoad`, which routes through the v18 runtime placement proof/resource-policy path. Missing, denied, unsupported, or strictly excluded resources are skipped rather than substituted, and writable-region/replaceability checks still apply before any block placement attempt. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.
+
+## Province System v20 configured/placed feature declaration bridge
+
+v20 adds declaration-only datapack resources for the existing v19 proof feature id:
+
+- `data/immersive_ore_expedition/worldgen/configured_feature/tiny_vertical_mine_entrance.json`
+- `data/immersive_ore_expedition/worldgen/placed_feature/tiny_vertical_mine_entrance.json`
+
+The configured feature points at the registered custom feature type `immersive_ore_expedition:tiny_vertical_mine_entrance` with an empty `NoneFeatureConfiguration` payload. The placed feature references that configured feature with an empty placement modifier list.
+
+This makes the v19 proof feature addressable as configured/placed worldgen data, but it still does not add a biome modifier, does not attach the placed feature to any biome, and does not create live placement by default. The existing gates remain unchanged and default-off:
+
+- `worldgen.runtimeProofFeatureEnabled`, default `false`
+- `worldgen.runtimeProofFeatureDiagnostics`, default `false`
+- `worldgen.runtimePlacementEnabled`, default `false`
+- `worldgen.runtimePlacementDiagnostics`, default `false`
+
+v20 does not add structures, blocks, items, entities, ores, gems, fluids, mixins, access transformers, dependencies, IE/IP clues, crystal growth, Nether geodes, Ancient Debris hearts, retrogen mutation, or the complete surface clue to ore-load gameplay loop. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.

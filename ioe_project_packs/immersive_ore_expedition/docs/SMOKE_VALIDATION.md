@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v19 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, and a default-off registration smoke bridge unless a future PR explicitly enables broader live placement.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v20 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, and declaration-only configured/placed feature data unless a future PR explicitly enables broader live placement.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -64,6 +64,12 @@ worldgen.runtimePlacementDiagnostics = false
 ```
 
 A controlled future smoke profile must explicitly enable the v19 bridge and the v18 runtime placement gate before any proof placement can be attempted. Evidence must record whether the registered bridge was skipped because a gate was disabled, skipped because resource policy denied or skipped the proof resource, skipped by world safety checks, ready, attempted, or placed. Manual client/server/world smoke was not run unless a smoke report records the evidence listed above.
+
+## v20 Configured/Placed Feature Declaration Bridge
+
+v20 adds one configured feature JSON and one placed feature JSON for `immersive_ore_expedition:tiny_vertical_mine_entrance`. The configured feature points at the v19 custom feature type with empty `NoneFeatureConfiguration` config, and the placed feature references it with an empty placement modifier list.
+
+v20 does not add a biome modifier or bind the placed feature to any biome, so default worlds still do not invoke the feature. A future smoke profile must explicitly add a controlled invocation path and still enable both v19 and v18 gates before placement can be attempted. Manual client/server/world smoke was not run unless a smoke report records the evidence listed above.
 
 ## Dedicated Server Smoke
 
