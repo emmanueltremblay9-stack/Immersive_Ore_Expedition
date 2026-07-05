@@ -17,6 +17,7 @@ public record IoeWorldgenRegistration(
         boolean netherSubLavaGeodePlacementPlanningReady,
         boolean persistentConservativeRetrogenPlanningReady,
         IoeWorldgenPlacementGates placementGates,
+        boolean customFeaturesRegistered,
         boolean configuredFeaturesRegistered,
         boolean placedFeaturesRegistered,
         boolean biomeModifiersRegistered
@@ -30,7 +31,8 @@ public record IoeWorldgenRegistration(
 
     public static IoeWorldgenRegistration scaffold(
             List<ResourceLocation> futureFeatureKeys,
-            IoeWorldgenPlacementGates placementGates
+            IoeWorldgenPlacementGates placementGates,
+            boolean customFeaturesRegistered
     ) {
         return new IoeWorldgenRegistration(
                 futureFeatureKeys,
@@ -44,6 +46,7 @@ public record IoeWorldgenRegistration(
                 true,
                 true,
                 placementGates,
+                customFeaturesRegistered,
                 false,
                 false,
                 false
@@ -51,7 +54,8 @@ public record IoeWorldgenRegistration(
     }
 
     public boolean scaffoldOnly() {
-        return !configuredFeaturesRegistered
+        return !customFeaturesRegistered
+                && !configuredFeaturesRegistered
                 && !placedFeaturesRegistered
                 && !biomeModifiersRegistered;
     }

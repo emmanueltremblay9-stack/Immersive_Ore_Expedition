@@ -22,7 +22,7 @@ public final class ImmersiveOreExpeditionMod {
         modContainer.registerConfig(ModConfig.Type.COMMON, ImmersiveOreExpeditionConfig.SPEC,
                 "immersive_ore_expedition-common.toml");
         IoeCoreMod.bootstrap();
-        IoeExpeditionWorldgenMod.bootstrap();
+        IoeExpeditionWorldgenMod.bootstrap(modContainer.getEventBus());
         IoeCrystalGrowthMod.bootstrap();
         IoeNetherGeodesMod.bootstrap();
         IoeIeipProspectingMod.bootstrap();

@@ -28,6 +28,14 @@ public final class IoeWorldgenConfig {
         return ImmersiveOreExpeditionConfig.worldgenRuntimePlacementDiagnostics();
     }
 
+    public static boolean runtimeProofFeatureEnabled() {
+        return ImmersiveOreExpeditionConfig.worldgenRuntimeProofFeatureEnabled();
+    }
+
+    public static boolean runtimeProofFeatureDiagnostics() {
+        return ImmersiveOreExpeditionConfig.worldgenRuntimeProofFeatureDiagnostics();
+    }
+
     public static int oreLoadMinDistanceFromAnchor() {
         return ImmersiveOreExpeditionConfig.worldgenOreLoadMinDistanceFromAnchor();
     }

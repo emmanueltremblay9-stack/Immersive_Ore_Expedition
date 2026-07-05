@@ -37,6 +37,8 @@ public final class ImmersiveOreExpeditionConfig {
     private static final boolean DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES = true;
     private static final boolean DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED = false;
     private static final boolean DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS = false;
+    private static final boolean DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED = false;
+    private static final boolean DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS = false;
     private static final int DEFAULT_WORLDGEN_MIN_DISTANCE = 16;
     private static final int DEFAULT_WORLDGEN_MAX_DISTANCE = 96;
     private static final boolean DEFAULT_WORLDGEN_REQUIRE_TUNNEL_CONNECTION = true;
@@ -157,6 +159,12 @@ public final class ImmersiveOreExpeditionConfig {
     private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS = BUILDER
             .comment("Emit opt-in diagnostics for runtime placement proof decisions.")
             .define("worldgen.runtimePlacementDiagnostics", DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED = BUILDER
+            .comment("Enable the v19 registered runtime proof feature bridge. Default false keeps registered feature invocations no-op.")
+            .define("worldgen.runtimeProofFeatureEnabled", DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS = BUILDER
+            .comment("Emit opt-in diagnostics for the v19 runtime proof feature bridge.")
+            .define("worldgen.runtimeProofFeatureDiagnostics", DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS);
     private static final ModConfigSpec.IntValue WORLDGEN_ORE_LOAD_MIN_DISTANCE_FROM_ANCHOR = BUILDER
             .comment("Minimum Manhattan distance from an expedition anchor to a planned ore-load chamber.")
             .defineInRange("worldgen.anchorRules.oreLoadMinDistanceFromAnchor", DEFAULT_WORLDGEN_MIN_DISTANCE, 1, 512);
@@ -476,6 +484,16 @@ public final class ImmersiveOreExpeditionConfig {
     public static boolean worldgenRuntimePlacementDiagnostics() {
         return getOrDefault(WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS,
                 DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS);
+    }
+
+    public static boolean worldgenRuntimeProofFeatureEnabled() {
+        return getOrDefault(WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED,
+                DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED);
+    }
+
+    public static boolean worldgenRuntimeProofFeatureDiagnostics() {
+        return getOrDefault(WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS,
+                DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS);
     }
 
     public static int worldgenOreLoadMinDistanceFromAnchor() {

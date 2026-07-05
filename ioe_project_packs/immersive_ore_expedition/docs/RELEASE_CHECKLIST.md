@@ -36,6 +36,8 @@ Use this checklist before publishing an Immersive Ore Expedition release from th
 - Confirm strict exclusions and the no-fake-resources policy remain enforced.
 - Confirm runtime worldgen placement remains gated and default-off unless a later explicit release changes that policy.
 - Confirm `worldgen.runtimePlacementEnabled` and `worldgen.runtimePlacementDiagnostics` remain default `false`.
+- Confirm `worldgen.runtimeProofFeatureEnabled` and `worldgen.runtimeProofFeatureDiagnostics` remain default `false`.
+- Confirm any registered custom feature remains unbound from configured features, placed features, biome modifiers, or datapack JSON unless a later explicit release changes that policy.
 - Confirm retrogen mutation remains default-off and admin-controlled.
 - Confirm no configured features, placed features, or biome modifiers were enabled unexpectedly.
 - Confirm no new blocks, items, entities, ores, gems, fluids, recipes, loot tables, creative tabs, mixins, access transformers, embedded jars, or dependencies were added unexpectedly.

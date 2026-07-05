@@ -114,3 +114,16 @@ The new `RuntimeWorldgenPlacementProof` path is intentionally narrow. It validat
 Diagnostics are emitted only when `worldgen.runtimePlacementDiagnostics` is enabled. No runtime logs are emitted by default.
 
 This is the first opt-in proof slice, not the complete gameplay loop. v18 does not register configured features, placed features, biome modifiers, structure templates, blocks, items, entities, ores, gems, fluids, datapacks, mixins, access transformers, or dependencies. It does not implement IE/IP clues, crystal growth, Nether geodes, Ancient Debris hearts, ore-load chamber placement, random ore suppression hooks, or retrogen mutation. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.
+
+## Province System v19 runtime registration smoke bridge
+
+v19 adds one default-off bridge between NeoForge runtime feature registration and the existing v18 placement proof path. The consolidated module registers a custom feature type under the existing `immersive_ore_expedition:tiny_vertical_mine_entrance` key. It does not register configured features, placed features, biome modifiers, datapack JSON, structure templates, blocks, items, entities, ores, gems, fluids, mixins, access transformers, dependencies, or the complete surface clue to ore-load gameplay loop.
+
+The bridge is guarded separately from the v18 placement proof:
+
+- `worldgen.runtimeProofFeatureEnabled`, default `false`
+- `worldgen.runtimeProofFeatureDiagnostics`, default `false`
+- `worldgen.runtimePlacementEnabled`, default `false`
+- `worldgen.runtimePlacementDiagnostics`, default `false`
+
+With defaults, registered feature invocations are no-op and non-noisy. When a future controlled smoke profile explicitly enables both the v19 bridge gate and the v18 placement gate, the registered feature delegates to `OreLoadGenerator.generateAnchoredOreLoad`, which routes through the v18 runtime placement proof/resource-policy path. Missing, denied, unsupported, or strictly excluded resources are skipped rather than substituted, and writable-region/replaceability checks still apply before any block placement attempt. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.
