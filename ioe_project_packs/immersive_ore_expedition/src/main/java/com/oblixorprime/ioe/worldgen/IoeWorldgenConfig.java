@@ -20,6 +20,14 @@ public final class IoeWorldgenConfig {
         return ImmersiveOreExpeditionConfig.worldgenAllowTinyScrapOreOutsideProvinces();
     }
 
+    public static boolean runtimePlacementEnabled() {
+        return ImmersiveOreExpeditionConfig.worldgenRuntimePlacementEnabled();
+    }
+
+    public static boolean runtimePlacementDiagnostics() {
+        return ImmersiveOreExpeditionConfig.worldgenRuntimePlacementDiagnostics();
+    }
+
     public static int oreLoadMinDistanceFromAnchor() {
         return ImmersiveOreExpeditionConfig.worldgenOreLoadMinDistanceFromAnchor();
     }

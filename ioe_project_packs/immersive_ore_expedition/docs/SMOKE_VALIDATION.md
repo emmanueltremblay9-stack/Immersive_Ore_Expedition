@@ -28,7 +28,27 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v17 alone. Current systems are scaffold, planning, policy, and validation layers unless a future PR explicitly enables live placement.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v18 with default config. Current systems are scaffold, planning, policy, validation layers, and a default-off placement proof gate unless a future PR explicitly enables broader live placement.
+
+## v18 Runtime Placement Proof Smoke
+
+v18 adds a default-off runtime placement proof path. With default config, no placement is expected:
+
+```toml
+worldgen.runtimePlacementEnabled = false
+worldgen.runtimePlacementDiagnostics = false
+```
+
+Only use the proof path in a controlled smoke profile:
+
+```toml
+worldgen.runtimePlacementEnabled = true
+worldgen.runtimePlacementDiagnostics = true
+```
+
+Evidence must include the normal smoke fields plus the exact config values above and the fresh log lines showing whether the v18 runtime placement proof was skipped, ready, or placed. A valid proof still requires anchor validation, a loaded block resource, resource-policy approval, strict-exclusion safety, a writable generation region, and an empty target block. Missing or denied resources must be recorded as skipped, not replaced with fallback blocks.
+
+v18 does not register configured features, placed features, biome modifiers, structures, or the complete surface clue to ore-load gameplay loop. Do not mark live gameplay proof complete unless a manual world smoke run captures actual placement evidence.
 
 ## Dedicated Server Smoke
 
