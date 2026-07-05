@@ -236,3 +236,9 @@ This remains process documentation only. It does not run smoke, activate runtime
 v32 adds a docs-only runtime evidence decision record at `docs/smoke_profiles/v32_runtime_evidence_decision_record/`. The record turns a completed v31 review into a traceable final decision, preserves the v29 -> v30 -> v31 -> v32 audit trail, records reason codes, tracks gaps, and names required remediation before an evidence packet can be accepted.
 
 This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, replace v29, v30, or v31, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or invent smoke evidence. Runtime worldgen remains disabled in v32, and any accepted decision still applies only to the reviewed evidence record scope unless a later separate runtime PR is explicitly authorized and validated.
+
+## Province System v33 runtime evidence remediation tracker
+
+v33 adds a docs-only runtime evidence remediation tracker at `docs/smoke_profiles/v33_runtime_evidence_remediation_tracker/`. The tracker turns a completed v32 decision record into follow-up actions that preserve the v29 -> v30 -> v31 -> v32 -> v33 audit trail, carry v32 reason codes forward, track missing or contradictory proof, and define closure gates before any remediation can affect a later decision.
+
+This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, replace v29, v30, v31, or v32, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or invent smoke evidence. Runtime worldgen remains disabled in v33, and any closed remediation action still applies only to the tracked evidence scope unless a later separate runtime PR is explicitly authorized and validated.
