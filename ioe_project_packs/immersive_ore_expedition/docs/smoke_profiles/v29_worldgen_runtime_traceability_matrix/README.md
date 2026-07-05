@@ -13,6 +13,7 @@ v29 does not run smoke, accept evidence, make anything `READY_FOR_RUNTIME_SLICE`
 - V27 inventory source: `../v27_worldgen_runtime_resource_inventory/V27_WORLDGEN_RUNTIME_RESOURCE_INVENTORY_TEMPLATE.md`
 - V28 preflight manifest source: `../v28_worldgen_runtime_pr_preflight/V28_WORLDGEN_RUNTIME_PR_PREFLIGHT_TEMPLATE.md`
 - V29 traceability matrix: `V29_WORLDGEN_RUNTIME_TRACEABILITY_MATRIX_TEMPLATE.md`
+- Next docs-only evidence packet: `../v30_runtime_evidence_packet/V30_RUNTIME_EVIDENCE_PACKET_TEMPLATE.md`
 
 ## Scope And Non-Authorization
 
@@ -22,6 +23,7 @@ v29 does not run smoke, accept evidence, make anything `READY_FOR_RUNTIME_SLICE`
 - No smoke evidence is invented or accepted by this package.
 - v29 does not authorize a runtime PR, modifies no active resources, and activates no runtime worldgen.
 - A future runtime PR must fill the matrix with current evidence, then pass maintainer review before changing active runtime resources or source.
+- The v30 runtime evidence packet is the next docs-only profile for turning reviewed v29 rows into future smoke evidence fields. It does not complete, accept, or authorize any v29 traceability row by itself.
 
 ## Traceability Purpose
 

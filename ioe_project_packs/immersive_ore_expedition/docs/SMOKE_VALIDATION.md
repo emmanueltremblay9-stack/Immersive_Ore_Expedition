@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v29 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, and traceability matrix documentation.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v30 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, and runtime evidence packet documentation.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -164,6 +164,12 @@ v28 does not activate runtime worldgen, does not authorize a runtime PR, does no
 v29 adds a docs-only runtime traceability matrix at `docs/smoke_profiles/v29_worldgen_runtime_traceability_matrix/`. It links candidate future runtime paths to v23 smoke evidence, the v24 maintainer gate, v25 readiness, the v26 implementation packet, the v27 inventory, and the v28 preflight manifest.
 
 v29 does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change config defaults, does not modify legacy split-module source trees, and does not create smoke evidence. The traceability statuses are `UNMAPPED`, `PARTIALLY_MAPPED`, `FULLY_MAPPED_NOT_AUTHORIZED`, `BLOCKED_BY_MISSING_EVIDENCE`, `BLOCKED_BY_STALE_INVENTORY`, and `READY_FOR_MAINTAINER_REVIEW_ONLY`; maintainer traceability disposition must remain separate from smoke evidence and future runtime authorization.
+
+## v30 Runtime Evidence Packet
+
+v30 adds a docs-only runtime evidence packet at `docs/smoke_profiles/v30_runtime_evidence_packet/`. It turns the v29 traceability matrix into a future smoke evidence capture template for run identity, config proof, datapack/worldgen proof, runtime logs, chunk/biome sampling, artifact references, and `PASS` / `FAIL` / `INCONCLUSIVE` criteria.
+
+v30 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create smoke evidence. The template accepts `not executed` as a placeholder during docs-only preparation, but any unexecuted runtime proof remains `INCONCLUSIVE` until a future real smoke run captures artifacts.
 
 ## Dedicated Server Smoke
 
