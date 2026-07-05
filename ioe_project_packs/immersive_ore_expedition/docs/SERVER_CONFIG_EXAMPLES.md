@@ -15,7 +15,7 @@ Defaults are intentionally conservative. Runtime worldgen placement remains defa
 - Old split IOE namespaces remain legacy opt-in references only.
 - Runtime placement proof remains disabled by default.
 - Runtime proof feature registration bridge remains disabled by default.
-- Configured/placed feature declarations are unbound from biomes by default.
+- Configured/placed feature declarations are attached only to an empty IOE smoke biome tag by default.
 
 ## Province Resource Rules
 
@@ -87,6 +87,28 @@ v20 adds one configured feature declaration and one placed feature declaration f
 
 No extra config is required for the declarations, and no default changes are made. With normal server config, the declarations are addressable data only: no biome modifier is added, no biome binding is added, and no world mutation occurs.
 
+## Biome Modifier Smoke-Tag Bridge
+
+v21 adds a default-off biome modifier smoke bridge for `immersive_ore_expedition:tiny_vertical_mine_entrance`. The biome modifier targets only the IOE-owned tag `#immersive_ore_expedition:worldgen_smoke_test_biomes`, and the shipped tag is empty by default:
+
+```json
+{
+  "replace": false,
+  "values": []
+}
+```
+
+With default resources and config, no real biome receives the placed feature and no world mutation occurs. A future external datapack may append one explicit biome to the smoke tag for manual smoke only. That external smoke profile must still enable both gates:
+
+```toml
+worldgen.runtimeProofFeatureEnabled = true
+worldgen.runtimeProofFeatureDiagnostics = true
+worldgen.runtimePlacementEnabled = true
+worldgen.runtimePlacementDiagnostics = true
+```
+
+Do not enable broad biome tags such as `#minecraft:is_overworld` or `#c:is_overworld` for this smoke path. Do not claim live placement or gameplay proof unless manual client/server/world smoke evidence was captured.
+
 ## Diagnostics
 
 Keep diagnostics disabled unless actively investigating a server issue:
@@ -100,6 +122,6 @@ If diagnostics are enabled, capture a short log window, then turn them back off 
 
 ## Current Limitation
 
-The v7-v20 roadmap work is primarily scaffold, planning, policy, persistence, release validation, a default-off runtime placement proof gate, a default-off registration smoke bridge, and declaration-only configured/placed feature resources. These config examples do not enable live placement of anchors, ore-load chambers, IE/IP clues, crystal sites, AE2 geodes, Nether geodes, Ancient Debris hearts, or retrogen resources.
+The v7-v21 roadmap work is primarily scaffold, planning, policy, persistence, release validation, a default-off runtime placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature resources, and a biome modifier bridge that targets an empty smoke tag by default. These config examples do not enable live placement of anchors, ore-load chambers, IE/IP clues, crystal sites, AE2 geodes, Nether geodes, Ancient Debris hearts, or retrogen resources.
 
-v18 adds a default-off runtime placement proof path, v19 adds a default-off registration smoke bridge, and v20 makes that bridge addressable as configured/placed feature data without biome binding. Do not claim live gameplay proof or smoke success unless manual client/server/world smoke evidence was captured.
+v18 adds a default-off runtime placement proof path, v19 adds a default-off registration smoke bridge, v20 makes that bridge addressable as configured/placed feature data, and v21 adds a default-off biome modifier smoke-tag bridge with zero real biome bindings by default. Do not claim live gameplay proof or smoke success unless manual client/server/world smoke evidence was captured.

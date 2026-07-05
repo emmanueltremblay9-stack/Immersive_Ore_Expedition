@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v20 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, and declaration-only configured/placed feature data unless a future PR explicitly enables broader live placement.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v21 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, and a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -70,6 +70,28 @@ A controlled future smoke profile must explicitly enable the v19 bridge and the 
 v20 adds one configured feature JSON and one placed feature JSON for `immersive_ore_expedition:tiny_vertical_mine_entrance`. The configured feature points at the v19 custom feature type with empty `NoneFeatureConfiguration` config, and the placed feature references it with an empty placement modifier list.
 
 v20 does not add a biome modifier or bind the placed feature to any biome, so default worlds still do not invoke the feature. A future smoke profile must explicitly add a controlled invocation path and still enable both v19 and v18 gates before placement can be attempted. Manual client/server/world smoke was not run unless a smoke report records the evidence listed above.
+
+## v21 Default-Off Biome Modifier Smoke-Tag Bridge
+
+v21 adds one NeoForge biome modifier declaration, `immersive_ore_expedition:tiny_vertical_mine_entrance_smoke_bridge`, that points at the existing v20 placed feature through the IOE-owned tag `#immersive_ore_expedition:worldgen_smoke_test_biomes`. The shipped tag contains zero biome ids:
+
+```json
+{
+  "replace": false,
+  "values": []
+}
+```
+
+With default shipped resources and config, no real biome receives the placed feature, so no world mutation is expected. A controlled future manual smoke profile may use an external datapack to add one explicit test biome to the smoke tag, but the smoke profile must also enable both default-off gates before any placement proof can be attempted:
+
+```toml
+worldgen.runtimeProofFeatureEnabled = true
+worldgen.runtimeProofFeatureDiagnostics = true
+worldgen.runtimePlacementEnabled = true
+worldgen.runtimePlacementDiagnostics = true
+```
+
+That external smoke setup is not shipped as a default binding and does not prove live placement unless manual client/server/world evidence is captured. Missing, denied, unsupported, or strictly excluded resources must still be recorded as skipped, not replaced with fallback blocks. Manual client/server/world smoke was not run unless a smoke report records the evidence listed above.
 
 ## Dedicated Server Smoke
 
