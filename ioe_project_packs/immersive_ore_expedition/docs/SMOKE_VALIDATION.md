@@ -129,6 +129,12 @@ Use the v23 runbook only with the v22 external datapack and config template. A v
 
 The v23 result template may record `not run`, `startup failed`, `world load failed`, `datapack rejected`, `config rejected`, `feature skipped`, `placement attempted`, or `placement observed`. Only `placement observed` with captured coordinate/log evidence can support a live placement proof claim. Manual smoke was not run by v23 unless a completed result file records that evidence.
 
+## v24 Post-Smoke Evidence Gate
+
+v24 adds a docs-only maintainer decision gate at `docs/smoke_profiles/v24_worldgen_smoke_evidence_gate/`. Use it only after a v23 smoke result has been filled from an actual run. The gate separates raw smoke execution from maintainer acceptance, keeps runtime worldgen disabled by default, and blocks any promotion to runtime integration unless the required client/server/datapack/log/coordinate evidence is present.
+
+The v24 gate does not activate runtime worldgen, does not change shipped resources or config defaults, and does not replace the v23 runbook. If no completed v23 result exists, the correct v24 decision is `no-go`.
+
 ## Dedicated Server Smoke
 
 1. Install the release jar into a controlled Minecraft 1.21.1 / NeoForge dedicated server.
