@@ -45,6 +45,15 @@ See `docs/PROVINCE_SYSTEM_V1.md` for scope, config keys, strict exclusions, and 
 
 Local Gradle validation, local builds, and local Minecraft or Prism runtime smoke tests are disabled by default for this project workflow. GitHub Actions is the source of truth for automated validation. Runtime Prism testing requires explicit manual approval before launching anything locally.
 
+The consolidated module CI verifies the release jar structure: the runtime jar must include compiled classes under `com/oblixorprime/ioe/` and `META-INF/neoforge.mods.toml`. Release and smoke guidance lives in:
+
+- `ioe_project_packs/immersive_ore_expedition/docs/RELEASE_CHECKLIST.md`
+- `ioe_project_packs/immersive_ore_expedition/docs/SMOKE_VALIDATION.md`
+- `ioe_project_packs/immersive_ore_expedition/docs/SERVER_CONFIG_EXAMPLES.md`
+- `ioe_project_packs/immersive_ore_expedition/docs/RELEASE_NOTES_TEMPLATE.md`
+
+Current v7-v17 worldgen work is mostly scaffold, planning, policy, persistence, and release validation. Live client/server smoke evidence must be recorded separately, and the release jar must remain class-bearing rather than metadata-only.
+
 ## Build Status
 
 The module statuses below are retained as historical alpha-foundation notes. New automated validation runs in CI from the consolidated build root at `ioe_project_packs/immersive_ore_expedition`.

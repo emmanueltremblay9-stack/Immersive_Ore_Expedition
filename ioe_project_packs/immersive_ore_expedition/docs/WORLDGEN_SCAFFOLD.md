@@ -90,4 +90,12 @@ This remains persistence/admin-safety scaffold only. Retrogen remains opt-in and
 
 The in-memory scaffold store supports deterministic queue, pause, resume, processed, skipped, failed, and status snapshot semantics for tests and future persistence wiring without storing world references, chunk references, block-state lists, or runtime placement hooks. v17 is expected to handle release hardening and smoke validation docs/checks.
 
+## Province System v17 release hardening and smoke validation
+
+v17 adds release hardening and smoke validation documentation/checks for the consolidated module. CI now verifies that the produced runtime jar contains `META-INF/neoforge.mods.toml` and compiled IOE classes under `com/oblixorprime/ioe/`, helping catch empty, metadata-only, or resource-only jar artifacts before release.
+
+Manual client and dedicated server smoke procedures are documented for release evidence capture. Smoke validation remains a manual activity unless explicitly run outside the default Codex workflow, and release status must not claim full gameplay completion or smoke success without captured evidence.
+
+This remains release/process hardening only. Runtime worldgen remains default-off and no-op, no live placement is enabled, no chunks are mutated, no blocks are placed or removed, no configured features or placed features are registered, no biome modifiers are registered, no config defaults change, and no generated content is added.
+
 Validation for this project remains GitHub Actions on the consolidated NeoForge module. Local Gradle, tests, builds, Minecraft, PrismLauncher, smoke tests, and local CI simulation are disabled by default unless explicitly requested.
