@@ -52,7 +52,7 @@ The consolidated module CI verifies the release jar structure: the runtime jar m
 - `ioe_project_packs/immersive_ore_expedition/docs/SERVER_CONFIG_EXAMPLES.md`
 - `ioe_project_packs/immersive_ore_expedition/docs/RELEASE_NOTES_TEMPLATE.md`
 
-Current v7-v23 worldgen work is mostly scaffold, planning, policy, persistence, release validation, a default-off runtime placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature resources, a biome modifier smoke-tag bridge that binds zero real biomes by default, a docs-only controlled external smoke profile package, and a docs-only controlled smoke runbook/result template. Live client/server smoke evidence must be recorded separately, and the release jar must remain class-bearing rather than metadata-only.
+Current v7-v25 worldgen work is mostly scaffold, planning, policy, persistence, release validation, a default-off runtime placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature resources, a biome modifier smoke-tag bridge that binds zero real biomes by default, a docs-only controlled external smoke profile package, a docs-only controlled smoke runbook/result template, a docs-only post-smoke evidence gate, and a docs-only runtime promotion readiness packet. Live client/server smoke evidence must be recorded separately, and the release jar must remain class-bearing rather than metadata-only.
 
 ## Build Status
 

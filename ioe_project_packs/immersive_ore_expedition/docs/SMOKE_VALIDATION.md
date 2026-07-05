@@ -135,6 +135,12 @@ v24 adds a docs-only maintainer decision gate at `docs/smoke_profiles/v24_worldg
 
 The v24 gate does not activate runtime worldgen, does not change shipped resources or config defaults, and does not replace the v23 runbook. If no completed v23 result exists, the correct v24 decision is `no-go`.
 
+## v25 Runtime Promotion Readiness Packet
+
+v25 adds a docs-only readiness packet at `docs/smoke_profiles/v25_worldgen_runtime_promotion_readiness/`. Use it only after a completed v23 smoke result and v24 maintainer decision exist. It translates the evidence chain into one allowed disposition: `DOCS_ONLY_HOLD`, `REPEAT_SMOKE`, `BLOCKED`, or `READY_FOR_RUNTIME_SLICE`.
+
+`READY_FOR_RUNTIME_SLICE` does not activate runtime worldgen and does not authorize active resource changes by itself. It only means a future, separate PR may be scoped with explicit runtime diffs, rollback expectations, and validation commands.
+
 ## Dedicated Server Smoke
 
 1. Install the release jar into a controlled Minecraft 1.21.1 / NeoForge dedicated server.
