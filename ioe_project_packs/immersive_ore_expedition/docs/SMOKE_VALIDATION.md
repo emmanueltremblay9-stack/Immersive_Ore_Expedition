@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v26 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, and implementation packet documentation.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v27 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, and active resource inventory documentation.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -146,6 +146,12 @@ v25 adds a docs-only readiness packet at `docs/smoke_profiles/v25_worldgen_runti
 v26 adds a docs-only runtime slice implementation packet at `docs/smoke_profiles/v26_worldgen_runtime_slice_packet/`. It maps candidate future runtime files, required preconditions, rollback expectations, and validation requirements for a later separate runtime PR.
 
 v26 does not activate runtime worldgen, does not change active `src/main/resources`, does not change config defaults, and does not create smoke evidence. The only allowed authorization states are `NOT_AUTHORIZED`, `AWAITING_V23_SMOKE`, `AWAITING_V24_DECISION`, `AWAITING_V25_READY_FOR_RUNTIME_SLICE`, and `AUTHORIZED_FOR_SEPARATE_RUNTIME_PR`. `AUTHORIZED_FOR_SEPARATE_RUNTIME_PR` cannot be selected without a completed v23 smoke result, v24 maintainer decision, and v25 `READY_FOR_RUNTIME_SLICE` packet.
+
+## v27 Runtime Resource Inventory Snapshot
+
+v27 adds a docs-only active runtime resource inventory snapshot at `docs/smoke_profiles/v27_worldgen_runtime_resource_inventory/`. It records read-only observations of the shipped smoke tag, biome modifier, configured feature, placed feature, resource metadata, and config gate surfaces that a later separate runtime PR would need to recheck before editing.
+
+v27 does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change config defaults, does not modify legacy split-module source trees, and does not create smoke evidence. The inventory uses the classifications `READ_ONLY_OBSERVED`, `CANDIDATE_FUTURE_TOUCH`, `DO_NOT_TOUCH_THIS_SLICE`, and `UNKNOWN_NEEDS_RECHECK`; maintainer disposition must remain separate from smoke evidence and future runtime authorization.
 
 ## Dedicated Server Smoke
 
