@@ -13,7 +13,7 @@ Defaults are intentionally conservative. Runtime worldgen placement remains defa
 - Diagnostics remain opt-in and non-noisy by default.
 - Strict resource exclusions still win over configured allow rules.
 - Old split IOE namespaces remain legacy opt-in references only.
-- No live placement is enabled by these examples.
+- Runtime placement proof remains disabled by default.
 
 ## Province Resource Rules
 
@@ -41,6 +41,24 @@ worldgen.provinces.runtimeIntegrationEnabled = true
 
 Leave this disabled for default-safe server releases unless the server owner has reviewed the province rules and understands the current scaffold/planning-only limitations.
 
+## Runtime Placement Proof Gate
+
+v18 adds a first explicit runtime placement proof gate. Keep it disabled for normal server configs:
+
+```toml
+worldgen.runtimePlacementEnabled = false
+worldgen.runtimePlacementDiagnostics = false
+```
+
+Only enable it in a controlled smoke profile when collecting evidence for the v18 proof path:
+
+```toml
+worldgen.runtimePlacementEnabled = true
+worldgen.runtimePlacementDiagnostics = true
+```
+
+The proof path still validates the anchor, loaded block resource, resource policy, strict exclusions, writable generation region, and target air block before placement. It does not enable the full surface clue, mineshaft, or ore-load gameplay loop, and it does not register configured features, placed features, or biome modifiers.
+
 ## Diagnostics
 
 Keep diagnostics disabled unless actively investigating a server issue:
@@ -54,4 +72,6 @@ If diagnostics are enabled, capture a short log window, then turn them back off 
 
 ## Current Limitation
 
-The v7-v17 roadmap work is primarily scaffold, planning, policy, persistence, and release validation. These config examples do not enable live placement of anchors, ore-load chambers, IE/IP clues, crystal sites, AE2 geodes, Nether geodes, Ancient Debris hearts, or retrogen resources.
+The v7-v18 roadmap work is primarily scaffold, planning, policy, persistence, release validation, and a default-off runtime placement proof gate. These config examples do not enable live placement of anchors, ore-load chambers, IE/IP clues, crystal sites, AE2 geodes, Nether geodes, Ancient Debris hearts, or retrogen resources.
+
+v18 adds a default-off runtime placement proof path for controlled smoke evidence. Do not claim live gameplay proof or smoke success unless manual client/server/world smoke evidence was captured.

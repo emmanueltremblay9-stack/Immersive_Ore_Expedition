@@ -99,3 +99,18 @@ Manual client and dedicated server smoke procedures are documented for release e
 This remains release/process hardening only. Runtime worldgen remains default-off and no-op, no live placement is enabled, no chunks are mutated, no blocks are placed or removed, no configured features or placed features are registered, no biome modifiers are registered, no config defaults change, and no generated content is added.
 
 Validation for this project remains GitHub Actions on the consolidated NeoForge module. Local Gradle, tests, builds, Minecraft, PrismLauncher, smoke tests, and local CI simulation are disabled by default unless explicitly requested.
+
+## Province System v18 runtime placement proof gate
+
+v18 adds the first default-off runtime placement proof gate:
+
+- `worldgen.runtimePlacementEnabled`, default `false`
+- `worldgen.runtimePlacementDiagnostics`, default `false`
+
+`IoeWorldgenPlacementGates.fromConfig()` now reads the explicit runtime placement gate instead of hard-coding runtime placement off. With defaults, runtime placement remains no-op.
+
+The new `RuntimeWorldgenPlacementProof` path is intentionally narrow. It validates a known expedition anchor through the existing anchor planner, requires an explicit block `ResourceRef`, evaluates that block through the existing `ResourcePolicyService` and `LoadedResourceScanner`, preserves strict exclusions, refuses block tags instead of substituting an arbitrary block, and only attempts world placement inside the writable generation region and into an empty target when called with an enabled gate. `OreLoadGenerator.generateAnchoredOreLoad` delegates to this proof path with a vanilla `minecraft:amethyst_block` proof resource, still guarded by the same loaded-resource and policy checks.
+
+Diagnostics are emitted only when `worldgen.runtimePlacementDiagnostics` is enabled. No runtime logs are emitted by default.
+
+This is the first opt-in proof slice, not the complete gameplay loop. v18 does not register configured features, placed features, biome modifiers, structure templates, blocks, items, entities, ores, gems, fluids, datapacks, mixins, access transformers, or dependencies. It does not implement IE/IP clues, crystal growth, Nether geodes, Ancient Debris hearts, ore-load chamber placement, random ore suppression hooks, or retrogen mutation. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.

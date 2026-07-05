@@ -7,9 +7,9 @@ public record IoeWorldgenPlacementGates(
 ) {
     public static IoeWorldgenPlacementGates fromConfig() {
         return new IoeWorldgenPlacementGates(
-                false,
+                IoeWorldgenConfig.runtimePlacementEnabled(),
                 IoeWorldgenConfig.provinceRuntimeIntegrationEnabled(),
-                IoeWorldgenConfig.provinceDebugDiagnostics()
+                IoeWorldgenConfig.runtimePlacementDiagnostics()
         );
     }
 
