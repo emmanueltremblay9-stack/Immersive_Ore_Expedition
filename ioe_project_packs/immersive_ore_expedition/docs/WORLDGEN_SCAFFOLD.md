@@ -224,3 +224,9 @@ This remains process documentation only. It does not activate runtime worldgen, 
 v30 adds a docs-only runtime evidence packet at `docs/smoke_profiles/v30_runtime_evidence_packet/`. The packet translates the v29 traceability matrix into a future smoke evidence capture form covering run identity, jar/build provenance, config gate proof, active datapack/worldgen resource proof, runtime log expectations, world load proof, chunk/biome sampling, artifact references, and final `PASS`, `FAIL`, or `INCONCLUSIVE` criteria.
 
 This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or accept smoke evidence by itself. Runtime worldgen remains disabled in v30, and any future real smoke run must capture fresh evidence from the tested branch, commit, PR, jar/build provenance, client/server/world profile, logs, and coordinates.
+
+## Province System v31 runtime evidence review checklist
+
+v31 adds a docs-only runtime evidence review checklist at `docs/smoke_profiles/v31_runtime_evidence_review_checklist/`. The checklist reviews a filled v30 evidence packet after a future real smoke run, separates absent, incomplete, contradictory, and sufficient proof, and records whether the evidence packet is `ACCEPTED`, `REJECTED`, `NEEDS_MORE_EVIDENCE`, or `OUT_OF_SCOPE`.
+
+This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or invent smoke evidence. Runtime worldgen remains disabled in v31, and any accepted review still applies only to the reviewed evidence packet scope unless a later separate runtime PR is explicitly authorized and validated.

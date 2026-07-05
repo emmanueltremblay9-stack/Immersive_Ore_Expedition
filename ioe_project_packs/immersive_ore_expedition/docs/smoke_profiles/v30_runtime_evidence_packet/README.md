@@ -17,6 +17,7 @@ v30 does not run smoke, accept evidence, make any v29 trace row complete, author
 - V28 preflight manifest source: `../v28_worldgen_runtime_pr_preflight/V28_WORLDGEN_RUNTIME_PR_PREFLIGHT_TEMPLATE.md`
 - V29 traceability matrix source: `../v29_worldgen_runtime_traceability_matrix/V29_WORLDGEN_RUNTIME_TRACEABILITY_MATRIX_TEMPLATE.md`
 - V30 evidence packet template: `V30_RUNTIME_EVIDENCE_PACKET_TEMPLATE.md`
+- Next docs-only review checklist: `../v31_runtime_evidence_review_checklist/V31_RUNTIME_EVIDENCE_REVIEW_CHECKLIST.md`
 
 ## Scope And Non-Authorization
 
@@ -27,6 +28,7 @@ v30 does not run smoke, accept evidence, make any v29 trace row complete, author
 - No smoke evidence is invented or accepted by this package.
 - A future real smoke run may copy the template to a task-specific evidence file only when the run actually occurs.
 - A future runtime PR must still satisfy the v23 through v29 chain before changing active runtime resources or source.
+- The v31 runtime evidence review checklist is the next docs-only profile for reviewing a filled v30 evidence packet. It does not create smoke evidence or authorize runtime/resource changes by itself.
 
 ## Evidence Packet Purpose
 
