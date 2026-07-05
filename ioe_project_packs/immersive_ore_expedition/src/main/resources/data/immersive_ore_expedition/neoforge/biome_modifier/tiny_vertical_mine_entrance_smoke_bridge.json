@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#immersive_ore_expedition:worldgen_smoke_test_biomes",
+  "features": "immersive_ore_expedition:tiny_vertical_mine_entrance",
+  "step": "surface_structures"
+}

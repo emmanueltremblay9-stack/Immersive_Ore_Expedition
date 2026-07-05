@@ -22,7 +22,6 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class IoeWorldgenRegistrationTest {
@@ -47,6 +46,10 @@ final class IoeWorldgenRegistrationTest {
         assertFalse(registration.biomeModifiersRegistered());
         assertTrue(registration.configuredFeatureDeclarationPresent());
         assertTrue(registration.placedFeatureDeclarationPresent());
+        assertTrue(registration.biomeModifierDeclarationPresent());
+        assertTrue(registration.smokeBiomeTagDeclarationPresent());
+        assertFalse(registration.realBiomeBindingByDefault());
+        assertTrue(registration.runtimeBiomeInvocationExternalTagOptInPossible());
         assertTrue(registration.datapackResourceJsonPresent());
         assertFalse(registration.runtimeBiomeBindingPresent());
         assertFalse(registration.livePlacementProofComplete());
@@ -67,6 +70,10 @@ final class IoeWorldgenRegistrationTest {
         assertFalse(registration.biomeModifiersRegistered());
         assertTrue(registration.configuredFeatureDeclarationPresent());
         assertTrue(registration.placedFeatureDeclarationPresent());
+        assertTrue(registration.biomeModifierDeclarationPresent());
+        assertTrue(registration.smokeBiomeTagDeclarationPresent());
+        assertFalse(registration.realBiomeBindingByDefault());
+        assertTrue(registration.runtimeBiomeInvocationExternalTagOptInPossible());
         assertTrue(registration.datapackResourceJsonPresent());
         assertFalse(registration.runtimeBiomeBindingPresent());
         assertFalse(registration.livePlacementProofComplete());
@@ -93,10 +100,45 @@ final class IoeWorldgenRegistrationTest {
     }
 
     @Test
-    void declarationBridgeDoesNotAddBiomeModifierResource() {
-        assertNull(Thread.currentThread().getContextClassLoader().getResource(
-                "data/immersive_ore_expedition/neoforge/biome_modifier/tiny_vertical_mine_entrance.json"
-        ));
+    void biomeModifierDeclarationReferencesOnlySmokeTagAndPlacedFeature() throws IOException {
+        String json = readClasspathResource(
+                "data/immersive_ore_expedition/neoforge/biome_modifier/tiny_vertical_mine_entrance_smoke_bridge.json"
+        );
+
+        assertTrue(json.contains("\"type\": \"neoforge:add_features\""));
+        assertTrue(json.contains("\"biomes\": \"#immersive_ore_expedition:worldgen_smoke_test_biomes\""));
+        assertTrue(json.contains("\"features\": \"immersive_ore_expedition:tiny_vertical_mine_entrance\""));
+        assertTrue(json.contains("\"step\": \"surface_structures\""));
+        assertFalse(json.contains("#minecraft:is_overworld"));
+        assertFalse(json.contains("#c:is_overworld"));
+        assertFalse(json.contains("minecraft:plains"));
+        assertFalse(json.contains("underground_ores"));
+    }
+
+    @Test
+    void smokeBiomeTagBindsZeroBiomesByDefault() throws IOException {
+        String json = readClasspathResource(
+                "data/immersive_ore_expedition/tags/worldgen/biome/worldgen_smoke_test_biomes.json"
+        );
+
+        assertTrue(json.contains("\"replace\": false"));
+        assertTrue(json.contains("\"values\": []"));
+        assertFalse(json.contains("minecraft:"));
+        assertFalse(json.contains("#minecraft:"));
+        assertFalse(json.contains("#c:"));
+    }
+
+    @Test
+    void statusModelDistinguishesBiomeModifierDeclarationFromRealBiomeBinding() {
+        IoeWorldgenRegistration registration = IoeWorldgenBootstrap.bootstrap();
+
+        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.biomeModifierDeclarationPresent());
+        assertTrue(registration.smokeBiomeTagDeclarationPresent());
+        assertFalse(registration.realBiomeBindingByDefault());
+        assertTrue(registration.runtimeBiomeInvocationExternalTagOptInPossible());
+        assertFalse(registration.runtimeBiomeBindingPresent());
+        assertFalse(registration.livePlacementProofComplete());
     }
 
     @Test

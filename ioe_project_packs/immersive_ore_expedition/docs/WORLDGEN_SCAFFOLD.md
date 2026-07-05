@@ -145,3 +145,19 @@ This makes the v19 proof feature addressable as configured/placed worldgen data,
 - `worldgen.runtimePlacementDiagnostics`, default `false`
 
 v20 does not add structures, blocks, items, entities, ores, gems, fluids, mixins, access transformers, dependencies, IE/IP clues, crystal growth, Nether geodes, Ancient Debris hearts, retrogen mutation, or the complete surface clue to ore-load gameplay loop. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.
+
+## Province System v21 default-off biome modifier smoke-tag bridge
+
+v21 adds one datapack biome modifier declaration and one IOE-owned biome tag for a controlled future smoke invocation path:
+
+- `data/immersive_ore_expedition/neoforge/biome_modifier/tiny_vertical_mine_entrance_smoke_bridge.json`
+- `data/immersive_ore_expedition/tags/worldgen/biome/worldgen_smoke_test_biomes.json`
+
+The biome modifier uses the verified NeoForge `neoforge:add_features` shape, targets only `#immersive_ore_expedition:worldgen_smoke_test_biomes`, references the existing placed feature `immersive_ore_expedition:tiny_vertical_mine_entrance`, and runs at the verified `surface_structures` decoration step. The shipped smoke biome tag has an empty `values` list, so no real vanilla or modded biome receives the placed feature by default.
+
+This is still a default-safe bridge, not live gameplay proof. Runtime invocation remains impossible in default worlds because the tag binds zero biomes, and any future external smoke datapack that adds an explicit biome to the tag must still enable both gates before placement can be attempted:
+
+- `worldgen.runtimeProofFeatureEnabled`, default `false`
+- `worldgen.runtimePlacementEnabled`, default `false`
+
+The v19 custom feature and v18 placement proof path still preserve resource-policy validation, loaded-resource checks, strict exclusions, missing-resource skips, writable-region checks, and opt-in diagnostics. v21 does not add real biome binding by default, structures, blocks, items, entities, ores, gems, fluids, mixins, access transformers, dependencies, IE/IP clues, crystal growth, Nether geodes, Ancient Debris hearts, retrogen mutation, or the complete surface clue to ore-load gameplay loop. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.
