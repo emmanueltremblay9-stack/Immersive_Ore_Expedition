@@ -87,6 +87,23 @@ class RetrogenControllerTest {
     }
 
     @Test
+    void persistentStatusMirrorsProcessedQueueStateWithoutChangingStatusShape() {
+        RetrogenController controller = new RetrogenController(1, 4);
+        controller.startAdminRadiusRetrogen(0, 0, 16, RetrogenMode.ADMIN_RADIUS, List.of(
+                new RetrogenChunkSnapshot(new ChunkKey(0, 0), false, ChunkRetrogenMarker.missing())
+        ));
+
+        assertEquals(1, controller.status().queuedChunks());
+        assertEquals(1, controller.persistentStatus().queuedChunks());
+
+        controller.tickBatch();
+
+        assertEquals(0, controller.status().queuedChunks());
+        assertEquals(1, controller.persistentStatus().processedChunks());
+        assertEquals(0, controller.persistentStatus().queuedChunks());
+    }
+
+    @Test
     void processedInternalMarkersAreNotRequeuedByFreshPlaceholderSnapshots() {
         RetrogenController controller = new RetrogenController(1, 4);
         ChunkKey key = new ChunkKey(0, 0);

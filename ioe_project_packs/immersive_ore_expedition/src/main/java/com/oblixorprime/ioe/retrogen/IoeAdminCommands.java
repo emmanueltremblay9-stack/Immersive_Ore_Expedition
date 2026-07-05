@@ -85,12 +85,18 @@ public final class IoeAdminCommands {
     }
 
     private static int status(CommandContext<CommandSourceStack> context) {
-        RetrogenStatus status = controller().status();
+        RetrogenController retrogenController = controller();
+        RetrogenStatus status = retrogenController.status();
+        PersistentRetrogenState.StatusSnapshot persistentStatus = retrogenController.persistentStatus();
         return send(context, "IOE retrogen mode=" + status.mode().configValue()
                 + ", queued=" + status.queuedChunks()
                 + ", paused=" + status.paused()
                 + ", markerVersion=" + status.markerVersion()
-                + ", maxChunksPerTick=" + status.maxChunksPerTick());
+                + ", maxChunksPerTick=" + status.maxChunksPerTick()
+                + ", persistentState=ready"
+                + ", persistentProcessed=" + persistentStatus.processedChunks()
+                + ", persistentFailed=" + persistentStatus.failedChunks()
+                + ", persistentSkipped=" + persistentStatus.skippedChunks());
     }
 
     private static int pause(CommandContext<CommandSourceStack> context) {

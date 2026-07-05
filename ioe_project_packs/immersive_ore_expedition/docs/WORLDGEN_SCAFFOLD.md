@@ -82,4 +82,12 @@ This remains scaffold-only planning. Runtime worldgen remains default-off and no
 
 The planner preserves vanilla resource safety, uses only supplied existing resource references, rejects non-Nether dimensions, invalid lava anchors, invalid depths, unloaded, policy-denied, or strictly excluded resources safely, and stores no world references, block-state lists, or runtime placement hooks. v16 is expected to handle persistent conservative retrogen scaffold work.
 
+## Province System v16 persistent conservative retrogen scaffold
+
+v16 adds persistent conservative retrogen scaffold for queue, marker, pause, resume, failed, skipped, processed, and status snapshot state. The scaffold is designed so future storage can persist and resume admin-controlled retrogen work while retaining processed chunk markers that prevent duplicate retrogen attempts.
+
+This remains persistence/admin-safety scaffold only. Retrogen remains opt-in and admin-controlled, runtime worldgen remains default-off and no-op, no chunks are mutated, no blocks are placed or removed, no ore-load chambers, anchors, IE/IP clues, crystal sites, AE2 geodes, Nether geodes, or Ancient Debris hearts are generated, no configured features or placed features are registered, no biome modifiers are registered, no ore generation is intercepted, and no retrogen resources are generated.
+
+The in-memory scaffold store supports deterministic queue, pause, resume, processed, skipped, failed, and status snapshot semantics for tests and future persistence wiring without storing world references, chunk references, block-state lists, or runtime placement hooks. v17 is expected to handle release hardening and smoke validation docs/checks.
+
 Validation for this project remains GitHub Actions on the consolidated NeoForge module. Local Gradle, tests, builds, Minecraft, PrismLauncher, smoke tests, and local CI simulation are disabled by default unless explicitly requested.

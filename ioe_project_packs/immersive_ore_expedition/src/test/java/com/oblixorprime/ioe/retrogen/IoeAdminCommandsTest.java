@@ -112,4 +112,17 @@ class IoeAdminCommandsTest {
         assertSame(controller, IoeAdminCommands.controller());
         assertEquals(1, created.get());
     }
+
+    @Test
+    void controllerFactoryCanProvidePersistenceReadyControllerWithoutChangingCommandTree() {
+        InMemoryRetrogenStateStore store = new InMemoryRetrogenStateStore(4, 2);
+        IoeAdminCommands.resetControllerForTesting(() -> new RetrogenController(4, 2, store));
+
+        RetrogenController controller = IoeAdminCommands.controller();
+
+        assertEquals(4, controller.status().markerVersion());
+        assertEquals(2, controller.status().maxChunksPerTick());
+        assertEquals(4, controller.persistentStatus().markerVersion());
+        assertEquals(2, controller.persistentStatus().maxChunksPerTick());
+    }
 }
