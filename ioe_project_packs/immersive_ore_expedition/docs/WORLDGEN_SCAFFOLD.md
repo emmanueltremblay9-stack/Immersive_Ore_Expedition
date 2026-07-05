@@ -66,4 +66,12 @@ This remains scaffold-only planning. Runtime worldgen remains default-off and no
 
 The planner preserves optional AE2 and GeOre mod safety, uses only existing resource references, carries optional biome/province context as metadata, and keeps strict exclusions enforced before future placement hooks can use a crystal site plan. v14 is expected to handle meteoritic AE2 geode planning scaffold work.
 
+## Province System v14 meteoritic AE2 geode planning
+
+v14 adds deterministic meteoritic AE2 geode placement planning scaffold for buried AE2-style Certus geode sites. Plans can record supplied existing-resource references for a Certus primary resource, Sky Stone crust, optional middle layer, optional crystal core, buried-depth metadata, layer radii, rarity/density metadata, and optional biome/province/anchor context.
+
+This remains scaffold-only planning. Runtime worldgen remains default-off and no-op, no live Sky Stone crust, Certus core, geode layers, or meteorite blocks are placed, no fake Fluix ore is generated, no configured features or placed features are registered, no biome modifiers are registered, no blocks are placed or removed, no ore generation is intercepted, and no retrogen mutation is added.
+
+The planner preserves optional AE2 safety, uses only supplied existing AE2 resource references, rejects unloaded, policy-denied, strictly excluded, malformed, or fake Fluix resources safely, and stores no world references, block-state lists, or runtime placement hooks. v15 is expected to handle Nether sub-lava geode planning scaffold work.
+
 Validation for this project remains GitHub Actions on the consolidated NeoForge module. Local Gradle, tests, builds, Minecraft, PrismLauncher, smoke tests, and local CI simulation are disabled by default unless explicitly requested.
