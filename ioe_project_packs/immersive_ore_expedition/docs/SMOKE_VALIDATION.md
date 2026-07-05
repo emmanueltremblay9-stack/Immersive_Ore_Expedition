@@ -121,6 +121,14 @@ worldgen.provinces.resourcePolicyRules = []
 
 Do not use broad biome tags, modded biomes, or multiple test biomes for this controlled profile. Do not claim live placement unless the evidence template records a fresh log, enabled datapack, exact config values, checked coordinates, and observed placement evidence. Manual client/server/world smoke was not run by v22.
 
+## v23 Controlled Worldgen Smoke Runbook
+
+v23 adds a docs-only runbook and result template at `docs/smoke_profiles/v23_worldgen_smoke_runbook/`. It turns the v22 profile into a repeatable evidence collection procedure without changing shipped resources, config defaults, biome bindings, or runtime behavior.
+
+Use the v23 runbook only with the v22 external datapack and config template. A valid result must record the release jar identity, jar SHA-256, enabled datapack confirmation, exact config values, fresh `latest.log` path or excerpt, checked biome/coordinates, client or dedicated-server status, and the observed outcome classification.
+
+The v23 result template may record `not run`, `startup failed`, `world load failed`, `datapack rejected`, `config rejected`, `feature skipped`, `placement attempted`, or `placement observed`. Only `placement observed` with captured coordinate/log evidence can support a live placement proof claim. Manual smoke was not run by v23 unless a completed result file records that evidence.
+
 ## Dedicated Server Smoke
 
 1. Install the release jar into a controlled Minecraft 1.21.1 / NeoForge dedicated server.
