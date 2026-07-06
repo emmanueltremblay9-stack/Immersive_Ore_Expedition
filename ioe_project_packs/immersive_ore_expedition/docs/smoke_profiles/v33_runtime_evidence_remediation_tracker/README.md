@@ -13,6 +13,7 @@ v33 does not replace the v29 traceability matrix, the v30 evidence packet, the v
 - V31 review checklist source: `../v31_runtime_evidence_review_checklist/V31_RUNTIME_EVIDENCE_REVIEW_CHECKLIST.md`
 - V32 decision record source: `../v32_runtime_evidence_decision_record/V32_RUNTIME_EVIDENCE_DECISION_RECORD.md`
 - V33 remediation tracker: `V33_RUNTIME_EVIDENCE_REMEDIATION_TRACKER.md`
+- Next docs-only remediation closure record: `../v34_runtime_evidence_remediation_closure_record/V34_RUNTIME_EVIDENCE_REMEDIATION_CLOSURE_RECORD.md`
 
 ## Remediation Tracker Purpose
 
@@ -33,6 +34,7 @@ Use this package to:
 - No runtime evidence is invented or accepted by this package alone.
 - `CLOSED` applies only to the remediation action scope recorded in the tracker.
 - A future runtime PR must still be separate, explicitly scoped, validated, reviewed, and authorized.
+- The v34 runtime evidence remediation closure record is the next docs-only profile for reviewing recollected proof and recording whether v33 actions are verified closed, reopened, deferred, not verified, or out of scope. It does not create smoke evidence or authorize runtime/resource changes by itself.
 
 ## Hard Boundaries
 
