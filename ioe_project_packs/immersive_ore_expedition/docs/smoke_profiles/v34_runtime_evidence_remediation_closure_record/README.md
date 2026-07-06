@@ -14,6 +14,7 @@ v34 does not replace the v29 traceability matrix, the v30 evidence packet, the v
 - V32 decision record source: `../v32_runtime_evidence_decision_record/V32_RUNTIME_EVIDENCE_DECISION_RECORD.md`
 - V33 remediation tracker source: `../v33_runtime_evidence_remediation_tracker/V33_RUNTIME_EVIDENCE_REMEDIATION_TRACKER.md`
 - V34 remediation closure record: `V34_RUNTIME_EVIDENCE_REMEDIATION_CLOSURE_RECORD.md`
+- V35 final sign-off handoff target: `../v35_runtime_evidence_final_signoff_handoff/V35_RUNTIME_EVIDENCE_FINAL_SIGNOFF_HANDOFF.md`
 
 ## Closure Record Purpose
 
@@ -24,6 +25,7 @@ Use this package to:
 - document why an action is verified closed, reopened, deferred, not verified, or out of scope;
 - record whether recollected proof satisfies the v33 acceptance criteria;
 - prevent invented runtime evidence from entering the release or runtime-planning chain.
+- feed the v35 final sign-off handoff without turning closure decisions into executed runtime proof.
 
 ## Scope And Non-Authorization
 
