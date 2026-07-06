@@ -1,3 +1,9 @@
 {
-  "mod.immersive_ore_expedition": "Immersive Ore Expedition"
+  "mod.immersive_ore_expedition": "Immersive Ore Expedition",
+  "itemGroup.immersive_ore_expedition": "Immersive Ore Expedition",
+  "item.immersive_ore_expedition.expedition_compass": "Boussole d’Expédition",
+  "item.immersive_ore_expedition.expedition_compass.tooltip": "Localise les sites d’Immersive Ore Expedition",
+  "item.immersive_ore_expedition.expedition_compass.message.nearest_site": "Site d’expédition indexé le plus proche (%s %s) : %s %s %s (%s blocs)",
+  "item.immersive_ore_expedition.expedition_compass.message.no_indexed_sites": "Aucun site d’expédition indexé dans cette dimension pour l’instant",
+  "item.immersive_ore_expedition.expedition_compass.message.reset": "Cible de la boussole d’expédition réinitialisée"
 }

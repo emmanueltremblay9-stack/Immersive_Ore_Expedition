@@ -1,3 +1,9 @@
 {
-  "mod.immersive_ore_expedition": "Immersive Ore Expedition"
+  "mod.immersive_ore_expedition": "Immersive Ore Expedition",
+  "itemGroup.immersive_ore_expedition": "Immersive Ore Expedition",
+  "item.immersive_ore_expedition.expedition_compass": "Expedition Compass",
+  "item.immersive_ore_expedition.expedition_compass.tooltip": "Locates Immersive Ore Expedition sites",
+  "item.immersive_ore_expedition.expedition_compass.message.nearest_site": "Nearest indexed expedition %s %s at %s %s %s (%s blocks away)",
+  "item.immersive_ore_expedition.expedition_compass.message.no_indexed_sites": "No indexed expedition sites in this dimension yet",
+  "item.immersive_ore_expedition.expedition_compass.message.reset": "Expedition compass target reset"
 }

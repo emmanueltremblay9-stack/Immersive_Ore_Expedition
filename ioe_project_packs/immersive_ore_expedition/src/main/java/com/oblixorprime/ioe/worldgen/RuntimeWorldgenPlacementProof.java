@@ -6,6 +6,7 @@ import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.ResourceRef;
 import com.oblixorprime.ioe.core.ResourceType;
 import com.oblixorprime.ioe.core.SiteQuality;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -153,7 +154,9 @@ public final class RuntimeWorldgenPlacementProof {
             ));
         }
 
-        return logIfRequested(RuntimeWorldgenPlacementProofResult.placed(readyResult));
+        RuntimeWorldgenPlacementProofResult placedResult = RuntimeWorldgenPlacementProofResult.placed(readyResult);
+        ExpeditionLocatorService.recordPlacedProof(level.getLevel().dimension(), placedResult);
+        return logIfRequested(placedResult);
     }
 
     private RuntimeWorldgenPlacementProofResult evaluateAnchorProof(

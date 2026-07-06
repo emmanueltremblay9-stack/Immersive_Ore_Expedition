@@ -125,6 +125,19 @@ final class ExpeditionAnchorPlacementPlannerTest {
     }
 
     @Test
+    void nullPlacementGateIsRejectedSafely() {
+        ExpeditionAnchorPlacementPlan plan = planner.planAnchorPlacement(
+                IoeWorldgenFeatureKeys.BASIC_MINESHAFT_CONNECTOR,
+                BlockPos.ZERO,
+                SiteQuality.NORMAL,
+                null
+        );
+
+        assertFalse(plan.placementAllowed());
+        assertEquals(ExpeditionAnchorPlacementPlan.SkipReason.INVALID_INPUT, plan.skipReason());
+    }
+
+    @Test
     void scaffoldBootstrapRemainsScaffoldOnlyWithAnchorPlanningMetadata() {
         IoeWorldgenRegistration registration = IoeWorldgenBootstrap.bootstrap();
 
