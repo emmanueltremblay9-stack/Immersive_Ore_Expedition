@@ -200,3 +200,9 @@ This remains process documentation only. `READY_FOR_RUNTIME_SLICE` does not acti
 v26 adds a docs-only runtime slice implementation packet at `docs/smoke_profiles/v26_worldgen_runtime_slice_packet/`. The packet translates a completed v23/v24/v25 evidence chain into a reviewable outline for the smallest later separate runtime PR, including candidate active resource/source surfaces, explicit out-of-scope items, required validation, and rollback/disable expectations.
 
 This remains process documentation only. It does not activate runtime worldgen, change active `src/main/resources`, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or accept smoke evidence by itself. Runtime worldgen remains disabled in v26, and any future runtime/resource change must regenerate validation and smoke evidence in its own PR.
+
+## Province System v27 runtime resource inventory snapshot
+
+v27 adds a docs-only active runtime resource inventory snapshot at `docs/smoke_profiles/v27_worldgen_runtime_resource_inventory/`. The inventory records read-only observations of the active shipped resource pack metadata, NeoForge mod metadata template, IOE smoke biome tag, biome modifier smoke bridge, configured feature declaration, placed feature declaration, and related config gate defaults.
+
+This remains process documentation only. It does not activate runtime worldgen, authorize a runtime PR, change active `src/main/resources`, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or accept smoke evidence by itself. Runtime worldgen remains disabled in v27, and any future runtime/resource change must recheck the inventory after rebase, keep a disable path, and regenerate validation and smoke evidence in its own PR.
