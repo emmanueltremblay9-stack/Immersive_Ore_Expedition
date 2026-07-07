@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v36 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, runtime evidence packet, runtime evidence review checklist, runtime evidence decision record, runtime evidence remediation tracker, runtime evidence remediation closure record, runtime evidence final sign-off handoff documentation, and source-only ore-load chamber block candidate planning.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v37 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, runtime evidence packet, runtime evidence review checklist, runtime evidence decision record, runtime evidence remediation tracker, runtime evidence remediation closure record, runtime evidence final sign-off handoff documentation, source-only ore-load chamber block candidate planning, and a default-off/manual ore-load chamber block placement applier proof layer.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -206,6 +206,14 @@ v35 does not execute smoke, does not activate runtime worldgen, does not authori
 v36 adds source-only block candidate planning for already allowed ore-load chamber plans. It prepares deterministic concrete block targets and conservative replacement checks for a future writer, but it does not write blocks, activate runtime worldgen, change active `src/main/resources`, change active JSON, change config defaults, bind real biomes by default, or add new resources.
 
 Smoke expectations remain unchanged: with default config, no visible IOE placement is expected. Any later branch that connects these candidates to a real world writer must capture fresh client/server/world smoke evidence from that changed commit before claiming live placement or gameplay proof.
+
+## v37 Default-Off Ore-Load Chamber Block Placement Applier Proof
+
+v37 adds a manual/default-off applier proof layer for precomputed ore-load chamber block placement plans. It can count safe placements, unsafe replacements, outside-write-region candidates, missing runtime placement resources, and write failures when an explicit caller supplies a target.
+
+This does not add an automatic worldgen invocation path. With default config and shipped resources, no visible IOE placement is expected. No active `src/main/resources` JSON, biome modifier, configured feature, placed feature, config default, block/item/entity/resource registration, mixin, access transformer, dependency, Minecraft/Prism runtime state, or legacy split-module tree changes are part of v37.
+
+Manual client/server/world smoke was not run for v37. A future branch that wires this applier into a controlled runtime path must capture fresh smoke evidence from that exact changed commit before claiming live placement or gameplay proof.
 
 ## Dedicated Server Smoke
 

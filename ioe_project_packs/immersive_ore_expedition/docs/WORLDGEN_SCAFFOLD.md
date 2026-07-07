@@ -262,3 +262,11 @@ v36 adds source-only block candidate planning for ore-load chambers. The new pla
 v36 also adds conservative replacement rules for future world writers. Those rules reject air, fluids, bedrock, barriers, portal blocks, command/structure-critical blocks, and block-entity states before any future placement path can treat a target as replaceable.
 
 This remains runtime-prep planning only. It does not call `setBlock`, activate runtime worldgen, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, add blocks/items/entities/ores/gems/resources, or complete the surface clue to anchored ore-load gameplay loop. Runtime worldgen remains default-off and manual client/server/world smoke evidence is still required before claiming live placement.
+
+## Province System v37 default-off ore-load chamber block placement applier proof
+
+v37 adds a narrow default-off/manual applier proof layer for ore-load chamber block placement plans. The applier consumes a precomputed v36 `OreLoadChamberBlockPlacementPlan`, checks each candidate against conservative replacement rules, then reports deterministic placed and skipped counters for a caller-supplied target.
+
+The only new world mutation boundary is isolated in the applier's explicit `WorldGenLevel` adapter. No planner calls `setBlock`, no biome modifier or resource JSON invokes the applier, and no automatic placement path is registered by this slice. Source-level tests use a small target seam so replacement and result behavior can be verified without vanilla bootstrap-heavy block initialization.
+
+This remains runtime proof plumbing only. It does not enable runtime worldgen by default, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, add blocks/items/entities/ores/gems/resources, add mixins, add access transformers, add dependencies, or complete the surface clue to anchored ore-load gameplay loop. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.
