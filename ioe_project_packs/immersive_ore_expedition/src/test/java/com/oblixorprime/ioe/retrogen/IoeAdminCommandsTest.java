@@ -1,13 +1,21 @@
 package com.oblixorprime.ioe.retrogen;
 
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.oblixorprime.ioe.core.SiteQuality;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionSiteKind;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -71,6 +79,43 @@ class IoeAdminCommandsTest {
     }
 
     @Test
+    void locateProvinceNoResultDoesNotUsePendingBindingPlaceholder() {
+        String message = IoeAdminCommands.locateMessage(
+                ExpeditionSiteKind.PROVINCE,
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                new ExpeditionLocatorIndex()
+        );
+
+        assertTrue(message.contains("no indexed province sites"));
+        assertFalse(message.contains("runtime province index binding is pending"));
+    }
+
+    @Test
+    void locateAnchorReportsNearestIndexedAnchorInsteadOfPendingBindingPlaceholder() {
+        ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
+        index.record(ExpeditionSite.anchor(
+                Level.OVERWORLD,
+                new BlockPos(12, 64, 4),
+                ResourceLocation.fromNamespaceAndPath("immersive_ore_expedition", "tiny_vertical_mine_entrance"),
+                null,
+                SiteQuality.NORMAL,
+                "test"
+        ));
+
+        String message = IoeAdminCommands.locateMessage(
+                ExpeditionSiteKind.ANCHOR,
+                Level.OVERWORLD,
+                new BlockPos(0, 64, 0),
+                index
+        );
+
+        assertTrue(message.contains("nearest indexed anchor"));
+        assertTrue(message.contains("12 64 4"));
+        assertFalse(message.contains("runtime anchor index binding is pending"));
+    }
+
+    @Test
     void commandModeHonorsGlobalAndPerModeConfigGates() {
         assertEquals(RetrogenMode.OFF, IoeAdminCommands.resolveCommandMode(
                 false,
@@ -111,5 +156,18 @@ class IoeAdminCommandsTest {
         assertEquals(3, controller.status().maxChunksPerTick());
         assertSame(controller, IoeAdminCommands.controller());
         assertEquals(1, created.get());
+    }
+
+    @Test
+    void controllerFactoryCanProvidePersistenceReadyControllerWithoutChangingCommandTree() {
+        InMemoryRetrogenStateStore store = new InMemoryRetrogenStateStore(4, 2);
+        IoeAdminCommands.resetControllerForTesting(() -> new RetrogenController(4, 2, store));
+
+        RetrogenController controller = IoeAdminCommands.controller();
+
+        assertEquals(4, controller.status().markerVersion());
+        assertEquals(2, controller.status().maxChunksPerTick());
+        assertEquals(4, controller.persistentStatus().markerVersion());
+        assertEquals(2, controller.persistentStatus().maxChunksPerTick());
     }
 }

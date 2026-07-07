@@ -52,6 +52,15 @@ Active validation path:
 - GitHub Actions validates the consolidated module unless Emmanuel explicitly instructs otherwise.
 - Legacy split modules are not part of the active validation path.
 
+The consolidated module CI verifies the release jar structure: the runtime jar must include compiled classes under `com/oblixorprime/ioe/` and `META-INF/neoforge.mods.toml`. Release and smoke guidance lives in:
+
+- `ioe_project_packs/immersive_ore_expedition/docs/RELEASE_CHECKLIST.md`
+- `ioe_project_packs/immersive_ore_expedition/docs/SMOKE_VALIDATION.md`
+- `ioe_project_packs/immersive_ore_expedition/docs/SERVER_CONFIG_EXAMPLES.md`
+- `ioe_project_packs/immersive_ore_expedition/docs/RELEASE_NOTES_TEMPLATE.md`
+
+Current v7-v35 worldgen work is mostly scaffold, planning, policy, persistence, release validation, a default-off runtime placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature resources, a biome modifier smoke-tag bridge that binds zero real biomes by default, a docs-only controlled external smoke profile package, a docs-only controlled smoke runbook/result template, a docs-only post-smoke evidence gate, a docs-only runtime promotion readiness packet, a docs-only runtime slice implementation packet for planning a later separate runtime PR, a docs-only active runtime resource inventory snapshot, a docs-only runtime PR preflight manifest, a docs-only runtime traceability matrix, a docs-only runtime evidence packet, a docs-only runtime evidence review checklist, a docs-only runtime evidence decision record, a docs-only runtime evidence remediation tracker, a docs-only runtime evidence remediation closure record, and a docs-only runtime evidence final sign-off handoff. Live client/server smoke evidence must be recorded separately, and the release jar must remain class-bearing rather than metadata-only.
+
 ## Build Status
 
 The module statuses below are retained as historical alpha-foundation notes. The legacy Gradle commands in this table are historical/reference evidence only, not current validation instructions. Current validation must use the consolidated module at `ioe_project_packs/immersive_ore_expedition` and GitHub Actions unless Emmanuel explicitly instructs otherwise.

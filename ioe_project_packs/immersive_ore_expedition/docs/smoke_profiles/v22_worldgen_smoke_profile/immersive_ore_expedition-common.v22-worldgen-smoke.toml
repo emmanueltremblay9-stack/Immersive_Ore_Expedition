@@ -1,0 +1,15 @@
+# IOE v22 controlled worldgen smoke profile.
+# Manual smoke only. Use only in a fresh disposable test world with a fresh log.
+# Do not use on production worlds, do not add broad biome tags, and do not claim
+# smoke success without the evidence recorded in V22_WORLDGEN_SMOKE_EVIDENCE_TEMPLATE.md.
+#
+# Default IOE config keeps all runtime gates false. This template is opt-in only.
+
+worldgen.runtimeProofFeatureEnabled = true
+worldgen.runtimeProofFeatureDiagnostics = true
+worldgen.runtimePlacementEnabled = true
+worldgen.runtimePlacementDiagnostics = true
+
+# Province runtime integration is not required for the v21/v22 smoke bridge.
+worldgen.provinces.runtimeIntegrationEnabled = false
+worldgen.provinces.resourcePolicyRules = []

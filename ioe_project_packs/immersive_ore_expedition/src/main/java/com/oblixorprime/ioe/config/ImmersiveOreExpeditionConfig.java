@@ -35,11 +35,19 @@ public final class ImmersiveOreExpeditionConfig {
     private static final double DEFAULT_WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER = 0.03D;
     private static final boolean DEFAULT_WORLDGEN_REQUIRE_STRUCTURE_ANCHOR = true;
     private static final boolean DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES = true;
+    private static final boolean DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED = false;
+    private static final boolean DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS = false;
+    private static final boolean DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED = false;
+    private static final boolean DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS = false;
     private static final int DEFAULT_WORLDGEN_MIN_DISTANCE = 16;
     private static final int DEFAULT_WORLDGEN_MAX_DISTANCE = 96;
     private static final boolean DEFAULT_WORLDGEN_REQUIRE_TUNNEL_CONNECTION = true;
     private static final String DEFAULT_WORLDGEN_PROVINCE_NAMESPACE = "immersive_ore_expedition";
     private static final boolean DEFAULT_WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES = false;
+    private static final boolean DEFAULT_WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED = false;
+    private static final String DEFAULT_WORLDGEN_DEFAULT_PROVINCE = "immersive_ore_expedition:default";
+    private static final List<String> DEFAULT_WORLDGEN_BIOME_PROVINCE_BINDINGS = List.of();
+    private static final List<String> DEFAULT_WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES = List.of();
     private static final boolean DEFAULT_WORLDGEN_PROVINCE_DEBUG_DIAGNOSTICS = false;
     private static final List<String> DEFAULT_WORLDGEN_PROVINCE_ALLOW_BIOMES = List.of();
     private static final List<String> DEFAULT_WORLDGEN_PROVINCE_DENY_BIOMES = List.of();
@@ -145,6 +153,18 @@ public final class ImmersiveOreExpeditionConfig {
             .comment("Allow future hooks to leave tiny scrap ore outside full expedition provinces.")
             .define("worldgen.global.allowTinyScrapOreOutsideProvinces",
                     DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PLACEMENT_ENABLED = BUILDER
+            .comment("Enable IOE runtime placement proof hooks. Default false keeps worldgen placement no-op.")
+            .define("worldgen.runtimePlacementEnabled", DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS = BUILDER
+            .comment("Emit opt-in diagnostics for runtime placement proof decisions.")
+            .define("worldgen.runtimePlacementDiagnostics", DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED = BUILDER
+            .comment("Enable the registered runtime proof feature bridge diagnostics. Biome-invoked proof features remain non-placing; ore loads require explicit anchor/chamber planning.")
+            .define("worldgen.runtimeProofFeatureEnabled", DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS = BUILDER
+            .comment("Emit opt-in diagnostics for the v19 runtime proof feature bridge.")
+            .define("worldgen.runtimeProofFeatureDiagnostics", DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS);
     private static final ModConfigSpec.IntValue WORLDGEN_ORE_LOAD_MIN_DISTANCE_FROM_ANCHOR = BUILDER
             .comment("Minimum Manhattan distance from an expedition anchor to a planned ore-load chamber.")
             .defineInRange("worldgen.anchorRules.oreLoadMinDistanceFromAnchor", DEFAULT_WORLDGEN_MIN_DISTANCE, 1, 512);
@@ -160,6 +180,22 @@ public final class ImmersiveOreExpeditionConfig {
     private static final ModConfigSpec.BooleanValue WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES = BUILDER
             .comment("Allow explicitly documented old split IOE namespaces while reading legacy province references.")
             .define("worldgen.provinces.allowLegacyNamespaces", DEFAULT_WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED = BUILDER
+            .comment("Enable Province System runtime decisions for ore-load planning. Default false preserves the existing planning path.")
+            .define("worldgen.provinces.runtimeIntegrationEnabled",
+                    DEFAULT_WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED);
+    private static final ModConfigSpec.ConfigValue<String> WORLDGEN_DEFAULT_PROVINCE = BUILDER
+            .comment("Default province id used when no biome binding matches. No content is generated from this id.")
+            .define("worldgen.provinces.defaultProvince", DEFAULT_WORLDGEN_DEFAULT_PROVINCE);
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_BIOME_PROVINCE_BINDINGS = BUILDER
+            .comment("Biome province bindings as biome_selector=province_id. Supports exact biome ids and namespace:* selectors.")
+            .defineList("worldgen.provinces.biomeProvinceBindings",
+                    DEFAULT_WORLDGEN_BIOME_PROVINCE_BINDINGS, ImmersiveOreExpeditionConfig::isNonBlankString);
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES =
+            BUILDER.comment("Per-province resource policy rules as province_id|resource_selector|decision; selectors are exact resource ids or namespace:* wildcards, and decisions are allow, deny, or exclude. Empty preserves Province v1 resource behavior.")
+                    .defineList("worldgen.provinces.resourcePolicyRules",
+                            DEFAULT_WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES,
+                            ImmersiveOreExpeditionConfig::isNonBlankString);
     private static final ModConfigSpec.ConfigValue<List<? extends String>> WORLDGEN_PROVINCE_ALLOW_BIOMES = BUILDER
             .comment("Default biome id/tag allow list for province matching. Empty means rules decide locally.")
             .defineList("worldgen.provinces.allowBiomes",
@@ -441,6 +477,25 @@ public final class ImmersiveOreExpeditionConfig {
                 DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES);
     }
 
+    public static boolean worldgenRuntimePlacementEnabled() {
+        return getOrDefault(WORLDGEN_RUNTIME_PLACEMENT_ENABLED, DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED);
+    }
+
+    public static boolean worldgenRuntimePlacementDiagnostics() {
+        return getOrDefault(WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS,
+                DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS);
+    }
+
+    public static boolean worldgenRuntimeProofFeatureEnabled() {
+        return getOrDefault(WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED,
+                DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED);
+    }
+
+    public static boolean worldgenRuntimeProofFeatureDiagnostics() {
+        return getOrDefault(WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS,
+                DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS);
+    }
+
     public static int worldgenOreLoadMinDistanceFromAnchor() {
         return getOrDefault(WORLDGEN_ORE_LOAD_MIN_DISTANCE_FROM_ANCHOR, DEFAULT_WORLDGEN_MIN_DISTANCE);
     }
@@ -460,6 +515,24 @@ public final class ImmersiveOreExpeditionConfig {
     public static boolean worldgenAllowLegacyProvinceNamespaces() {
         return getOrDefault(WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES,
                 DEFAULT_WORLDGEN_ALLOW_LEGACY_PROVINCE_NAMESPACES);
+    }
+
+    public static boolean worldgenProvinceRuntimeIntegrationEnabled() {
+        return getOrDefault(WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED,
+                DEFAULT_WORLDGEN_PROVINCE_RUNTIME_INTEGRATION_ENABLED);
+    }
+
+    public static String worldgenDefaultProvince() {
+        return getOrDefault(WORLDGEN_DEFAULT_PROVINCE, DEFAULT_WORLDGEN_DEFAULT_PROVINCE);
+    }
+
+    public static List<String> worldgenBiomeProvinceBindings() {
+        return getOrDefault(WORLDGEN_BIOME_PROVINCE_BINDINGS, DEFAULT_WORLDGEN_BIOME_PROVINCE_BINDINGS);
+    }
+
+    public static List<String> worldgenProvinceResourcePolicyRules() {
+        return getOrDefault(WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES,
+                DEFAULT_WORLDGEN_PROVINCE_RESOURCE_POLICY_RULES);
     }
 
     public static List<String> worldgenProvinceAllowBiomes() {

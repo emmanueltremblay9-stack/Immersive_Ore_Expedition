@@ -3,6 +3,7 @@ package com.oblixorprime.ioe;
 import com.oblixorprime.ioe.config.ImmersiveOreExpeditionConfig;
 import com.oblixorprime.ioe.core.IoeCoreMod;
 import com.oblixorprime.ioe.crystalgrowth.IoeCrystalGrowthMod;
+import com.oblixorprime.ioe.expeditioncompass.IoeExpeditionCompassMod;
 import com.oblixorprime.ioe.ieip.IoeIeipProspectingMod;
 import com.oblixorprime.ioe.nethergeodes.IoeNetherGeodesMod;
 import com.oblixorprime.ioe.retrogen.IoeRetrogenAdminMod;
@@ -21,8 +22,9 @@ public final class ImmersiveOreExpeditionMod {
     public ImmersiveOreExpeditionMod(ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, ImmersiveOreExpeditionConfig.SPEC,
                 "immersive_ore_expedition-common.toml");
+        IoeExpeditionCompassMod.bootstrap(modContainer.getEventBus());
         IoeCoreMod.bootstrap();
-        IoeExpeditionWorldgenMod.bootstrap();
+        IoeExpeditionWorldgenMod.bootstrap(modContainer.getEventBus());
         IoeCrystalGrowthMod.bootstrap();
         IoeNetherGeodesMod.bootstrap();
         IoeIeipProspectingMod.bootstrap();
