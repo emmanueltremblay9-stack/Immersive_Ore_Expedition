@@ -15,6 +15,7 @@ public final class RetrogenController {
 
     private final int markerVersion;
     private final int maxChunksPerTick;
+    private final RetrogenStateStore stateStore;
     private final Queue<RetrogenQueueEntry> queue = new ArrayDeque<>();
     private final Set<ChunkKey> queuedKeys = new HashSet<>();
     private final Map<ChunkKey, ChunkRetrogenMarker> markers = new HashMap<>();
@@ -22,6 +23,10 @@ public final class RetrogenController {
     private RetrogenMode mode = RetrogenMode.OFF;
 
     public RetrogenController(int markerVersion, int maxChunksPerTick) {
+        this(markerVersion, maxChunksPerTick, new InMemoryRetrogenStateStore(markerVersion, maxChunksPerTick));
+    }
+
+    public RetrogenController(int markerVersion, int maxChunksPerTick, RetrogenStateStore stateStore) {
         if (markerVersion < 1) {
             throw new IllegalArgumentException("markerVersion must be positive");
         }
@@ -30,6 +35,8 @@ public final class RetrogenController {
         }
         this.markerVersion = markerVersion;
         this.maxChunksPerTick = maxChunksPerTick;
+        this.stateStore = Objects.requireNonNull(stateStore, "stateStore");
+        restorePersistentState();
     }
 
     public static RetrogenController createDefault() {
@@ -97,6 +104,8 @@ public final class RetrogenController {
             ChunkRetrogenMarker storedMarker = markers.getOrDefault(candidate.key(), ChunkRetrogenMarker.missing());
             ChunkRetrogenMarker candidateMarker = candidate.marker();
             if (queuedKeys.contains(candidate.key())
+                    || stateStore.isQueued(candidate.key())
+                    || stateStore.hasProcessed(candidate.key(), markerVersion)
                     || !storedMarker.needsRetrogen(markerVersion)
                     || (candidateMarker != null && !candidateMarker.needsRetrogen(markerVersion))) {
                 skippedMarked++;
@@ -105,12 +114,14 @@ public final class RetrogenController {
             RetrogenQueueEntry entry = new RetrogenQueueEntry(candidate.key(), requestedMode, markerVersion);
             queue.add(entry);
             queuedKeys.add(candidate.key());
+            stateStore.markQueued(candidate.key(), requestedMode, markerVersion);
             accepted++;
         }
 
         if (accepted > 0) {
             mode = requestedMode;
             paused = false;
+            stateStore.resume(requestedMode);
         }
         return new RetrogenStartResult(requestedMode, accepted, skippedMarked, skippedExplored, skippedOutOfRadius, skippedInvalid,
                 accepted > 0, accepted > 0 ? "queued conservative retrogen work" : "no eligible chunks were queued");
@@ -118,6 +129,7 @@ public final class RetrogenController {
 
     public void pause() {
         paused = true;
+        stateStore.pause(mode);
     }
 
     public List<RetrogenQueueEntry> tickBatch() {
@@ -129,13 +141,16 @@ public final class RetrogenController {
         while (processed.size() < maxChunksPerTick && !queue.isEmpty()) {
             RetrogenQueueEntry entry = queue.remove();
             queuedKeys.remove(entry.key());
+            stateStore.markProcessing(entry.key());
             markers.put(entry.key(), ChunkRetrogenMarker.processed(entry.markerVersion()));
+            stateStore.markProcessed(entry.key());
             processed.add(entry);
         }
 
         if (queue.isEmpty()) {
             paused = true;
             mode = RetrogenMode.OFF;
+            stateStore.pause(RetrogenMode.OFF);
         }
         return processed;
     }
@@ -146,6 +161,28 @@ public final class RetrogenController {
 
     public RetrogenStatus status() {
         return new RetrogenStatus(mode, queue.size(), paused, markerVersion, maxChunksPerTick);
+    }
+
+    public PersistentRetrogenState.StatusSnapshot persistentStatus() {
+        return stateStore.statusSnapshot();
+    }
+
+    private void restorePersistentState() {
+        PersistentRetrogenState state = stateStore.loadState().withMetadata(markerVersion, maxChunksPerTick);
+        stateStore.saveState(state);
+        paused = state.paused();
+        mode = state.mode();
+        for (PersistentRetrogenChunkMarker marker : state.queuedMarkers()) {
+            if (!queuedKeys.contains(marker.key())) {
+                queue.add(new RetrogenQueueEntry(marker.key(), marker.mode(), marker.markerVersion()));
+                queuedKeys.add(marker.key());
+            }
+        }
+        for (PersistentRetrogenChunkMarker marker : state.processedMarkers()) {
+            if (marker.processedFor(markerVersion)) {
+                markers.put(marker.key(), ChunkRetrogenMarker.processed(marker.markerVersion()));
+            }
+        }
     }
 
     private static void validateRadiusBlocks(int radiusBlocks) {

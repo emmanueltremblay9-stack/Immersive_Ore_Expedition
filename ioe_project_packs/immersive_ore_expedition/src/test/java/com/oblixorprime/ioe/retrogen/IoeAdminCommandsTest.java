@@ -1,13 +1,25 @@
 package com.oblixorprime.ioe.retrogen;
 
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.oblixorprime.ioe.core.SiteQuality;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionSiteKind;
+import com.oblixorprime.ioe.worldgen.IoeRuntimeScaffoldStatus;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenPlacementGates;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenRegistration;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -25,6 +37,7 @@ class IoeAdminCommandsTest {
                 new IoeAdminCommandSettings(true, true, true, true, true, true)
         ).build();
 
+        assertNotNull(root.getChild("status"));
         assertNotNull(root.getChild("locate").getChild("province"));
         assertNotNull(root.getChild("locate").getChild("anchor"));
         assertNotNull(root.getChild("retrogen").getChild("status"));
@@ -39,6 +52,7 @@ class IoeAdminCommandsTest {
                 new IoeAdminCommandSettings(false, true, false, false, true, true)
         ).build();
 
+        assertNotNull(root.getChild("status"));
         assertNotNull(root.getChild("locate"));
         assertNull(root.getChild("locate").getChild("province"));
         assertNotNull(root.getChild("locate").getChild("anchor"));
@@ -55,6 +69,7 @@ class IoeAdminCommandsTest {
                 new IoeAdminCommandSettings(false, false, true, true, false, false)
         ).build();
 
+        assertNotNull(root.getChild("status"));
         assertNull(root.getChild("locate"));
         assertNotNull(root.getChild("retrogen").getChild("status"));
         assertNull(root.getChild("retrogen").getChild("radius"));
@@ -62,12 +77,71 @@ class IoeAdminCommandsTest {
     }
 
     @Test
-    void allCommandsDisabledLeavesOnlyRootNode() {
+    void allConfigGatedCommandsDisabledLeavesStatusProofOnly() {
         LiteralCommandNode<CommandSourceStack> root = IoeAdminCommands.buildRootCommand(
                 new IoeAdminCommandSettings(false, false, false, false, false, false)
         ).build();
 
-        assertTrue(root.getChildren().isEmpty());
+        assertEquals(1, root.getChildren().size());
+        assertNotNull(root.getChild("status"));
+    }
+
+    @Test
+    void statusMessagesExplainPlanningOnlyRuntimeVisibility() {
+        IoeWorldgenRegistration registration = IoeWorldgenRegistration.scaffold(
+                List.<ResourceLocation>of(),
+                IoeWorldgenPlacementGates.disabled(),
+                false
+        );
+        IoeRuntimeScaffoldStatus status = IoeRuntimeScaffoldStatus.fromRegistration(
+                "test",
+                registration,
+                true
+        );
+
+        String output = String.join("\n", IoeAdminCommands.runtimeStatusMessages(status));
+
+        assertTrue(output.contains("runtimeWorldgenEnabled=false"));
+        assertTrue(output.contains("provinceRuntimeIntegrationEnabled=false"));
+        assertTrue(output.contains("planning-only"));
+        assertTrue(output.contains("No visible world or JourneyMap changes are expected"));
+    }
+
+    @Test
+    void locateProvinceNoResultDoesNotUsePendingBindingPlaceholder() {
+        String message = IoeAdminCommands.locateMessage(
+                ExpeditionSiteKind.PROVINCE,
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                new ExpeditionLocatorIndex()
+        );
+
+        assertTrue(message.contains("no indexed province sites"));
+        assertFalse(message.contains("runtime province index binding is pending"));
+    }
+
+    @Test
+    void locateAnchorReportsNearestIndexedAnchorInsteadOfPendingBindingPlaceholder() {
+        ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
+        index.record(ExpeditionSite.anchor(
+                Level.OVERWORLD,
+                new BlockPos(12, 64, 4),
+                ResourceLocation.fromNamespaceAndPath("immersive_ore_expedition", "tiny_vertical_mine_entrance"),
+                null,
+                SiteQuality.NORMAL,
+                "test"
+        ));
+
+        String message = IoeAdminCommands.locateMessage(
+                ExpeditionSiteKind.ANCHOR,
+                Level.OVERWORLD,
+                new BlockPos(0, 64, 0),
+                index
+        );
+
+        assertTrue(message.contains("nearest indexed anchor"));
+        assertTrue(message.contains("12 64 4"));
+        assertFalse(message.contains("runtime anchor index binding is pending"));
     }
 
     @Test
@@ -111,5 +185,18 @@ class IoeAdminCommandsTest {
         assertEquals(3, controller.status().maxChunksPerTick());
         assertSame(controller, IoeAdminCommands.controller());
         assertEquals(1, created.get());
+    }
+
+    @Test
+    void controllerFactoryCanProvidePersistenceReadyControllerWithoutChangingCommandTree() {
+        InMemoryRetrogenStateStore store = new InMemoryRetrogenStateStore(4, 2);
+        IoeAdminCommands.resetControllerForTesting(() -> new RetrogenController(4, 2, store));
+
+        RetrogenController controller = IoeAdminCommands.controller();
+
+        assertEquals(4, controller.status().markerVersion());
+        assertEquals(2, controller.status().maxChunksPerTick());
+        assertEquals(4, controller.persistentStatus().markerVersion());
+        assertEquals(2, controller.persistentStatus().maxChunksPerTick());
     }
 }

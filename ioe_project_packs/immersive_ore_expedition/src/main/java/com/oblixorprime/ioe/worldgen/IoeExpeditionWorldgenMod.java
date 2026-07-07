@@ -1,6 +1,7 @@
 package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
+import net.neoforged.bus.api.IEventBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +13,12 @@ public final class IoeExpeditionWorldgenMod {
     }
 
     public static void bootstrap() {
+        IoeWorldgenBootstrap.bootstrap();
+        LOGGER.info("Initializing Immersive Ore Expedition: Worldgen alpha services");
+    }
+
+    public static void bootstrap(IEventBus modEventBus) {
+        IoeWorldgenBootstrap.bootstrap(modEventBus);
         LOGGER.info("Initializing Immersive Ore Expedition: Worldgen alpha services");
     }
 }

@@ -3,11 +3,23 @@ package com.oblixorprime.ioe.retrogen;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorResult;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionSiteKind;
+import com.oblixorprime.ioe.worldgen.IoeRuntimeScaffoldStatus;
+import com.oblixorprime.ioe.worldgen.IoeRuntimeScaffoldStatusFormatter;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.util.List;
@@ -30,15 +42,18 @@ public final class IoeAdminCommands {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("ioe")
                 .requires(IoeAdminCommands::canUseAdminCommands);
 
+        root.then(Commands.literal("status")
+                .executes(IoeAdminCommands::runtimeStatus));
+
         if (settings.anyLocateCommandEnabled()) {
             LiteralArgumentBuilder<CommandSourceStack> locate = Commands.literal("locate");
             if (settings.locateProvinceEnabled()) {
                 locate.then(Commands.literal("province")
-                        .executes(context -> send(context, "IOE province diagnostics are available; runtime province index binding is pending.")));
+                        .executes(context -> locate(context, ExpeditionSiteKind.PROVINCE)));
             }
             if (settings.locateAnchorEnabled()) {
                 locate.then(Commands.literal("anchor")
-                        .executes(context -> send(context, "IOE anchor diagnostics are available; runtime anchor index binding is pending.")));
+                        .executes(context -> locate(context, ExpeditionSiteKind.ANCHOR)));
             }
             root.then(locate);
         }
@@ -47,7 +62,7 @@ public final class IoeAdminCommands {
             LiteralArgumentBuilder<CommandSourceStack> retrogen = Commands.literal("retrogen");
             if (settings.retrogenStatusEnabled()) {
                 retrogen.then(Commands.literal("status")
-                        .executes(IoeAdminCommands::status));
+                        .executes(IoeAdminCommands::retrogenStatus));
             }
             if (settings.retrogenPauseEnabled()) {
                 retrogen.then(Commands.literal("pause")
@@ -84,18 +99,86 @@ public final class IoeAdminCommands {
         return !IoeRetrogenAdminConfig.requireAdminCommand() || source.hasPermission(2);
     }
 
-    private static int status(CommandContext<CommandSourceStack> context) {
-        RetrogenStatus status = controller().status();
+    private static int runtimeStatus(CommandContext<CommandSourceStack> context) {
+        return sendAll(context, runtimeStatusMessages(IoeRuntimeScaffoldStatus.fromConfig(
+                resolveModVersion(),
+                true
+        )));
+    }
+
+    static List<String> runtimeStatusMessages(IoeRuntimeScaffoldStatus status) {
+        return IoeRuntimeScaffoldStatusFormatter.format(status);
+    }
+
+    private static String resolveModVersion() {
+        try {
+            return ModList.get()
+                    .getModContainerById(ImmersiveOreExpeditionMod.MODID)
+                    .map(container -> container.getModInfo().getVersion().toString())
+                    .orElse("unknown");
+        } catch (RuntimeException exception) {
+            return "unknown";
+        }
+    }
+
+    private static int retrogenStatus(CommandContext<CommandSourceStack> context) {
+        RetrogenController retrogenController = controller();
+        RetrogenStatus status = retrogenController.status();
+        PersistentRetrogenState.StatusSnapshot persistentStatus = retrogenController.persistentStatus();
         return send(context, "IOE retrogen mode=" + status.mode().configValue()
                 + ", queued=" + status.queuedChunks()
                 + ", paused=" + status.paused()
                 + ", markerVersion=" + status.markerVersion()
-                + ", maxChunksPerTick=" + status.maxChunksPerTick());
+                + ", maxChunksPerTick=" + status.maxChunksPerTick()
+                + ", persistentState=ready"
+                + ", persistentProcessed=" + persistentStatus.processedChunks()
+                + ", persistentFailed=" + persistentStatus.failedChunks()
+                + ", persistentSkipped=" + persistentStatus.skippedChunks());
     }
 
     private static int pause(CommandContext<CommandSourceStack> context) {
         controller().pause();
         return send(context, "IOE retrogen queue paused.");
+    }
+
+    private static int locate(CommandContext<CommandSourceStack> context, ExpeditionSiteKind kind) {
+        CommandSourceStack source = context.getSource();
+        Vec3 position = source.getPosition();
+        BlockPos origin = new BlockPos(Mth.floor(position.x), Mth.floor(position.y), Mth.floor(position.z));
+        return send(context, locateMessage(
+                kind,
+                source.getLevel().dimension(),
+                origin,
+                ExpeditionLocatorService.index()
+        ));
+    }
+
+    static String locateMessage(
+            ExpeditionSiteKind kind,
+            ResourceKey<Level> dimension,
+            BlockPos origin,
+            ExpeditionLocatorIndex locatorIndex
+    ) {
+        Objects.requireNonNull(kind, "kind");
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(origin, "origin");
+        Objects.requireNonNull(locatorIndex, "locatorIndex");
+
+        ExpeditionLocatorResult result = locatorIndex.nearest(dimension, origin, kind);
+        String label = kind.messageLabel();
+        if (!result.found()) {
+            return "IOE locate " + label + ": no indexed " + label + " sites in "
+                    + dimension.location() + " yet.";
+        }
+
+        ExpeditionSite site = result.site().orElseThrow();
+        return "IOE locate " + label + ": nearest indexed " + label
+                + " " + site.primaryId().map(Object::toString).orElse("unknown")
+                + " at " + site.pos().getX() + " " + site.pos().getY() + " " + site.pos().getZ()
+                + " in " + site.dimension().location()
+                + ", distance=" + result.distanceBlocks().orElse(0L) + " blocks"
+                + ", quality=" + site.quality().map(Enum::name).orElse("unknown")
+                + ", source=" + site.source().orElse("unknown") + ".";
     }
 
     private static int startRadius(CommandContext<CommandSourceStack> context, int radiusBlocks) {
@@ -131,6 +214,14 @@ public final class IoeAdminCommands {
                 ? RetrogenMode.ADMIN_RADIUS
                 : configuredDefaultMode;
         return modeAllowed.test(effectiveMode) ? effectiveMode : RetrogenMode.OFF;
+    }
+
+    private static int sendAll(CommandContext<CommandSourceStack> context, List<String> messages) {
+        Objects.requireNonNull(messages, "messages");
+        for (String message : messages) {
+            send(context, message);
+        }
+        return messages.isEmpty() ? 0 : 1;
     }
 
     private static int send(CommandContext<CommandSourceStack> context, String message) {

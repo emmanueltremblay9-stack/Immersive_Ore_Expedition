@@ -20,6 +20,22 @@ public final class IoeWorldgenConfig {
         return ImmersiveOreExpeditionConfig.worldgenAllowTinyScrapOreOutsideProvinces();
     }
 
+    public static boolean runtimePlacementEnabled() {
+        return ImmersiveOreExpeditionConfig.worldgenRuntimePlacementEnabled();
+    }
+
+    public static boolean runtimePlacementDiagnostics() {
+        return ImmersiveOreExpeditionConfig.worldgenRuntimePlacementDiagnostics();
+    }
+
+    public static boolean runtimeProofFeatureEnabled() {
+        return ImmersiveOreExpeditionConfig.worldgenRuntimeProofFeatureEnabled();
+    }
+
+    public static boolean runtimeProofFeatureDiagnostics() {
+        return ImmersiveOreExpeditionConfig.worldgenRuntimeProofFeatureDiagnostics();
+    }
+
     public static int oreLoadMinDistanceFromAnchor() {
         return ImmersiveOreExpeditionConfig.worldgenOreLoadMinDistanceFromAnchor();
     }
@@ -38,6 +54,22 @@ public final class IoeWorldgenConfig {
 
     public static boolean allowLegacyProvinceNamespaces() {
         return ImmersiveOreExpeditionConfig.worldgenAllowLegacyProvinceNamespaces();
+    }
+
+    public static boolean provinceRuntimeIntegrationEnabled() {
+        return ImmersiveOreExpeditionConfig.worldgenProvinceRuntimeIntegrationEnabled();
+    }
+
+    public static String defaultProvince() {
+        return ImmersiveOreExpeditionConfig.worldgenDefaultProvince();
+    }
+
+    public static List<String> biomeProvinceBindings() {
+        return ImmersiveOreExpeditionConfig.worldgenBiomeProvinceBindings();
+    }
+
+    public static List<String> provinceResourcePolicyRules() {
+        return ImmersiveOreExpeditionConfig.worldgenProvinceResourcePolicyRules();
     }
 
     public static List<String> provinceAllowBiomes() {
