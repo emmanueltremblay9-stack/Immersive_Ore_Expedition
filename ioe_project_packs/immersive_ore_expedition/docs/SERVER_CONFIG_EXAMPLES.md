@@ -128,6 +128,12 @@ worldgen.provinces.resourcePolicyRules = []
 
 Default server config remains unchanged with all runtime smoke gates disabled. Manual client/server/world smoke evidence is required before claiming live placement.
 
+## V23 Controlled Smoke Runbook
+
+v23 adds a docs-only controlled smoke runbook at `docs/smoke_profiles/v23_worldgen_smoke_runbook/`. The runbook uses the v22 external datapack and config template, records client/server execution status, and separates skipped, attempted, and observed placement outcomes.
+
+The runbook does not change server defaults and does not make the v22 profile active. Keep normal server configs default-safe unless a disposable smoke profile is intentionally configured and evidenced.
+
 ## Diagnostics
 
 Keep diagnostics disabled unless actively investigating a server issue:
@@ -141,6 +147,6 @@ If diagnostics are enabled, capture a short log window, then turn them back off 
 
 ## Current Limitation
 
-The v7-v22 roadmap work is primarily scaffold, planning, policy, persistence, release validation, a default-off runtime placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature resources, a biome modifier bridge that targets an empty smoke tag by default, and a docs-only controlled external smoke profile package. These config examples do not enable live placement of anchors, ore-load chambers, IE/IP clues, crystal sites, AE2 geodes, Nether geodes, Ancient Debris hearts, or retrogen resources.
+The v7-v23 roadmap work is primarily scaffold, planning, policy, persistence, release validation, a default-off runtime placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature resources, a biome modifier bridge that targets an empty smoke tag by default, a docs-only controlled external smoke profile package, and a docs-only controlled smoke runbook/result template. These config examples do not enable live placement of anchors, ore-load chambers, IE/IP clues, crystal sites, AE2 geodes, Nether geodes, Ancient Debris hearts, or retrogen resources.
 
-v18 adds a default-off runtime placement proof path, v19 adds a default-off registration smoke bridge, v20 makes that bridge addressable as configured/placed feature data, v21 adds a default-off biome modifier smoke-tag bridge with zero real biome bindings by default, and v22 documents a controlled external smoke profile without running it. Do not claim live gameplay proof or smoke success unless manual client/server/world smoke evidence was captured.
+v18 adds a default-off runtime placement proof path, v19 adds a default-off registration smoke bridge, v20 makes that bridge addressable as configured/placed feature data, v21 adds a default-off biome modifier smoke-tag bridge with zero real biome bindings by default, v22 documents a controlled external smoke profile without running it, and v23 documents the controlled smoke runbook/result template without running it. Do not claim live gameplay proof or smoke success unless manual client/server/world smoke evidence was captured.
