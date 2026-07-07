@@ -218,3 +218,9 @@ This remains process documentation only. It does not activate runtime worldgen, 
 v29 adds a docs-only runtime traceability matrix at `docs/smoke_profiles/v29_worldgen_runtime_traceability_matrix/`. The matrix maps candidate future runtime paths to the required v23 smoke result, v24 evidence gate, v25 readiness packet, v26 runtime slice packet, v27 runtime resource inventory, and v28 runtime PR preflight manifest references.
 
 This remains process documentation only. It does not activate runtime worldgen, authorize a runtime PR, change active `src/main/resources`, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or accept smoke evidence by itself. Runtime worldgen remains disabled in v29, and any future runtime/resource change must refresh the matrix after rebase, keep a disable path, and regenerate validation and smoke evidence in its own PR.
+
+## Province System v30 runtime evidence packet
+
+v30 adds a docs-only runtime evidence packet at `docs/smoke_profiles/v30_runtime_evidence_packet/`. The packet translates the v29 traceability matrix into a future smoke evidence capture form covering run identity, jar/build provenance, config gate proof, active datapack/worldgen resource proof, runtime log expectations, world load proof, chunk/biome sampling, artifact references, and final `PASS`, `FAIL`, or `INCONCLUSIVE` criteria.
+
+This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or accept smoke evidence by itself. Runtime worldgen remains disabled in v30, and any future real smoke run must capture fresh evidence from the tested branch, commit, PR, jar/build provenance, client/server/world profile, logs, and coordinates.
