@@ -230,3 +230,9 @@ This remains process documentation only. It does not run smoke, activate runtime
 v31 adds a docs-only runtime evidence review checklist at `docs/smoke_profiles/v31_runtime_evidence_review_checklist/`. The checklist reviews a filled v30 evidence packet after a future real smoke run, separates absent, incomplete, contradictory, and sufficient proof, and records whether the evidence packet is `ACCEPTED`, `REJECTED`, `NEEDS_MORE_EVIDENCE`, or `OUT_OF_SCOPE`.
 
 This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or invent smoke evidence. Runtime worldgen remains disabled in v31, and any accepted review still applies only to the reviewed evidence packet scope unless a later separate runtime PR is explicitly authorized and validated.
+
+## Province System v32 runtime evidence decision record
+
+v32 adds a docs-only runtime evidence decision record at `docs/smoke_profiles/v32_runtime_evidence_decision_record/`. The record turns a completed v31 review into a traceable final decision, preserves the v29 -> v30 -> v31 -> v32 audit trail, records reason codes, tracks gaps, and names required remediation before an evidence packet can be accepted.
+
+This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, replace v29, v30, or v31, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or invent smoke evidence. Runtime worldgen remains disabled in v32, and any accepted decision still applies only to the reviewed evidence record scope unless a later separate runtime PR is explicitly authorized and validated.
