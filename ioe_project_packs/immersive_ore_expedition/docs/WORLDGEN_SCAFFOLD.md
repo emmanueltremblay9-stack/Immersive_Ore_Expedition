@@ -194,3 +194,9 @@ This remains process documentation only. It does not execute smoke, accept evide
 v25 adds a docs-only runtime promotion readiness packet at `docs/smoke_profiles/v25_worldgen_runtime_promotion_readiness/`. The packet links the v23 smoke result and v24 maintainer decision, then records whether the next step is `DOCS_ONLY_HOLD`, `REPEAT_SMOKE`, `BLOCKED`, or `READY_FOR_RUNTIME_SLICE`.
 
 This remains process documentation only. `READY_FOR_RUNTIME_SLICE` does not activate runtime worldgen, change active `src/main/resources`, alter config defaults, or accept smoke evidence by itself. Any future runtime activation must be a separate small PR with explicit runtime diffs, rollback/disable expectations, and fresh validation.
+
+## Province System v26 runtime slice implementation packet
+
+v26 adds a docs-only runtime slice implementation packet at `docs/smoke_profiles/v26_worldgen_runtime_slice_packet/`. The packet translates a completed v23/v24/v25 evidence chain into a reviewable outline for the smallest later separate runtime PR, including candidate active resource/source surfaces, explicit out-of-scope items, required validation, and rollback/disable expectations.
+
+This remains process documentation only. It does not activate runtime worldgen, change active `src/main/resources`, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or accept smoke evidence by itself. Runtime worldgen remains disabled in v26, and any future runtime/resource change must regenerate validation and smoke evidence in its own PR.
