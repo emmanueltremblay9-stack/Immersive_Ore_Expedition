@@ -212,3 +212,9 @@ This remains process documentation only. It does not activate runtime worldgen, 
 v28 adds a docs-only runtime PR preflight manifest at `docs/smoke_profiles/v28_worldgen_runtime_pr_preflight/`. The manifest turns the v23 smoke result, v24 evidence gate, v25 readiness packet, v26 runtime slice packet, and v27 runtime resource inventory into a preflight checklist for a later separate runtime PR.
 
 This remains process documentation only. It does not activate runtime worldgen, authorize a runtime PR, change active `src/main/resources`, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or accept smoke evidence by itself. Runtime worldgen remains disabled in v28, and any future runtime/resource change must fill the preflight manifest after rebase, keep a disable path, and regenerate validation and smoke evidence in its own PR.
+
+## Province System v29 runtime traceability matrix
+
+v29 adds a docs-only runtime traceability matrix at `docs/smoke_profiles/v29_worldgen_runtime_traceability_matrix/`. The matrix maps candidate future runtime paths to the required v23 smoke result, v24 evidence gate, v25 readiness packet, v26 runtime slice packet, v27 runtime resource inventory, and v28 runtime PR preflight manifest references.
+
+This remains process documentation only. It does not activate runtime worldgen, authorize a runtime PR, change active `src/main/resources`, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or accept smoke evidence by itself. Runtime worldgen remains disabled in v29, and any future runtime/resource change must refresh the matrix after rebase, keep a disable path, and regenerate validation and smoke evidence in its own PR.
