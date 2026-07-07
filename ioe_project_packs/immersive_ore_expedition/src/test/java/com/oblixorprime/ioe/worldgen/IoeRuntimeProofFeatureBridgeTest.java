@@ -34,7 +34,7 @@ final class IoeRuntimeProofFeatureBridgeTest {
         IoeWorldgenPlacementGates enabledPlacement = new IoeWorldgenPlacementGates(true, true, false);
 
         assertTrue(IoeRuntimeProofFeatureBridge.shouldInvokeProof(enabledBridge, enabledPlacement));
-        assertFalse(RuntimeWorldgenRegistrationSmokeBridgeFeature.shouldPlaceBlocksFromBiomeInvocation(
+        assertFalse(IoeRuntimeProofFeatureBridge.shouldPlaceBlocksFromBiomeInvocation(
                 enabledBridge,
                 enabledPlacement
         ));

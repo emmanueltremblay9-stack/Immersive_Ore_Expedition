@@ -29,6 +29,15 @@ final class IoeRuntimeProofFeatureBridge {
         return bridgeGates.runtimeProofFeatureEnabled() && !placementGates.shouldNoOpRuntimePlacement();
     }
 
+    static boolean shouldPlaceBlocksFromBiomeInvocation(
+            IoeRuntimeProofFeatureGates bridgeGates,
+            IoeWorldgenPlacementGates placementGates
+    ) {
+        Objects.requireNonNull(bridgeGates, "bridgeGates");
+        Objects.requireNonNull(placementGates, "placementGates");
+        return false;
+    }
+
     private static void registerFeatures(RegisterEvent event) {
         Objects.requireNonNull(event, "event").register(
                 Registries.FEATURE,

@@ -23,20 +23,11 @@ public final class RuntimeWorldgenRegistrationSmokeBridgeFeature extends Feature
             return false;
         }
 
-        if (!shouldPlaceBlocksFromBiomeInvocation(bridgeGates, placementGates)) {
+        if (!IoeRuntimeProofFeatureBridge.shouldPlaceBlocksFromBiomeInvocation(bridgeGates, placementGates)) {
             logSuppressedNaturalInvocation(context.origin(), bridgeGates, placementGates);
             return false;
         }
 
-        return false;
-    }
-
-    static boolean shouldPlaceBlocksFromBiomeInvocation(
-            IoeRuntimeProofFeatureGates bridgeGates,
-            IoeWorldgenPlacementGates placementGates
-    ) {
-        Objects.requireNonNull(bridgeGates, "bridgeGates");
-        Objects.requireNonNull(placementGates, "placementGates");
         return false;
     }
 
