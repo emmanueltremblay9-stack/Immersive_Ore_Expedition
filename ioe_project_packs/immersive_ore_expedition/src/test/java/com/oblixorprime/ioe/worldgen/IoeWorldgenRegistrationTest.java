@@ -14,6 +14,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.Set;
 
@@ -37,10 +40,115 @@ final class IoeWorldgenRegistrationTest {
 
         assertTrue(registration.scaffoldOnly());
         assertTrue(registration.runtimePlacementNoOp());
+        assertFalse(registration.customFeaturesRegistered());
         assertFalse(registration.configuredFeaturesRegistered());
         assertFalse(registration.placedFeaturesRegistered());
         assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.configuredFeatureDeclarationPresent());
+        assertTrue(registration.placedFeatureDeclarationPresent());
+        assertTrue(registration.biomeModifierDeclarationPresent());
+        assertTrue(registration.smokeBiomeTagDeclarationPresent());
+        assertFalse(registration.realBiomeBindingByDefault());
+        assertTrue(registration.runtimeBiomeInvocationExternalTagOptInPossible());
+        assertTrue(registration.datapackResourceJsonPresent());
+        assertFalse(registration.runtimeBiomeBindingPresent());
+        assertFalse(registration.livePlacementProofComplete());
         assertTrue(registration.futureFeatureKeys().contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER));
+    }
+
+    @Test
+    void runtimeBridgeRegistrationStatusTracksCustomFeatureAndDeclarationBridgeOnly() {
+        IoeWorldgenRegistration registration = IoeWorldgenBootstrap.registration(
+                IoeWorldgenPlacementGates.disabled(),
+                true
+        );
+
+        assertFalse(registration.scaffoldOnly());
+        assertTrue(registration.customFeaturesRegistered());
+        assertFalse(registration.configuredFeaturesRegistered());
+        assertFalse(registration.placedFeaturesRegistered());
+        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.configuredFeatureDeclarationPresent());
+        assertTrue(registration.placedFeatureDeclarationPresent());
+        assertTrue(registration.biomeModifierDeclarationPresent());
+        assertTrue(registration.smokeBiomeTagDeclarationPresent());
+        assertFalse(registration.realBiomeBindingByDefault());
+        assertTrue(registration.runtimeBiomeInvocationExternalTagOptInPossible());
+        assertTrue(registration.datapackResourceJsonPresent());
+        assertFalse(registration.runtimeBiomeBindingPresent());
+        assertFalse(registration.livePlacementProofComplete());
+    }
+
+    @Test
+    void configuredFeatureDeclarationReferencesRuntimeProofFeatureWithNoneConfig() throws IOException {
+        String json = readClasspathResource(
+                "data/immersive_ore_expedition/worldgen/configured_feature/tiny_vertical_mine_entrance.json"
+        );
+
+        assertTrue(json.contains("\"type\": \"immersive_ore_expedition:tiny_vertical_mine_entrance\""));
+        assertTrue(json.contains("\"config\": {}"));
+    }
+
+    @Test
+    void placedFeatureDeclarationReferencesConfiguredFeatureWithoutPlacementModifiers() throws IOException {
+        String json = readClasspathResource(
+                "data/immersive_ore_expedition/worldgen/placed_feature/tiny_vertical_mine_entrance.json"
+        );
+
+        assertTrue(json.contains("\"feature\": \"immersive_ore_expedition:tiny_vertical_mine_entrance\""));
+        assertTrue(json.contains("\"placement\": []"));
+    }
+
+    @Test
+    void biomeModifierDeclarationReferencesOnlySmokeTagAndPlacedFeature() throws IOException {
+        String json = readClasspathResource(
+                "data/immersive_ore_expedition/neoforge/biome_modifier/tiny_vertical_mine_entrance_smoke_bridge.json"
+        );
+
+        assertTrue(json.contains("\"type\": \"neoforge:add_features\""));
+        assertTrue(json.contains("\"biomes\": \"#immersive_ore_expedition:worldgen_smoke_test_biomes\""));
+        assertTrue(json.contains("\"features\": \"immersive_ore_expedition:tiny_vertical_mine_entrance\""));
+        assertTrue(json.contains("\"step\": \"surface_structures\""));
+        assertFalse(json.contains("#minecraft:is_overworld"));
+        assertFalse(json.contains("#c:is_overworld"));
+        assertFalse(json.contains("minecraft:plains"));
+        assertFalse(json.contains("underground_ores"));
+    }
+
+    @Test
+    void smokeBiomeTagBindsZeroBiomesByDefault() throws IOException {
+        String json = readClasspathResource(
+                "data/immersive_ore_expedition/tags/worldgen/biome/worldgen_smoke_test_biomes.json"
+        );
+
+        assertTrue(json.contains("\"replace\": false"));
+        assertTrue(json.contains("\"values\": []"));
+        assertFalse(json.contains("minecraft:"));
+        assertFalse(json.contains("#minecraft:"));
+        assertFalse(json.contains("#c:"));
+    }
+
+    @Test
+    void statusModelDistinguishesBiomeModifierDeclarationFromRealBiomeBinding() {
+        IoeWorldgenRegistration registration = IoeWorldgenBootstrap.bootstrap();
+
+        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.biomeModifierDeclarationPresent());
+        assertTrue(registration.smokeBiomeTagDeclarationPresent());
+        assertFalse(registration.realBiomeBindingByDefault());
+        assertTrue(registration.runtimeBiomeInvocationExternalTagOptInPossible());
+        assertFalse(registration.runtimeBiomeBindingPresent());
+        assertFalse(registration.livePlacementProofComplete());
+    }
+
+    @Test
+    void declarationBridgeDoesNotLoosenRuntimeProofGates() {
+        IoeRuntimeProofFeatureGates enabledBridge = new IoeRuntimeProofFeatureGates(true, false);
+        IoeWorldgenPlacementGates disabledPlacement = IoeWorldgenPlacementGates.disabled();
+        IoeWorldgenPlacementGates enabledPlacement = new IoeWorldgenPlacementGates(true, false, false);
+
+        assertFalse(IoeRuntimeProofFeatureBridge.shouldInvokeProof(enabledBridge, disabledPlacement));
+        assertTrue(IoeRuntimeProofFeatureBridge.shouldInvokeProof(enabledBridge, enabledPlacement));
     }
 
     @Test
@@ -137,6 +245,15 @@ final class IoeWorldgenRegistrationTest {
 
     private static LoadedResourceScanner scannerWithNothingLoaded() {
         return new TestScanner(null);
+    }
+
+    private static String readClasspathResource(String path) throws IOException {
+        try (InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path)) {
+            if (stream == null) {
+                throw new AssertionError("missing classpath resource: " + path);
+            }
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 
     private record TestScanner(ResourceRef loaded) implements LoadedResourceScanner {

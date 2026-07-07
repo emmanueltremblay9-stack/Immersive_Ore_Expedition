@@ -6,6 +6,7 @@ import com.oblixorprime.ioe.core.ResourcePolicyDecision;
 import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.ResourceRef;
 import com.oblixorprime.ioe.core.ResourceType;
+import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.WorldGenLevel;
@@ -17,8 +18,17 @@ public final class OreLoadGenerator {
     public boolean generateAnchoredOreLoad(WorldGenLevel level, BlockPos anchorPos) {
         Objects.requireNonNull(level, "level");
         Objects.requireNonNull(anchorPos, "anchorPos");
-        IoeExpeditionWorldgenMod.LOGGER.debug("Skipping direct ore placement at {}; alpha planning layer is enabled but configured-feature placement is not yet registered.", anchorPos);
-        return false;
+        RuntimeWorldgenPlacementProofResult result = new RuntimeWorldgenPlacementProof().placeAnchorProof(
+                level,
+                IoeWorldgenFeatureKeys.TINY_VERTICAL_MINE_ENTRANCE,
+                anchorPos,
+                SiteQuality.NORMAL,
+                RuntimeWorldgenPlacementProof.DEFAULT_PROOF_RESOURCE,
+                LoadedResourceScanner.runtime(),
+                new ResourcePolicyService(),
+                IoeWorldgenPlacementGates.fromConfig()
+        );
+        return result.blockPlaced();
     }
 
     public Optional<OreLoadPlan> planAnchoredOreLoad(

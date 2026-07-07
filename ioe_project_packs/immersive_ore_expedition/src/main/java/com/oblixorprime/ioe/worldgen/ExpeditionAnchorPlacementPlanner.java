@@ -49,8 +49,6 @@ public final class ExpeditionAnchorPlacementPlanner {
             ResourceLocation provinceId,
             IoeWorldgenPlacementGates placementGates
     ) {
-        Objects.requireNonNull(placementGates, "placementGates");
-
         ExpeditionAnchorPlacementPlan.SkipReason validationSkipReason =
                 rules.validate(anchorType, origin, siteQuality);
         if (validationSkipReason != ExpeditionAnchorPlacementPlan.SkipReason.NONE) {
@@ -59,6 +57,16 @@ public final class ExpeditionAnchorPlacementPlanner {
                     origin,
                     siteQuality,
                     validationSkipReason,
+                    biomeId,
+                    provinceId
+            );
+        }
+        if (placementGates == null) {
+            return ExpeditionAnchorPlacementPlan.skipped(
+                    anchorType,
+                    origin,
+                    siteQuality,
+                    ExpeditionAnchorPlacementPlan.SkipReason.INVALID_INPUT,
                     biomeId,
                     provinceId
             );

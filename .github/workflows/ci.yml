@@ -86,6 +86,10 @@ jobs:
               neoforge_metadata = [name for name in entries if name == "META-INF/neoforge.mods.toml"]
               pack_metadata = [name for name in entries if name == "pack.mcmeta"]
               embedded_jars = sorted(name for name in entries if name.lower().endswith(".jar"))
+              compiled_mod_classes = sorted(
+                  name for name in entries
+                  if name.startswith("com/oblixorprime/ioe/") and name.endswith(".class")
+              )
 
               failures = []
               if duplicates:
@@ -94,6 +98,8 @@ jobs:
                   failures.append(f"Expected exactly one META-INF/neoforge.mods.toml, found {len(neoforge_metadata)}")
               if len(pack_metadata) != 1:
                   failures.append(f"Expected exactly one pack.mcmeta, found {len(pack_metadata)}")
+              if not compiled_mod_classes:
+                  failures.append("No compiled classes found under com/oblixorprime/ioe/; jar may be empty or resource-only")
               if embedded_jars:
                   failures.append(f"Embedded jar files found: {embedded_jars}")
 
@@ -121,6 +127,7 @@ jobs:
 
               print(f"Jar inspection passed: {jar_path}")
               print(f"Active mod id: {expected_mod_id}")
+              print(f"Compiled IOE class count: {len(compiled_mod_classes)}")
               print("No embedded jars or duplicate entries found.")
           PY
 

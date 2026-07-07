@@ -4,12 +4,20 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorResult;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionSiteKind;
 import com.oblixorprime.ioe.worldgen.IoeRuntimeScaffoldStatus;
 import com.oblixorprime.ioe.worldgen.IoeRuntimeScaffoldStatusFormatter;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -41,11 +49,11 @@ public final class IoeAdminCommands {
             LiteralArgumentBuilder<CommandSourceStack> locate = Commands.literal("locate");
             if (settings.locateProvinceEnabled()) {
                 locate.then(Commands.literal("province")
-                        .executes(context -> send(context, "IOE province diagnostics are available; runtime province index binding is pending.")));
+                        .executes(context -> locate(context, ExpeditionSiteKind.PROVINCE)));
             }
             if (settings.locateAnchorEnabled()) {
                 locate.then(Commands.literal("anchor")
-                        .executes(context -> send(context, "IOE anchor diagnostics are available; runtime anchor index binding is pending.")));
+                        .executes(context -> locate(context, ExpeditionSiteKind.ANCHOR)));
             }
             root.then(locate);
         }
@@ -114,17 +122,63 @@ public final class IoeAdminCommands {
     }
 
     private static int retrogenStatus(CommandContext<CommandSourceStack> context) {
-        RetrogenStatus status = controller().status();
+        RetrogenController retrogenController = controller();
+        RetrogenStatus status = retrogenController.status();
+        PersistentRetrogenState.StatusSnapshot persistentStatus = retrogenController.persistentStatus();
         return send(context, "IOE retrogen mode=" + status.mode().configValue()
                 + ", queued=" + status.queuedChunks()
                 + ", paused=" + status.paused()
                 + ", markerVersion=" + status.markerVersion()
-                + ", maxChunksPerTick=" + status.maxChunksPerTick());
+                + ", maxChunksPerTick=" + status.maxChunksPerTick()
+                + ", persistentState=ready"
+                + ", persistentProcessed=" + persistentStatus.processedChunks()
+                + ", persistentFailed=" + persistentStatus.failedChunks()
+                + ", persistentSkipped=" + persistentStatus.skippedChunks());
     }
 
     private static int pause(CommandContext<CommandSourceStack> context) {
         controller().pause();
         return send(context, "IOE retrogen queue paused.");
+    }
+
+    private static int locate(CommandContext<CommandSourceStack> context, ExpeditionSiteKind kind) {
+        CommandSourceStack source = context.getSource();
+        Vec3 position = source.getPosition();
+        BlockPos origin = new BlockPos(Mth.floor(position.x), Mth.floor(position.y), Mth.floor(position.z));
+        return send(context, locateMessage(
+                kind,
+                source.getLevel().dimension(),
+                origin,
+                ExpeditionLocatorService.index()
+        ));
+    }
+
+    static String locateMessage(
+            ExpeditionSiteKind kind,
+            ResourceKey<Level> dimension,
+            BlockPos origin,
+            ExpeditionLocatorIndex locatorIndex
+    ) {
+        Objects.requireNonNull(kind, "kind");
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(origin, "origin");
+        Objects.requireNonNull(locatorIndex, "locatorIndex");
+
+        ExpeditionLocatorResult result = locatorIndex.nearest(dimension, origin, kind);
+        String label = kind.messageLabel();
+        if (!result.found()) {
+            return "IOE locate " + label + ": no indexed " + label + " sites in "
+                    + dimension.location() + " yet.";
+        }
+
+        ExpeditionSite site = result.site().orElseThrow();
+        return "IOE locate " + label + ": nearest indexed " + label
+                + " " + site.primaryId().map(Object::toString).orElse("unknown")
+                + " at " + site.pos().getX() + " " + site.pos().getY() + " " + site.pos().getZ()
+                + " in " + site.dimension().location()
+                + ", distance=" + result.distanceBlocks().orElse(0L) + " blocks"
+                + ", quality=" + site.quality().map(Enum::name).orElse("unknown")
+                + ", source=" + site.source().orElse("unknown") + ".";
     }
 
     private static int startRadius(CommandContext<CommandSourceStack> context, int radiusBlocks) {

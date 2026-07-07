@@ -14,6 +14,8 @@ final class IoeWorldgenPlacementGatesTest {
         assertTrue(gates.shouldNoOpRuntimePlacement());
         assertFalse(gates.provinceRuntimeIntegrationEnabled());
         assertFalse(gates.diagnosticsEnabled());
+        assertFalse(IoeWorldgenConfig.runtimePlacementEnabled());
+        assertFalse(IoeWorldgenConfig.runtimePlacementDiagnostics());
     }
 
     @Test

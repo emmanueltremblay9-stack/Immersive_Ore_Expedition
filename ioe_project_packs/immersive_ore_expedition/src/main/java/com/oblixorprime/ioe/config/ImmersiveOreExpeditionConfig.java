@@ -35,6 +35,10 @@ public final class ImmersiveOreExpeditionConfig {
     private static final double DEFAULT_WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER = 0.03D;
     private static final boolean DEFAULT_WORLDGEN_REQUIRE_STRUCTURE_ANCHOR = true;
     private static final boolean DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES = true;
+    private static final boolean DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED = false;
+    private static final boolean DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS = false;
+    private static final boolean DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED = false;
+    private static final boolean DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS = false;
     private static final int DEFAULT_WORLDGEN_MIN_DISTANCE = 16;
     private static final int DEFAULT_WORLDGEN_MAX_DISTANCE = 96;
     private static final boolean DEFAULT_WORLDGEN_REQUIRE_TUNNEL_CONNECTION = true;
@@ -149,6 +153,18 @@ public final class ImmersiveOreExpeditionConfig {
             .comment("Allow future hooks to leave tiny scrap ore outside full expedition provinces.")
             .define("worldgen.global.allowTinyScrapOreOutsideProvinces",
                     DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PLACEMENT_ENABLED = BUILDER
+            .comment("Enable IOE runtime placement proof hooks. Default false keeps worldgen placement no-op.")
+            .define("worldgen.runtimePlacementEnabled", DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS = BUILDER
+            .comment("Emit opt-in diagnostics for runtime placement proof decisions.")
+            .define("worldgen.runtimePlacementDiagnostics", DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED = BUILDER
+            .comment("Enable the registered runtime proof feature bridge diagnostics. Biome-invoked proof features remain non-placing; ore loads require explicit anchor/chamber planning.")
+            .define("worldgen.runtimeProofFeatureEnabled", DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS = BUILDER
+            .comment("Emit opt-in diagnostics for the v19 runtime proof feature bridge.")
+            .define("worldgen.runtimeProofFeatureDiagnostics", DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS);
     private static final ModConfigSpec.IntValue WORLDGEN_ORE_LOAD_MIN_DISTANCE_FROM_ANCHOR = BUILDER
             .comment("Minimum Manhattan distance from an expedition anchor to a planned ore-load chamber.")
             .defineInRange("worldgen.anchorRules.oreLoadMinDistanceFromAnchor", DEFAULT_WORLDGEN_MIN_DISTANCE, 1, 512);
@@ -459,6 +475,25 @@ public final class ImmersiveOreExpeditionConfig {
     public static boolean worldgenAllowTinyScrapOreOutsideProvinces() {
         return getOrDefault(WORLDGEN_ALLOW_TINY_SCRAP_ORE_OUTSIDE_PROVINCES,
                 DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES);
+    }
+
+    public static boolean worldgenRuntimePlacementEnabled() {
+        return getOrDefault(WORLDGEN_RUNTIME_PLACEMENT_ENABLED, DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED);
+    }
+
+    public static boolean worldgenRuntimePlacementDiagnostics() {
+        return getOrDefault(WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS,
+                DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS);
+    }
+
+    public static boolean worldgenRuntimeProofFeatureEnabled() {
+        return getOrDefault(WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED,
+                DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED);
+    }
+
+    public static boolean worldgenRuntimeProofFeatureDiagnostics() {
+        return getOrDefault(WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS,
+                DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS);
     }
 
     public static int worldgenOreLoadMinDistanceFromAnchor() {

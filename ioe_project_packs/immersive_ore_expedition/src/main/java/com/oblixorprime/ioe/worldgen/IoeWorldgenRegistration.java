@@ -11,10 +11,25 @@ public record IoeWorldgenRegistration(
         List<ResourceLocation> oreLoadChamberPlacementPlanKeys,
         boolean randomOreSuppressionPlanningReady,
         boolean liveBiomeProvinceBindingPlanningReady,
+        boolean ieIpSurfaceCluePlacementPlanningReady,
+        boolean crystalAe2SitePlacementPlanningReady,
+        boolean meteoriticAe2GeodePlacementPlanningReady,
+        boolean netherSubLavaGeodePlacementPlanningReady,
+        boolean persistentConservativeRetrogenPlanningReady,
         IoeWorldgenPlacementGates placementGates,
+        boolean customFeaturesRegistered,
         boolean configuredFeaturesRegistered,
         boolean placedFeaturesRegistered,
-        boolean biomeModifiersRegistered
+        boolean biomeModifiersRegistered,
+        boolean configuredFeatureDeclarationPresent,
+        boolean placedFeatureDeclarationPresent,
+        boolean biomeModifierDeclarationPresent,
+        boolean smokeBiomeTagDeclarationPresent,
+        boolean realBiomeBindingByDefault,
+        boolean runtimeBiomeInvocationExternalTagOptInPossible,
+        boolean datapackResourceJsonPresent,
+        boolean runtimeBiomeBindingPresent,
+        boolean livePlacementProofComplete
 ) {
     public IoeWorldgenRegistration {
         futureFeatureKeys = List.copyOf(Objects.requireNonNull(futureFeatureKeys, "futureFeatureKeys"));
@@ -25,7 +40,8 @@ public record IoeWorldgenRegistration(
 
     public static IoeWorldgenRegistration scaffold(
             List<ResourceLocation> futureFeatureKeys,
-            IoeWorldgenPlacementGates placementGates
+            IoeWorldgenPlacementGates placementGates,
+            boolean customFeaturesRegistered
     ) {
         return new IoeWorldgenRegistration(
                 futureFeatureKeys,
@@ -33,15 +49,31 @@ public record IoeWorldgenRegistration(
                 IoeWorldgenFeatureKeys.oreLoadChamberFeatureKeys(),
                 true,
                 true,
+                true,
+                true,
+                true,
+                true,
+                true,
                 placementGates,
+                customFeaturesRegistered,
                 false,
+                false,
+                false,
+                true,
+                true,
+                true,
+                true,
+                false,
+                true,
+                true,
                 false,
                 false
         );
     }
 
     public boolean scaffoldOnly() {
-        return !configuredFeaturesRegistered
+        return !customFeaturesRegistered
+                && !configuredFeaturesRegistered
                 && !placedFeaturesRegistered
                 && !biomeModifiersRegistered;
     }
