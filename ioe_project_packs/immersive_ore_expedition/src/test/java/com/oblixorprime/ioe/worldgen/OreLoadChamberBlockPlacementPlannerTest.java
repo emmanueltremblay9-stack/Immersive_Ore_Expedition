@@ -4,8 +4,8 @@ import com.oblixorprime.ioe.core.ExpeditionAnchorRef;
 import com.oblixorprime.ioe.core.ResourceRef;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -80,15 +80,20 @@ final class OreLoadChamberBlockPlacementPlannerTest {
     @Test
     void replacementRulesRejectUnsafeTargets() {
         assertFalse(OreLoadChamberReplacementRules.canReplace(null));
-        assertFalse(OreLoadChamberReplacementRules.canReplace(Blocks.AIR.defaultBlockState()));
-        assertFalse(OreLoadChamberReplacementRules.canReplace(Blocks.WATER.defaultBlockState()));
-        assertFalse(OreLoadChamberReplacementRules.canReplace(Blocks.BEDROCK.defaultBlockState()));
-        assertFalse(OreLoadChamberReplacementRules.canReplace(Blocks.BARRIER.defaultBlockState()));
-        assertFalse(OreLoadChamberReplacementRules.canReplace(Blocks.STRUCTURE_BLOCK.defaultBlockState()));
-        assertFalse(OreLoadChamberReplacementRules.canReplace(Blocks.CHEST.defaultBlockState()));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(null, false, false, false));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(id("stone"), true, false, false));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(id("stone"), false, true, false));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(id("chest"), false, false, true));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(id("bedrock"), false, false, false));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(id("barrier"), false, false, false));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(id("command_block"), false, false, false));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(id("structure_block"), false, false, false));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(id("jigsaw"), false, false, false));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(id("end_portal"), false, false, false));
+        assertFalse(OreLoadChamberReplacementRules.canReplace(id("nether_portal"), false, false, false));
 
-        assertTrue(OreLoadChamberReplacementRules.canReplace(Blocks.STONE.defaultBlockState()));
-        assertTrue(OreLoadChamberReplacementRules.canReplace(Blocks.DEEPSLATE.defaultBlockState()));
+        assertTrue(OreLoadChamberReplacementRules.canReplace(id("stone"), false, false, false));
+        assertTrue(OreLoadChamberReplacementRules.canReplace(id("deepslate"), false, false, false));
     }
 
     private static OreLoadChamberPlacementPlan allowedChamberPlan(ResourceRef resource, SiteQuality quality) {
@@ -126,5 +131,9 @@ final class OreLoadChamberBlockPlacementPlannerTest {
             positions.add(target.pos());
         }
         return positions;
+    }
+
+    private static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath("minecraft", path);
     }
 }
