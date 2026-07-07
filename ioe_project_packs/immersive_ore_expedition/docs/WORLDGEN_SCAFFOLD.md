@@ -182,3 +182,9 @@ The active shipped smoke tag still contains zero biome ids, all runtime gates st
 v23 adds a docs-only controlled smoke runbook at `docs/smoke_profiles/v23_worldgen_smoke_runbook/`. The runbook consumes the v22 external datapack/config profile and formalizes the preflight checks, client/server execution matrix, result classifications, and evidence fields that must be captured before any live placement proof is claimed.
 
 This remains process documentation only. It does not add or modify active `src/main/resources` data, default config values, biome bindings, configured features, placed features, biome modifiers, structures, blocks, items, entities, ores, gems, fluids, mixins, access transformers, dependencies, generated content, or the complete surface clue to ore-load gameplay loop. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.
+
+## Province System v24 post-smoke evidence gate
+
+v24 adds a docs-only evidence gate at `docs/smoke_profiles/v24_worldgen_smoke_evidence_gate/`. The gate is for maintainer review after a v23 smoke result is filled from an actual run, and it records a go/no-go decision before any later runtime integration or shipped-behavior change is planned.
+
+This remains process documentation only. It does not execute smoke, accept evidence by itself, activate runtime worldgen, change shipped `src/main/resources`, alter config defaults, bind real biomes by default, or implement the complete surface clue to ore-load gameplay loop. If required v23 evidence is missing, the decision remains no-go.
