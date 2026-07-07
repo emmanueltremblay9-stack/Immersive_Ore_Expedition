@@ -89,8 +89,9 @@ class IoeAdminCommandsTest {
     @Test
     void statusMessagesExplainPlanningOnlyRuntimeVisibility() {
         IoeWorldgenRegistration registration = IoeWorldgenRegistration.scaffold(
-                List.of(),
-                IoeWorldgenPlacementGates.disabled()
+                List.<ResourceLocation>of(),
+                IoeWorldgenPlacementGates.disabled(),
+                false
         );
         IoeRuntimeScaffoldStatus status = IoeRuntimeScaffoldStatus.fromRegistration(
                 "test",

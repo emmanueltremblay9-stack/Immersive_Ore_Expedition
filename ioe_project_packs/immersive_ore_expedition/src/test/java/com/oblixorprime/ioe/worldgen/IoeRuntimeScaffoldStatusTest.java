@@ -26,7 +26,8 @@ final class IoeRuntimeScaffoldStatusTest {
                 "test-version",
                 IoeWorldgenRegistration.scaffold(
                         IoeWorldgenFeatureKeys.allFeatureKeys(),
-                        IoeWorldgenPlacementGates.disabled()
+                        IoeWorldgenPlacementGates.disabled(),
+                        false
                 ),
                 true
         );
@@ -52,7 +53,8 @@ final class IoeRuntimeScaffoldStatusTest {
                 "",
                 IoeWorldgenRegistration.scaffold(
                         IoeWorldgenFeatureKeys.allFeatureKeys(),
-                        IoeWorldgenPlacementGates.disabled()
+                        IoeWorldgenPlacementGates.disabled(),
+                        false
                 ),
                 true
         );
@@ -73,7 +75,8 @@ final class IoeRuntimeScaffoldStatusTest {
                 "test",
                 IoeWorldgenRegistration.scaffold(
                         IoeWorldgenFeatureKeys.allFeatureKeys(),
-                        new IoeWorldgenPlacementGates(true, true, true)
+                        new IoeWorldgenPlacementGates(true, true, true),
+                        false
                 ),
                 true
         );
@@ -107,7 +110,8 @@ final class IoeRuntimeScaffoldStatusTest {
                 "test",
                 IoeWorldgenRegistration.scaffold(
                         IoeWorldgenFeatureKeys.allFeatureKeys(),
-                        IoeWorldgenPlacementGates.disabled()
+                        IoeWorldgenPlacementGates.disabled(),
+                        false
                 ),
                 true
         );
@@ -131,7 +135,8 @@ final class IoeRuntimeScaffoldStatusTest {
                 "test",
                 IoeWorldgenRegistration.scaffold(
                         IoeWorldgenFeatureKeys.allFeatureKeys(),
-                        IoeWorldgenPlacementGates.disabled()
+                        IoeWorldgenPlacementGates.disabled(),
+                        false
                 ),
                 true
         );
