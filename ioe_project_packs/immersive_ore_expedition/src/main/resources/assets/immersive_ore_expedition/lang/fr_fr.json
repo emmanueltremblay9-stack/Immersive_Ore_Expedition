@@ -3,7 +3,19 @@
   "itemGroup.immersive_ore_expedition": "Immersive Ore Expedition",
   "item.immersive_ore_expedition.expedition_compass": "Boussole d’Expédition",
   "item.immersive_ore_expedition.expedition_compass.tooltip": "Localise les sites d’Immersive Ore Expedition",
-  "item.immersive_ore_expedition.expedition_compass.message.nearest_site": "Site d’expédition indexé le plus proche (%s %s) : %s %s %s (%s blocs)",
-  "item.immersive_ore_expedition.expedition_compass.message.no_indexed_sites": "Aucun site d’expédition indexé dans cette dimension pour l’instant",
-  "item.immersive_ore_expedition.expedition_compass.message.reset": "Cible de la boussole d’expédition réinitialisée"
+  "item.immersive_ore_expedition.expedition_compass.message.target_bound": "Boussole d’expédition liée au site indexé %s %s : %s %s %s (%s blocs)",
+  "item.immersive_ore_expedition.expedition_compass.message.current_target": "Cible de la boussole d’expédition : %s %s à %s %s %s (%s blocs)",
+  "item.immersive_ore_expedition.expedition_compass.message.target_other_dimension": "La cible de la boussole d’expédition est dans %s : %s %s à %s %s %s",
+  "item.immersive_ore_expedition.expedition_compass.message.invalid_target": "Cette cible d’expédition n’est plus indexée",
+  "item.immersive_ore_expedition.expedition_compass.message.reset": "Cible de la boussole d’expédition réinitialisée",
+  "screen.immersive_ore_expedition.expedition_compass.title": "Boussole d’Expédition",
+  "screen.immersive_ore_expedition.expedition_compass.dimension": "Dimension : %s",
+  "screen.immersive_ore_expedition.expedition_compass.current_target": "Cible actuelle : %s %s à %s %s %s",
+  "screen.immersive_ore_expedition.expedition_compass.no_current_target": "Cible actuelle : aucune",
+  "screen.immersive_ore_expedition.expedition_compass.empty": "Aucun site d’expédition indexé dans cette dimension pour l’instant.",
+  "screen.immersive_ore_expedition.expedition_compass.entry": "%s %s %s à %s %s %s (%s blocs)",
+  "screen.immersive_ore_expedition.expedition_compass.more_entries": "%s sites indexés supplémentaires non affichés",
+  "screen.immersive_ore_expedition.expedition_compass.select": "Lier",
+  "screen.immersive_ore_expedition.expedition_compass.refresh": "Actualiser",
+  "screen.immersive_ore_expedition.expedition_compass.clear": "Effacer"
 }

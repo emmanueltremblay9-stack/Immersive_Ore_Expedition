@@ -1,8 +1,13 @@
 package com.oblixorprime.ioe.expeditionlocator;
 
-public enum ExpeditionSiteKind {
+import com.mojang.serialization.Codec;
+import net.minecraft.util.StringRepresentable;
+
+public enum ExpeditionSiteKind implements StringRepresentable {
     ANCHOR("anchor"),
     PROVINCE("province");
+
+    public static final Codec<ExpeditionSiteKind> CODEC = StringRepresentable.fromEnum(ExpeditionSiteKind::values);
 
     private final String messageLabel;
 
@@ -11,6 +16,11 @@ public enum ExpeditionSiteKind {
     }
 
     public String messageLabel() {
+        return messageLabel;
+    }
+
+    @Override
+    public String getSerializedName() {
         return messageLabel;
     }
 }

@@ -160,7 +160,7 @@ public final class ImmersiveOreExpeditionConfig {
             .comment("Emit opt-in diagnostics for runtime placement proof decisions.")
             .define("worldgen.runtimePlacementDiagnostics", DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS);
     private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED = BUILDER
-            .comment("Enable the v19 registered runtime proof feature bridge. Default false keeps registered feature invocations no-op.")
+            .comment("Enable the registered runtime proof feature bridge diagnostics. Biome-invoked proof features remain non-placing; ore loads require explicit anchor/chamber planning.")
             .define("worldgen.runtimeProofFeatureEnabled", DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED);
     private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PROOF_FEATURE_DIAGNOSTICS = BUILDER
             .comment("Emit opt-in diagnostics for the v19 runtime proof feature bridge.")

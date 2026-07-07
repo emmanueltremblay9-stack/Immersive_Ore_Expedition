@@ -8,15 +8,8 @@ import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConf
 import java.util.Objects;
 
 public final class RuntimeWorldgenRegistrationSmokeBridgeFeature extends Feature<NoneFeatureConfiguration> {
-    private final OreLoadGenerator oreLoadGenerator;
-
     public RuntimeWorldgenRegistrationSmokeBridgeFeature() {
-        this(new OreLoadGenerator());
-    }
-
-    RuntimeWorldgenRegistrationSmokeBridgeFeature(OreLoadGenerator oreLoadGenerator) {
         super(NoneFeatureConfiguration.CODEC);
-        this.oreLoadGenerator = Objects.requireNonNull(oreLoadGenerator, "oreLoadGenerator");
     }
 
     @Override
@@ -30,7 +23,21 @@ public final class RuntimeWorldgenRegistrationSmokeBridgeFeature extends Feature
             return false;
         }
 
-        return oreLoadGenerator.generateAnchoredOreLoad(context.level(), context.origin());
+        if (!shouldPlaceBlocksFromBiomeInvocation(bridgeGates, placementGates)) {
+            logSuppressedNaturalInvocation(context.origin(), bridgeGates, placementGates);
+            return false;
+        }
+
+        return false;
+    }
+
+    static boolean shouldPlaceBlocksFromBiomeInvocation(
+            IoeRuntimeProofFeatureGates bridgeGates,
+            IoeWorldgenPlacementGates placementGates
+    ) {
+        Objects.requireNonNull(bridgeGates, "bridgeGates");
+        Objects.requireNonNull(placementGates, "placementGates");
+        return false;
     }
 
     private static void logSkipped(
@@ -48,6 +55,20 @@ public final class RuntimeWorldgenRegistrationSmokeBridgeFeature extends Feature
                 "IOE v19 runtime proof feature skipped at {}: {}",
                 origin,
                 reason
+        );
+    }
+
+    private static void logSuppressedNaturalInvocation(
+            BlockPos origin,
+            IoeRuntimeProofFeatureGates bridgeGates,
+            IoeWorldgenPlacementGates placementGates
+    ) {
+        if (!bridgeGates.diagnosticsEnabled() && !placementGates.diagnosticsEnabled()) {
+            return;
+        }
+        IoeExpeditionWorldgenMod.LOGGER.info(
+                "IOE runtime proof feature suppressed natural/free placement at {}: biome feature invocations are diagnostic-only; ore loads require explicit anchor/chamber planning",
+                origin
         );
     }
 }

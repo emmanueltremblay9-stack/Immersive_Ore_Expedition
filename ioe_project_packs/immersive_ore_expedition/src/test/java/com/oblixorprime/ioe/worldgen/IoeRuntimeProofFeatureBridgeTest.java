@@ -29,6 +29,18 @@ final class IoeRuntimeProofFeatureBridgeTest {
     }
 
     @Test
+    void enabledBiomeProofFeatureInvocationStillCannotPlaceFreeBlocks() {
+        IoeRuntimeProofFeatureGates enabledBridge = new IoeRuntimeProofFeatureGates(true, false);
+        IoeWorldgenPlacementGates enabledPlacement = new IoeWorldgenPlacementGates(true, true, false);
+
+        assertTrue(IoeRuntimeProofFeatureBridge.shouldInvokeProof(enabledBridge, enabledPlacement));
+        assertFalse(RuntimeWorldgenRegistrationSmokeBridgeFeature.shouldPlaceBlocksFromBiomeInvocation(
+                enabledBridge,
+                enabledPlacement
+        ));
+    }
+
+    @Test
     void disabledBridgePreventsProofEvenWhenRuntimePlacementGateIsEnabled() {
         IoeRuntimeProofFeatureGates disabledBridge = IoeRuntimeProofFeatureGates.disabled();
         IoeWorldgenPlacementGates enabledPlacement = new IoeWorldgenPlacementGates(true, false, false);
