@@ -12,6 +12,7 @@ v32 does not run smoke, replace the v29 matrix, replace the v30 evidence packet,
 - V30 evidence packet source: `../v30_runtime_evidence_packet/V30_RUNTIME_EVIDENCE_PACKET_TEMPLATE.md`
 - V31 review checklist source: `../v31_runtime_evidence_review_checklist/V31_RUNTIME_EVIDENCE_REVIEW_CHECKLIST.md`
 - V32 decision record: `V32_RUNTIME_EVIDENCE_DECISION_RECORD.md`
+- Next docs-only remediation tracker: `../v33_runtime_evidence_remediation_tracker/V33_RUNTIME_EVIDENCE_REMEDIATION_TRACKER.md`
 
 ## Decision Record Purpose
 
@@ -31,6 +32,7 @@ Use this package to:
 - No runtime evidence is invented or accepted by this package alone.
 - `ACCEPTED` applies only to the evidence packet and review scope recorded in the decision record.
 - A future runtime PR must still be separate, explicitly scoped, validated, reviewed, and authorized.
+- The v33 runtime evidence remediation tracker is the next docs-only profile for turning v32 gaps and next actions into traceable remediation work. It does not create smoke evidence or authorize runtime/resource changes by itself.
 
 ## Hard Boundaries
 
