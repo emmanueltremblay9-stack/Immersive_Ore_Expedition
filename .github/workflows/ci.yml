@@ -147,3 +147,108 @@ jobs:
             ioe_project_packs/immersive_ore_expedition/build/reports/**
             ioe_project_packs/immersive_ore_expedition/build/test-results/**
           if-no-files-found: ignore
+
+  legacy-split-modules:
+    name: Legacy split module (${{ matrix.module.name }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - name: ioe_core
+            path: ioe_project_packs/01_ioe_core
+          - name: ioe_expedition_worldgen
+            path: ioe_project_packs/02_ioe_expedition_worldgen
+          - name: ioe_crystal_growth
+            path: ioe_project_packs/03_ioe_crystal_growth
+          - name: ioe_nether_geodes
+            path: ioe_project_packs/04_ioe_nether_geodes
+          - name: ioe_ieip_prospecting
+            path: ioe_project_packs/05_ioe_ieip_prospecting
+          - name: ioe_retrogen_admin
+            path: ioe_project_packs/06_ioe_retrogen_admin
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.module.path }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.8"
+
+      - name: Test and jar
+        run: gradle --no-daemon clean test jar
+
+      - name: Inspect legacy module jar
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import sys
+          import zipfile
+
+          properties = {}
+          for line in Path("gradle.properties").read_text(encoding="utf-8").splitlines():
+              line = line.strip()
+              if not line or line.startswith("#") or "=" not in line:
+                  continue
+              key, value = line.split("=", 1)
+              properties[key.strip()] = value.strip()
+
+          expected_mod_id = properties.get("mod_id")
+          build_libs = Path("build/libs")
+          excluded_name_parts = ("sources", "javadoc", "dev", "plain", "test", "api")
+          candidates = [
+              path for path in sorted(build_libs.glob("*.jar"))
+              if not any(part in path.name.lower() for part in excluded_name_parts)
+          ]
+
+          if len(candidates) != 1:
+              print("Expected exactly one runtime jar candidate in build/libs.")
+              print("Candidates:", [path.name for path in candidates])
+              sys.exit(1)
+
+          jar_path = candidates[0]
+          with zipfile.ZipFile(jar_path) as jar:
+              entries = jar.namelist()
+              class_entries = [name for name in entries if name.endswith(".class")]
+              has_metadata = "META-INF/neoforge.mods.toml" in entries
+
+              failures = []
+              if not class_entries:
+                  failures.append("runtime jar contains no compiled class entries")
+              if not has_metadata:
+                  failures.append("runtime jar is missing META-INF/neoforge.mods.toml")
+              if expected_mod_id and expected_mod_id not in jar.read("META-INF/neoforge.mods.toml").decode("utf-8"):
+                  failures.append(f"metadata does not mention expected mod id {expected_mod_id!r}")
+
+              if failures:
+                  print(f"Jar inspection failed for {jar_path}:")
+                  for failure in failures:
+                      print(f"- {failure}")
+                  sys.exit(1)
+
+              print(f"Jar inspection passed: {jar_path}")
+              print(f"Class entries: {len(class_entries)}")
+          PY
+
+      - name: Upload legacy module reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-${{ matrix.module.name }}-reports
+          path: |
+            ${{ matrix.module.path }}/build/reports/**
+            ${{ matrix.module.path }}/build/test-results/**
+          if-no-files-found: ignore

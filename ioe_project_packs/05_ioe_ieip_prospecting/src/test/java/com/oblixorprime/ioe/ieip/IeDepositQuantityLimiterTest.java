@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class IeDepositQuantityLimiterTest {
@@ -40,6 +41,19 @@ final class IeDepositQuantityLimiterTest {
         Optional<DepositQuantityLimitPlan> plan = limiter.planQuantityLimit("ie:bauxite", 100, false, scanner);
 
         assertTrue(plan.isEmpty());
+    }
+
+    @Test
+    void rejectsNonFiniteMultipliersInsteadOfProducingPositiveQuantities() {
+        assertEquals(0, IeDepositQuantityLimiter.scaleDepositQuantity(100, Double.NaN));
+        assertEquals(0, IeDepositQuantityLimiter.scaleDepositQuantity(100, Double.POSITIVE_INFINITY));
+        assertThrows(IllegalArgumentException.class, () -> new DepositQuantityLimitPlan(
+                "ie:bauxite",
+                100,
+                1,
+                Double.NaN,
+                false
+        ));
     }
 
     private static ProspectingTestScanner scannerWithIeLoaded() {

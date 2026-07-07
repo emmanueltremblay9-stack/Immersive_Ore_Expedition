@@ -55,6 +55,26 @@ final class GeOreSiteProviderTest {
     }
 
     @Test
+    void rejectsApprovedLoadedNonGeOreResourceAsGeOreCore() {
+        ResourceRef diamondOre = ResourceRef.block("minecraft", "diamond_ore");
+        CrystalGrowthTestScanner scanner = scanner(Set.of(CrystalGrowthCompatGates.GEORE), Set.of(diamondOre));
+
+        Optional<CrystalGrowthSitePlan> plan = provider.planGeOreSite(anchor(), diamondOre, scanner, policy);
+
+        assertTrue(plan.isEmpty());
+    }
+
+    @Test
+    void rejectsItemFormGeOreCore() {
+        ResourceRef diamondGeOreItem = ResourceRef.item("geore", "diamond_geore");
+        CrystalGrowthTestScanner scanner = scanner(Set.of(CrystalGrowthCompatGates.GEORE), Set.of(diamondGeOreItem));
+
+        Optional<CrystalGrowthSitePlan> plan = provider.planGeOreSite(anchor(), diamondGeOreItem, scanner, policy);
+
+        assertTrue(plan.isEmpty());
+    }
+
+    @Test
     void geOrePolicyRequiresAnchoringAndDisablesFreeWorldgenWhenLoaded() {
         CrystalGrowthTestScanner scanner = scanner(Set.of(CrystalGrowthCompatGates.GEORE), Set.of());
         GeOreWorldgenPolicy policy = new GeOreWorldgenPolicy(scanner);

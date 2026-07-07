@@ -11,10 +11,19 @@ public record AnchorRule(int minDistance, int maxDistance, boolean requireTunnel
     }
 
     public static AnchorRule fromConfig() {
-        return new AnchorRule(
+        return fromConfigValues(
                 IoeWorldgenConfig.oreLoadMinDistanceFromAnchor(),
                 IoeWorldgenConfig.oreLoadMaxDistanceFromAnchor(),
                 IoeWorldgenConfig.requireTunnelConnection()
+        );
+    }
+
+    static AnchorRule fromConfigValues(int minDistance, int maxDistance, boolean requireTunnelConnection) {
+        int effectiveMaxDistance = Math.max(minDistance, maxDistance);
+        return new AnchorRule(
+                minDistance,
+                effectiveMaxDistance,
+                requireTunnelConnection
         );
     }
 

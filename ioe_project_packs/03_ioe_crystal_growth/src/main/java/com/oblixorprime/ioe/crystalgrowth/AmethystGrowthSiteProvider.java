@@ -6,6 +6,7 @@ import com.oblixorprime.ioe.core.LoadedResourceScanner;
 import com.oblixorprime.ioe.core.ResourcePolicyDecision;
 import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.ResourceRef;
+import com.oblixorprime.ioe.core.ResourceType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 
@@ -45,6 +46,10 @@ public final class AmethystGrowthSiteProvider implements CrystalGrowthSiteProvid
             return Optional.empty();
         }
 
+        if (!isAmethystCoreResource(coreResource)) {
+            return Optional.empty();
+        }
+
         ResourcePolicyDecision decision = policyService.evaluate(coreResource, scanner);
         if (!decision.shouldUse()) {
             return Optional.empty();
@@ -57,7 +62,7 @@ public final class AmethystGrowthSiteProvider implements CrystalGrowthSiteProvid
                 Optional.empty(),
                 true,
                 false,
-                IoeCrystalGrowthConfig.amethystMeteoriteWrappedVariant(),
+                false,
                 false,
                 List.of(),
                 List.of()
@@ -66,6 +71,13 @@ public final class AmethystGrowthSiteProvider implements CrystalGrowthSiteProvid
 
     public Optional<CrystalGrowthSitePlan> planAmethystSite(ExpeditionAnchorRef anchor, ResourceRef coreResource) {
         return planSite(anchor, coreResource, scanner, policyService);
+    }
+
+    private static boolean isAmethystCoreResource(ResourceRef resource) {
+        return resource != null
+                && resource.type() == ResourceType.BLOCK
+                && "minecraft".equals(resource.id().getNamespace())
+                && resource.id().getPath().contains("amethyst");
     }
 
     @Override

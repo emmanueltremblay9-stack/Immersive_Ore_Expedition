@@ -10,6 +10,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class IeMineralOutcropFeatureTest {
@@ -52,6 +53,49 @@ final class IeMineralOutcropFeatureTest {
         Optional<MineralOutcropPlan> plan = feature.planOutcropClue(deposit, 3, scanner, policy);
 
         assertTrue(plan.isEmpty());
+    }
+
+    @Test
+    void rejectsBlockTagsInsteadOfPlanningUnplaceableOutcrops() {
+        ResourceRef leadTag = ResourceRef.blockTag("c", "ores/lead");
+        IeMineralDepositRef deposit = new IeMineralDepositRef("ie:lead", List.of(leadTag));
+        ProspectingTestScanner scanner = scanner(Set.of(ProspectingCompatGates.IMMERSIVE_ENGINEERING), Set.of(leadTag));
+
+        Optional<MineralOutcropPlan> plan = feature.planOutcropClue(deposit, 3, scanner, policy);
+
+        assertTrue(plan.isEmpty());
+    }
+
+    @Test
+    void rejectsNonBlockOutcropPlanResources() {
+        ResourceRef leadItem = ResourceRef.item("immersiveengineering", "raw_lead");
+
+        assertThrows(IllegalArgumentException.class, () -> new MineralOutcropPlan(
+                "ie:lead",
+                leadItem,
+                3,
+                3,
+                true,
+                false,
+                List.of(),
+                List.of()
+        ));
+    }
+
+    @Test
+    void rejectsFullDepositRenderPlans() {
+        ResourceRef loadedLead = ResourceRef.block("immersiveengineering", "lead_ore");
+
+        assertThrows(IllegalArgumentException.class, () -> new MineralOutcropPlan(
+                "ie:lead",
+                loadedLead,
+                3,
+                3,
+                true,
+                true,
+                List.of(),
+                List.of()
+        ));
     }
 
     private static ProspectingTestScanner scanner(Set<String> mods, Set<ResourceRef> resources) {

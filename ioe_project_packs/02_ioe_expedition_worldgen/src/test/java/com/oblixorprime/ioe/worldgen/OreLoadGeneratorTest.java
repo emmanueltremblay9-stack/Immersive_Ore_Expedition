@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class OreLoadGeneratorTest {
@@ -78,6 +80,99 @@ final class OreLoadGeneratorTest {
         assertTrue(tooFar.isEmpty());
     }
 
+    @Test
+    void rejectsUnknownStructureAnchorTypes() {
+        ExpeditionAnchorRef anchor = new ExpeditionAnchorRef(Level.OVERWORLD, new BlockPos(0, 64, 0), "random_spot", SiteQuality.NORMAL);
+        ResourceRef resource = ResourceRef.block("minecraft", "iron_ore");
+
+        Optional<OreLoadPlan> plan = generator.planAnchoredOreLoad(
+                anchor,
+                resource,
+                new BlockPos(16, 64, 0),
+                scannerWithLoaded(resource),
+                policy
+        );
+
+        assertTrue(plan.isEmpty());
+        assertFalse(ExpeditionStructureRegistry.isEnabledStructureId("random_spot"));
+    }
+
+    @Test
+    void rejectsLoadedItemResourcesInsteadOfPlanningOreLoadBlocks() {
+        ExpeditionAnchorRef anchor = anchorAt(new BlockPos(0, 64, 0));
+        ResourceRef resource = ResourceRef.item("minecraft", "diamond");
+
+        Optional<OreLoadPlan> plan = generator.planAnchoredOreLoad(
+                anchor,
+                resource,
+                new BlockPos(16, 64, 0),
+                scannerWithLoaded(resource),
+                policy
+        );
+
+        assertTrue(plan.isEmpty());
+    }
+
+    @Test
+    void rejectsDirectPlansWithUnknownStructureAnchors() {
+        ExpeditionAnchorRef anchor = new ExpeditionAnchorRef(Level.OVERWORLD, new BlockPos(0, 64, 0), "random_spot", SiteQuality.NORMAL);
+        ResourceRef resource = ResourceRef.block("minecraft", "iron_ore");
+
+        assertThrows(IllegalArgumentException.class, () -> new OreLoadPlan(
+                anchor,
+                resource,
+                new BlockPos(16, 64, 0),
+                SiteQuality.NORMAL,
+                true,
+                16
+        ));
+    }
+
+    @Test
+    void rejectsDirectPlansWithMismatchedAnchorDistance() {
+        ExpeditionAnchorRef anchor = anchorAt(new BlockPos(0, 64, 0));
+        ResourceRef resource = ResourceRef.block("minecraft", "iron_ore");
+
+        assertThrows(IllegalArgumentException.class, () -> new OreLoadPlan(
+                anchor,
+                resource,
+                new BlockPos(16, 64, 0),
+                SiteQuality.NORMAL,
+                true,
+                32
+        ));
+    }
+
+    @Test
+    void rejectsDirectPlansOutsideConfiguredDistanceWindow() {
+        ExpeditionAnchorRef anchor = anchorAt(new BlockPos(0, 64, 0));
+        ResourceRef resource = ResourceRef.block("minecraft", "iron_ore");
+
+        assertThrows(IllegalArgumentException.class, () -> new OreLoadPlan(
+                anchor,
+                resource,
+                new BlockPos(1, 64, 0),
+                SiteQuality.NORMAL,
+                true,
+                1
+        ));
+    }
+
+    @Test
+    void rejectsDirectPlansWithNonOreLoadResourceTypes() {
+        ExpeditionAnchorRef anchor = anchorAt(new BlockPos(0, 64, 0));
+        ResourceRef resource = ResourceRef.item("minecraft", "diamond");
+
+        assertThrows(IllegalArgumentException.class, () -> new OreLoadPlan(
+                anchor,
+                resource,
+                new BlockPos(16, 64, 0),
+                SiteQuality.NORMAL,
+                true,
+                16
+        ));
+    }
+
     private static ExpeditionAnchorRef anchorAt(BlockPos pos) {
         return new ExpeditionAnchorRef(Level.OVERWORLD, pos, "tiny_vertical_mine_entrance", SiteQuality.NORMAL);
     }
@@ -108,7 +203,7 @@ final class OreLoadGeneratorTest {
 
         @Override
         public boolean itemExists(ResourceLocation id) {
-            return false;
+            return loaded != null && loaded.type().name().equals("ITEM") && loaded.id().equals(id);
         }
 
         @Override

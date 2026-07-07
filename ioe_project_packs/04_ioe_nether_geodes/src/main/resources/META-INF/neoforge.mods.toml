@@ -25,7 +25,6 @@ description='''Sub-lava Nether geodes that spawn only beneath giant Nether lava 
 [[dependencies.ioe_nether_geodes]]
     modId="ioe_core"
     type="required"
-    versionRange="[0.1.0,)"
+    versionRange="[0.1.7,)"
     ordering="AFTER"
     side="BOTH"
-

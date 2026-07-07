@@ -57,7 +57,7 @@ public final class IeDepositQuantityLimiter {
     }
 
     public static int scaleDepositQuantity(int originalQuantity, double multiplier) {
-        if (originalQuantity <= 0 || multiplier <= 0.0D) {
+        if (originalQuantity <= 0 || !Double.isFinite(multiplier) || multiplier <= 0.0D) {
             return 0;
         }
         int scaled = Math.max(1, (int) Math.floor(originalQuantity * multiplier));

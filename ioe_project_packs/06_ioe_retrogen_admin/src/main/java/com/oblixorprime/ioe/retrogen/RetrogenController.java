@@ -11,6 +11,8 @@ import java.util.Queue;
 import java.util.Set;
 
 public final class RetrogenController {
+    public static final int MAX_ADMIN_RADIUS_BLOCKS = 1024;
+
     private final int markerVersion;
     private final int maxChunksPerTick;
     private final Queue<RetrogenQueueEntry> queue = new ArrayDeque<>();
@@ -35,15 +37,17 @@ public final class RetrogenController {
     }
 
     public static List<RetrogenChunkSnapshot> placeholderRadiusCandidates(int centerChunkX, int centerChunkZ, int radiusBlocks) {
-        if (radiusBlocks < 0) {
-            throw new IllegalArgumentException("radiusBlocks must not be negative");
-        }
+        validateRadiusBlocks(radiusBlocks);
 
         int radiusChunks = ChunkKey.radiusBlocksToChunks(radiusBlocks);
         List<RetrogenChunkSnapshot> candidates = new ArrayList<>();
-        for (int x = centerChunkX - radiusChunks; x <= centerChunkX + radiusChunks; x++) {
-            for (int z = centerChunkZ - radiusChunks; z <= centerChunkZ + radiusChunks; z++) {
-                ChunkKey key = new ChunkKey(x, z);
+        long minX = Math.max(Integer.MIN_VALUE, (long) centerChunkX - radiusChunks);
+        long maxX = Math.min(Integer.MAX_VALUE, (long) centerChunkX + radiusChunks);
+        long minZ = Math.max(Integer.MIN_VALUE, (long) centerChunkZ - radiusChunks);
+        long maxZ = Math.min(Integer.MAX_VALUE, (long) centerChunkZ + radiusChunks);
+        for (long x = minX; x <= maxX; x++) {
+            for (long z = minZ; z <= maxZ; z++) {
+                ChunkKey key = new ChunkKey((int) x, (int) z);
                 if (key.withinRadius(centerChunkX, centerChunkZ, radiusBlocks)) {
                     candidates.add(new RetrogenChunkSnapshot(key, false, ChunkRetrogenMarker.missing()));
                 }
@@ -66,19 +70,22 @@ public final class RetrogenController {
     ) {
         Objects.requireNonNull(requestedMode, "requestedMode");
         Objects.requireNonNull(candidates, "candidates");
-        if (radiusBlocks < 0) {
-            throw new IllegalArgumentException("radiusBlocks must not be negative");
-        }
+        validateRadiusBlocks(radiusBlocks);
         if (requestedMode == RetrogenMode.OFF) {
-            return new RetrogenStartResult(requestedMode, 0, 0, 0, 0, false, "retrogen is disabled");
+            return new RetrogenStartResult(requestedMode, 0, 0, 0, 0, 0, false, "retrogen is disabled");
         }
 
         int accepted = 0;
         int skippedMarked = 0;
         int skippedExplored = 0;
         int skippedOutOfRadius = 0;
+        int skippedInvalid = 0;
 
         for (RetrogenChunkSnapshot candidate : candidates) {
+            if (candidate == null) {
+                skippedInvalid++;
+                continue;
+            }
             if (!candidate.key().withinRadius(centerChunkX, centerChunkZ, radiusBlocks)) {
                 skippedOutOfRadius++;
                 continue;
@@ -87,10 +94,11 @@ public final class RetrogenController {
                 skippedExplored++;
                 continue;
             }
-            ChunkRetrogenMarker marker = candidate.marker() == null
-                    ? markers.getOrDefault(candidate.key(), ChunkRetrogenMarker.missing())
-                    : candidate.marker();
-            if (!marker.needsRetrogen(markerVersion) || queuedKeys.contains(candidate.key())) {
+            ChunkRetrogenMarker storedMarker = markers.getOrDefault(candidate.key(), ChunkRetrogenMarker.missing());
+            ChunkRetrogenMarker candidateMarker = candidate.marker();
+            if (queuedKeys.contains(candidate.key())
+                    || !storedMarker.needsRetrogen(markerVersion)
+                    || (candidateMarker != null && !candidateMarker.needsRetrogen(markerVersion))) {
                 skippedMarked++;
                 continue;
             }
@@ -104,7 +112,7 @@ public final class RetrogenController {
             mode = requestedMode;
             paused = false;
         }
-        return new RetrogenStartResult(requestedMode, accepted, skippedMarked, skippedExplored, skippedOutOfRadius,
+        return new RetrogenStartResult(requestedMode, accepted, skippedMarked, skippedExplored, skippedOutOfRadius, skippedInvalid,
                 accepted > 0, accepted > 0 ? "queued conservative retrogen work" : "no eligible chunks were queued");
     }
 
@@ -127,6 +135,7 @@ public final class RetrogenController {
 
         if (queue.isEmpty()) {
             paused = true;
+            mode = RetrogenMode.OFF;
         }
         return processed;
     }
@@ -137,5 +146,14 @@ public final class RetrogenController {
 
     public RetrogenStatus status() {
         return new RetrogenStatus(mode, queue.size(), paused, markerVersion, maxChunksPerTick);
+    }
+
+    private static void validateRadiusBlocks(int radiusBlocks) {
+        if (radiusBlocks < 0) {
+            throw new IllegalArgumentException("radiusBlocks must not be negative");
+        }
+        if (radiusBlocks > MAX_ADMIN_RADIUS_BLOCKS) {
+            throw new IllegalArgumentException("radiusBlocks must not exceed " + MAX_ADMIN_RADIUS_BLOCKS);
+        }
     }
 }

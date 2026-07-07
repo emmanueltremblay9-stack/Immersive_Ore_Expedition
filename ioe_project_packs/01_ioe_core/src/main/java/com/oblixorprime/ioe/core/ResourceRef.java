@@ -33,4 +33,12 @@ public record ResourceRef(ResourceType type, ResourceLocation id) {
     public static ResourceRef itemTag(String namespace, String path) {
         return new ResourceRef(ResourceType.ITEM_TAG, ResourceLocation.fromNamespaceAndPath(namespace, path));
     }
+
+    public static ResourceRef mod(String modId) {
+        Objects.requireNonNull(modId, "modId");
+        if (modId.isBlank()) {
+            throw new IllegalArgumentException("modId must not be blank");
+        }
+        return new ResourceRef(ResourceType.MOD, ResourceLocation.fromNamespaceAndPath("mod", modId));
+    }
 }

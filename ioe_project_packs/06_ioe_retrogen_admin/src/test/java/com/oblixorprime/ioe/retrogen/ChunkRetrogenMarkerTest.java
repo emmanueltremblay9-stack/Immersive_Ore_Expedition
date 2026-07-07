@@ -29,4 +29,11 @@ class ChunkRetrogenMarkerTest {
     void negativeVersionsAreRejected() {
         assertThrows(IllegalArgumentException.class, () -> new ChunkRetrogenMarker(-1, false));
     }
+
+    @Test
+    void processedMarkersAndTargetVersionsMustBePositive() {
+        assertThrows(IllegalArgumentException.class, () -> ChunkRetrogenMarker.processed(0));
+        assertThrows(IllegalArgumentException.class, () -> ChunkRetrogenMarker.processed(1).currentFor(0));
+        assertThrows(IllegalArgumentException.class, () -> ChunkRetrogenMarker.missing().needsRetrogen(0));
+    }
 }

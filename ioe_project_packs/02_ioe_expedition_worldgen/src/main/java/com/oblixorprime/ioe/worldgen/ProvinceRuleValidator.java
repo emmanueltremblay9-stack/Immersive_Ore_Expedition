@@ -23,11 +23,14 @@ public final class ProvinceRuleValidator {
         List<ResourceRef> usable = new ArrayList<>();
         List<ResourcePolicyDecision> skipped = new ArrayList<>();
         List<ResourcePolicyDecision> rejected = new ArrayList<>();
+        boolean hasEnabledAnchorStructure = hasEnabledAnchorStructure(rule);
 
         for (ResourceRef resource : rule.resources()) {
             ResourcePolicyDecision decision = policyService.evaluate(resource, scanner);
-            if (decision.shouldUse()) {
+            if (decision.shouldUse() && hasEnabledAnchorStructure) {
                 usable.add(resource);
+            } else if (decision.shouldUse()) {
+                rejected.add(ResourcePolicyDecision.reject("Province has no enabled expedition anchor structure for resource: " + resource.id()));
             } else if (decision.shouldSkip()) {
                 skipped.add(decision);
             } else {
@@ -36,5 +39,10 @@ public final class ProvinceRuleValidator {
         }
 
         return new ProvinceValidationResult(rule, usable, skipped, rejected);
+    }
+
+    private static boolean hasEnabledAnchorStructure(ProvinceRule rule) {
+        return rule.anchorStructures().stream()
+                .anyMatch(anchorStructure -> ExpeditionStructureRegistry.isEnabledStructureId(anchorStructure.toString()));
     }
 }

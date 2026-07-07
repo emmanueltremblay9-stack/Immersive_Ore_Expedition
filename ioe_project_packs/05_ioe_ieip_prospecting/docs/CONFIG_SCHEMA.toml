@@ -1,25 +1,25 @@
-[immersive_engineering]
-enabled_if_loaded = true
-reduce_mineral_deposit_quantity = true
-deposit_quantity_multiplier = 0.10
-hard_mode_deposit_quantity_multiplier = 0.05
-render_full_deposit = false
-create_underground_visual_proxy = false
+[immersiveEngineering]
+enabledIfLoaded = true
+reduceMineralDepositQuantity = true
+depositQuantityMultiplier = 0.10
+hardModeDepositQuantityMultiplier = 0.05
+renderFullDeposit = false
+createUndergroundVisualProxy = false
 
-[immersive_engineering.surface_outcrops]
+[immersiveEngineering.surfaceOutcrops]
 enabled = true
-boulder_count_min = 1
-boulder_count_max = 5
-use_deposit_present_resources_only = true
-free_ore_reward_limit_blocks = 3
+boulderCountMin = 1
+boulderCountMax = 5
+useDepositPresentResourcesOnly = true
+freeOreRewardLimitBlocks = 3
 
-[immersive_petroleum]
-enabled_if_loaded = true
-render_full_reservoir = false
-create_underground_visual_proxy = false
+[immersivePetroleum]
+enabledIfLoaded = true
+renderFullReservoir = false
+createUndergroundVisualProxy = false
 
-[immersive_petroleum.surface_seeps]
+[immersivePetroleum.surfaceSeeps]
 enabled = true
-small_surface_pocket_lakes = true
-max_surface_fluid_blocks = 12
-vent_for_gas_like_reservoirs = true
+smallSurfacePocketLakes = true
+maxSurfaceFluidBlocks = 12
+ventForGasLikeReservoirs = true

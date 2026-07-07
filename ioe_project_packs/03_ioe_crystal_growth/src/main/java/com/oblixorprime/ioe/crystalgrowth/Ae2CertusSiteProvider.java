@@ -6,6 +6,7 @@ import com.oblixorprime.ioe.core.LoadedResourceScanner;
 import com.oblixorprime.ioe.core.ResourcePolicyDecision;
 import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.ResourceRef;
+import com.oblixorprime.ioe.core.ResourceType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 
@@ -59,6 +60,10 @@ public final class Ae2CertusSiteProvider implements CrystalGrowthSiteProvider {
             return Optional.empty();
         }
 
+        if (!isCertusCoreResource(coreResource)) {
+            return Optional.empty();
+        }
+
         ResourcePolicyDecision coreDecision = policyService.evaluate(coreResource, scanner);
         if (!coreDecision.shouldUse()) {
             return Optional.empty();
@@ -66,7 +71,7 @@ public final class Ae2CertusSiteProvider implements CrystalGrowthSiteProvider {
 
         Optional<ResourceRef> validatedCrust = Optional.empty();
         if (IoeCrystalGrowthConfig.skyStoneCrustAroundGeodes()) {
-            if (skyStoneCrust.isEmpty()) {
+            if (skyStoneCrust.isEmpty() || !isSkyStoneCrustResource(skyStoneCrust.get())) {
                 return Optional.empty();
             }
             ResourcePolicyDecision crustDecision = policyService.evaluate(skyStoneCrust.get(), scanner);
@@ -88,6 +93,32 @@ public final class Ae2CertusSiteProvider implements CrystalGrowthSiteProvider {
                 List.of(),
                 List.of()
         ));
+    }
+
+    private static boolean isCertusCoreResource(ResourceRef resource) {
+        return resource != null
+                && resource.type() == ResourceType.BLOCK
+                && isAe2Resource(resource)
+                && resource.id().getPath().contains("certus");
+    }
+
+    private static boolean isSkyStoneCrustResource(ResourceRef resource) {
+        return resource != null
+                && resource.type() == ResourceType.BLOCK
+                && isAe2Resource(resource)
+                && isSkyStonePath(resource.id().getPath());
+    }
+
+    private static boolean isAe2Resource(ResourceRef resource) {
+        if (resource == null) {
+            return false;
+        }
+        String namespace = resource.id().getNamespace();
+        return CrystalGrowthCompatGates.AE2.equals(namespace) || "appeng".equals(namespace);
+    }
+
+    private static boolean isSkyStonePath(String path) {
+        return "sky_stone".equals(path) || "skystone".equals(path);
     }
 
     @Override

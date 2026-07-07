@@ -10,7 +10,8 @@ class RetrogenModeTest {
         assertEquals(RetrogenMode.OFF, RetrogenMode.fromConfig("off"));
         assertEquals(RetrogenMode.ADMIN_RADIUS, RetrogenMode.fromConfig("admin-radius"));
         assertEquals(RetrogenMode.CLUE_PLUS_POCKET, RetrogenMode.fromConfig("CLUE_PLUS_POCKET"));
-        assertEquals(RetrogenMode.UNEXPLORED_CHUNKS_ONLY, RetrogenMode.fromConfig("unknown"));
-        assertEquals(RetrogenMode.UNEXPLORED_CHUNKS_ONLY, RetrogenMode.fromConfig(null));
+        assertEquals(RetrogenMode.OFF, RetrogenMode.fromConfig("unknown"));
+        assertEquals(RetrogenMode.OFF, RetrogenMode.fromConfig(" "));
+        assertEquals(RetrogenMode.OFF, RetrogenMode.fromConfig(null));
     }
 }

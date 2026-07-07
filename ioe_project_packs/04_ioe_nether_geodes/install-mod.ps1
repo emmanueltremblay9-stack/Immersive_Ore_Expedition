@@ -202,6 +202,7 @@ $report = [ordered]@{
         [ordered]@{
             ModId = "ioe_core"
             Present = ($coreJars.Count -ge 1)
+            ExactlyOne = ($coreJars.Count -eq 1)
             Count = $coreJars.Count
             Jars = @($coreJars | ForEach-Object { $_.FullName })
         }
@@ -211,6 +212,6 @@ $report = [ordered]@{
 $report | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ReportPath -Encoding UTF8
 Get-Content -LiteralPath $ReportPath
 
-if (-not $report.HashesMatch -or -not $report.OnlyInstalledJarRemains -or -not $report.RequiredDependencyJars[0].Present) {
+if (-not $report.HashesMatch -or -not $report.OnlyInstalledJarRemains -or -not $report.RequiredDependencyJars[0].ExactlyOne) {
     throw "Install verification failed. See $ReportPath"
 }

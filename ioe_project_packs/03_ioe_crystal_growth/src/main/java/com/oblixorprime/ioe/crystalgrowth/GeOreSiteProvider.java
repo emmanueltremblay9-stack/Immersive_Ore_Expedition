@@ -6,6 +6,7 @@ import com.oblixorprime.ioe.core.LoadedResourceScanner;
 import com.oblixorprime.ioe.core.ResourcePolicyDecision;
 import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.ResourceRef;
+import com.oblixorprime.ioe.core.ResourceType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 
@@ -56,6 +57,10 @@ public final class GeOreSiteProvider implements CrystalGrowthSiteProvider {
             return Optional.empty();
         }
 
+        if (!isGeOreBlockResource(coreResource)) {
+            return Optional.empty();
+        }
+
         ResourcePolicyDecision decision = policyService.evaluate(coreResource, scanner);
         if (!decision.shouldUse()) {
             return Optional.empty();
@@ -73,6 +78,12 @@ public final class GeOreSiteProvider implements CrystalGrowthSiteProvider {
                 List.of(),
                 List.of()
         ));
+    }
+
+    private static boolean isGeOreBlockResource(ResourceRef resource) {
+        return resource != null
+                && resource.type() == ResourceType.BLOCK
+                && CrystalGrowthCompatGates.GEORE.equals(resource.id().getNamespace());
     }
 
     @Override

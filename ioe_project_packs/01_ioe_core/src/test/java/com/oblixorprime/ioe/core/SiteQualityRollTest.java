@@ -22,6 +22,13 @@ final class SiteQualityRollTest {
     void rejectsInvalidWeightsAndOutOfRangeRolls() {
         assertThrows(IllegalArgumentException.class, () -> new SiteQualityRoll(0, 0, 0, 0, 0));
         assertThrows(IllegalArgumentException.class, () -> new SiteQualityRoll(-1, 1, 1, 1, 1));
+        assertThrows(IllegalArgumentException.class, () -> new SiteQualityRoll(
+                Integer.MAX_VALUE,
+                Integer.MAX_VALUE,
+                Integer.MAX_VALUE,
+                0,
+                0
+        ));
         assertThrows(IllegalArgumentException.class, () -> SiteQualityRoll.DEFAULT.qualityAt(-1));
         assertThrows(IllegalArgumentException.class, () -> SiteQualityRoll.DEFAULT.qualityAt(SiteQualityRoll.DEFAULT.totalWeight()));
     }
