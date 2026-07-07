@@ -1,3 +1,21 @@
 {
-  "mod.immersive_ore_expedition": "Immersive Ore Expedition"
+  "mod.immersive_ore_expedition": "Immersive Ore Expedition",
+  "itemGroup.immersive_ore_expedition": "Immersive Ore Expedition",
+  "item.immersive_ore_expedition.expedition_compass": "Expedition Compass",
+  "item.immersive_ore_expedition.expedition_compass.tooltip": "Locates Immersive Ore Expedition sites",
+  "item.immersive_ore_expedition.expedition_compass.message.target_bound": "Expedition compass bound to indexed %s %s at %s %s %s (%s blocks away)",
+  "item.immersive_ore_expedition.expedition_compass.message.current_target": "Expedition compass target: %s %s at %s %s %s (%s blocks away)",
+  "item.immersive_ore_expedition.expedition_compass.message.target_other_dimension": "Expedition compass target is in %s: %s %s at %s %s %s",
+  "item.immersive_ore_expedition.expedition_compass.message.invalid_target": "That expedition compass target is no longer indexed",
+  "item.immersive_ore_expedition.expedition_compass.message.reset": "Expedition compass target reset",
+  "screen.immersive_ore_expedition.expedition_compass.title": "Expedition Compass",
+  "screen.immersive_ore_expedition.expedition_compass.dimension": "Dimension: %s",
+  "screen.immersive_ore_expedition.expedition_compass.current_target": "Current target: %s %s at %s %s %s",
+  "screen.immersive_ore_expedition.expedition_compass.no_current_target": "Current target: none",
+  "screen.immersive_ore_expedition.expedition_compass.empty": "No indexed expedition sites in this dimension yet.",
+  "screen.immersive_ore_expedition.expedition_compass.entry": "%s %s %s at %s %s %s (%s blocks)",
+  "screen.immersive_ore_expedition.expedition_compass.more_entries": "%s additional indexed sites not shown",
+  "screen.immersive_ore_expedition.expedition_compass.select": "Bind",
+  "screen.immersive_ore_expedition.expedition_compass.refresh": "Refresh",
+  "screen.immersive_ore_expedition.expedition_compass.clear": "Clear"
 }

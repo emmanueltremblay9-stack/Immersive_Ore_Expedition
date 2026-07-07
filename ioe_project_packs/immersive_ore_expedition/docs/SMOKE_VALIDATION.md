@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v21 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, and a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v35 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, runtime evidence packet, runtime evidence review checklist, runtime evidence decision record, runtime evidence remediation tracker, runtime evidence remediation closure record, and runtime evidence final sign-off handoff documentation.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -92,6 +92,114 @@ worldgen.runtimePlacementDiagnostics = true
 ```
 
 That external smoke setup is not shipped as a default binding and does not prove live placement unless manual client/server/world evidence is captured. Missing, denied, unsupported, or strictly excluded resources must still be recorded as skipped, not replaced with fallback blocks. Manual client/server/world smoke was not run unless a smoke report records the evidence listed above.
+
+## v22 Controlled External Worldgen Smoke Profile
+
+v22 adds a docs-only smoke profile package at `docs/smoke_profiles/v22_worldgen_smoke_profile/`. It is a manual setup aid only, not active shipped data and not smoke evidence by itself.
+
+The profile datapack appends exactly one explicit vanilla biome id to the IOE smoke tag:
+
+```json
+{
+  "replace": false,
+  "values": [
+    "minecraft:plains"
+  ]
+}
+```
+
+The profile config template enables both default-off gates for a disposable test world:
+
+```toml
+worldgen.runtimeProofFeatureEnabled = true
+worldgen.runtimeProofFeatureDiagnostics = true
+worldgen.runtimePlacementEnabled = true
+worldgen.runtimePlacementDiagnostics = true
+worldgen.provinces.runtimeIntegrationEnabled = false
+worldgen.provinces.resourcePolicyRules = []
+```
+
+Do not use broad biome tags, modded biomes, or multiple test biomes for this controlled profile. Do not claim live placement unless the evidence template records a fresh log, enabled datapack, exact config values, checked coordinates, and observed placement evidence. Manual client/server/world smoke was not run by v22.
+
+## v23 Controlled Worldgen Smoke Runbook
+
+v23 adds a docs-only runbook and result template at `docs/smoke_profiles/v23_worldgen_smoke_runbook/`. It turns the v22 profile into a repeatable evidence collection procedure without changing shipped resources, config defaults, biome bindings, or runtime behavior.
+
+Use the v23 runbook only with the v22 external datapack and config template. A valid result must record the release jar identity, jar SHA-256, enabled datapack confirmation, exact config values, fresh `latest.log` path or excerpt, checked biome/coordinates, client or dedicated-server status, and the observed outcome classification.
+
+The v23 result template may record `not run`, `startup failed`, `world load failed`, `datapack rejected`, `config rejected`, `feature skipped`, `placement attempted`, or `placement observed`. Only `placement observed` with captured coordinate/log evidence can support a live placement proof claim. Manual smoke was not run by v23 unless a completed result file records that evidence.
+
+## v24 Post-Smoke Evidence Gate
+
+v24 adds a docs-only maintainer decision gate at `docs/smoke_profiles/v24_worldgen_smoke_evidence_gate/`. Use it only after a v23 smoke result has been filled from an actual run. The gate separates raw smoke execution from maintainer acceptance, keeps runtime worldgen disabled by default, and blocks any promotion to runtime integration unless the required client/server/datapack/log/coordinate evidence is present.
+
+The v24 gate does not activate runtime worldgen, does not change shipped resources or config defaults, and does not replace the v23 runbook. If no completed v23 result exists, the correct v24 decision is `no-go`.
+
+## v25 Runtime Promotion Readiness Packet
+
+v25 adds a docs-only readiness packet at `docs/smoke_profiles/v25_worldgen_runtime_promotion_readiness/`. Use it only after a completed v23 smoke result and v24 maintainer decision exist. It translates the evidence chain into one allowed disposition: `DOCS_ONLY_HOLD`, `REPEAT_SMOKE`, `BLOCKED`, or `READY_FOR_RUNTIME_SLICE`.
+
+`READY_FOR_RUNTIME_SLICE` does not activate runtime worldgen and does not authorize active resource changes by itself. It only means a future, separate PR may be scoped with explicit runtime diffs, rollback expectations, and validation commands.
+
+## v26 Runtime Slice Implementation Packet
+
+v26 adds a docs-only runtime slice implementation packet at `docs/smoke_profiles/v26_worldgen_runtime_slice_packet/`. It maps candidate future runtime files, required preconditions, rollback expectations, and validation requirements for a later separate runtime PR.
+
+v26 does not activate runtime worldgen, does not change active `src/main/resources`, does not change config defaults, and does not create smoke evidence. The only allowed authorization states are `NOT_AUTHORIZED`, `AWAITING_V23_SMOKE`, `AWAITING_V24_DECISION`, `AWAITING_V25_READY_FOR_RUNTIME_SLICE`, and `AUTHORIZED_FOR_SEPARATE_RUNTIME_PR`. `AUTHORIZED_FOR_SEPARATE_RUNTIME_PR` cannot be selected without a completed v23 smoke result, v24 maintainer decision, and v25 `READY_FOR_RUNTIME_SLICE` packet.
+
+## v27 Runtime Resource Inventory Snapshot
+
+v27 adds a docs-only active runtime resource inventory snapshot at `docs/smoke_profiles/v27_worldgen_runtime_resource_inventory/`. It records read-only observations of the shipped smoke tag, biome modifier, configured feature, placed feature, resource metadata, and config gate surfaces that a later separate runtime PR would need to recheck before editing.
+
+v27 does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change config defaults, does not modify legacy split-module source trees, and does not create smoke evidence. The inventory uses the classifications `READ_ONLY_OBSERVED`, `CANDIDATE_FUTURE_TOUCH`, `DO_NOT_TOUCH_THIS_SLICE`, and `UNKNOWN_NEEDS_RECHECK`; maintainer disposition must remain separate from smoke evidence and future runtime authorization.
+
+## v28 Runtime PR Preflight Manifest
+
+v28 adds a docs-only runtime PR preflight manifest at `docs/smoke_profiles/v28_worldgen_runtime_pr_preflight/`. It requires a future runtime PR owner to reconcile the v23 smoke result, v24 maintainer gate, v25 readiness packet, v26 implementation packet, and v27 inventory before naming active runtime diffs.
+
+v28 does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change config defaults, does not modify legacy split-module source trees, and does not create smoke evidence. The manifest statuses are `UNSPECIFIED`, `EXPECTED_RUNTIME_CHANGE`, `EXPECTED_TEST_OR_VALIDATION_CHANGE`, `EXPECTED_DOC_UPDATE`, `MUST_NOT_CHANGE`, and `NEEDS_RECHECK`; maintainer preflight disposition must remain separate from smoke evidence and future runtime authorization.
+
+## v29 Runtime Traceability Matrix
+
+v29 adds a docs-only runtime traceability matrix at `docs/smoke_profiles/v29_worldgen_runtime_traceability_matrix/`. It links candidate future runtime paths to v23 smoke evidence, the v24 maintainer gate, v25 readiness, the v26 implementation packet, the v27 inventory, and the v28 preflight manifest.
+
+v29 does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change config defaults, does not modify legacy split-module source trees, and does not create smoke evidence. The traceability statuses are `UNMAPPED`, `PARTIALLY_MAPPED`, `FULLY_MAPPED_NOT_AUTHORIZED`, `BLOCKED_BY_MISSING_EVIDENCE`, `BLOCKED_BY_STALE_INVENTORY`, and `READY_FOR_MAINTAINER_REVIEW_ONLY`; maintainer traceability disposition must remain separate from smoke evidence and future runtime authorization.
+
+## v30 Runtime Evidence Packet
+
+v30 adds a docs-only runtime evidence packet at `docs/smoke_profiles/v30_runtime_evidence_packet/`. It turns the v29 traceability matrix into a future smoke evidence capture template for run identity, config proof, datapack/worldgen proof, runtime logs, chunk/biome sampling, artifact references, and `PASS` / `FAIL` / `INCONCLUSIVE` criteria.
+
+v30 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create smoke evidence. The template accepts `not executed` as a placeholder during docs-only preparation, but any unexecuted runtime proof remains `INCONCLUSIVE` until a future real smoke run captures artifacts.
+
+## v31 Runtime Evidence Review Checklist
+
+v31 adds a docs-only runtime evidence review checklist at `docs/smoke_profiles/v31_runtime_evidence_review_checklist/`. It lets a reviewer inspect a filled v30 packet after a future real smoke run and classify proof as `ABSENT`, `INCOMPLETE`, `CONTRADICTORY`, or `SUFFICIENT` before selecting `ACCEPTED`, `REJECTED`, `NEEDS_MORE_EVIDENCE`, or `OUT_OF_SCOPE`.
+
+v31 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `ACCEPTED` applies only to the reviewed evidence packet scope and does not authorize active runtime/resource changes by itself.
+
+## v32 Runtime Evidence Decision Record
+
+v32 adds a docs-only runtime evidence decision record at `docs/smoke_profiles/v32_runtime_evidence_decision_record/`. It turns a completed v31 review of a filled v30 packet into a traceable final decision with required reason codes, evidence sufficiency matrix, gap ledger, remediation/next-action section, audit trail, and closure criteria.
+
+v32 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not replace v29, v30, or v31, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `ACCEPTED` applies only to the recorded evidence decision scope and does not authorize active runtime/resource changes by itself.
+
+## v33 Runtime Evidence Remediation Tracker
+
+v33 adds a docs-only runtime evidence remediation tracker at `docs/smoke_profiles/v33_runtime_evidence_remediation_tracker/`. It turns v32 decisions, reason codes, gaps, and proposed next actions into traceable remediation items with owners, statuses, required proof, planned verification methods, closure gates, recollection planning, and a v33-to-v32 return matrix.
+
+v33 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not replace v29, v30, v31, or v32, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `CLOSED` applies only to the tracked remediation action scope and does not authorize active runtime/resource changes by itself.
+
+## v34 Runtime Evidence Remediation Closure Record
+
+v34 adds a docs-only runtime evidence remediation closure record at `docs/smoke_profiles/v34_runtime_evidence_remediation_closure_record/`. It turns v33 remediation actions into verifiable closure decisions and records whether actions are verified closed, reopened, deferred, not verified, or out of scope after reviewing recollected proof.
+
+v34 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not replace v29, v30, v31, v32, or v33, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `VERIFIED_CLOSED` applies only to the reviewed remediation action scope and does not authorize active runtime/resource changes by itself.
+
+## v35 Runtime Evidence Final Sign-Off Handoff
+
+v35 adds a docs-only runtime evidence final sign-off handoff at `docs/smoke_profiles/v35_runtime_evidence_final_signoff_handoff/`. It turns v34 remediation closure decisions into a final review transmission packet that records readiness, limitations, blockers, deferred work, out-of-scope items, and the v35 -> v34 -> v33 -> v32 return path.
+
+v35 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not authorize merge by itself, does not replace v29, v30, v31, v32, v33, or v34, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `READY_FOR_FINAL_REVIEW` applies only to the reviewed handoff scope and does not authorize active runtime/resource changes by itself.
 
 ## Dedicated Server Smoke
 
