@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v33 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, runtime evidence packet, runtime evidence review checklist, runtime evidence decision record, and runtime evidence remediation tracker documentation.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v35 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, runtime evidence packet, runtime evidence review checklist, runtime evidence decision record, runtime evidence remediation tracker, runtime evidence remediation closure record, and runtime evidence final sign-off handoff documentation.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -188,6 +188,18 @@ v32 does not execute smoke, does not activate runtime worldgen, does not authori
 v33 adds a docs-only runtime evidence remediation tracker at `docs/smoke_profiles/v33_runtime_evidence_remediation_tracker/`. It turns v32 decisions, reason codes, gaps, and proposed next actions into traceable remediation items with owners, statuses, required proof, planned verification methods, closure gates, recollection planning, and a v33-to-v32 return matrix.
 
 v33 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not replace v29, v30, v31, or v32, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `CLOSED` applies only to the tracked remediation action scope and does not authorize active runtime/resource changes by itself.
+
+## v34 Runtime Evidence Remediation Closure Record
+
+v34 adds a docs-only runtime evidence remediation closure record at `docs/smoke_profiles/v34_runtime_evidence_remediation_closure_record/`. It turns v33 remediation actions into verifiable closure decisions and records whether actions are verified closed, reopened, deferred, not verified, or out of scope after reviewing recollected proof.
+
+v34 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not replace v29, v30, v31, v32, or v33, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `VERIFIED_CLOSED` applies only to the reviewed remediation action scope and does not authorize active runtime/resource changes by itself.
+
+## v35 Runtime Evidence Final Sign-Off Handoff
+
+v35 adds a docs-only runtime evidence final sign-off handoff at `docs/smoke_profiles/v35_runtime_evidence_final_signoff_handoff/`. It turns v34 remediation closure decisions into a final review transmission packet that records readiness, limitations, blockers, deferred work, out-of-scope items, and the v35 -> v34 -> v33 -> v32 return path.
+
+v35 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not authorize merge by itself, does not replace v29, v30, v31, v32, v33, or v34, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `READY_FOR_FINAL_REVIEW` applies only to the reviewed handoff scope and does not authorize active runtime/resource changes by itself.
 
 ## Dedicated Server Smoke
 

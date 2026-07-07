@@ -242,3 +242,15 @@ This remains process documentation only. It does not run smoke, activate runtime
 v33 adds a docs-only runtime evidence remediation tracker at `docs/smoke_profiles/v33_runtime_evidence_remediation_tracker/`. The tracker turns a completed v32 decision record into follow-up actions that preserve the v29 -> v30 -> v31 -> v32 -> v33 audit trail, carry v32 reason codes forward, track missing or contradictory proof, and define closure gates before any remediation can affect a later decision.
 
 This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, replace v29, v30, v31, or v32, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or invent smoke evidence. Runtime worldgen remains disabled in v33, and any closed remediation action still applies only to the tracked evidence scope unless a later separate runtime PR is explicitly authorized and validated.
+
+## Province System v34 runtime evidence remediation closure record
+
+v34 adds a docs-only runtime evidence remediation closure record at `docs/smoke_profiles/v34_runtime_evidence_remediation_closure_record/`. The record turns v33 remediation actions into reviewed closure decisions that preserve the v29 -> v30 -> v31 -> v32 -> v33 -> v34 audit trail, document closure reason codes, track reopened actions, and keep deferred or out-of-scope work visible.
+
+This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, replace v29, v30, v31, v32, or v33, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or invent smoke evidence. Runtime worldgen remains disabled in v34, and any verified closure still applies only to the reviewed evidence scope unless a later separate runtime PR is explicitly authorized and validated.
+
+## Province System v35 runtime evidence final sign-off handoff
+
+v35 adds a docs-only runtime evidence final sign-off handoff at `docs/smoke_profiles/v35_runtime_evidence_final_signoff_handoff/`. The handoff turns v34 remediation closure decisions into a final review transmission packet that preserves the v29 -> v30 -> v31 -> v32 -> v33 -> v34 -> v35 audit trail, records readiness states, tracks remaining blockers, and separates merge-review readiness from executed runtime proof.
+
+This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, authorize merge by itself, replace v29, v30, v31, v32, v33, or v34, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or invent smoke evidence. Runtime worldgen remains disabled in v35, and any final review handoff still applies only to the reviewed evidence scope unless a later separate runtime PR or merge decision is explicitly authorized and validated.
