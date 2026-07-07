@@ -3,11 +3,14 @@ package com.oblixorprime.ioe.retrogen;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorResult;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSiteKind;
+import com.oblixorprime.ioe.worldgen.IoeRuntimeScaffoldStatus;
+import com.oblixorprime.ioe.worldgen.IoeRuntimeScaffoldStatusFormatter;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
@@ -16,6 +19,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.util.List;
@@ -38,6 +42,9 @@ public final class IoeAdminCommands {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("ioe")
                 .requires(IoeAdminCommands::canUseAdminCommands);
 
+        root.then(Commands.literal("status")
+                .executes(IoeAdminCommands::runtimeStatus));
+
         if (settings.anyLocateCommandEnabled()) {
             LiteralArgumentBuilder<CommandSourceStack> locate = Commands.literal("locate");
             if (settings.locateProvinceEnabled()) {
@@ -55,7 +62,7 @@ public final class IoeAdminCommands {
             LiteralArgumentBuilder<CommandSourceStack> retrogen = Commands.literal("retrogen");
             if (settings.retrogenStatusEnabled()) {
                 retrogen.then(Commands.literal("status")
-                        .executes(IoeAdminCommands::status));
+                        .executes(IoeAdminCommands::retrogenStatus));
             }
             if (settings.retrogenPauseEnabled()) {
                 retrogen.then(Commands.literal("pause")
@@ -92,7 +99,29 @@ public final class IoeAdminCommands {
         return !IoeRetrogenAdminConfig.requireAdminCommand() || source.hasPermission(2);
     }
 
-    private static int status(CommandContext<CommandSourceStack> context) {
+    private static int runtimeStatus(CommandContext<CommandSourceStack> context) {
+        return sendAll(context, runtimeStatusMessages(IoeRuntimeScaffoldStatus.fromConfig(
+                resolveModVersion(),
+                true
+        )));
+    }
+
+    static List<String> runtimeStatusMessages(IoeRuntimeScaffoldStatus status) {
+        return IoeRuntimeScaffoldStatusFormatter.format(status);
+    }
+
+    private static String resolveModVersion() {
+        try {
+            return ModList.get()
+                    .getModContainerById(ImmersiveOreExpeditionMod.MODID)
+                    .map(container -> container.getModInfo().getVersion().toString())
+                    .orElse("unknown");
+        } catch (RuntimeException exception) {
+            return "unknown";
+        }
+    }
+
+    private static int retrogenStatus(CommandContext<CommandSourceStack> context) {
         RetrogenController retrogenController = controller();
         RetrogenStatus status = retrogenController.status();
         PersistentRetrogenState.StatusSnapshot persistentStatus = retrogenController.persistentStatus();
@@ -185,6 +214,14 @@ public final class IoeAdminCommands {
                 ? RetrogenMode.ADMIN_RADIUS
                 : configuredDefaultMode;
         return modeAllowed.test(effectiveMode) ? effectiveMode : RetrogenMode.OFF;
+    }
+
+    private static int sendAll(CommandContext<CommandSourceStack> context, List<String> messages) {
+        Objects.requireNonNull(messages, "messages");
+        for (String message : messages) {
+            send(context, message);
+        }
+        return messages.isEmpty() ? 0 : 1;
     }
 
     private static int send(CommandContext<CommandSourceStack> context, String message) {
