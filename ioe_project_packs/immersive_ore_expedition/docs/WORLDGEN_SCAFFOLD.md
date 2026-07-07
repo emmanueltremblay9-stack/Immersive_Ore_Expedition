@@ -206,3 +206,9 @@ This remains process documentation only. It does not activate runtime worldgen, 
 v27 adds a docs-only active runtime resource inventory snapshot at `docs/smoke_profiles/v27_worldgen_runtime_resource_inventory/`. The inventory records read-only observations of the active shipped resource pack metadata, NeoForge mod metadata template, IOE smoke biome tag, biome modifier smoke bridge, configured feature declaration, placed feature declaration, and related config gate defaults.
 
 This remains process documentation only. It does not activate runtime worldgen, authorize a runtime PR, change active `src/main/resources`, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or accept smoke evidence by itself. Runtime worldgen remains disabled in v27, and any future runtime/resource change must recheck the inventory after rebase, keep a disable path, and regenerate validation and smoke evidence in its own PR.
+
+## Province System v28 runtime PR preflight manifest
+
+v28 adds a docs-only runtime PR preflight manifest at `docs/smoke_profiles/v28_worldgen_runtime_pr_preflight/`. The manifest turns the v23 smoke result, v24 evidence gate, v25 readiness packet, v26 runtime slice packet, and v27 runtime resource inventory into a preflight checklist for a later separate runtime PR.
+
+This remains process documentation only. It does not activate runtime worldgen, authorize a runtime PR, change active `src/main/resources`, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or accept smoke evidence by itself. Runtime worldgen remains disabled in v28, and any future runtime/resource change must fill the preflight manifest after rebase, keep a disable path, and regenerate validation and smoke evidence in its own PR.

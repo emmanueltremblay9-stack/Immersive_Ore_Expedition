@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v27 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, and active resource inventory documentation.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v28 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, and runtime PR preflight documentation.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -152,6 +152,12 @@ v26 does not activate runtime worldgen, does not change active `src/main/resourc
 v27 adds a docs-only active runtime resource inventory snapshot at `docs/smoke_profiles/v27_worldgen_runtime_resource_inventory/`. It records read-only observations of the shipped smoke tag, biome modifier, configured feature, placed feature, resource metadata, and config gate surfaces that a later separate runtime PR would need to recheck before editing.
 
 v27 does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change config defaults, does not modify legacy split-module source trees, and does not create smoke evidence. The inventory uses the classifications `READ_ONLY_OBSERVED`, `CANDIDATE_FUTURE_TOUCH`, `DO_NOT_TOUCH_THIS_SLICE`, and `UNKNOWN_NEEDS_RECHECK`; maintainer disposition must remain separate from smoke evidence and future runtime authorization.
+
+## v28 Runtime PR Preflight Manifest
+
+v28 adds a docs-only runtime PR preflight manifest at `docs/smoke_profiles/v28_worldgen_runtime_pr_preflight/`. It requires a future runtime PR owner to reconcile the v23 smoke result, v24 maintainer gate, v25 readiness packet, v26 implementation packet, and v27 inventory before naming active runtime diffs.
+
+v28 does not activate runtime worldgen, does not authorize a runtime PR, does not change active `src/main/resources`, does not change config defaults, does not modify legacy split-module source trees, and does not create smoke evidence. The manifest statuses are `UNSPECIFIED`, `EXPECTED_RUNTIME_CHANGE`, `EXPECTED_TEST_OR_VALIDATION_CHANGE`, `EXPECTED_DOC_UPDATE`, `MUST_NOT_CHANGE`, and `NEEDS_RECHECK`; maintainer preflight disposition must remain separate from smoke evidence and future runtime authorization.
 
 ## Dedicated Server Smoke
 
