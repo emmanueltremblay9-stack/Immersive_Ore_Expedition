@@ -188,3 +188,9 @@ This remains process documentation only. It does not add or modify active `src/m
 v24 adds a docs-only evidence gate at `docs/smoke_profiles/v24_worldgen_smoke_evidence_gate/`. The gate is for maintainer review after a v23 smoke result is filled from an actual run, and it records a go/no-go decision before any later runtime integration or shipped-behavior change is planned.
 
 This remains process documentation only. It does not execute smoke, accept evidence by itself, activate runtime worldgen, change shipped `src/main/resources`, alter config defaults, bind real biomes by default, or implement the complete surface clue to ore-load gameplay loop. If required v23 evidence is missing, the decision remains no-go.
+
+## Province System v25 runtime promotion readiness packet
+
+v25 adds a docs-only runtime promotion readiness packet at `docs/smoke_profiles/v25_worldgen_runtime_promotion_readiness/`. The packet links the v23 smoke result and v24 maintainer decision, then records whether the next step is `DOCS_ONLY_HOLD`, `REPEAT_SMOKE`, `BLOCKED`, or `READY_FOR_RUNTIME_SLICE`.
+
+This remains process documentation only. `READY_FOR_RUNTIME_SLICE` does not activate runtime worldgen, change active `src/main/resources`, alter config defaults, or accept smoke evidence by itself. Any future runtime activation must be a separate small PR with explicit runtime diffs, rollback/disable expectations, and fresh validation.
