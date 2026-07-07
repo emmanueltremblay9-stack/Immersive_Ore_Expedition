@@ -254,3 +254,11 @@ This remains process documentation only. It does not run smoke, activate runtime
 v35 adds a docs-only runtime evidence final sign-off handoff at `docs/smoke_profiles/v35_runtime_evidence_final_signoff_handoff/`. The handoff turns v34 remediation closure decisions into a final review transmission packet that preserves the v29 -> v30 -> v31 -> v32 -> v33 -> v34 -> v35 audit trail, records readiness states, tracks remaining blockers, and separates merge-review readiness from executed runtime proof.
 
 This remains process documentation only. It does not run smoke, activate runtime worldgen, authorize a runtime PR, authorize merge by itself, replace v29, v30, v31, v32, v33, or v34, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, or invent smoke evidence. Runtime worldgen remains disabled in v35, and any final review handoff still applies only to the reviewed evidence scope unless a later separate runtime PR or merge decision is explicitly authorized and validated.
+
+## Province System v36 ore-load chamber block candidate planning
+
+v36 adds source-only block candidate planning for ore-load chambers. The new planner consumes an already allowed `OreLoadChamberPlacementPlan` and produces deterministic concrete block targets inside the planned chamber envelope. It refuses skipped chamber plans and refuses `BLOCK_TAG` resources instead of substituting an arbitrary block.
+
+v36 also adds conservative replacement rules for future world writers. Those rules reject air, fluids, bedrock, barriers, portal blocks, command/structure-critical blocks, and block-entity states before any future placement path can treat a target as replaceable.
+
+This remains runtime-prep planning only. It does not call `setBlock`, activate runtime worldgen, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, add blocks/items/entities/ores/gems/resources, or complete the surface clue to anchored ore-load gameplay loop. Runtime worldgen remains default-off and manual client/server/world smoke evidence is still required before claiming live placement.

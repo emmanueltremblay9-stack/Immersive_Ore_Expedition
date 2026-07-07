@@ -28,7 +28,7 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v35 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, and docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, runtime evidence packet, runtime evidence review checklist, runtime evidence decision record, runtime evidence remediation tracker, runtime evidence remediation closure record, and runtime evidence final sign-off handoff documentation.
+Expected current limitation: no visible IOE worldgen placement is expected from v7-v36 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, runtime evidence packet, runtime evidence review checklist, runtime evidence decision record, runtime evidence remediation tracker, runtime evidence remediation closure record, runtime evidence final sign-off handoff documentation, and source-only ore-load chamber block candidate planning.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -200,6 +200,12 @@ v34 does not execute smoke, does not activate runtime worldgen, does not authori
 v35 adds a docs-only runtime evidence final sign-off handoff at `docs/smoke_profiles/v35_runtime_evidence_final_signoff_handoff/`. It turns v34 remediation closure decisions into a final review transmission packet that records readiness, limitations, blockers, deferred work, out-of-scope items, and the v35 -> v34 -> v33 -> v32 return path.
 
 v35 does not execute smoke, does not activate runtime worldgen, does not authorize a runtime PR, does not authorize merge by itself, does not replace v29, v30, v31, v32, v33, or v34, does not change active `src/main/resources`, does not change active JSON, does not change config defaults, does not modify legacy split-module source trees, and does not create or invent smoke evidence. `READY_FOR_FINAL_REVIEW` applies only to the reviewed handoff scope and does not authorize active runtime/resource changes by itself.
+
+## v36 Ore-Load Chamber Block Candidate Planning
+
+v36 adds source-only block candidate planning for already allowed ore-load chamber plans. It prepares deterministic concrete block targets and conservative replacement checks for a future writer, but it does not write blocks, activate runtime worldgen, change active `src/main/resources`, change active JSON, change config defaults, bind real biomes by default, or add new resources.
+
+Smoke expectations remain unchanged: with default config, no visible IOE placement is expected. Any later branch that connects these candidates to a real world writer must capture fresh client/server/world smoke evidence from that changed commit before claiming live placement or gameplay proof.
 
 ## Dedicated Server Smoke
 
