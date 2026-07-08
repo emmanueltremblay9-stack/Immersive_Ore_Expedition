@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public final class IoeCompassNetworking {
-    private static final String NETWORK_VERSION = "1";
+    private static final String NETWORK_VERSION = "2";
     private static final String CLIENT_REGISTRATION_CLASS =
             "com.oblixorprime.ioe.expeditioncompass.client.ExpeditionCompassClient";
 
@@ -41,6 +41,9 @@ public final class IoeCompassNetworking {
             ExpeditionLocatorIndex locatorIndex
     ) {
         ExpeditionCompassMenuSnapshot snapshot = snapshotFor(player, hand, stack, locatorIndex);
+        if (ExpeditionCompassItem.target(stack).isPresent() && snapshot.currentTarget().isEmpty()) {
+            ExpeditionCompassItem.clearTarget(stack);
+        }
         IoeExpeditionCompassMod.LOGGER.debug(
                 "Sending expedition compass menu snapshot to {} hand={} entries={} currentTarget={}",
                 player.getScoreboardName(),
@@ -148,7 +151,7 @@ public final class IoeCompassNetworking {
                 serverPlayer.level().dimension(),
                 serverPlayer.blockPosition(),
                 payload.target(),
-                ExpeditionLocatorService.index()
+                compassIndexFor(serverPlayer)
         );
         if (stack.isEmpty() || selection.isEmpty()) {
             serverPlayer.displayClientMessage(Component.translatable(ExpeditionCompassItem.INVALID_TARGET_KEY), true);
@@ -156,7 +159,7 @@ public final class IoeCompassNetworking {
                     serverPlayer,
                     payload.hand(),
                     itemStack,
-                    ExpeditionLocatorService.index()
+                    compassIndexFor(serverPlayer)
             ));
             return;
         }
@@ -171,7 +174,7 @@ public final class IoeCompassNetworking {
                 ),
                 true
         );
-        sendMenuSnapshot(serverPlayer, payload.hand(), stack.orElseThrow(), ExpeditionLocatorService.index());
+        sendMenuSnapshot(serverPlayer, payload.hand(), stack.orElseThrow(), compassIndexFor(serverPlayer));
     }
 
     private static void handleClear(
@@ -186,7 +189,7 @@ public final class IoeCompassNetworking {
         compassStack(serverPlayer, payload.hand()).ifPresent(stack -> {
             ExpeditionCompassItem.clearTarget(stack);
             serverPlayer.displayClientMessage(Component.translatable(ExpeditionCompassItem.RESET_KEY), true);
-            sendMenuSnapshot(serverPlayer, payload.hand(), stack, ExpeditionLocatorService.index());
+            sendMenuSnapshot(serverPlayer, payload.hand(), stack, compassIndexFor(serverPlayer));
         });
     }
 
@@ -200,8 +203,12 @@ public final class IoeCompassNetworking {
         }
 
         compassStack(serverPlayer, payload.hand()).ifPresent(stack ->
-                sendMenuSnapshot(serverPlayer, payload.hand(), stack, ExpeditionLocatorService.index())
+                sendMenuSnapshot(serverPlayer, payload.hand(), stack, compassIndexFor(serverPlayer))
         );
+    }
+
+    private static ExpeditionLocatorIndex compassIndexFor(ServerPlayer player) {
+        return ExpeditionLocatorService.compassIndex(player.level().dimension(), player.blockPosition());
     }
 
     private static Optional<ItemStack> compassStack(ServerPlayer player, InteractionHand hand) {

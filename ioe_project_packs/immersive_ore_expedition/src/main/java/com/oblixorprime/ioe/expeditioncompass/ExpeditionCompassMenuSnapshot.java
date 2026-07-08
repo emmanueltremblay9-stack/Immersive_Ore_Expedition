@@ -59,7 +59,12 @@ public record ExpeditionCompassMenuSnapshot(
                 .limit(MAX_MENU_ENTRIES)
                 .toList();
 
-        return new ExpeditionCompassMenuSnapshot(dimension, hand, currentTarget, entries);
+        return new ExpeditionCompassMenuSnapshot(
+                dimension,
+                hand,
+                validCurrentTarget(currentTarget, locatorIndex),
+                entries
+        );
     }
 
     public Optional<ExpeditionCompassMenuEntry> matchingEntry(ExpeditionCompassTarget requestedTarget) {
@@ -72,6 +77,17 @@ public record ExpeditionCompassMenuSnapshot(
     private static ExpeditionCompassMenuEntry entryFromSite(ExpeditionSite site, BlockPos origin) {
         ExpeditionCompassTarget target = ExpeditionCompassTarget.fromSite(site);
         return new ExpeditionCompassMenuEntry(target, target.distanceBlocksFrom(origin));
+    }
+
+    private static Optional<ExpeditionCompassTarget> validCurrentTarget(
+            Optional<ExpeditionCompassTarget> currentTarget,
+            ExpeditionLocatorIndex locatorIndex
+    ) {
+        return currentTarget
+                .filter(ExpeditionCompassTarget::playable)
+                .filter(target -> locatorIndex.sites().stream()
+                        .map(ExpeditionCompassTarget::fromSite)
+                        .anyMatch(target::equals));
     }
 
     private static Comparator<ExpeditionCompassMenuEntry> entryComparator() {

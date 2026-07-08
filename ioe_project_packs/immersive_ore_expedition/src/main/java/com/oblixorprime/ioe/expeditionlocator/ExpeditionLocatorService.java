@@ -1,6 +1,9 @@
 package com.oblixorprime.ioe.expeditionlocator;
 
+import com.oblixorprime.ioe.worldgen.IoeExpeditionWorldgenMod;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenConfig;
 import com.oblixorprime.ioe.worldgen.RuntimeWorldgenPlacementProofResult;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
@@ -16,6 +19,14 @@ public final class ExpeditionLocatorService {
         return RUNTIME_INDEX;
     }
 
+    public static ExpeditionLocatorIndex compassIndex(ResourceKey<Level> dimension, BlockPos origin) {
+        logCompassDiagnostics(
+                Objects.requireNonNull(dimension, "dimension"),
+                Objects.requireNonNull(origin, "origin")
+        );
+        return RUNTIME_INDEX;
+    }
+
     public static void recordPlacedProof(
             ResourceKey<Level> dimension,
             RuntimeWorldgenPlacementProofResult result
@@ -28,5 +39,25 @@ public final class ExpeditionLocatorService {
 
     public static void clearForTesting() {
         RUNTIME_INDEX.clear();
+    }
+
+    private static void logCompassDiagnostics(ResourceKey<Level> dimension, BlockPos origin) {
+        if (!IoeWorldgenConfig.runtimePlacementDiagnostics()) {
+            return;
+        }
+
+        RUNTIME_INDEX.diagnosticSites().stream()
+                .filter(site -> site.dimension().equals(dimension))
+                .forEach(site -> IoeExpeditionWorldgenMod.LOGGER.info(
+                        "IOE compass indexed site id={} type={} dimension={} target={} distance={} state={} reason={} source={}",
+                        site.primaryId().map(Object::toString).orElse("unknown"),
+                        site.kind().getSerializedName(),
+                        site.dimension().location(),
+                        site.pos(),
+                        Math.round(Math.sqrt(ExpeditionLocatorIndex.distanceSquared(origin, site.pos()))),
+                        site.placementState().getSerializedName(),
+                        site.placementReason().orElse("none"),
+                        site.source().orElse("unknown")
+                ));
     }
 }
