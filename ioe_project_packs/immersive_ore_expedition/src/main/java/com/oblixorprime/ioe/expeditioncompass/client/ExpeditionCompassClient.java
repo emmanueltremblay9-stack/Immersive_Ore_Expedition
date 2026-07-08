@@ -43,7 +43,7 @@ public final class ExpeditionCompassClient {
 
     private static float angle(ItemStack stack, ClientLevel level, LivingEntity entity, int seed) {
         ExpeditionCompassTarget target = ExpeditionCompassItem.target(stack).orElse(null);
-        if (target == null) {
+        if (target == null || !target.playable()) {
             return ExpeditionCompassAngle.UNBOUND_ANGLE;
         }
 

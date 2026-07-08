@@ -173,6 +173,58 @@ final class ExpeditionLocatorIndexTest {
         assertFalse(index.nearest(Level.OVERWORLD, BlockPos.ZERO, ExpeditionSiteKind.ANCHOR).found());
     }
 
+    @Test
+    void unplacedSitesStayAvailableOnlyForDiagnostics() {
+        ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
+        ExpeditionSite planned = ExpeditionSite.anchor(
+                Level.OVERWORLD,
+                new BlockPos(4, 64, 0),
+                id("tiny_vertical_mine_entrance"),
+                null,
+                SiteQuality.NORMAL,
+                "catalog_debug",
+                ExpeditionSitePlacementState.PLANNED,
+                "not placed"
+        );
+
+        index.record(planned);
+
+        assertEquals(0, index.size());
+        assertTrue(index.sites().isEmpty());
+        assertEquals(planned, index.diagnosticSites().getFirst());
+        assertFalse(index.nearestAny(Level.OVERWORLD, BlockPos.ZERO).found());
+    }
+
+    @Test
+    void placementDisabledProofDoesNotCreateGameplayTarget() {
+        ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
+        RuntimeWorldgenPlacementProofResult skipped = new RuntimeWorldgenPlacementProofResult(
+                id("tiny_vertical_mine_entrance"),
+                new BlockPos(6, 64, 8),
+                SiteQuality.RICH,
+                Optional.of(ResourceRef.block("minecraft", "amethyst_block")),
+                false,
+                false,
+                RuntimeWorldgenPlacementProofResult.SkipReason.RUNTIME_WORLDGEN_DISABLED,
+                Optional.of(ExpeditionAnchorPlacementPlan.skipped(
+                        id("tiny_vertical_mine_entrance"),
+                        new BlockPos(6, 64, 8),
+                        SiteQuality.RICH,
+                        ExpeditionAnchorPlacementPlan.SkipReason.RUNTIME_WORLDGEN_DISABLED,
+                        null,
+                        id("granite_belt")
+                )),
+                Optional.empty(),
+                false
+        );
+
+        index.recordPlacedProof(Level.OVERWORLD, skipped);
+
+        assertEquals(0, index.size());
+        assertTrue(index.sites().isEmpty());
+        assertTrue(index.diagnosticSites().isEmpty());
+    }
+
     private static ExpeditionSite anchor(String path, BlockPos pos) {
         return ExpeditionSite.anchor(
                 Level.OVERWORLD,

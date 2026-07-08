@@ -18,6 +18,13 @@ neoForge {
     version = neo_version
 }
 
+repositories {
+    maven {
+        name = 'New JourneyMap Maven'
+        url = uri('https://maven.blamejared.com')
+    }
+}
+
 def replacementProperties = [
         minecraft_version   : minecraft_version,
         neo_version         : neo_version,
@@ -43,6 +50,8 @@ tasks.named('jar', Jar).configure {
 }
 
 dependencies {
+    compileOnly group: 'info.journeymap', name: 'journeymap-api-neoforge', version: journeymap_api_version, changing: true
+
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
