@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class IoeRuntimeScaffoldStatusTest {
     @Test
-    void defaultOffStatusReportsScaffoldPlanningOnlySystems() {
+    void defaultOffStatusReportsActiveRegistrationWithGatedPlacement() {
         IoeRuntimeScaffoldStatus status = IoeRuntimeScaffoldStatus.fromRegistration(
                 "test-version",
                 IoeWorldgenRegistration.scaffold(
@@ -43,8 +43,8 @@ final class IoeRuntimeScaffoldStatusTest {
         assertTrue(status.randomOreSuppressionPlanningReady());
         assertTrue(status.biomeProvinceBindingScaffoldReady());
         assertTrue(status.ieIpSurfaceCluePlanningReady());
-        assertTrue(status.scaffoldOnly());
-        assertFalse(status.livePlacementRegistered());
+        assertFalse(status.scaffoldOnly());
+        assertTrue(status.livePlacementRegistered());
     }
 
     @Test
@@ -66,7 +66,7 @@ final class IoeRuntimeScaffoldStatusTest {
         assertTrue(output.contains("provinceRuntimeIntegrationEnabled=false"));
         assertTrue(output.contains("planning-only"));
         assertTrue(output.contains("JourneyMap"));
-        assertTrue(output.contains("No visible world or JourneyMap changes are expected"));
+        assertTrue(output.contains("visible world and JourneyMap targets require runtime placement gates"));
     }
 
     @Test
@@ -86,7 +86,7 @@ final class IoeRuntimeScaffoldStatusTest {
         assertTrue(output.contains("runtimeWorldgenEnabled=true"));
         assertTrue(output.contains("provinceRuntimeIntegrationEnabled=true"));
         assertTrue(output.contains("diagnosticsEnabled=true"));
-        assertTrue(output.contains("scaffoldOnly=true"));
+        assertTrue(output.contains("scaffoldOnly=false"));
     }
 
     @Test

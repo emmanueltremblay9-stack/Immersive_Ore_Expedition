@@ -8,6 +8,7 @@ import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSiteKind;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSitePlacementState;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenPlacementGates;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
@@ -182,6 +183,7 @@ final class ExpeditionCompassItemTest {
         );
 
         assertEquals(InteractionHand.OFF_HAND, snapshot.hand());
+        assertEquals(ExpeditionCompassEmptyReason.WORLDGEN_DISABLED, snapshot.emptyReason());
         assertTrue(snapshot.currentTarget().isEmpty());
         assertTrue(snapshot.entries().isEmpty());
     }
@@ -202,6 +204,7 @@ final class ExpeditionCompassItemTest {
         );
 
         assertEquals(existing, snapshot.currentTarget().orElseThrow());
+        assertEquals(ExpeditionCompassEmptyReason.NO_PLACED_SITES, snapshot.emptyReason());
         assertEquals(1, snapshot.entries().size());
     }
 
@@ -265,6 +268,42 @@ final class ExpeditionCompassItemTest {
     }
 
     @Test
+    void diagnosticModeCanExposeUnplacedTargetsWithoutMakingThemBindable() {
+        ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
+        ExpeditionSite plannedSite = ExpeditionSite.anchor(
+                Level.OVERWORLD,
+                new BlockPos(96, 64, 0),
+                id("tiny_vertical_mine_entrance"),
+                id("compass_survey"),
+                SiteQuality.NORMAL,
+                "expedition_compass_survey",
+                ExpeditionSitePlacementState.PLANNED,
+                "catalog target is not backed by a placed structure"
+        );
+        index.record(plannedSite);
+
+        ExpeditionCompassMenuSnapshot snapshot = ExpeditionCompassMenuSnapshot.fromIndex(
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                InteractionHand.MAIN_HAND,
+                Optional.empty(),
+                index,
+                true,
+                new IoeWorldgenPlacementGates(true, false, false)
+        );
+
+        assertEquals(ExpeditionCompassEmptyReason.ONLY_DEBUG_OR_PLANNED_SITES, snapshot.emptyReason());
+        assertEquals(1, snapshot.entries().size());
+        assertFalse(snapshot.entries().getFirst().target().playable());
+        assertTrue(IoeCompassNetworking.validateSelection(
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                snapshot.entries().getFirst().target(),
+                index
+        ).isEmpty());
+    }
+
+    @Test
     void menuSnapshotExposesEveryValidIndexedSiteForScrollingUi() {
         ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
         for (int siteIndex = 0; siteIndex < 6; siteIndex++) {
@@ -318,6 +357,7 @@ final class ExpeditionCompassItemTest {
                 Level.OVERWORLD,
                 InteractionHand.MAIN_HAND,
                 Optional.of(target(Level.OVERWORLD, new BlockPos(10, 64, 0))),
+                ExpeditionCompassEmptyReason.NO_PLACED_SITES,
                 List.of(new ExpeditionCompassMenuEntry(target(Level.OVERWORLD, new BlockPos(8, 64, -3)), 11L))
         );
         RegistryFriendlyByteBuf buffer = registryBuffer(Unpooled.buffer());

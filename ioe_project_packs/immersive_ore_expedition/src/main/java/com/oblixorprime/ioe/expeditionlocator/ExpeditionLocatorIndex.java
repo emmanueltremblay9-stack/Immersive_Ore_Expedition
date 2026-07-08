@@ -45,7 +45,9 @@ public final class ExpeditionLocatorIndex {
                 result.anchorType(),
                 provinceId,
                 result.siteQuality(),
-                RUNTIME_PLACEMENT_PROOF_SOURCE
+                RUNTIME_PLACEMENT_PROOF_SOURCE,
+                ExpeditionSitePlacementState.PROVEN,
+                null
         );
         record(anchorSite);
 
@@ -56,7 +58,9 @@ public final class ExpeditionLocatorIndex {
                     result.anchorType(),
                     provinceId,
                     result.siteQuality(),
-                    RUNTIME_PLACEMENT_PROOF_SOURCE
+                    RUNTIME_PLACEMENT_PROOF_SOURCE,
+                    ExpeditionSitePlacementState.PROVEN,
+                    null
             ));
         }
     }

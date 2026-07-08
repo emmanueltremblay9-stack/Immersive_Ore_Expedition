@@ -136,6 +136,8 @@ final class ExpeditionLocatorIndexTest {
         assertTrue(province.found());
         assertEquals(id("tiny_vertical_mine_entrance"), anchor.site().orElseThrow().anchorId().orElseThrow());
         assertEquals(provinceId, province.site().orElseThrow().provinceId().orElseThrow());
+        assertEquals(ExpeditionSitePlacementState.PROVEN, anchor.site().orElseThrow().placementState());
+        assertEquals(ExpeditionSitePlacementState.PROVEN, province.site().orElseThrow().placementState());
         assertEquals(ExpeditionLocatorIndex.RUNTIME_PLACEMENT_PROOF_SOURCE, anchor.site().orElseThrow().source().orElseThrow());
         assertEquals(2, index.size());
     }

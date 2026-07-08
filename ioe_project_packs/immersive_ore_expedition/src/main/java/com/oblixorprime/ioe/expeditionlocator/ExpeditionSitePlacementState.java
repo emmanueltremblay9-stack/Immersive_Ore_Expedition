@@ -6,10 +6,12 @@ import net.minecraft.util.StringRepresentable;
 import java.util.Locale;
 
 public enum ExpeditionSitePlacementState implements StringRepresentable {
-    PLACED("placed", true),
     PLANNED("planned", false),
     DEBUG_MARKER("debug_marker", false),
-    SKIPPED("skipped", false);
+    PLACEMENT_SKIPPED("placement_skipped", false),
+    PLACEMENT_FAILED("placement_failed", false),
+    PLACED("placed", true),
+    PROVEN("proven", true);
 
     public static final Codec<ExpeditionSitePlacementState> CODEC =
             StringRepresentable.fromEnum(ExpeditionSitePlacementState::values);

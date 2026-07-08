@@ -2,6 +2,8 @@ package com.oblixorprime.ioe.expeditioncompass;
 
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenConfig;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenPlacementGates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -70,7 +72,9 @@ public final class IoeCompassNetworking {
                 player.blockPosition(),
                 Objects.requireNonNull(hand, "hand"),
                 ExpeditionCompassItem.target(stack),
-                Objects.requireNonNull(locatorIndex, "locatorIndex")
+                Objects.requireNonNull(locatorIndex, "locatorIndex"),
+                IoeWorldgenConfig.compassShowDiagnosticSites(),
+                IoeWorldgenPlacementGates.fromConfig()
         );
     }
 
@@ -101,6 +105,7 @@ public final class IoeCompassNetworking {
                 Objects.requireNonNull(dimension, "dimension"),
                 Objects.requireNonNull(hand, "hand"),
                 Objects.requireNonNull(currentTarget, "currentTarget"),
+                ExpeditionCompassEmptyReason.NO_PLACED_SITES,
                 List.of()
         ));
     }

@@ -218,14 +218,14 @@ final class RandomOreSuppressionPlannerTest {
     void scaffoldBootstrapRemainsScaffoldOnlyWithSuppressionPlanningMetadata() {
         IoeWorldgenRegistration registration = IoeWorldgenBootstrap.bootstrap();
 
-        assertTrue(registration.scaffoldOnly());
+        assertFalse(registration.scaffoldOnly());
         assertTrue(registration.runtimePlacementNoOp());
         assertTrue(registration.anchorPlacementPlanningReady());
         assertTrue(registration.oreLoadChamberPlacementPlanningReady());
         assertTrue(registration.randomOreSuppressionPlanningReady());
-        assertFalse(registration.configuredFeaturesRegistered());
-        assertFalse(registration.placedFeaturesRegistered());
-        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.configuredFeaturesRegistered());
+        assertTrue(registration.placedFeaturesRegistered());
+        assertTrue(registration.biomeModifiersRegistered());
     }
 
     @Test

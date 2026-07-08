@@ -49,15 +49,27 @@ public final class ExpeditionLocatorService {
         RUNTIME_INDEX.diagnosticSites().stream()
                 .filter(site -> site.dimension().equals(dimension))
                 .forEach(site -> IoeExpeditionWorldgenMod.LOGGER.info(
-                        "IOE compass indexed site id={} type={} dimension={} target={} distance={} state={} reason={} source={}",
+                        "IOE compass indexed site id={} type={} dimension={} chunk={} section={} anchorPos={} targetPos={} pipelineStage={} state={} reason={} gates(runtimePlacement={}, proofFeature={}, provinceRuntime={}) biome={} province={} distanceFromPlayer={}",
                         site.primaryId().map(Object::toString).orElse("unknown"),
                         site.kind().getSerializedName(),
                         site.dimension().location(),
+                        chunkText(site.pos()),
+                        site.pos().getY() >> 4,
                         site.pos(),
-                        Math.round(Math.sqrt(ExpeditionLocatorIndex.distanceSquared(origin, site.pos()))),
+                        site.pos(),
+                        site.source().orElse("unknown"),
                         site.placementState().getSerializedName(),
                         site.placementReason().orElse("none"),
-                        site.source().orElse("unknown")
+                        IoeWorldgenConfig.runtimePlacementEnabled(),
+                        IoeWorldgenConfig.runtimeProofFeatureEnabled(),
+                        IoeWorldgenConfig.provinceRuntimeIntegrationEnabled(),
+                        "unknown",
+                        site.provinceId().map(Object::toString).orElse("unknown"),
+                        Math.round(Math.sqrt(ExpeditionLocatorIndex.distanceSquared(origin, site.pos())))
                 ));
+    }
+
+    private static String chunkText(BlockPos pos) {
+        return (pos.getX() >> 4) + "," + (pos.getZ() >> 4);
     }
 }

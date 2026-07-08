@@ -3,6 +3,7 @@ package com.oblixorprime.ioe.expeditioncompass.client;
 import com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassMenuEntry;
 import com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassMenuSnapshot;
 import com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassTarget;
+import com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassEmptyReason;
 import com.oblixorprime.ioe.expeditioncompass.ServerboundExpeditionCompassClearPayload;
 import com.oblixorprime.ioe.expeditioncompass.ServerboundExpeditionCompassRefreshPayload;
 import com.oblixorprime.ioe.expeditioncompass.ServerboundExpeditionCompassSelectPayload;
@@ -12,6 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,20 +26,21 @@ public final class ExpeditionCompassScreen extends Screen {
     private static final int BIND_BUTTON_WIDTH = 54;
     private static final int JOURNEYMAP_BUTTON_WIDTH = 86;
     private static final int COMPACT_JOURNEYMAP_BUTTON_WIDTH = 42;
-    private static final int PAGINATION_BUTTON_WIDTH = 24;
-    private static final int PAGINATION_BUTTON_GAP = 4;
+    private static final int SCROLLBAR_WIDTH = 6;
+    private static final int SCROLLBAR_GAP = 6;
 
     static final String TITLE_KEY = "screen.immersive_ore_expedition.expedition_compass.title";
     static final String DIMENSION_KEY = "screen.immersive_ore_expedition.expedition_compass.dimension";
     static final String CURRENT_TARGET_KEY = "screen.immersive_ore_expedition.expedition_compass.current_target";
     static final String NO_CURRENT_TARGET_KEY = "screen.immersive_ore_expedition.expedition_compass.no_current_target";
     static final String EMPTY_KEY = "screen.immersive_ore_expedition.expedition_compass.empty";
+    static final String EMPTY_WORLDGEN_DISABLED_KEY = "screen.immersive_ore_expedition.expedition_compass.empty_worldgen_disabled";
+    static final String EMPTY_ONLY_DIAGNOSTIC_KEY = "screen.immersive_ore_expedition.expedition_compass.empty_only_diagnostic";
     static final String ENTRY_TITLE_KEY = "screen.immersive_ore_expedition.expedition_compass.entry_title";
+    static final String ENTRY_TITLE_DIAGNOSTIC_KEY = "screen.immersive_ore_expedition.expedition_compass.entry_title_diagnostic";
     static final String ENTRY_DETAIL_KEY = "screen.immersive_ore_expedition.expedition_compass.entry_detail";
     static final String MORE_ENTRIES_KEY = "screen.immersive_ore_expedition.expedition_compass.more_entries";
     static final String SHOWING_ENTRIES_KEY = "screen.immersive_ore_expedition.expedition_compass.showing_entries";
-    static final String PREVIOUS_KEY = "screen.immersive_ore_expedition.expedition_compass.previous";
-    static final String NEXT_KEY = "screen.immersive_ore_expedition.expedition_compass.next";
     static final String SELECT_KEY = "screen.immersive_ore_expedition.expedition_compass.select";
     static final String JOURNEYMAP_KEY = "screen.immersive_ore_expedition.expedition_compass.journeymap";
     static final String JOURNEYMAP_SHORT_KEY = "screen.immersive_ore_expedition.expedition_compass.journeymap_short";
@@ -50,7 +53,8 @@ public final class ExpeditionCompassScreen extends Screen {
     static final String CLEAR_KEY = "screen.immersive_ore_expedition.expedition_compass.clear";
 
     private ExpeditionCompassMenuSnapshot snapshot;
-    private int scrollOffset;
+    private ExpeditionCompassListWindow listWindow = ExpeditionCompassListWindow.empty();
+    private boolean draggingScrollbar;
 
     private ExpeditionCompassScreen(ExpeditionCompassMenuSnapshot snapshot) {
         super(Component.translatable(TITLE_KEY));
@@ -70,7 +74,7 @@ public final class ExpeditionCompassScreen extends Screen {
 
     private void setSnapshot(ExpeditionCompassMenuSnapshot snapshot) {
         this.snapshot = Objects.requireNonNull(snapshot, "snapshot");
-        clampScrollOffset();
+        updateListWindowForCurrentSize();
         if (minecraft != null) {
             rebuildWidgets();
         }
@@ -78,45 +82,28 @@ public final class ExpeditionCompassScreen extends Screen {
 
     @Override
     protected void init() {
-        clampScrollOffset();
+        updateListWindowForCurrentSize();
         int contentWidth = contentWidth();
         int left = (width - contentWidth) / 2;
         int y = ENTRY_TOP;
-        int visibleEntries = visibleEntryCount();
         List<ExpeditionCompassMenuEntry> entries = snapshot.entries();
         int journeyMapButtonWidth = journeyMapButtonWidth(contentWidth);
         int journeyMapButtonX = left + contentWidth - journeyMapButtonWidth;
         int bindButtonX = journeyMapButtonX - ENTRY_ACTION_GAP - BIND_BUTTON_WIDTH;
 
-        int endIndex = Math.min(entries.size(), scrollOffset + visibleEntries);
-        for (int index = scrollOffset; index < endIndex; index++) {
+        for (int index = listWindow.firstVisibleIndex(); index < listWindow.endExclusive(); index++) {
             ExpeditionCompassMenuEntry entry = entries.get(index);
-            addRenderableWidget(Button.builder(Component.translatable(SELECT_KEY), button -> select(entry))
+            Button bindButton = Button.builder(Component.translatable(SELECT_KEY), button -> select(entry))
                     .bounds(bindButtonX, y + 12, BIND_BUTTON_WIDTH, 20)
-                    .build());
-            addRenderableWidget(Button.builder(journeyMapButtonText(journeyMapButtonWidth), button -> createJourneyMapWaypoint(entry))
+                    .build();
+            bindButton.active = entry.target().playable();
+            addRenderableWidget(bindButton);
+            Button journeyMapButton = Button.builder(journeyMapButtonText(journeyMapButtonWidth), button -> createJourneyMapWaypoint(entry))
                     .bounds(journeyMapButtonX, y + 12, journeyMapButtonWidth, 20)
-                    .build());
+                    .build();
+            journeyMapButton.active = entry.target().playable();
+            addRenderableWidget(journeyMapButton);
             y += ENTRY_ROW_HEIGHT;
-        }
-
-        if (maxScrollOffset() > 0) {
-            int paginationY = height - 52;
-            Button previousButton = Button.builder(Component.translatable(PREVIOUS_KEY), button -> scrollBy(-1))
-                    .bounds(
-                            left + contentWidth - PAGINATION_BUTTON_WIDTH * 2 - PAGINATION_BUTTON_GAP,
-                            paginationY,
-                            PAGINATION_BUTTON_WIDTH,
-                            20
-                    )
-                    .build();
-            previousButton.active = scrollOffset > 0;
-            addRenderableWidget(previousButton);
-            Button nextButton = Button.builder(Component.translatable(NEXT_KEY), button -> scrollBy(1))
-                    .bounds(left + contentWidth - PAGINATION_BUTTON_WIDTH, paginationY, PAGINATION_BUTTON_WIDTH, 20)
-                    .build();
-            nextButton.active = scrollOffset < maxScrollOffset();
-            addRenderableWidget(nextButton);
         }
 
         int bottomY = height - 28;
@@ -153,31 +140,39 @@ public final class ExpeditionCompassScreen extends Screen {
         drawClampedString(guiGraphics, currentTargetText(), left, 52, contentWidth, 0xC8C8C8);
 
         if (snapshot.entries().isEmpty()) {
-            guiGraphics.drawCenteredString(font, Component.translatable(EMPTY_KEY), width / 2, 86, 0xB8B8B8);
+            guiGraphics.drawCenteredString(font, emptyText(), width / 2, 86, 0xB8B8B8);
             return;
         }
 
         int y = ENTRY_TOP + 5;
-        int visibleEntries = visibleEntryCount();
-        int endIndex = Math.min(snapshot.entries().size(), scrollOffset + visibleEntries);
-        for (int index = scrollOffset; index < endIndex; index++) {
+        int endIndex = listWindow.endExclusive();
+        for (int index = listWindow.firstVisibleIndex(); index < endIndex; index++) {
             ExpeditionCompassMenuEntry entry = snapshot.entries().get(index);
+            if (index == listWindow.selectedIndex()) {
+                guiGraphics.fill(left - 3, y - 4, left + contentWidth + 3, y + ENTRY_ROW_HEIGHT - 8, 0x40202020);
+            }
             drawClampedString(guiGraphics, entryTitleText(entry), left + ENTRY_TEXT_LEFT_PADDING, y, entryTextWidth, 0xFFD35A);
             drawClampedString(guiGraphics, entryDetailText(entry), left + ENTRY_TEXT_LEFT_PADDING, y + 12, entryTextWidth, 0xC8C8C8);
             y += ENTRY_ROW_HEIGHT;
         }
 
-        if (maxScrollOffset() > 0) {
+        if (listWindow.scrollable()) {
             drawClampedString(
                     guiGraphics,
-                    Component.translatable(SHOWING_ENTRIES_KEY, scrollOffset + 1, endIndex, snapshot.entries().size()),
+                    Component.translatable(
+                            SHOWING_ENTRIES_KEY,
+                            listWindow.firstVisibleIndex() + 1,
+                            endIndex,
+                            snapshot.entries().size()
+                    ),
                     left,
                     height - 48,
-                    contentWidth - PAGINATION_BUTTON_WIDTH * 2 - PAGINATION_BUTTON_GAP - 8,
+                    contentWidth - SCROLLBAR_WIDTH - SCROLLBAR_GAP - 8,
                     0xA0A0A0
             );
+            renderScrollbar(guiGraphics, left, contentWidth);
         } else {
-            int hiddenEntries = snapshot.entries().size() - visibleEntryCount();
+            int hiddenEntries = snapshot.entries().size() - listWindow.visibleEntries();
             if (hiddenEntries > 0) {
                 guiGraphics.drawCenteredString(
                     font,
@@ -192,7 +187,7 @@ public final class ExpeditionCompassScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (maxScrollOffset() <= 0) {
+        if (!listWindow.scrollable()) {
             return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         }
         if (scrollY > 0.0D) {
@@ -206,6 +201,68 @@ public final class ExpeditionCompassScreen extends Screen {
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_UP) {
+            moveSelection(-1);
+            return true;
+        }
+        if (keyCode == GLFW.GLFW_KEY_DOWN) {
+            moveSelection(1);
+            return true;
+        }
+        if (keyCode == GLFW.GLFW_KEY_PAGE_UP) {
+            page(-1);
+            return true;
+        }
+        if (keyCode == GLFW.GLFW_KEY_PAGE_DOWN) {
+            page(1);
+            return true;
+        }
+        if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+            selectedEntry().filter(entry -> entry.target().playable()).ifPresent(this::select);
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && scrollbarContains(mouseX, mouseY)) {
+            draggingScrollbar = true;
+            updateScrollbarDrag(mouseY);
+            return true;
+        }
+        if (super.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        int clickedEntry = entryIndexAt(mouseX, mouseY);
+        if (clickedEntry >= 0) {
+            listWindow = listWindow.select(clickedEntry);
+            rebuildWidgets();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (draggingScrollbar && button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+            updateScrollbarDrag(mouseY);
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && draggingScrollbar) {
+            draggingScrollbar = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
     private int visibleEntryCount() {
         int availableRows = Math.max(0, (height - ENTRY_TOP - 62) / ENTRY_ROW_HEIGHT);
         if (snapshot.entries().isEmpty()) {
@@ -214,20 +271,38 @@ public final class ExpeditionCompassScreen extends Screen {
         return Math.max(1, Math.min(snapshot.entries().size(), availableRows));
     }
 
-    private int maxScrollOffset() {
-        return Math.max(0, snapshot.entries().size() - visibleEntryCount());
-    }
-
     private void scrollBy(int delta) {
-        int previousOffset = scrollOffset;
-        scrollOffset = Math.max(0, Math.min(maxScrollOffset(), scrollOffset + delta));
-        if (scrollOffset != previousOffset) {
+        ExpeditionCompassListWindow previousWindow = listWindow;
+        listWindow = listWindow.scrollRows(delta);
+        if (listWindow.firstVisibleIndex() != previousWindow.firstVisibleIndex()) {
             rebuildWidgets();
         }
     }
 
-    private void clampScrollOffset() {
-        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScrollOffset()));
+    private void moveSelection(int delta) {
+        ExpeditionCompassListWindow previousWindow = listWindow;
+        listWindow = listWindow.moveSelection(delta);
+        if (listWindow.selectedIndex() != previousWindow.selectedIndex()
+                || listWindow.firstVisibleIndex() != previousWindow.firstVisibleIndex()) {
+            rebuildWidgets();
+        }
+    }
+
+    private void page(int direction) {
+        ExpeditionCompassListWindow previousWindow = listWindow;
+        listWindow = listWindow.page(direction);
+        if (listWindow.firstVisibleIndex() != previousWindow.firstVisibleIndex()) {
+            rebuildWidgets();
+        }
+    }
+
+    private void updateListWindowForCurrentSize() {
+        listWindow = new ExpeditionCompassListWindow(
+                snapshot.entries().size(),
+                visibleEntryCount(),
+                listWindow.firstVisibleIndex(),
+                listWindow.selectedIndex()
+        );
     }
 
     private Component currentTargetText() {
@@ -242,6 +317,13 @@ public final class ExpeditionCompassScreen extends Screen {
 
     private Component entryTitleText(ExpeditionCompassMenuEntry entry) {
         ExpeditionCompassTarget target = entry.target();
+        if (!target.playable()) {
+            return Component.translatable(
+                    ENTRY_TITLE_DIAGNOSTIC_KEY,
+                    target.placementState().messageLabel().toUpperCase(java.util.Locale.ROOT),
+                    target.displayName()
+            );
+        }
         return Component.translatable(
                 ENTRY_TITLE_KEY,
                 target.displayName()
@@ -298,7 +380,8 @@ public final class ExpeditionCompassScreen extends Screen {
 
     private int entryTextWidth(int contentWidth) {
         int actionWidth = BIND_BUTTON_WIDTH + ENTRY_ACTION_GAP + journeyMapButtonWidth(contentWidth);
-        return Math.max(40, contentWidth - actionWidth - ENTRY_TEXT_LEFT_PADDING - 8);
+        int scrollbarWidth = listWindow.scrollable() ? SCROLLBAR_WIDTH + SCROLLBAR_GAP : 0;
+        return Math.max(40, contentWidth - actionWidth - scrollbarWidth - ENTRY_TEXT_LEFT_PADDING - 8);
     }
 
     private int journeyMapButtonWidth(int contentWidth) {
@@ -307,6 +390,96 @@ public final class ExpeditionCompassScreen extends Screen {
 
     private Component journeyMapButtonText(int buttonWidth) {
         return Component.translatable(buttonWidth < 60 ? JOURNEYMAP_SHORT_KEY : JOURNEYMAP_KEY);
+    }
+
+    private Component emptyText() {
+        return switch (snapshot.emptyReason()) {
+            case WORLDGEN_DISABLED -> Component.translatable(EMPTY_WORLDGEN_DISABLED_KEY);
+            case ONLY_DEBUG_OR_PLANNED_SITES -> Component.translatable(EMPTY_ONLY_DIAGNOSTIC_KEY);
+            case NO_PLACED_SITES -> Component.translatable(EMPTY_KEY);
+        };
+    }
+
+    private java.util.Optional<ExpeditionCompassMenuEntry> selectedEntry() {
+        int selectedIndex = listWindow.selectedIndex();
+        if (selectedIndex < 0 || selectedIndex >= snapshot.entries().size()) {
+            return java.util.Optional.empty();
+        }
+        return java.util.Optional.of(snapshot.entries().get(selectedIndex));
+    }
+
+    private int entryIndexAt(double mouseX, double mouseY) {
+        int contentWidth = contentWidth();
+        int left = (width - contentWidth) / 2;
+        if (mouseX < left || mouseX > left + contentWidth || mouseY < ENTRY_TOP) {
+            return -1;
+        }
+        int row = (int) ((mouseY - ENTRY_TOP) / ENTRY_ROW_HEIGHT);
+        if (row < 0 || row >= listWindow.visibleEntries()) {
+            return -1;
+        }
+        int index = listWindow.firstVisibleIndex() + row;
+        return index < snapshot.entries().size() ? index : -1;
+    }
+
+    private void renderScrollbar(GuiGraphics guiGraphics, int left, int contentWidth) {
+        int trackX = left + contentWidth - SCROLLBAR_WIDTH;
+        int trackTop = ENTRY_TOP;
+        int trackBottom = listBottom();
+        guiGraphics.fill(trackX, trackTop, trackX + SCROLLBAR_WIDTH, trackBottom, 0x60101010);
+
+        int thumbTop = scrollbarThumbTop(trackTop, trackBottom);
+        int thumbBottom = scrollbarThumbBottom(trackTop, trackBottom);
+        guiGraphics.fill(trackX, thumbTop, trackX + SCROLLBAR_WIDTH, thumbBottom, 0xFFD6A800);
+    }
+
+    private boolean scrollbarContains(double mouseX, double mouseY) {
+        if (!listWindow.scrollable()) {
+            return false;
+        }
+        int contentWidth = contentWidth();
+        int left = (width - contentWidth) / 2;
+        int trackX = left + contentWidth - SCROLLBAR_WIDTH;
+        return mouseX >= trackX
+                && mouseX <= trackX + SCROLLBAR_WIDTH
+                && mouseY >= ENTRY_TOP
+                && mouseY <= listBottom();
+    }
+
+    private void updateScrollbarDrag(double mouseY) {
+        int trackTop = ENTRY_TOP;
+        int trackBottom = listBottom();
+        int thumbHeight = scrollbarThumbHeight(trackTop, trackBottom);
+        int travel = Math.max(1, trackBottom - trackTop - thumbHeight);
+        double ratio = (mouseY - trackTop - thumbHeight / 2.0D) / travel;
+        ExpeditionCompassListWindow previousWindow = listWindow;
+        listWindow = listWindow.jumpToScrollRatio(ratio);
+        if (listWindow.firstVisibleIndex() != previousWindow.firstVisibleIndex()) {
+            rebuildWidgets();
+        }
+    }
+
+    private int scrollbarThumbTop(int trackTop, int trackBottom) {
+        int thumbHeight = scrollbarThumbHeight(trackTop, trackBottom);
+        int travel = Math.max(0, trackBottom - trackTop - thumbHeight);
+        double ratio = listWindow.maxFirstVisibleIndex() == 0
+                ? 0.0D
+                : (double) listWindow.firstVisibleIndex() / listWindow.maxFirstVisibleIndex();
+        return trackTop + (int) Math.round(ratio * travel);
+    }
+
+    private int scrollbarThumbBottom(int trackTop, int trackBottom) {
+        return Math.min(trackBottom, scrollbarThumbTop(trackTop, trackBottom) + scrollbarThumbHeight(trackTop, trackBottom));
+    }
+
+    private int scrollbarThumbHeight(int trackTop, int trackBottom) {
+        int trackHeight = Math.max(1, trackBottom - trackTop);
+        double visibleRatio = (double) listWindow.visibleEntries() / Math.max(1, listWindow.totalEntries());
+        return Math.max(18, (int) Math.round(trackHeight * visibleRatio));
+    }
+
+    private int listBottom() {
+        return Math.max(ENTRY_TOP + ENTRY_ROW_HEIGHT, height - 62);
     }
 
     private void drawClampedString(GuiGraphics guiGraphics, Component text, int x, int y, int maxWidth, int color) {

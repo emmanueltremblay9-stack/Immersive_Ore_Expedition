@@ -56,18 +56,18 @@ public record IoeWorldgenRegistration(
                 true,
                 placementGates,
                 customFeaturesRegistered,
-                false,
-                false,
-                false,
                 true,
                 true,
                 true,
                 true,
-                false,
                 true,
                 true,
-                false,
-                false
+                true,
+                true,
+                true,
+                true,
+                true,
+                true
         );
     }
 
