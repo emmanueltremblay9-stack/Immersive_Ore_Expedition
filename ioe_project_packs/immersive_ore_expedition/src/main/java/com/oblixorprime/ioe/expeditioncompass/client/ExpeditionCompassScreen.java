@@ -35,6 +35,7 @@ public final class ExpeditionCompassScreen extends Screen {
     static final String NO_CURRENT_TARGET_KEY = "screen.immersive_ore_expedition.expedition_compass.no_current_target";
     static final String EMPTY_KEY = "screen.immersive_ore_expedition.expedition_compass.empty";
     static final String EMPTY_WORLDGEN_DISABLED_KEY = "screen.immersive_ore_expedition.expedition_compass.empty_worldgen_disabled";
+    static final String EMPTY_PROOF_FEATURE_DISABLED_KEY = "screen.immersive_ore_expedition.expedition_compass.empty_proof_feature_disabled";
     static final String EMPTY_ONLY_DIAGNOSTIC_KEY = "screen.immersive_ore_expedition.expedition_compass.empty_only_diagnostic";
     static final String ENTRY_TITLE_KEY = "screen.immersive_ore_expedition.expedition_compass.entry_title";
     static final String ENTRY_TITLE_DIAGNOSTIC_KEY = "screen.immersive_ore_expedition.expedition_compass.entry_title_diagnostic";
@@ -395,6 +396,7 @@ public final class ExpeditionCompassScreen extends Screen {
     private Component emptyText() {
         return switch (snapshot.emptyReason()) {
             case WORLDGEN_DISABLED -> Component.translatable(EMPTY_WORLDGEN_DISABLED_KEY);
+            case PROOF_FEATURE_DISABLED -> Component.translatable(EMPTY_PROOF_FEATURE_DISABLED_KEY);
             case ONLY_DEBUG_OR_PLANNED_SITES -> Component.translatable(EMPTY_ONLY_DIAGNOSTIC_KEY);
             case NO_PLACED_SITES -> Component.translatable(EMPTY_KEY);
         };

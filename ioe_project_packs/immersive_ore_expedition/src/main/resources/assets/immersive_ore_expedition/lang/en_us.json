@@ -14,6 +14,7 @@
   "screen.immersive_ore_expedition.expedition_compass.no_current_target": "Current target: none",
   "screen.immersive_ore_expedition.expedition_compass.empty": "No placed expedition sites found in this dimension.",
   "screen.immersive_ore_expedition.expedition_compass.empty_worldgen_disabled": "No placed expedition sites found. Worldgen runtime placement is disabled.",
+  "screen.immersive_ore_expedition.expedition_compass.empty_proof_feature_disabled": "No placed expedition sites found. Runtime proof feature placement is disabled.",
   "screen.immersive_ore_expedition.expedition_compass.empty_only_diagnostic": "Only debug or planned expedition sites are available.",
   "screen.immersive_ore_expedition.expedition_compass.entry_title": "%s",
   "screen.immersive_ore_expedition.expedition_compass.entry_title_diagnostic": "[%s] %s",

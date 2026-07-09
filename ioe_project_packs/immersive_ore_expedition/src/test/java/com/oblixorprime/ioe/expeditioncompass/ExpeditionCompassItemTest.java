@@ -8,6 +8,7 @@ import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSiteKind;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSitePlacementState;
+import com.oblixorprime.ioe.worldgen.IoeRuntimeProofFeatureGates;
 import com.oblixorprime.ioe.worldgen.IoeWorldgenPlacementGates;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -222,6 +223,40 @@ final class ExpeditionCompassItemTest {
         } finally {
             ExpeditionLocatorService.clearForTesting();
         }
+    }
+
+    @Test
+    void emptySnapshotReportsProofFeatureDisabledWhenRuntimePlacementIsEnabledButProofFeatureIsOff() {
+        ExpeditionCompassMenuSnapshot snapshot = ExpeditionCompassMenuSnapshot.fromIndex(
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                InteractionHand.MAIN_HAND,
+                Optional.empty(),
+                new ExpeditionLocatorIndex(),
+                false,
+                new IoeWorldgenPlacementGates(true, false, false),
+                IoeRuntimeProofFeatureGates.disabled()
+        );
+
+        assertEquals(ExpeditionCompassEmptyReason.PROOF_FEATURE_DISABLED, snapshot.emptyReason());
+        assertTrue(snapshot.entries().isEmpty());
+    }
+
+    @Test
+    void emptySnapshotReportsNoPlacedSitesWhenBothRuntimeGatesAreEnabledButNothingProvenYet() {
+        ExpeditionCompassMenuSnapshot snapshot = ExpeditionCompassMenuSnapshot.fromIndex(
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                InteractionHand.MAIN_HAND,
+                Optional.empty(),
+                new ExpeditionLocatorIndex(),
+                false,
+                new IoeWorldgenPlacementGates(true, false, false),
+                new IoeRuntimeProofFeatureGates(true, false)
+        );
+
+        assertEquals(ExpeditionCompassEmptyReason.NO_PLACED_SITES, snapshot.emptyReason());
+        assertTrue(snapshot.entries().isEmpty());
     }
 
     @Test

@@ -14,6 +14,7 @@
   "screen.immersive_ore_expedition.expedition_compass.no_current_target": "Cible actuelle : aucune",
   "screen.immersive_ore_expedition.expedition_compass.empty": "Aucun site d’expédition placé dans cette dimension.",
   "screen.immersive_ore_expedition.expedition_compass.empty_worldgen_disabled": "Aucun site d’expédition placé. Le placement runtime worldgen est désactivé.",
+  "screen.immersive_ore_expedition.expedition_compass.empty_proof_feature_disabled": "Aucun site d’expédition placé. Le placement runtime de preuve est désactivé.",
   "screen.immersive_ore_expedition.expedition_compass.empty_only_diagnostic": "Seuls des sites d’expédition debug ou planifiés sont disponibles.",
   "screen.immersive_ore_expedition.expedition_compass.entry_title": "%s",
   "screen.immersive_ore_expedition.expedition_compass.entry_title_diagnostic": "[%s] %s",

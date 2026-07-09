@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "#minecraft:is_overworld"
+    "minecraft:plains",
+    "minecraft:meadow",
+    "minecraft:stony_peaks"
   ]
 }

@@ -17,9 +17,6 @@ import java.util.Objects;
 public final class RuntimeWorldgenRegistrationSmokeBridgeFeature extends Feature<NoneFeatureConfiguration> {
     private static final RuntimeWorldgenPlacementProof PROOF = new RuntimeWorldgenPlacementProof();
     private static final ResourcePolicyService POLICY_SERVICE = new ResourcePolicyService();
-    private static final BlockState CENTER_STATE = Blocks.AMETHYST_BLOCK.defaultBlockState();
-    private static final BlockState RING_STATE = Blocks.COBBLESTONE.defaultBlockState();
-    private static final BlockState CAP_STATE = Blocks.OAK_PLANKS.defaultBlockState();
     private static final int BLOCK_UPDATE_FLAGS = 2;
 
     public RuntimeWorldgenRegistrationSmokeBridgeFeature() {
@@ -52,29 +49,20 @@ public final class RuntimeWorldgenRegistrationSmokeBridgeFeature extends Feature
                 placementGates
         );
         if (!readyResult.placementPathAllowed()) {
-            logPlacementResult(readyResult);
-            return false;
-        }
-
-        if (!placeTinyVerticalMineEntrance(context.level(), context.origin())) {
-            RuntimeWorldgenPlacementProofResult failedResult = RuntimeWorldgenPlacementProofResult.skipped(
-                    readyResult.anchorType(),
-                    readyResult.origin(),
-                    readyResult.siteQuality(),
-                    RuntimeWorldgenPlacementProof.DEFAULT_PROOF_RESOURCE,
-                    RuntimeWorldgenPlacementProofResult.SkipReason.WORLD_WRITE_FAILED,
-                    readyResult.anchorPlan().orElse(null),
-                    readyResult.resourceDecision().orElse(null),
-                    readyResult.diagnosticsEnabled()
+            return RuntimeWorldgenProofSiteRecorder.placeAndRecordProvenSite(
+                    context.level().getLevel().dimension(),
+                    readyResult,
+                    () -> false,
+                    ExpeditionLocatorService::recordPlacedProof
             );
-            logPlacementResult(failedResult);
-            return false;
         }
 
-        RuntimeWorldgenPlacementProofResult placedResult = RuntimeWorldgenPlacementProofResult.placed(readyResult);
-        ExpeditionLocatorService.recordPlacedProof(context.level().getLevel().dimension(), placedResult);
-        logPlacementResult(placedResult);
-        return true;
+        return RuntimeWorldgenProofSiteRecorder.placeAndRecordProvenSite(
+                context.level().getLevel().dimension(),
+                readyResult,
+                () -> placeTinyVerticalMineEntrance(context.level(), context.origin()),
+                ExpeditionLocatorService::recordPlacedProof
+        );
     }
 
     private static boolean placeTinyVerticalMineEntrance(WorldGenLevel level, BlockPos origin) {
@@ -85,14 +73,26 @@ public final class RuntimeWorldgenRegistrationSmokeBridgeFeature extends Feature
         for (int x = -1; x <= 1; x++) {
             for (int z = -1; z <= 1; z++) {
                 BlockPos pos = origin.offset(x, 0, z);
-                BlockState state = x == 0 && z == 0 ? CENTER_STATE : RING_STATE;
+                BlockState state = x == 0 && z == 0 ? centerState() : ringState();
                 if (!level.setBlock(pos, state, BLOCK_UPDATE_FLAGS)) {
                     return false;
                 }
             }
         }
-        level.setBlock(origin.above(), CAP_STATE, BLOCK_UPDATE_FLAGS);
+        level.setBlock(origin.above(), capState(), BLOCK_UPDATE_FLAGS);
         return true;
+    }
+
+    private static BlockState centerState() {
+        return Blocks.CALCITE.defaultBlockState();
+    }
+
+    private static BlockState ringState() {
+        return Blocks.COBBLESTONE.defaultBlockState();
+    }
+
+    private static BlockState capState() {
+        return Blocks.OAK_PLANKS.defaultBlockState();
     }
 
     private static boolean canPlaceFootprint(WorldGenLevel level, BlockPos origin) {
@@ -106,26 +106,6 @@ public final class RuntimeWorldgenRegistrationSmokeBridgeFeature extends Feature
         }
         BlockPos capPos = origin.above();
         return level.ensureCanWrite(capPos) && level.isEmptyBlock(capPos);
-    }
-
-    private static void logPlacementResult(RuntimeWorldgenPlacementProofResult result) {
-        if (!result.diagnosticsEnabled()) {
-            return;
-        }
-        if (result.blockPlaced()) {
-            IoeExpeditionWorldgenMod.LOGGER.info(
-                    "IOE runtime expedition site proven id={} pos={} state=proven source=biome_feature",
-                    result.anchorType(),
-                    result.origin()
-            );
-        } else {
-            IoeExpeditionWorldgenMod.LOGGER.info(
-                    "IOE runtime expedition site skipped id={} pos={} reason={} source=biome_feature",
-                    result.anchorType(),
-                    result.origin(),
-                    result.skipReason()
-            );
-        }
     }
 
     private static void logSkipped(

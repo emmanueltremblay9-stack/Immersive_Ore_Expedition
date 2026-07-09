@@ -32,6 +32,7 @@ final class ExpeditionCompassResourceTest {
             "screen.immersive_ore_expedition.expedition_compass.no_current_target",
             "screen.immersive_ore_expedition.expedition_compass.empty",
             "screen.immersive_ore_expedition.expedition_compass.empty_worldgen_disabled",
+            "screen.immersive_ore_expedition.expedition_compass.empty_proof_feature_disabled",
             "screen.immersive_ore_expedition.expedition_compass.empty_only_diagnostic",
             "screen.immersive_ore_expedition.expedition_compass.entry_title",
             "screen.immersive_ore_expedition.expedition_compass.entry_title_diagnostic",

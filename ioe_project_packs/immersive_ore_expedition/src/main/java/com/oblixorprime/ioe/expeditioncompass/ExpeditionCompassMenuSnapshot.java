@@ -2,6 +2,7 @@ package com.oblixorprime.ioe.expeditioncompass;
 
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
+import com.oblixorprime.ioe.worldgen.IoeRuntimeProofFeatureGates;
 import com.oblixorprime.ioe.worldgen.IoeWorldgenPlacementGates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -56,7 +57,8 @@ public record ExpeditionCompassMenuSnapshot(
                 currentTarget,
                 locatorIndex,
                 false,
-                IoeWorldgenPlacementGates.fromConfig()
+                IoeWorldgenPlacementGates.fromConfig(),
+                IoeRuntimeProofFeatureGates.fromConfig()
         );
     }
 
@@ -68,6 +70,28 @@ public record ExpeditionCompassMenuSnapshot(
             ExpeditionLocatorIndex locatorIndex,
             boolean includeDiagnosticSites,
             IoeWorldgenPlacementGates placementGates
+    ) {
+        return fromIndex(
+                dimension,
+                origin,
+                hand,
+                currentTarget,
+                locatorIndex,
+                includeDiagnosticSites,
+                placementGates,
+                IoeRuntimeProofFeatureGates.fromConfig()
+        );
+    }
+
+    public static ExpeditionCompassMenuSnapshot fromIndex(
+            ResourceKey<Level> dimension,
+            BlockPos origin,
+            InteractionHand hand,
+            Optional<ExpeditionCompassTarget> currentTarget,
+            ExpeditionLocatorIndex locatorIndex,
+            boolean includeDiagnosticSites,
+            IoeWorldgenPlacementGates placementGates,
+            IoeRuntimeProofFeatureGates proofFeatureGates
     ) {
         Objects.requireNonNull(dimension, "dimension");
         Objects.requireNonNull(origin, "origin");
@@ -89,7 +113,7 @@ public record ExpeditionCompassMenuSnapshot(
                 dimension,
                 hand,
                 validCurrentTarget(currentTarget, locatorIndex),
-                emptyReason(dimension, locatorIndex, placementGates),
+                emptyReason(dimension, locatorIndex, placementGates, proofFeatureGates),
                 entries
         );
     }
@@ -180,7 +204,8 @@ public record ExpeditionCompassMenuSnapshot(
     private static ExpeditionCompassEmptyReason emptyReason(
             ResourceKey<Level> dimension,
             ExpeditionLocatorIndex locatorIndex,
-            IoeWorldgenPlacementGates placementGates
+            IoeWorldgenPlacementGates placementGates,
+            IoeRuntimeProofFeatureGates proofFeatureGates
     ) {
         boolean hasPlayableSites = locatorIndex.sites().stream()
                 .anyMatch(site -> site.dimension().equals(dimension));
@@ -194,6 +219,9 @@ public record ExpeditionCompassMenuSnapshot(
         }
         if (placementGates == null || placementGates.shouldNoOpRuntimePlacement()) {
             return ExpeditionCompassEmptyReason.WORLDGEN_DISABLED;
+        }
+        if (proofFeatureGates == null || proofFeatureGates.shouldNoOpRuntimeProofFeature()) {
+            return ExpeditionCompassEmptyReason.PROOF_FEATURE_DISABLED;
         }
         return ExpeditionCompassEmptyReason.NO_PLACED_SITES;
     }
