@@ -2,6 +2,8 @@ package com.oblixorprime.ioe.expeditioncompass;
 
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
+import com.oblixorprime.ioe.worldgen.IoeRuntimeProofFeatureGates;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenPlacementGates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -21,6 +23,7 @@ public record ExpeditionCompassMenuSnapshot(
         ResourceKey<Level> dimension,
         InteractionHand hand,
         Optional<ExpeditionCompassTarget> currentTarget,
+        ExpeditionCompassEmptyReason emptyReason,
         List<ExpeditionCompassMenuEntry> entries
 ) {
     static final int MAX_MENU_ENTRIES = 128;
@@ -32,6 +35,7 @@ public record ExpeditionCompassMenuSnapshot(
         Objects.requireNonNull(dimension, "dimension");
         Objects.requireNonNull(hand, "hand");
         currentTarget = currentTarget == null ? Optional.empty() : currentTarget;
+        emptyReason = emptyReason == null ? ExpeditionCompassEmptyReason.NO_PLACED_SITES : emptyReason;
         Objects.requireNonNull(entries, "entries");
         if (entries.size() > MAX_MENU_ENTRIES) {
             throw new IllegalArgumentException("entries must not exceed " + MAX_MENU_ENTRIES);
@@ -46,20 +50,72 @@ public record ExpeditionCompassMenuSnapshot(
             Optional<ExpeditionCompassTarget> currentTarget,
             ExpeditionLocatorIndex locatorIndex
     ) {
+        return fromIndex(
+                dimension,
+                origin,
+                hand,
+                currentTarget,
+                locatorIndex,
+                false,
+                IoeWorldgenPlacementGates.fromConfig(),
+                IoeRuntimeProofFeatureGates.fromConfig()
+        );
+    }
+
+    public static ExpeditionCompassMenuSnapshot fromIndex(
+            ResourceKey<Level> dimension,
+            BlockPos origin,
+            InteractionHand hand,
+            Optional<ExpeditionCompassTarget> currentTarget,
+            ExpeditionLocatorIndex locatorIndex,
+            boolean includeDiagnosticSites,
+            IoeWorldgenPlacementGates placementGates
+    ) {
+        return fromIndex(
+                dimension,
+                origin,
+                hand,
+                currentTarget,
+                locatorIndex,
+                includeDiagnosticSites,
+                placementGates,
+                IoeRuntimeProofFeatureGates.fromConfig()
+        );
+    }
+
+    public static ExpeditionCompassMenuSnapshot fromIndex(
+            ResourceKey<Level> dimension,
+            BlockPos origin,
+            InteractionHand hand,
+            Optional<ExpeditionCompassTarget> currentTarget,
+            ExpeditionLocatorIndex locatorIndex,
+            boolean includeDiagnosticSites,
+            IoeWorldgenPlacementGates placementGates,
+            IoeRuntimeProofFeatureGates proofFeatureGates
+    ) {
         Objects.requireNonNull(dimension, "dimension");
         Objects.requireNonNull(origin, "origin");
         Objects.requireNonNull(hand, "hand");
         Objects.requireNonNull(currentTarget, "currentTarget");
         Objects.requireNonNull(locatorIndex, "locatorIndex");
 
-        List<ExpeditionCompassMenuEntry> entries = locatorIndex.sites().stream()
+        List<ExpeditionSite> sourceSites = includeDiagnosticSites
+                ? locatorIndex.diagnosticSites()
+                : locatorIndex.sites();
+        List<ExpeditionCompassMenuEntry> entries = sourceSites.stream()
                 .filter(site -> site.dimension().equals(dimension))
                 .map(site -> entryFromSite(site, origin))
                 .sorted(entryComparator())
                 .limit(MAX_MENU_ENTRIES)
                 .toList();
 
-        return new ExpeditionCompassMenuSnapshot(dimension, hand, currentTarget, entries);
+        return new ExpeditionCompassMenuSnapshot(
+                dimension,
+                hand,
+                validCurrentTarget(currentTarget, locatorIndex),
+                emptyReason(dimension, locatorIndex, placementGates, proofFeatureGates),
+                entries
+        );
     }
 
     public Optional<ExpeditionCompassMenuEntry> matchingEntry(ExpeditionCompassTarget requestedTarget) {
@@ -72,6 +128,17 @@ public record ExpeditionCompassMenuSnapshot(
     private static ExpeditionCompassMenuEntry entryFromSite(ExpeditionSite site, BlockPos origin) {
         ExpeditionCompassTarget target = ExpeditionCompassTarget.fromSite(site);
         return new ExpeditionCompassMenuEntry(target, target.distanceBlocksFrom(origin));
+    }
+
+    private static Optional<ExpeditionCompassTarget> validCurrentTarget(
+            Optional<ExpeditionCompassTarget> currentTarget,
+            ExpeditionLocatorIndex locatorIndex
+    ) {
+        return currentTarget
+                .filter(ExpeditionCompassTarget::playable)
+                .filter(target -> locatorIndex.sites().stream()
+                        .map(ExpeditionCompassTarget::fromSite)
+                        .anyMatch(target::equals));
     }
 
     private static Comparator<ExpeditionCompassMenuEntry> entryComparator() {
@@ -93,6 +160,7 @@ public record ExpeditionCompassMenuSnapshot(
                 buffer.readResourceKey(Registries.DIMENSION),
                 buffer.readEnum(InteractionHand.class),
                 readOptionalTarget(buffer),
+                buffer.readEnum(ExpeditionCompassEmptyReason.class),
                 readEntries(buffer)
         );
     }
@@ -102,6 +170,7 @@ public record ExpeditionCompassMenuSnapshot(
         buffer.writeEnum(hand);
         buffer.writeBoolean(currentTarget.isPresent());
         currentTarget.ifPresent(target -> ExpeditionCompassTarget.STREAM_CODEC.encode(buffer, target));
+        buffer.writeEnum(emptyReason);
         buffer.writeVarInt(entries.size());
         for (ExpeditionCompassMenuEntry entry : entries) {
             ExpeditionCompassMenuEntry.STREAM_CODEC.encode(buffer, entry);
@@ -130,5 +199,30 @@ public record ExpeditionCompassMenuSnapshot(
 
     private static String locationKey(Optional<ResourceLocation> id) {
         return id.map(ResourceLocation::toString).orElse("");
+    }
+
+    private static ExpeditionCompassEmptyReason emptyReason(
+            ResourceKey<Level> dimension,
+            ExpeditionLocatorIndex locatorIndex,
+            IoeWorldgenPlacementGates placementGates,
+            IoeRuntimeProofFeatureGates proofFeatureGates
+    ) {
+        boolean hasPlayableSites = locatorIndex.sites().stream()
+                .anyMatch(site -> site.dimension().equals(dimension));
+        if (hasPlayableSites) {
+            return ExpeditionCompassEmptyReason.NO_PLACED_SITES;
+        }
+        boolean hasDiagnosticSites = locatorIndex.diagnosticSites().stream()
+                .anyMatch(site -> site.dimension().equals(dimension));
+        if (hasDiagnosticSites) {
+            return ExpeditionCompassEmptyReason.ONLY_DEBUG_OR_PLANNED_SITES;
+        }
+        if (placementGates == null || placementGates.shouldNoOpRuntimePlacement()) {
+            return ExpeditionCompassEmptyReason.WORLDGEN_DISABLED;
+        }
+        if (proofFeatureGates == null || proofFeatureGates.shouldNoOpRuntimeProofFeature()) {
+            return ExpeditionCompassEmptyReason.PROOF_FEATURE_DISABLED;
+        }
+        return ExpeditionCompassEmptyReason.NO_PLACED_SITES;
     }
 }

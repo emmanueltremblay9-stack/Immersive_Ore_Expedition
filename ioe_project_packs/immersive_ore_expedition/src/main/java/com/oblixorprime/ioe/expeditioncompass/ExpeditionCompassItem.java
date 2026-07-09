@@ -68,7 +68,7 @@ public class ExpeditionCompassItem extends CompassItem {
                         serverPlayer,
                         usedHand,
                         stack,
-                        ExpeditionLocatorService.index()
+                        ExpeditionLocatorService.compassIndex(serverPlayer.level().dimension(), serverPlayer.blockPosition())
                 );
             }
         }
@@ -91,6 +91,9 @@ public class ExpeditionCompassItem extends CompassItem {
     static void setTarget(ItemStack stack, ExpeditionCompassTarget target) {
         Objects.requireNonNull(stack, "stack");
         Objects.requireNonNull(target, "target");
+        if (!target.playable()) {
+            throw new IllegalArgumentException("Expedition compass targets must be backed by placed expedition sites");
+        }
         stack.set(IoeCompassDataComponents.targetComponent(), target);
         stack.set(DataComponents.LODESTONE_TRACKER, target.asUntrackedLodestoneTracker());
     }

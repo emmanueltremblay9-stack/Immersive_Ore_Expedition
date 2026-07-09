@@ -203,14 +203,14 @@ final class OreLoadChamberPlacementPlannerTest {
     void scaffoldBootstrapRemainsScaffoldOnlyWithChamberPlanningMetadata() {
         IoeWorldgenRegistration registration = IoeWorldgenBootstrap.bootstrap();
 
-        assertTrue(registration.scaffoldOnly());
+        assertFalse(registration.scaffoldOnly());
         assertTrue(registration.runtimePlacementNoOp());
         assertTrue(registration.anchorPlacementPlanningReady());
         assertTrue(registration.oreLoadChamberPlacementPlanningReady());
         assertEquals(IoeWorldgenFeatureKeys.oreLoadChamberFeatureKeys(), registration.oreLoadChamberPlacementPlanKeys());
-        assertFalse(registration.configuredFeaturesRegistered());
-        assertFalse(registration.placedFeaturesRegistered());
-        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.configuredFeaturesRegistered());
+        assertTrue(registration.placedFeaturesRegistered());
+        assertTrue(registration.biomeModifiersRegistered());
     }
 
     @Test

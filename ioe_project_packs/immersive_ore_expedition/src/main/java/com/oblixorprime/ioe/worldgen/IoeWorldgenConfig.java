@@ -36,6 +36,10 @@ public final class IoeWorldgenConfig {
         return ImmersiveOreExpeditionConfig.worldgenRuntimeProofFeatureDiagnostics();
     }
 
+    public static boolean compassShowDiagnosticSites() {
+        return ImmersiveOreExpeditionConfig.worldgenCompassShowDiagnosticSites();
+    }
+
     public static int oreLoadMinDistanceFromAnchor() {
         return ImmersiveOreExpeditionConfig.worldgenOreLoadMinDistanceFromAnchor();
     }

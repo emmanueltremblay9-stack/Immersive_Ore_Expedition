@@ -104,7 +104,7 @@ class IoeAdminCommandsTest {
         assertTrue(output.contains("runtimeWorldgenEnabled=false"));
         assertTrue(output.contains("provinceRuntimeIntegrationEnabled=false"));
         assertTrue(output.contains("planning-only"));
-        assertTrue(output.contains("No visible world or JourneyMap changes are expected"));
+        assertTrue(output.contains("visible world and JourneyMap targets require runtime placement gates"));
     }
 
     @Test

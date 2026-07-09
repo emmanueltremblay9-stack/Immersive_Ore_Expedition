@@ -382,7 +382,7 @@ final class CrystalSitePlacementPlannerTest {
     void scaffoldBootstrapRemainsScaffoldOnlyWithCrystalSiteMetadata() {
         IoeWorldgenRegistration registration = IoeWorldgenBootstrap.bootstrap();
 
-        assertTrue(registration.scaffoldOnly());
+        assertFalse(registration.scaffoldOnly());
         assertTrue(registration.runtimePlacementNoOp());
         assertTrue(registration.anchorPlacementPlanningReady());
         assertTrue(registration.oreLoadChamberPlacementPlanningReady());
@@ -390,9 +390,9 @@ final class CrystalSitePlacementPlannerTest {
         assertTrue(registration.liveBiomeProvinceBindingPlanningReady());
         assertTrue(registration.ieIpSurfaceCluePlacementPlanningReady());
         assertTrue(registration.crystalAe2SitePlacementPlanningReady());
-        assertFalse(registration.configuredFeaturesRegistered());
-        assertFalse(registration.placedFeaturesRegistered());
-        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.configuredFeaturesRegistered());
+        assertTrue(registration.placedFeaturesRegistered());
+        assertTrue(registration.biomeModifiersRegistered());
     }
 
     @Test

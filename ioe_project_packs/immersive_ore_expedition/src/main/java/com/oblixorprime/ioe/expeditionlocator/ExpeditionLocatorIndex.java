@@ -45,7 +45,9 @@ public final class ExpeditionLocatorIndex {
                 result.anchorType(),
                 provinceId,
                 result.siteQuality(),
-                RUNTIME_PLACEMENT_PROOF_SOURCE
+                RUNTIME_PLACEMENT_PROOF_SOURCE,
+                ExpeditionSitePlacementState.PROVEN,
+                null
         );
         record(anchorSite);
 
@@ -56,7 +58,9 @@ public final class ExpeditionLocatorIndex {
                     result.anchorType(),
                     provinceId,
                     result.siteQuality(),
-                    RUNTIME_PLACEMENT_PROOF_SOURCE
+                    RUNTIME_PLACEMENT_PROOF_SOURCE,
+                    ExpeditionSitePlacementState.PROVEN,
+                    null
             ));
         }
     }
@@ -76,17 +80,22 @@ public final class ExpeditionLocatorIndex {
         Objects.requireNonNull(dimension, "dimension");
         Objects.requireNonNull(origin, "origin");
         List<ExpeditionSite> candidates = sites.values().stream()
+                .filter(ExpeditionSite::playable)
                 .filter(site -> site.kind() == kind)
                 .toList();
         return nearestFrom(dimension, origin, candidates);
     }
 
     public synchronized List<ExpeditionSite> sites() {
+        return gameplaySites();
+    }
+
+    public synchronized List<ExpeditionSite> diagnosticSites() {
         return List.copyOf(sites.values());
     }
 
     public synchronized int size() {
-        return sites.size();
+        return gameplaySites().size();
     }
 
     public synchronized void clear() {
@@ -108,10 +117,17 @@ public final class ExpeditionLocatorIndex {
             Collection<ExpeditionSite> candidates
     ) {
         return candidates.stream()
+                .filter(ExpeditionSite::playable)
                 .filter(site -> site.dimension().equals(dimension))
                 .min(nearestComparator(origin))
                 .map(site -> ExpeditionLocatorResult.found(site, distanceSquared(origin, site.pos())))
                 .orElseGet(ExpeditionLocatorResult::noIndexedSites);
+    }
+
+    private List<ExpeditionSite> gameplaySites() {
+        return sites.values().stream()
+                .filter(ExpeditionSite::playable)
+                .toList();
     }
 
     private static Comparator<ExpeditionSite> nearestComparator(BlockPos origin) {
@@ -138,7 +154,9 @@ public final class ExpeditionLocatorIndex {
             ExpeditionSiteKind kind,
             Optional<ResourceLocation> anchorId,
             Optional<ResourceLocation> provinceId,
-            Optional<String> source
+            Optional<String> source,
+            ExpeditionSitePlacementState placementState,
+            Optional<String> placementReason
     ) {
         private static SiteKey from(ExpeditionSite site) {
             return new SiteKey(
@@ -147,7 +165,9 @@ public final class ExpeditionLocatorIndex {
                     site.kind(),
                     site.anchorId(),
                     site.provinceId(),
-                    site.source()
+                    site.source(),
+                    site.placementState(),
+                    site.placementReason()
             );
         }
     }

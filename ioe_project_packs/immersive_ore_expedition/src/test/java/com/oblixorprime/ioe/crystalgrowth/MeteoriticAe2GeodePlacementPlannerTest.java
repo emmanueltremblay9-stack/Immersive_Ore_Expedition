@@ -465,14 +465,14 @@ final class MeteoriticAe2GeodePlacementPlannerTest {
     void scaffoldBootstrapRemainsScaffoldOnlyWithMeteoriticAe2GeodeMetadata() {
         IoeWorldgenRegistration registration = IoeWorldgenBootstrap.bootstrap();
 
-        assertTrue(registration.scaffoldOnly());
+        assertFalse(registration.scaffoldOnly());
         assertTrue(registration.runtimePlacementNoOp());
         assertTrue(registration.crystalAe2SitePlacementPlanningReady());
         assertTrue(registration.meteoriticAe2GeodePlacementPlanningReady());
         assertTrue(registration.futureFeatureKeys().contains(IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE));
-        assertFalse(registration.configuredFeaturesRegistered());
-        assertFalse(registration.placedFeaturesRegistered());
-        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.configuredFeaturesRegistered());
+        assertTrue(registration.placedFeaturesRegistered());
+        assertTrue(registration.biomeModifiersRegistered());
     }
 
     @Test

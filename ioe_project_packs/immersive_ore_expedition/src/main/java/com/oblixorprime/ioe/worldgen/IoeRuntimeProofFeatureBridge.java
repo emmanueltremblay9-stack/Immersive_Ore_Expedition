@@ -35,7 +35,7 @@ final class IoeRuntimeProofFeatureBridge {
     ) {
         Objects.requireNonNull(bridgeGates, "bridgeGates");
         Objects.requireNonNull(placementGates, "placementGates");
-        return false;
+        return shouldInvokeProof(bridgeGates, placementGates);
     }
 
     private static void registerFeatures(RegisterEvent event) {

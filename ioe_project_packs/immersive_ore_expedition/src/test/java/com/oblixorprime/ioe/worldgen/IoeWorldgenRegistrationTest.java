@@ -35,24 +35,24 @@ final class IoeWorldgenRegistrationTest {
     );
 
     @Test
-    void bootstrapCreatesScaffoldOnlyRegistration() {
+    void bootstrapCreatesActiveGatedWorldgenRegistration() {
         IoeWorldgenRegistration registration = IoeWorldgenBootstrap.bootstrap();
 
-        assertTrue(registration.scaffoldOnly());
+        assertFalse(registration.scaffoldOnly());
         assertTrue(registration.runtimePlacementNoOp());
         assertFalse(registration.customFeaturesRegistered());
-        assertFalse(registration.configuredFeaturesRegistered());
-        assertFalse(registration.placedFeaturesRegistered());
-        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.configuredFeaturesRegistered());
+        assertTrue(registration.placedFeaturesRegistered());
+        assertTrue(registration.biomeModifiersRegistered());
         assertTrue(registration.configuredFeatureDeclarationPresent());
         assertTrue(registration.placedFeatureDeclarationPresent());
         assertTrue(registration.biomeModifierDeclarationPresent());
         assertTrue(registration.smokeBiomeTagDeclarationPresent());
-        assertFalse(registration.realBiomeBindingByDefault());
+        assertTrue(registration.realBiomeBindingByDefault());
         assertTrue(registration.runtimeBiomeInvocationExternalTagOptInPossible());
         assertTrue(registration.datapackResourceJsonPresent());
-        assertFalse(registration.runtimeBiomeBindingPresent());
-        assertFalse(registration.livePlacementProofComplete());
+        assertTrue(registration.runtimeBiomeBindingPresent());
+        assertTrue(registration.livePlacementProofComplete());
         assertTrue(registration.futureFeatureKeys().contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER));
     }
 
@@ -65,18 +65,18 @@ final class IoeWorldgenRegistrationTest {
 
         assertFalse(registration.scaffoldOnly());
         assertTrue(registration.customFeaturesRegistered());
-        assertFalse(registration.configuredFeaturesRegistered());
-        assertFalse(registration.placedFeaturesRegistered());
-        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.configuredFeaturesRegistered());
+        assertTrue(registration.placedFeaturesRegistered());
+        assertTrue(registration.biomeModifiersRegistered());
         assertTrue(registration.configuredFeatureDeclarationPresent());
         assertTrue(registration.placedFeatureDeclarationPresent());
         assertTrue(registration.biomeModifierDeclarationPresent());
         assertTrue(registration.smokeBiomeTagDeclarationPresent());
-        assertFalse(registration.realBiomeBindingByDefault());
+        assertTrue(registration.realBiomeBindingByDefault());
         assertTrue(registration.runtimeBiomeInvocationExternalTagOptInPossible());
         assertTrue(registration.datapackResourceJsonPresent());
-        assertFalse(registration.runtimeBiomeBindingPresent());
-        assertFalse(registration.livePlacementProofComplete());
+        assertTrue(registration.runtimeBiomeBindingPresent());
+        assertTrue(registration.livePlacementProofComplete());
     }
 
     @Test
@@ -90,41 +90,45 @@ final class IoeWorldgenRegistrationTest {
     }
 
     @Test
-    void placedFeatureDeclarationReferencesConfiguredFeatureWithoutPlacementModifiers() throws IOException {
+    void placedFeatureDeclarationReferencesConfiguredFeatureWithNaturalSurfacePlacement() throws IOException {
         String json = readClasspathResource(
                 "data/immersive_ore_expedition/worldgen/placed_feature/tiny_vertical_mine_entrance.json"
         );
 
         assertTrue(json.contains("\"feature\": \"immersive_ore_expedition:tiny_vertical_mine_entrance\""));
-        assertTrue(json.contains("\"placement\": []"));
+        assertTrue(json.contains("\"type\": \"minecraft:rarity_filter\""));
+        assertTrue(json.contains("\"type\": \"minecraft:in_square\""));
+        assertTrue(json.contains("\"type\": \"minecraft:heightmap\""));
+        assertTrue(json.contains("\"heightmap\": \"WORLD_SURFACE_WG\""));
+        assertTrue(json.contains("\"type\": \"minecraft:biome\""));
     }
 
     @Test
-    void biomeModifierDeclarationReferencesOnlySmokeTagAndPlacedFeature() throws IOException {
+    void biomeModifierDeclarationReferencesGameplayBiomeTagAndPlacedFeature() throws IOException {
         String json = readClasspathResource(
-                "data/immersive_ore_expedition/neoforge/biome_modifier/tiny_vertical_mine_entrance_smoke_bridge.json"
+                "data/immersive_ore_expedition/neoforge/biome_modifier/tiny_vertical_mine_entrance.json"
         );
 
         assertTrue(json.contains("\"type\": \"neoforge:add_features\""));
-        assertTrue(json.contains("\"biomes\": \"#immersive_ore_expedition:worldgen_smoke_test_biomes\""));
+        assertTrue(json.contains("\"biomes\": \"#immersive_ore_expedition:expedition_site_biomes\""));
         assertTrue(json.contains("\"features\": \"immersive_ore_expedition:tiny_vertical_mine_entrance\""));
         assertTrue(json.contains("\"step\": \"surface_structures\""));
-        assertFalse(json.contains("#minecraft:is_overworld"));
         assertFalse(json.contains("#c:is_overworld"));
         assertFalse(json.contains("minecraft:plains"));
         assertFalse(json.contains("underground_ores"));
     }
 
     @Test
-    void smokeBiomeTagBindsZeroBiomesByDefault() throws IOException {
+    void expeditionSiteBiomeTagBindsSparseEligibleOverworldBiomes() throws IOException {
         String json = readClasspathResource(
-                "data/immersive_ore_expedition/tags/worldgen/biome/worldgen_smoke_test_biomes.json"
+                "data/immersive_ore_expedition/tags/worldgen/biome/expedition_site_biomes.json"
         );
 
         assertTrue(json.contains("\"replace\": false"));
-        assertTrue(json.contains("\"values\": []"));
-        assertFalse(json.contains("minecraft:"));
-        assertFalse(json.contains("#minecraft:"));
+        assertTrue(json.contains("\"minecraft:plains\""));
+        assertTrue(json.contains("\"minecraft:meadow\""));
+        assertTrue(json.contains("\"minecraft:stony_peaks\""));
+        assertFalse(json.contains("#minecraft:is_overworld"));
         assertFalse(json.contains("#c:"));
     }
 
@@ -132,13 +136,13 @@ final class IoeWorldgenRegistrationTest {
     void statusModelDistinguishesBiomeModifierDeclarationFromRealBiomeBinding() {
         IoeWorldgenRegistration registration = IoeWorldgenBootstrap.bootstrap();
 
-        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.biomeModifiersRegistered());
         assertTrue(registration.biomeModifierDeclarationPresent());
         assertTrue(registration.smokeBiomeTagDeclarationPresent());
-        assertFalse(registration.realBiomeBindingByDefault());
+        assertTrue(registration.realBiomeBindingByDefault());
         assertTrue(registration.runtimeBiomeInvocationExternalTagOptInPossible());
-        assertFalse(registration.runtimeBiomeBindingPresent());
-        assertFalse(registration.livePlacementProofComplete());
+        assertTrue(registration.runtimeBiomeBindingPresent());
+        assertTrue(registration.livePlacementProofComplete());
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSiteKind;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionSitePlacementState;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -26,7 +27,9 @@ public record ExpeditionCompassTarget(
         Optional<ResourceLocation> anchorId,
         Optional<ResourceLocation> provinceId,
         Optional<SiteQuality> quality,
-        Optional<String> source
+        Optional<String> source,
+        ExpeditionSitePlacementState placementState,
+        Optional<String> placementReason
 ) {
     private static final Codec<SiteQuality> SITE_QUALITY_CODEC =
             Codec.STRING.xmap(SiteQuality::valueOf, SiteQuality::name);
@@ -38,7 +41,11 @@ public record ExpeditionCompassTarget(
             ResourceLocation.CODEC.optionalFieldOf("anchor_id").forGetter(ExpeditionCompassTarget::anchorId),
             ResourceLocation.CODEC.optionalFieldOf("province_id").forGetter(ExpeditionCompassTarget::provinceId),
             SITE_QUALITY_CODEC.optionalFieldOf("quality").forGetter(ExpeditionCompassTarget::quality),
-            Codec.STRING.optionalFieldOf("source").forGetter(ExpeditionCompassTarget::source)
+            Codec.STRING.optionalFieldOf("source").forGetter(ExpeditionCompassTarget::source),
+            ExpeditionSitePlacementState.CODEC
+                    .optionalFieldOf("placement_state", ExpeditionSitePlacementState.PLACED)
+                    .forGetter(ExpeditionCompassTarget::placementState),
+            Codec.STRING.optionalFieldOf("placement_reason").forGetter(ExpeditionCompassTarget::placementReason)
     ).apply(instance, ExpeditionCompassTarget::new));
 
     public static final StreamCodec<ByteBuf, ExpeditionCompassTarget> STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC);
@@ -51,6 +58,32 @@ public record ExpeditionCompassTarget(
         provinceId = provinceId == null ? Optional.empty() : provinceId;
         quality = quality == null ? Optional.empty() : quality;
         source = source == null ? Optional.empty() : source.map(String::trim).filter(value -> !value.isBlank());
+        placementState = placementState == null ? ExpeditionSitePlacementState.PLACED : placementState;
+        placementReason = placementReason == null
+                ? Optional.empty()
+                : placementReason.map(String::trim).filter(value -> !value.isBlank());
+    }
+
+    public ExpeditionCompassTarget(
+            ResourceKey<Level> dimension,
+            BlockPos pos,
+            ExpeditionSiteKind kind,
+            Optional<ResourceLocation> anchorId,
+            Optional<ResourceLocation> provinceId,
+            Optional<SiteQuality> quality,
+            Optional<String> source
+    ) {
+        this(
+                dimension,
+                pos,
+                kind,
+                anchorId,
+                provinceId,
+                quality,
+                source,
+                ExpeditionSitePlacementState.PLACED,
+                Optional.empty()
+        );
     }
 
     public static ExpeditionCompassTarget fromSite(ExpeditionSite site) {
@@ -62,7 +95,9 @@ public record ExpeditionCompassTarget(
                 site.anchorId(),
                 site.provinceId(),
                 site.quality(),
-                site.source()
+                site.source(),
+                site.placementState(),
+                site.placementReason()
         );
     }
 
@@ -71,6 +106,24 @@ public record ExpeditionCompassTarget(
             case ANCHOR -> anchorId;
             case PROVINCE -> provinceId;
         };
+    }
+
+    public String displayName() {
+        return primaryId()
+                .map(ExpeditionCompassTarget::readableIdPath)
+                .orElseGet(() -> readableWords(kind.messageLabel()));
+    }
+
+    public String coordinateText() {
+        return pos.getX() + " " + pos.getY() + " " + pos.getZ();
+    }
+
+    public String waypointName() {
+        return "IOE " + displayName();
+    }
+
+    public boolean playable() {
+        return placementState.playable();
     }
 
     public long distanceBlocksFrom(BlockPos origin) {
@@ -83,5 +136,34 @@ public record ExpeditionCompassTarget(
 
     public LodestoneTracker asUntrackedLodestoneTracker() {
         return new LodestoneTracker(Optional.of(GlobalPos.of(dimension, pos)), false);
+    }
+
+    private static String readableIdPath(ResourceLocation id) {
+        return readableWords(id.getPath());
+    }
+
+    private static String readableWords(String value) {
+        String normalized = value.replace('_', ' ').replace('-', ' ').trim();
+        if (normalized.isEmpty()) {
+            return "Unknown";
+        }
+
+        StringBuilder builder = new StringBuilder(normalized.length());
+        boolean capitalizeNext = true;
+        for (int index = 0; index < normalized.length(); index++) {
+            char character = normalized.charAt(index);
+            if (Character.isWhitespace(character)) {
+                if (!builder.isEmpty() && builder.charAt(builder.length() - 1) != ' ') {
+                    builder.append(' ');
+                }
+                capitalizeNext = true;
+            } else if (capitalizeNext) {
+                builder.append(Character.toUpperCase(character));
+                capitalizeNext = false;
+            } else {
+                builder.append(character);
+            }
+        }
+        return builder.toString();
     }
 }

@@ -482,14 +482,14 @@ final class NetherSubLavaGeodePlacementPlannerTest {
     void scaffoldBootstrapRemainsScaffoldOnlyWithNetherSubLavaGeodeMetadata() {
         IoeWorldgenRegistration registration = IoeWorldgenBootstrap.bootstrap();
 
-        assertTrue(registration.scaffoldOnly());
+        assertFalse(registration.scaffoldOnly());
         assertTrue(registration.runtimePlacementNoOp());
         assertTrue(registration.meteoriticAe2GeodePlacementPlanningReady());
         assertTrue(registration.netherSubLavaGeodePlacementPlanningReady());
         assertTrue(registration.futureFeatureKeys().contains(IoeWorldgenFeatureKeys.SUB_LAVA_GEODE));
-        assertFalse(registration.configuredFeaturesRegistered());
-        assertFalse(registration.placedFeaturesRegistered());
-        assertFalse(registration.biomeModifiersRegistered());
+        assertTrue(registration.configuredFeaturesRegistered());
+        assertTrue(registration.placedFeaturesRegistered());
+        assertTrue(registration.biomeModifiersRegistered());
     }
 
     @Test
