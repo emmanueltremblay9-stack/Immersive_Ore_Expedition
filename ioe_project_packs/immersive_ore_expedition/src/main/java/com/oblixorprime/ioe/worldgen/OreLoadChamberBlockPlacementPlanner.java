@@ -42,6 +42,12 @@ public final class OreLoadChamberBlockPlacementPlanner {
                     OreLoadChamberBlockPlacementPlan.SkipReason.MISSING_CHAMBER_METADATA
             );
         }
+        if (!chamberPlan.siteQuality().isProductive()) {
+            return OreLoadChamberBlockPlacementPlan.skipped(
+                    chamberPlan,
+                    OreLoadChamberBlockPlacementPlan.SkipReason.DRY_SITE
+            );
+        }
 
         List<OreLoadChamberBlockPlacementPlan.OreBlockTarget> targets =
                 targetsFor(chamberPlan.chamberCenter(), resource, chamberPlan.chamberMetadata().orElseThrow());
@@ -70,7 +76,8 @@ public final class OreLoadChamberBlockPlacementPlanner {
         for (int dy = -verticalHalfSize; dy <= verticalHalfSize; dy++) {
             for (int dx = -horizontalRadius; dx <= horizontalRadius; dx++) {
                 for (int dz = -horizontalRadius; dz <= horizontalRadius; dz++) {
-                    if (insideChamberEnvelope(dx, dy, dz, horizontalRadius, verticalHalfSize)) {
+                    if (insideChamberEnvelope(dx, dy, dz, horizontalRadius, verticalHalfSize)
+                            && acceptsSparseTarget(dx, dy, dz, metadata.shape())) {
                         targets.add(new OreLoadChamberBlockPlacementPlan.OreBlockTarget(
                                 center.offset(dx, dy, dz),
                                 resource
@@ -92,5 +99,19 @@ public final class OreLoadChamberBlockPlacementPlanner {
         double horizontal = (double) (dx * dx + dz * dz) / (double) (horizontalRadius * horizontalRadius);
         double vertical = (double) (dy * dy) / (double) (verticalHalfSize * verticalHalfSize);
         return horizontal + vertical <= 1.0D;
+    }
+
+    private static boolean acceptsSparseTarget(
+            int dx,
+            int dy,
+            int dz,
+            OreLoadChamberPlacementPlan.ChamberShape shape
+    ) {
+        int stride = switch (shape) {
+            case ROUGH_CHAMBER -> 4;
+            case VEIN_CLUSTER -> 5;
+            case MOTHERLODE_CORE -> 7;
+        };
+        return Math.floorMod(dx * 31 + dy * 17 + dz * 13, stride) == 0;
     }
 }

@@ -74,6 +74,7 @@ public record OreLoadChamberBlockPlacementPlan(
         NULL_RESOURCE,
         UNSUPPORTED_RESOURCE_TYPE,
         MISSING_CHAMBER_METADATA,
+        DRY_SITE,
         NO_CANDIDATE_POSITIONS
     }
 }

@@ -38,6 +38,12 @@ jobs:
       - name: Test
         run: gradle --no-daemon test
 
+      - name: Validate expedition worldgen assets
+        run: python3 scripts/validate_worldgen_assets.py
+
+      - name: Run expedition worldgen GameTests
+        run: gradle --no-daemon runGameTestServer
+
       - name: Process resources
         run: gradle --no-daemon processResources
 
@@ -90,6 +96,27 @@ jobs:
                   name for name in entries
                   if name.startswith("com/oblixorprime/ioe/") and name.endswith(".class")
               )
+              expedition_feature_ids = (
+                  "tiny_vertical_mine_entrance",
+                  "collapsed_shaft",
+                  "miner_camp",
+                  "buried_survey_marker",
+                  "basic_mineshaft_connector",
+                  "ore_load_chamber",
+              )
+              missing_worldgen_resources = []
+              for feature_id in expedition_feature_ids:
+                  for category in ("configured_feature", "placed_feature"):
+                      expected_entry = (
+                          f"data/{expected_mod_id}/worldgen/{category}/{feature_id}.json"
+                      )
+                      if expected_entry not in entries:
+                          missing_worldgen_resources.append(expected_entry)
+              expected_game_test_template = (
+                  f"data/{expected_mod_id}/structure/expedition_worldgen_empty.nbt"
+              )
+              if expected_game_test_template not in entries:
+                  missing_worldgen_resources.append(expected_game_test_template)
 
               failures = []
               if duplicates:
@@ -102,6 +129,10 @@ jobs:
                   failures.append("No compiled classes found under com/oblixorprime/ioe/; jar may be empty or resource-only")
               if embedded_jars:
                   failures.append(f"Embedded jar files found: {embedded_jars}")
+              if missing_worldgen_resources:
+                  failures.append(
+                      f"Missing expedition worldgen resources: {missing_worldgen_resources}"
+                  )
 
               if neoforge_metadata:
                   metadata_text = jar.read(neoforge_metadata[0]).decode("utf-8")

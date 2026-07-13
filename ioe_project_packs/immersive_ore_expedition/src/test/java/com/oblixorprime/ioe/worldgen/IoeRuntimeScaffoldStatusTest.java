@@ -34,6 +34,7 @@ final class IoeRuntimeScaffoldStatusTest {
 
         assertEquals(ImmersiveOreExpeditionMod.MODID, status.modId());
         assertEquals("test-version", status.modVersion());
+        assertTrue(status.naturalExpeditionSiteGenerationEnabled());
         assertFalse(status.runtimeWorldgenEnabled());
         assertFalse(status.provinceRuntimeIntegrationEnabled());
         assertFalse(status.diagnosticsEnabled());
@@ -63,10 +64,11 @@ final class IoeRuntimeScaffoldStatusTest {
 
         assertTrue(output.contains("version=unknown"));
         assertTrue(output.contains("runtimeWorldgenEnabled=false"));
+        assertTrue(output.contains("naturalExpeditionSiteGenerationEnabled=true"));
         assertTrue(output.contains("provinceRuntimeIntegrationEnabled=false"));
         assertTrue(output.contains("planning-only"));
         assertTrue(output.contains("JourneyMap"));
-        assertTrue(output.contains("visible world and JourneyMap targets require runtime placement gates"));
+        assertTrue(output.contains("Natural expedition sites generate only in new chunks"));
     }
 
     @Test

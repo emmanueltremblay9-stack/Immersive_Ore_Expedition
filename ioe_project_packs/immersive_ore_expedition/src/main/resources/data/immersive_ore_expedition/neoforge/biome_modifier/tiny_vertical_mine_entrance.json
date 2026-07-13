@@ -1,6 +1,6 @@
 {
   "type": "neoforge:add_features",
-  "biomes": "#immersive_ore_expedition:expedition_site_biomes",
+  "biomes": "#immersive_ore_expedition:mine_entrance_biomes",
   "features": "immersive_ore_expedition:tiny_vertical_mine_entrance",
   "step": "surface_structures"
 }

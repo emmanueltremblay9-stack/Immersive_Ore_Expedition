@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#immersive_ore_expedition:survey_marker_biomes",
+  "features": "immersive_ore_expedition:buried_survey_marker",
+  "step": "surface_structures"
+}

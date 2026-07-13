@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public final class IoeRuntimeScaffoldStatusFormatter {
     public static final String VISIBILITY_EXPLANATION =
-            "Expedition site features are registered; visible world and JourneyMap targets require runtime placement gates to be enabled and a proven site to be generated.";
+            "Natural expedition sites generate only in new chunks when their generation option is enabled; JourneyMap targets are indexed only after a proven placement.";
 
     private IoeRuntimeScaffoldStatusFormatter() {
     }
@@ -14,7 +14,9 @@ public final class IoeRuntimeScaffoldStatusFormatter {
         Objects.requireNonNull(status, "status");
         return List.of(
                 "IOE status: modId=" + status.modId() + ", version=" + status.modVersion(),
-                "IOE gates: runtimeWorldgenEnabled=" + status.runtimeWorldgenEnabled()
+                "IOE gates: naturalExpeditionSiteGenerationEnabled="
+                        + status.naturalExpeditionSiteGenerationEnabled()
+                        + ", runtimeWorldgenEnabled=" + status.runtimeWorldgenEnabled()
                         + ", provinceRuntimeIntegrationEnabled=" + status.provinceRuntimeIntegrationEnabled()
                         + ", diagnosticsEnabled=" + status.diagnosticsEnabled(),
                 "IOE scaffold: worldgenRegistration=" + ready(status.worldgenRegistrationScaffoldReady())
@@ -23,10 +25,10 @@ public final class IoeRuntimeScaffoldStatusFormatter {
                         + ", randomOreSuppressionPlanning=" + ready(status.randomOreSuppressionPlanningReady())
                         + ", biomeProvinceBinding=" + ready(status.biomeProvinceBindingScaffoldReady())
                         + ", ieIpSurfaceCluePlanning=" + ready(status.ieIpSurfaceCluePlanningReady()),
-                "IOE live placement: anchors=" + (status.runtimeWorldgenEnabled()
-                        ? "runtime gate enabled"
-                        : "registered / runtime gate disabled")
-                        + ", oreChambers=not live / planning-only"
+                "IOE live placement: surfaceAnchors="
+                        + (status.naturalExpeditionSiteGenerationEnabled() ? "natural generation enabled" : "disabled")
+                        + ", mineshaftConnectors=connected child generation"
+                        + ", oreChambers=connected child generation"
                         + ", ieIpSurfaceClues=not live / planning-only"
                         + ", crystalsGeodes=not live / planning-only"
                         + ", retrogenMutation=not live / planning-only",
