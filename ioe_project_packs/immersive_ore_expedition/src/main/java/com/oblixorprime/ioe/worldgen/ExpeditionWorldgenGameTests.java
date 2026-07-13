@@ -103,6 +103,9 @@ public final class ExpeditionWorldgenGameTests {
         );
         helper.assertTrue(dry.isConnectedExpeditionSite(), "Dry site lost its connected route");
         helper.assertTrue(dry.oreBlockCount() == 0L, "Dry site generated ore");
+        helper.assertFalse(dry.blocks().values().stream()
+                        .anyMatch(state -> ORE_BLOCKS.contains(state.getBlock())),
+                "Dry site block plan contains an ore block");
 
         for (int localX : new int[]{4, 11}) {
             ExpeditionSiteBlockPlan motherlode = ExpeditionSiteBlueprints.plan(
