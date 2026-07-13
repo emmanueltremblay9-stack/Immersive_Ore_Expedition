@@ -4,9 +4,11 @@ import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.Bootstrap;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -18,6 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class ExpeditionSiteBlueprintsTest {
     private static final ResourceLocation IRON_ORE_ID = ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ore");
+
+    @BeforeAll
+    static void bootstrapMinecraftRegistries() {
+        Bootstrap.bootStrap();
+    }
 
     @Test
     void everySurfaceClueBuildsOneConnectedConnectorAndChamberSite() {
