@@ -78,6 +78,20 @@ final class OreLoadChamberBlockPlacementPlannerTest {
     }
 
     @Test
+    void drySitesNeverProduceExploitableOreTargets() {
+        OreLoadChamberPlacementPlan chamberPlan = allowedChamberPlan(
+                ResourceRef.block("minecraft", "iron_ore"),
+                SiteQuality.DRY
+        );
+
+        OreLoadChamberBlockPlacementPlan blockPlan = planner.planBlockPlacements(chamberPlan);
+
+        assertFalse(blockPlan.placementReady());
+        assertEquals(OreLoadChamberBlockPlacementPlan.SkipReason.DRY_SITE, blockPlan.skipReason());
+        assertTrue(blockPlan.oreTargets().isEmpty());
+    }
+
+    @Test
     void replacementRulesRejectUnsafeTargets() {
         assertFalse(OreLoadChamberReplacementRules.canReplace(null));
         assertFalse(OreLoadChamberReplacementRules.canReplace(null, false, false, false));

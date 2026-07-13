@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#immersive_ore_expedition:miner_camp_biomes",
+  "features": "immersive_ore_expedition:miner_camp",
+  "step": "surface_structures"
+}

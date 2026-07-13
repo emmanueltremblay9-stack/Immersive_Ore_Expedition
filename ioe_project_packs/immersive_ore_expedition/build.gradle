@@ -16,6 +16,19 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 neoForge {
     version = neo_version
+
+    runs {
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+        }
+    }
+
+    mods {
+        immersive_ore_expedition {
+            sourceSet sourceSets.main
+        }
+    }
 }
 
 repositories {

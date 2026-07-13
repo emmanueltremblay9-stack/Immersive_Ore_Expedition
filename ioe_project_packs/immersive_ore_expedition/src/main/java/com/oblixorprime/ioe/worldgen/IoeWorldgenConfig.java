@@ -20,6 +20,10 @@ public final class IoeWorldgenConfig {
         return ImmersiveOreExpeditionConfig.worldgenAllowTinyScrapOreOutsideProvinces();
     }
 
+    public static boolean naturalExpeditionSiteGenerationEnabled() {
+        return ImmersiveOreExpeditionConfig.worldgenNaturalExpeditionSiteGenerationEnabled();
+    }
+
     public static boolean runtimePlacementEnabled() {
         return ImmersiveOreExpeditionConfig.worldgenRuntimePlacementEnabled();
     }

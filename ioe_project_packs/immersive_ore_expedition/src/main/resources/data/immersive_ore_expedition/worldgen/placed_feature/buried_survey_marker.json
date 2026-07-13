@@ -1,5 +1,5 @@
 {
-  "feature": "immersive_ore_expedition:tiny_vertical_mine_entrance",
+  "feature": "immersive_ore_expedition:buried_survey_marker",
   "placement": [
     {
       "type": "minecraft:rarity_filter",

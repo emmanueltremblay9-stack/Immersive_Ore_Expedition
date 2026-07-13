@@ -16,10 +16,6 @@ public final class ExpeditionStructureRegistry {
     private ExpeditionStructureRegistry() {
     }
 
-    public static void register() {
-        IoeExpeditionWorldgenMod.LOGGER.info("IOE worldgen structure data is cataloged; runtime structure registration is deferred to the data-driven alpha slice.");
-    }
-
     public static List<ResourceLocation> enabledStructureIds() {
         List<ResourceLocation> enabled = new ArrayList<>();
         addIfEnabled(enabled, IoeWorldgenConfig.tinyVerticalMineEntranceEnabled(), TINY_VERTICAL_MINE_ENTRANCE);

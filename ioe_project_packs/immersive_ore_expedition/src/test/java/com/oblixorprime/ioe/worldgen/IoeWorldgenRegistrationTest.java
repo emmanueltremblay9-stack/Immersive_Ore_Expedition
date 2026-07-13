@@ -99,7 +99,7 @@ final class IoeWorldgenRegistrationTest {
         assertTrue(json.contains("\"type\": \"minecraft:rarity_filter\""));
         assertTrue(json.contains("\"type\": \"minecraft:in_square\""));
         assertTrue(json.contains("\"type\": \"minecraft:heightmap\""));
-        assertTrue(json.contains("\"heightmap\": \"WORLD_SURFACE_WG\""));
+        assertTrue(json.contains("\"heightmap\": \"MOTION_BLOCKING_NO_LEAVES\""));
         assertTrue(json.contains("\"type\": \"minecraft:biome\""));
     }
 
@@ -110,7 +110,7 @@ final class IoeWorldgenRegistrationTest {
         );
 
         assertTrue(json.contains("\"type\": \"neoforge:add_features\""));
-        assertTrue(json.contains("\"biomes\": \"#immersive_ore_expedition:expedition_site_biomes\""));
+        assertTrue(json.contains("\"biomes\": \"#immersive_ore_expedition:mine_entrance_biomes\""));
         assertTrue(json.contains("\"features\": \"immersive_ore_expedition:tiny_vertical_mine_entrance\""));
         assertTrue(json.contains("\"step\": \"surface_structures\""));
         assertFalse(json.contains("#c:is_overworld"));

@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
+import java.util.List;
 import java.util.Objects;
 
 final class IoeRuntimeProofFeatureBridge {
@@ -18,6 +19,10 @@ final class IoeRuntimeProofFeatureBridge {
 
     static ResourceLocation featureId() {
         return IoeWorldgenFeatureKeys.TINY_VERTICAL_MINE_ENTRANCE;
+    }
+
+    static List<ResourceLocation> registeredFeatureIds() {
+        return ExpeditionSiteType.registeredFeatureIds();
     }
 
     static boolean shouldInvokeProof(
@@ -39,10 +44,13 @@ final class IoeRuntimeProofFeatureBridge {
     }
 
     private static void registerFeatures(RegisterEvent event) {
-        Objects.requireNonNull(event, "event").register(
-                Registries.FEATURE,
-                featureId(),
-                RuntimeWorldgenRegistrationSmokeBridgeFeature::new
-        );
+        Objects.requireNonNull(event, "event");
+        for (ExpeditionSiteType siteType : ExpeditionSiteType.values()) {
+            event.register(
+                    Registries.FEATURE,
+                    siteType.id(),
+                    () -> new ExpeditionSiteFeature(siteType)
+            );
+        }
     }
 }

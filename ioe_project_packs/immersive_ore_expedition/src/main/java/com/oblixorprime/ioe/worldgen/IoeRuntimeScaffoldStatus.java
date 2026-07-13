@@ -7,6 +7,7 @@ import java.util.Objects;
 public record IoeRuntimeScaffoldStatus(
         String modId,
         String modVersion,
+        boolean naturalExpeditionSiteGenerationEnabled,
         boolean runtimeWorldgenEnabled,
         boolean provinceRuntimeIntegrationEnabled,
         boolean diagnosticsEnabled,
@@ -47,6 +48,7 @@ public record IoeRuntimeScaffoldStatus(
         return new IoeRuntimeScaffoldStatus(
                 ImmersiveOreExpeditionMod.MODID,
                 modVersion,
+                IoeWorldgenConfig.naturalExpeditionSiteGenerationEnabled(),
                 placementGates.runtimeWorldgenEnabled(),
                 placementGates.provinceRuntimeIntegrationEnabled(),
                 placementGates.diagnosticsEnabled(),

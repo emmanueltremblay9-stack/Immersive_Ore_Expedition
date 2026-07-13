@@ -104,7 +104,8 @@ class IoeAdminCommandsTest {
         assertTrue(output.contains("runtimeWorldgenEnabled=false"));
         assertTrue(output.contains("provinceRuntimeIntegrationEnabled=false"));
         assertTrue(output.contains("planning-only"));
-        assertTrue(output.contains("visible world and JourneyMap targets require runtime placement gates"));
+        assertTrue(output.contains("Natural expedition sites generate only in new chunks"));
+        assertTrue(output.contains("JourneyMap targets are indexed only after a proven placement"));
     }
 
     @Test

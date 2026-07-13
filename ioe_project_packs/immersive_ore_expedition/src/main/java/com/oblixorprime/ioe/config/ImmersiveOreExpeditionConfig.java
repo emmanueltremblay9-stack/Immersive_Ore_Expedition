@@ -35,6 +35,7 @@ public final class ImmersiveOreExpeditionConfig {
     private static final double DEFAULT_WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER = 0.03D;
     private static final boolean DEFAULT_WORLDGEN_REQUIRE_STRUCTURE_ANCHOR = true;
     private static final boolean DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES = true;
+    private static final boolean DEFAULT_WORLDGEN_NATURAL_EXPEDITION_SITE_GENERATION_ENABLED = true;
     private static final boolean DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED = false;
     private static final boolean DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS = false;
     private static final boolean DEFAULT_WORLDGEN_RUNTIME_PROOF_FEATURE_ENABLED = false;
@@ -154,6 +155,10 @@ public final class ImmersiveOreExpeditionConfig {
             .comment("Allow future hooks to leave tiny scrap ore outside full expedition provinces.")
             .define("worldgen.global.allowTinyScrapOreOutsideProvinces",
                     DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES);
+    private static final ModConfigSpec.BooleanValue WORLDGEN_NATURAL_EXPEDITION_SITE_GENERATION_ENABLED = BUILDER
+            .comment("Generate connected expedition sites in new chunks: a surface clue, mineshaft connector, and ore-load chamber.")
+            .define("worldgen.global.naturalExpeditionSiteGenerationEnabled",
+                    DEFAULT_WORLDGEN_NATURAL_EXPEDITION_SITE_GENERATION_ENABLED);
     private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PLACEMENT_ENABLED = BUILDER
             .comment("Enable IOE runtime placement proof hooks. Default false keeps worldgen placement no-op.")
             .define("worldgen.runtimePlacementEnabled", DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED);
@@ -479,6 +484,13 @@ public final class ImmersiveOreExpeditionConfig {
     public static boolean worldgenAllowTinyScrapOreOutsideProvinces() {
         return getOrDefault(WORLDGEN_ALLOW_TINY_SCRAP_ORE_OUTSIDE_PROVINCES,
                 DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES);
+    }
+
+    public static boolean worldgenNaturalExpeditionSiteGenerationEnabled() {
+        return getOrDefault(
+                WORLDGEN_NATURAL_EXPEDITION_SITE_GENERATION_ENABLED,
+                DEFAULT_WORLDGEN_NATURAL_EXPEDITION_SITE_GENERATION_ENABLED
+        );
     }
 
     public static boolean worldgenRuntimePlacementEnabled() {

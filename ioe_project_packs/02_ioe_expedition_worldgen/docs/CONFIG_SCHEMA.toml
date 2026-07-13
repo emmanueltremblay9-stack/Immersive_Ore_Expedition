@@ -3,6 +3,8 @@ randomOreDensityMultiplier = 0.03
 requireStructureAnchorForMajorOreLoads = true
 allowTinyScrapOreOutsideProvinces = true
 
+naturalExpeditionSiteGenerationEnabled = true
+
 # Site-quality chances are owned by ioe_core SiteQualityRoll defaults.
 
 [anchorRules]
