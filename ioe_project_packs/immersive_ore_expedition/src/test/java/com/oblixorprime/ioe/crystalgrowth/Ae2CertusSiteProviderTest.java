@@ -17,14 +17,18 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class Ae2CertusSiteProviderTest {
+    private static final Set<String> AE2_CRYSTAL_STACK = Set.of(
+            CrystalGrowthCompatGates.AE2,
+            CrystalGrowthCompatGates.AE2_CRYSTAL_SCIENCE
+    );
     private final Ae2CertusSiteProvider provider = new Ae2CertusSiteProvider();
     private final ResourcePolicyService policy = new ResourcePolicyService();
 
     @Test
-    void plansBuriedCertusSiteWhenAe2AndSuppliedResourcesAreLoaded() {
-        ResourceRef certus = ResourceRef.block("ae2", "budding_certus_quartz");
-        ResourceRef crust = ResourceRef.block("ae2", "sky_stone");
-        CrystalGrowthTestScanner scanner = scanner(Set.of(CrystalGrowthCompatGates.AE2), Set.of(certus, crust));
+    void plansBuriedCertusSiteWhenRequiredStackAndSuppliedResourcesAreLoaded() {
+        ResourceRef certus = ResourceRef.block("ae2", "flawless_budding_quartz");
+        ResourceRef crust = ResourceRef.block("ae2", "sky_stone_block");
+        CrystalGrowthTestScanner scanner = scanner(AE2_CRYSTAL_STACK, Set.of(certus, crust));
 
         Optional<CrystalGrowthSitePlan> plan = provider.planCertusSite(anchor(), certus, Optional.of(crust), scanner, policy);
 
@@ -38,8 +42,8 @@ final class Ae2CertusSiteProviderTest {
 
     @Test
     void skipsCertusSiteWhenAe2IsMissing() {
-        ResourceRef certus = ResourceRef.block("ae2", "budding_certus_quartz");
-        ResourceRef crust = ResourceRef.block("ae2", "sky_stone");
+        ResourceRef certus = ResourceRef.block("ae2", "flawless_budding_quartz");
+        ResourceRef crust = ResourceRef.block("ae2", "sky_stone_block");
         CrystalGrowthTestScanner scanner = scanner(Set.of(), Set.of(certus, crust));
 
         Optional<CrystalGrowthSitePlan> plan = provider.planCertusSite(anchor(), certus, Optional.of(crust), scanner, policy);
@@ -50,8 +54,8 @@ final class Ae2CertusSiteProviderTest {
     @Test
     void rejectsFluixInsteadOfCreatingFakeOrePlan() {
         ResourceRef fluix = ResourceRef.block("ae2", "fluix_ore");
-        ResourceRef crust = ResourceRef.block("ae2", "sky_stone");
-        CrystalGrowthTestScanner scanner = scanner(Set.of(CrystalGrowthCompatGates.AE2), Set.of(fluix, crust));
+        ResourceRef crust = ResourceRef.block("ae2", "sky_stone_block");
+        CrystalGrowthTestScanner scanner = scanner(AE2_CRYSTAL_STACK, Set.of(fluix, crust));
 
         Optional<CrystalGrowthSitePlan> plan = provider.planCertusSite(anchor(), fluix, Optional.of(crust), scanner, policy);
 
@@ -60,8 +64,8 @@ final class Ae2CertusSiteProviderTest {
 
     @Test
     void rejectsSkyStoneAsCertusCore() {
-        ResourceRef skyStone = ResourceRef.block("ae2", "sky_stone");
-        CrystalGrowthTestScanner scanner = scanner(Set.of(CrystalGrowthCompatGates.AE2), Set.of(skyStone));
+        ResourceRef skyStone = ResourceRef.block("ae2", "sky_stone_block");
+        CrystalGrowthTestScanner scanner = scanner(AE2_CRYSTAL_STACK, Set.of(skyStone));
 
         Optional<CrystalGrowthSitePlan> plan = provider.planCertusSite(anchor(), skyStone, Optional.of(skyStone), scanner, policy);
 
@@ -70,8 +74,8 @@ final class Ae2CertusSiteProviderTest {
 
     @Test
     void rejectsCertusAsSkyStoneCrust() {
-        ResourceRef certus = ResourceRef.block("ae2", "budding_certus_quartz");
-        CrystalGrowthTestScanner scanner = scanner(Set.of(CrystalGrowthCompatGates.AE2), Set.of(certus));
+        ResourceRef certus = ResourceRef.block("ae2", "flawless_budding_quartz");
+        CrystalGrowthTestScanner scanner = scanner(AE2_CRYSTAL_STACK, Set.of(certus));
 
         Optional<CrystalGrowthSitePlan> plan = provider.planCertusSite(anchor(), certus, Optional.of(certus), scanner, policy);
 
@@ -80,9 +84,9 @@ final class Ae2CertusSiteProviderTest {
 
     @Test
     void rejectsItemFormSkyStoneAsCrust() {
-        ResourceRef certus = ResourceRef.block("ae2", "budding_certus_quartz");
-        ResourceRef skyStoneItem = ResourceRef.item("ae2", "sky_stone");
-        CrystalGrowthTestScanner scanner = scanner(Set.of(CrystalGrowthCompatGates.AE2), Set.of(certus, skyStoneItem));
+        ResourceRef certus = ResourceRef.block("ae2", "flawless_budding_quartz");
+        ResourceRef skyStoneItem = ResourceRef.item("ae2", "sky_stone_block");
+        CrystalGrowthTestScanner scanner = scanner(AE2_CRYSTAL_STACK, Set.of(certus, skyStoneItem));
 
         Optional<CrystalGrowthSitePlan> plan = provider.planCertusSite(anchor(), certus, Optional.of(skyStoneItem), scanner, policy);
 
@@ -92,8 +96,8 @@ final class Ae2CertusSiteProviderTest {
     @Test
     void rejectsItemFormCertusAsCore() {
         ResourceRef certusItem = ResourceRef.item("ae2", "certus_quartz_crystal");
-        ResourceRef crust = ResourceRef.block("ae2", "sky_stone");
-        CrystalGrowthTestScanner scanner = scanner(Set.of(CrystalGrowthCompatGates.AE2), Set.of(certusItem, crust));
+        ResourceRef crust = ResourceRef.block("ae2", "sky_stone_block");
+        CrystalGrowthTestScanner scanner = scanner(AE2_CRYSTAL_STACK, Set.of(certusItem, crust));
 
         Optional<CrystalGrowthSitePlan> plan = provider.planCertusSite(anchor(), certusItem, Optional.of(crust), scanner, policy);
 

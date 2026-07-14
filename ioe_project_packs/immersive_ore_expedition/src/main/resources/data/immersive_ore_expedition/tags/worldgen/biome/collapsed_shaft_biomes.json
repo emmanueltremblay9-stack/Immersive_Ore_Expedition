@@ -4,6 +4,11 @@
     "minecraft:stony_peaks",
     "minecraft:windswept_hills",
     "minecraft:jagged_peaks",
-    "minecraft:badlands"
+    "minecraft:badlands",
+    "minecraft:eroded_badlands",
+    "minecraft:windswept_gravelly_hills",
+    "minecraft:snowy_slopes",
+    "minecraft:old_growth_pine_taiga",
+    "minecraft:dark_forest"
   ]
 }

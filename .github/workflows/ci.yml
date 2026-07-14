@@ -53,11 +53,307 @@ jobs:
       - name: Build
         run: gradle --no-daemon build
 
+      - name: Inspect resolved crystal dependencies
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import hashlib
+          import json
+          import re
+          import sys
+          import zipfile
+
+          cache_root = Path.home() / ".gradle" / "caches" / "modules-2" / "files-2.1"
+          dependency_coordinates = {
+              "ae2": ("org.appliedenergistics", "appliedenergistics2", "19.2.17"),
+              "ae2cs": ("maven.modrinth", "uJ9afomy", "PP2uuQ6t"),
+              "geore": ("maven.modrinth", "Xw6zG9hl", "OV3DOSul"),
+          }
+          excluded_name_parts = ("sources", "javadoc", "dev", "plain", "test", "api")
+          failures = []
+          resolved_jars = {}
+
+          def metadata_mod_ids(path):
+              try:
+                  with zipfile.ZipFile(path) as jar:
+                      metadata_path = "META-INF/neoforge.mods.toml"
+                      if metadata_path not in jar.namelist():
+                          return set()
+                      metadata = jar.read(metadata_path).decode("utf-8")
+              except (OSError, zipfile.BadZipFile, UnicodeDecodeError):
+                  return set()
+              return set(re.findall(r'(?m)^\s*modId\s*=\s*"([^"]+)"', metadata))
+
+          def sha256(path):
+              digest = hashlib.sha256()
+              with path.open("rb") as source:
+                  for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                      digest.update(chunk)
+              return digest.hexdigest()
+
+          for mod_id, (group, artifact, version) in dependency_coordinates.items():
+              coordinate_root = cache_root / group / artifact / version
+              candidates = [
+                  path for path in sorted(coordinate_root.rglob("*.jar"))
+                  if not any(part in path.name.lower() for part in excluded_name_parts)
+              ]
+              matching_candidates = [
+                  path for path in candidates if mod_id in metadata_mod_ids(path)
+              ]
+              matching_by_hash = {}
+              for path in matching_candidates:
+                  matching_by_hash.setdefault(sha256(path), path)
+              if len(matching_by_hash) != 1:
+                  failures.append(
+                      f"Expected one distinct resolved {mod_id} runtime jar under "
+                      f"{coordinate_root}, found "
+                      f"{[(digest, str(path)) for digest, path in matching_by_hash.items()]}"
+                  )
+                  continue
+              resolved_jars[mod_id] = next(iter(matching_by_hash.values()))
+
+          if failures:
+              print("Resolved crystal dependency inspection failed:")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+
+          required_growth_hearts = {
+              "geore:budding_aluminum",
+              "geore:budding_coal",
+              "geore:budding_copper",
+              "geore:budding_diamond",
+              "geore:budding_emerald",
+              "geore:budding_gold",
+              "geore:budding_iron",
+              "geore:budding_lapis",
+              "geore:budding_lead",
+              "geore:budding_nickel",
+              "geore:budding_redstone",
+              "geore:budding_silver",
+              "geore:budding_uranium",
+          }
+
+          ioe_growth_overlay_path = Path(
+              "src/main/resources/data/ae2/tags/block/growth_acceleratable.json"
+          )
+          if not ioe_growth_overlay_path.is_file():
+              failures.append(
+                  f"IOE growth overlay is missing: {ioe_growth_overlay_path}"
+              )
+          else:
+              ioe_growth_overlay = json.loads(
+                  ioe_growth_overlay_path.read_text(encoding="utf-8")
+              )
+              ioe_growth_values = {
+                  value if isinstance(value, str) else value.get("id")
+                  for value in ioe_growth_overlay.get("values", [])
+              }
+              missing_ioe_growth_hearts = sorted(
+                  required_growth_hearts - ioe_growth_values
+              )
+              if ioe_growth_overlay.get("replace") is not False:
+                  failures.append(
+                      "IOE growth_acceleratable overlay must merge with replace=false"
+                  )
+              if missing_ioe_growth_hearts:
+                  failures.append(
+                      f"IOE growth overlay does not connect AE2 to GeOre hearts: "
+                      f"{missing_ioe_growth_hearts}"
+                  )
+
+          ae2_path = resolved_jars["ae2"]
+          with zipfile.ZipFile(ae2_path) as ae2:
+              ae2_entries = set(ae2.namelist())
+              growth_accelerator_class = (
+                  "appeng/blockentity/misc/GrowthAcceleratorBlockEntity.class"
+              )
+              ae_tags_class = "appeng/api/ids/AETags.class"
+              ae2_growth_tag_path = "data/ae2/tags/block/growth_acceleratable.json"
+              required_ae2_entries = {
+                  growth_accelerator_class,
+                  ae_tags_class,
+                  ae2_growth_tag_path,
+                  "data/ae2/recipe/transform/damaged_budding_quartz.json",
+                  "data/ae2/recipe/transform/chipped_budding_quartz.json",
+                  "data/ae2/recipe/transform/flawed_budding_quartz.json",
+              }
+              missing_ae2_entries = sorted(required_ae2_entries - ae2_entries)
+              if missing_ae2_entries:
+                  failures.append(
+                      f"AE2 19.2.17 jar is missing required growth/repair entries: "
+                      f"{missing_ae2_entries}"
+                  )
+              else:
+                  if b"GROWTH_ACCELERATABLE" not in ae2.read(growth_accelerator_class):
+                      failures.append(
+                          "AE2 GrowthAcceleratorBlockEntity does not reference "
+                          "AETags.GROWTH_ACCELERATABLE"
+                      )
+                  if b"growth_acceleratable" not in ae2.read(ae_tags_class):
+                      failures.append("AE2 AETags does not define growth_acceleratable")
+
+                  ae2_growth_tag = json.loads(
+                      ae2.read(ae2_growth_tag_path).decode("utf-8")
+                  )
+                  ae2_growth_values = {
+                      value if isinstance(value, str) else value.get("id")
+                      for value in ae2_growth_tag.get("values", [])
+                  }
+                  if "#c:budding_blocks" not in ae2_growth_values:
+                      failures.append(
+                          "AE2 growth_acceleratable no longer includes the common budding tag"
+                      )
+
+                  expected_repairs = {
+                      "damaged_budding_quartz": (
+                          {"ae2:charged_certus_quartz_crystal", "ae2:quartz_block"},
+                          "ae2:damaged_budding_quartz",
+                      ),
+                      "chipped_budding_quartz": (
+                          {
+                              "ae2:charged_certus_quartz_crystal",
+                              "ae2:damaged_budding_quartz",
+                          },
+                          "ae2:chipped_budding_quartz",
+                      ),
+                      "flawed_budding_quartz": (
+                          {
+                              "ae2:charged_certus_quartz_crystal",
+                              "ae2:chipped_budding_quartz",
+                          },
+                          "ae2:flawed_budding_quartz",
+                      ),
+                  }
+                  for recipe_name, (expected_ingredients, expected_result) in expected_repairs.items():
+                      recipe_path = f"data/ae2/recipe/transform/{recipe_name}.json"
+                      recipe = json.loads(ae2.read(recipe_path).decode("utf-8"))
+                      actual_ingredients = {
+                          ingredient.get("item")
+                          for ingredient in recipe.get("ingredients", [])
+                          if isinstance(ingredient, dict)
+                      }
+                      actual_result = recipe.get("result", {}).get("id")
+                      if actual_ingredients != expected_ingredients or actual_result != expected_result:
+                          failures.append(
+                              f"AE2 repair recipe {recipe_name!r} changed: "
+                              f"ingredients={actual_ingredients}, result={actual_result!r}"
+                          )
+
+          ae2cs_path = resolved_jars["ae2cs"]
+          with zipfile.ZipFile(ae2cs_path) as ae2cs:
+              ae2cs_entries = set(ae2cs.namelist())
+              ae2cs_modifier_path = (
+                  "data/ae2cs/neoforge/biome_modifier/add_certus_quartz_ores.json"
+              )
+              required_ae2cs_features = {
+                  "ae2cs:certus_quartz_ore_placed",
+                  "ae2cs:charged_certus_quartz_ore_placed",
+              }
+              required_ae2cs_worldgen_entries = {
+                  ae2cs_modifier_path,
+                  "data/ae2cs/worldgen/placed_feature/certus_quartz_ore_placed.json",
+                  "data/ae2cs/worldgen/placed_feature/charged_certus_quartz_ore_placed.json",
+              }
+              required_ae2cs_authority_entries = {
+                  "io/github/lounode/ae2cs/common/init/AECSBlocks.class",
+                  "io/github/lounode/ae2cs/common/init/AECSItems.class",
+                  "io/github/lounode/ae2cs/common/init/AECSRecipeTypes.class",
+                  "io/github/lounode/ae2cs/common/item/CrystalSeedItem.class",
+                  "io/github/lounode/ae2cs/common/item/PureCrystalItem.class",
+                  "io/github/lounode/ae2cs/common/me/AEPlugin.class",
+              }
+              missing_ae2cs_worldgen_entries = sorted(
+                  required_ae2cs_worldgen_entries - ae2cs_entries
+              )
+              missing_ae2cs_authority_entries = sorted(
+                  required_ae2cs_authority_entries - ae2cs_entries
+              )
+              if missing_ae2cs_worldgen_entries:
+                  failures.append(
+                      f"AE2CS 1.1.12 jar is missing expected Certus ore worldgen: "
+                      f"{missing_ae2cs_worldgen_entries}"
+                  )
+              else:
+                  ae2cs_modifier = json.loads(
+                      ae2cs.read(ae2cs_modifier_path).decode("utf-8")
+                  )
+                  actual_features = ae2cs_modifier.get("features", [])
+                  if isinstance(actual_features, str):
+                      actual_features = [actual_features]
+                  if set(actual_features) != required_ae2cs_features:
+                      failures.append(
+                          f"AE2CS Certus biome modifier features changed: {actual_features}"
+                      )
+                  if ae2cs_modifier.get("step") != "underground_ores":
+                      failures.append(
+                          "AE2CS Certus biome modifier no longer uses underground_ores"
+                      )
+              if missing_ae2cs_authority_entries:
+                  failures.append(
+                      "AE2CS 1.1.12 jar no longer provides the expected purification "
+                      f"and crystal-automation implementation classes: "
+                      f"{missing_ae2cs_authority_entries}"
+                  )
+              else:
+                  authority_symbols = {
+                      "io/github/lounode/ae2cs/common/init/AECSBlocks.class": (
+                          b"GROWTH_CHAMBER",
+                          b"CRYSTAL_AGGREGATOR",
+                      ),
+                      "io/github/lounode/ae2cs/common/init/AECSItems.class": (
+                          b"PURE_CERTUS_QUARTZ_CRYSTAL",
+                          b"CERTUS_QUARTZ_SEED",
+                      ),
+                  }
+                  for class_path, expected_symbols in authority_symbols.items():
+                      class_bytes = ae2cs.read(class_path)
+                      missing_symbols = [
+                          symbol.decode("ascii")
+                          for symbol in expected_symbols
+                          if symbol not in class_bytes
+                      ]
+                      if missing_symbols:
+                          failures.append(
+                              f"AE2CS authority class {class_path} is missing expected "
+                              f"symbols: {missing_symbols}"
+                          )
+
+          geore_path = resolved_jars["geore"]
+          with zipfile.ZipFile(geore_path) as geore:
+              geore_tag_path = "data/geore/tags/block/budding_geore.json"
+              if geore_tag_path not in geore.namelist():
+                  failures.append("GeOre 6.2.2 jar is missing budding_geore block tag")
+              else:
+                  geore_tag = json.loads(geore.read(geore_tag_path).decode("utf-8"))
+                  geore_values = {
+                      value if isinstance(value, str) else value.get("id")
+                      for value in geore_tag.get("values", [])
+                  }
+                  missing_geore_hearts = sorted(required_growth_hearts - geore_values)
+                  if missing_geore_hearts:
+                      failures.append(
+                          f"GeOre 6.2.2 does not provide required budding hearts: "
+                          f"{missing_geore_hearts}"
+                      )
+
+          if failures:
+              print("Resolved crystal dependency inspection failed:")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+
+          print("Resolved crystal dependency inspection passed.")
+          for mod_id, path in resolved_jars.items():
+              print(f"{mod_id}: {path}")
+          PY
+
       - name: Inspect consolidated jar
         run: |
           python3 <<'PY'
           from collections import Counter
           from pathlib import Path
+          import json
           import re
           import sys
           import zipfile
@@ -118,6 +414,20 @@ jobs:
               if expected_game_test_template not in entries:
                   missing_worldgen_resources.append(expected_game_test_template)
 
+              crystal_integration_resources = {
+                  "growth_tag": "data/ae2/tags/block/growth_acceleratable.json",
+                  "meteorite_biome_tag": "data/ae2/tags/worldgen/biome/has_meteorites.json",
+                  "ore_replacement_modifier": (
+                      f"data/{expected_mod_id}/neoforge/biome_modifier/replace_normal_ores_with_nodes.json"
+                  ),
+                  "normal_ore_tag": (
+                      f"data/{expected_mod_id}/tags/worldgen/placed_feature/normal_ore_generation.json"
+                  ),
+              }
+              missing_crystal_resources = sorted(
+                  path for path in crystal_integration_resources.values() if path not in entries
+              )
+
               failures = []
               if duplicates:
                   failures.append(f"Duplicate jar entries found: {duplicates}")
@@ -132,6 +442,10 @@ jobs:
               if missing_worldgen_resources:
                   failures.append(
                       f"Missing expedition worldgen resources: {missing_worldgen_resources}"
+                  )
+              if missing_crystal_resources:
+                  failures.append(
+                      f"Missing AE2 crystal integration resources: {missing_crystal_resources}"
                   )
 
               if neoforge_metadata:
@@ -149,6 +463,146 @@ jobs:
                   old_active_ids = sorted(old_mod_ids.intersection(active_mod_ids))
                   if old_active_ids:
                       failures.append(f"Old IOE mod ids are still active in metadata: {old_active_ids}")
+
+                  dependency_blocks = re.findall(
+                      rf"(?ms)^\s*\[\[dependencies\.{re.escape(expected_mod_id)}\]\]\s*"
+                      r"(.*?)(?=^\s*\[\[|\Z)",
+                      metadata_text,
+                  )
+                  dependency_types = {}
+                  dependency_ranges = {}
+                  for block in dependency_blocks:
+                      id_match = re.search(r'(?m)^\s*modId\s*=\s*"([^"]+)"', block)
+                      type_match = re.search(r'(?m)^\s*type\s*=\s*"([^"]+)"', block)
+                      range_match = re.search(r'(?m)^\s*versionRange\s*=\s*"([^"]+)"', block)
+                      if id_match and type_match:
+                          dependency_types[id_match.group(1)] = type_match.group(1)
+                      if id_match and range_match:
+                          dependency_ranges[id_match.group(1)] = range_match.group(1)
+
+                  for required_dependency in ("ae2", "ae2cs", "geore"):
+                      actual_type = dependency_types.get(required_dependency)
+                      if actual_type != "required":
+                          failures.append(
+                              f"Dependency {required_dependency!r} must be required, found {actual_type!r}"
+                          )
+
+                  expected_dependency_ranges = {
+                      "ae2": "[19.2.17,20)",
+                      "ae2cs": "[1.1.12,1.2)",
+                      "geore": "[6.2.2,7)",
+                  }
+                  for dependency_id, expected_range in expected_dependency_ranges.items():
+                      actual_range = dependency_ranges.get(dependency_id)
+                      if actual_range != expected_range:
+                          failures.append(
+                              f"Dependency {dependency_id!r} must use {expected_range!r}, found {actual_range!r}"
+                          )
+
+              ae2_bridge_class = "com/oblixorprime/ioe/worldgen/Ae2MeteoriteIntegration.class"
+              if ae2_bridge_class not in entries:
+                  failures.append(f"Missing AE2 meteorite integration class: {ae2_bridge_class}")
+              else:
+                  bridge_bytes = jar.read(ae2_bridge_class)
+                  if b"flawed_budding_quartz" not in bridge_bytes:
+                      failures.append("AE2 meteorite integration does not select flawed_budding_quartz")
+                  if b"flawless_budding_quartz" in bridge_bytes:
+                      failures.append("AE2 meteorite integration still selects flawless_budding_quartz")
+
+              if not missing_crystal_resources:
+                  growth_tag = json.loads(
+                      jar.read(crystal_integration_resources["growth_tag"]).decode("utf-8")
+                  )
+                  growth_values = {
+                      value if isinstance(value, str) else value.get("id")
+                      for value in growth_tag.get("values", [])
+                  }
+                  required_growth_hearts = {
+                      "geore:budding_aluminum",
+                      "geore:budding_coal",
+                      "geore:budding_copper",
+                      "geore:budding_diamond",
+                      "geore:budding_emerald",
+                      "geore:budding_gold",
+                      "geore:budding_iron",
+                      "geore:budding_lapis",
+                      "geore:budding_lead",
+                      "geore:budding_nickel",
+                      "geore:budding_redstone",
+                      "geore:budding_silver",
+                      "geore:budding_uranium",
+                  }
+                  missing_growth_hearts = sorted(required_growth_hearts - growth_values)
+                  if growth_tag.get("replace") is not False:
+                      failures.append("AE2 growth_acceleratable extension must merge with replace=false")
+                  if missing_growth_hearts:
+                      failures.append(
+                          f"AE2 growth tag is missing required GeOre hearts: {missing_growth_hearts}"
+                      )
+
+                  meteorite_tag = json.loads(
+                      jar.read(crystal_integration_resources["meteorite_biome_tag"]).decode("utf-8")
+                  )
+                  if meteorite_tag.get("replace") is not True or meteorite_tag.get("values") != []:
+                      failures.append("AE2 meteorite biome tag must be replaced with an empty value list")
+
+                  normal_ore_tag = json.loads(
+                      jar.read(crystal_integration_resources["normal_ore_tag"]).decode("utf-8")
+                  )
+                  normal_ore_values = {
+                      value if isinstance(value, str) else value.get("id")
+                      for value in normal_ore_tag.get("values", [])
+                  }
+                  required_ae2cs_ores = {
+                      "ae2cs:certus_quartz_ore_placed",
+                      "ae2cs:charged_certus_quartz_ore_placed",
+                  }
+                  missing_ae2cs_ores = sorted(required_ae2cs_ores - normal_ore_values)
+                  if missing_ae2cs_ores:
+                      failures.append(
+                          f"Normal ore suppression tag is missing AE2CS ores: {missing_ae2cs_ores}"
+                      )
+
+                  ore_replacement_modifier = json.loads(
+                      jar.read(
+                          crystal_integration_resources["ore_replacement_modifier"]
+                      ).decode("utf-8")
+                  )
+                  expected_modifier_fields = {
+                      "type": f"{expected_mod_id}:replace_normal_ores_with_nodes",
+                      "biomes": "#c:is_overworld",
+                      "features": f"#{expected_mod_id}:normal_ore_generation",
+                  }
+                  for field, expected_value in expected_modifier_fields.items():
+                      actual_value = ore_replacement_modifier.get(field)
+                      if actual_value != expected_value:
+                          failures.append(
+                              f"Ore replacement modifier field {field!r} must be "
+                              f"{expected_value!r}, found {actual_value!r}"
+                          )
+
+                  required_generation_steps = {
+                      "raw_generation",
+                      "lakes",
+                      "local_modifications",
+                      "underground_structures",
+                      "surface_structures",
+                      "strongholds",
+                      "underground_ores",
+                      "underground_decoration",
+                      "fluid_springs",
+                      "vegetal_decoration",
+                      "top_layer_modification",
+                  }
+                  actual_generation_steps = set(ore_replacement_modifier.get("steps", []))
+                  missing_generation_steps = sorted(
+                      required_generation_steps - actual_generation_steps
+                  )
+                  if missing_generation_steps:
+                      failures.append(
+                          f"Ore replacement modifier is missing generation steps: "
+                          f"{missing_generation_steps}"
+                      )
 
               if failures:
                   print(f"Jar inspection failed for {jar_path}:")

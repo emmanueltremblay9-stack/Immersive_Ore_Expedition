@@ -155,7 +155,7 @@ public final class RuntimeWorldgenPlacementProof {
         }
 
         RuntimeWorldgenPlacementProofResult placedResult = RuntimeWorldgenPlacementProofResult.placed(readyResult);
-        ExpeditionLocatorService.recordPlacedProof(level.getLevel().dimension(), placedResult);
+        ExpeditionLocatorService.recordPlacedProof(level.getLevel(), placedResult);
         return logIfRequested(placedResult);
     }
 

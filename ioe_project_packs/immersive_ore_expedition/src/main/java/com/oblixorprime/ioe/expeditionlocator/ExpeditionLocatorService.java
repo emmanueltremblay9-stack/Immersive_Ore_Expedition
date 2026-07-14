@@ -5,48 +5,85 @@ import com.oblixorprime.ioe.worldgen.IoeWorldgenConfig;
 import com.oblixorprime.ioe.worldgen.RuntimeWorldgenPlacementProofResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 import java.util.Objects;
 
 public final class ExpeditionLocatorService {
-    private static final ExpeditionLocatorIndex RUNTIME_INDEX = new ExpeditionLocatorIndex();
+    private static final ExpeditionLocatorIndex TEST_INDEX = new ExpeditionLocatorIndex();
 
     private ExpeditionLocatorService() {
     }
 
     public static ExpeditionLocatorIndex index() {
-        return RUNTIME_INDEX;
+        return TEST_INDEX;
+    }
+
+    public static ExpeditionLocatorIndex index(ServerLevel level) {
+        return savedData(level).index();
+    }
+
+    public static void record(ServerLevel level, ExpeditionSite site) {
+        Objects.requireNonNull(level, "level");
+        ExpeditionSite recordedSite = Objects.requireNonNull(site, "site");
+        runOnServerThread(level, () -> savedData(level).record(recordedSite));
+    }
+
+    public static ExpeditionLocatorIndex compassIndex(ServerLevel level, BlockPos origin) {
+        ExpeditionLocatorIndex index = index(Objects.requireNonNull(level, "level"));
+        logCompassDiagnostics(index, level.dimension(), Objects.requireNonNull(origin, "origin"));
+        return index;
     }
 
     public static ExpeditionLocatorIndex compassIndex(ResourceKey<Level> dimension, BlockPos origin) {
         logCompassDiagnostics(
+                TEST_INDEX,
                 Objects.requireNonNull(dimension, "dimension"),
                 Objects.requireNonNull(origin, "origin")
         );
-        return RUNTIME_INDEX;
+        return TEST_INDEX;
     }
 
     public static void recordPlacedProof(
-            ResourceKey<Level> dimension,
+            ServerLevel level,
             RuntimeWorldgenPlacementProofResult result
     ) {
-        RUNTIME_INDEX.recordPlacedProof(
-                Objects.requireNonNull(dimension, "dimension"),
-                Objects.requireNonNull(result, "result")
-        );
+        Objects.requireNonNull(level, "level");
+        RuntimeWorldgenPlacementProofResult recordedResult = Objects.requireNonNull(result, "result");
+        runOnServerThread(level, () -> savedData(level).recordPlacedProof(level.dimension(), recordedResult));
     }
 
     public static void clearForTesting() {
-        RUNTIME_INDEX.clear();
+        TEST_INDEX.clear();
     }
 
-    private static void logCompassDiagnostics(ResourceKey<Level> dimension, BlockPos origin) {
+    private static ExpeditionLocatorSavedData savedData(ServerLevel level) {
+        ServerLevel overworld = Objects.requireNonNull(level, "level").getServer().overworld();
+        return overworld.getDataStorage().computeIfAbsent(
+                ExpeditionLocatorSavedData.FACTORY,
+                ExpeditionLocatorSavedData.STORAGE_NAME
+        );
+    }
+
+    private static void runOnServerThread(ServerLevel level, Runnable action) {
+        if (level.getServer().isSameThread()) {
+            action.run();
+        } else {
+            level.getServer().execute(action);
+        }
+    }
+
+    private static void logCompassDiagnostics(
+            ExpeditionLocatorIndex index,
+            ResourceKey<Level> dimension,
+            BlockPos origin
+    ) {
         if (!IoeWorldgenConfig.runtimePlacementDiagnostics()) {
             return;
         }
 
-        RUNTIME_INDEX.diagnosticSites().stream()
+        index.diagnosticSites().stream()
                 .filter(site -> site.dimension().equals(dimension))
                 .forEach(site -> IoeExpeditionWorldgenMod.LOGGER.info(
                         "IOE compass indexed site id={} type={} dimension={} chunk={} section={} anchorPos={} targetPos={} pipelineStage={} state={} reason={} gates(runtimePlacement={}, proofFeature={}, provinceRuntime={}) biome={} province={} distanceFromPlayer={}",

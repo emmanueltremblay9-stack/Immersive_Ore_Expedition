@@ -452,11 +452,14 @@ final class NetherSubLavaGeodePlacementPlannerTest {
 
     @Test
     void v14MeteoriticAe2GeodePlanningBehaviorRemainsUnchanged() {
-        ResourceRef certus = ResourceRef.block("ae2", "budding_certus_quartz");
-        ResourceRef crust = ResourceRef.block("ae2", "sky_stone");
+        ResourceRef certus = ResourceRef.block("ae2", "flawless_budding_quartz");
+        ResourceRef crust = ResourceRef.block("ae2", "sky_stone_block");
         MeteoriticAe2GeodePlacementPlanner planner = new MeteoriticAe2GeodePlacementPlanner(
                 new Ae2CertusSiteProvider(),
-                scanner(Set.of(CrystalGrowthCompatGates.AE2), Set.of(certus, crust)),
+                scanner(Set.of(
+                        CrystalGrowthCompatGates.AE2,
+                        CrystalGrowthCompatGates.AE2_CRYSTAL_SCIENCE
+                ), Set.of(certus, crust)),
                 policyService
         );
 

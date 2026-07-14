@@ -136,7 +136,7 @@ final class CrystalSitePlacementRules {
                     && shellResource == null;
             case AE2_CERTUS -> isBlock(primaryResource)
                     && isAe2Namespace(primaryResource)
-                    && primaryResource.id().getPath().contains("certus")
+                    && CrystalGrowthCompatGates.isNativeBuddingCertusPath(primaryResource.id().getPath())
                     && isValidAe2Shell(shellResource);
             case GEORE -> isBlock(primaryResource)
                     && isNamespace(primaryResource, CrystalGrowthCompatGates.GEORE)
@@ -163,7 +163,7 @@ final class CrystalSitePlacementRules {
     ) {
         return switch (sourceSystem) {
             case VANILLA_AMETHYST -> true;
-            case AE2_CERTUS -> CrystalGrowthCompatGates.ae2Enabled(scanner);
+            case AE2_CERTUS -> CrystalGrowthCompatGates.ae2CrystalProcessingStackEnabled(scanner);
             case GEORE -> CrystalGrowthCompatGates.georeEnabled(scanner);
         };
     }
@@ -185,7 +185,7 @@ final class CrystalSitePlacementRules {
     }
 
     private static boolean isSkyStonePath(String path) {
-        return "sky_stone".equals(path) || "skystone".equals(path);
+        return "sky_stone_block".equals(path);
     }
 
     private static CrystalSitePlacementPlan skipped(

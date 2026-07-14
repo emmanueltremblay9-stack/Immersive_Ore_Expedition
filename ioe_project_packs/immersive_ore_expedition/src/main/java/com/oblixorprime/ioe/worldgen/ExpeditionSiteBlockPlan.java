@@ -18,7 +18,9 @@ public record ExpeditionSiteBlockPlan(
         BlockPos connectorEnd,
         BlockPos chamberCenter,
         SiteQuality quality,
+        int oreNodeCount,
         ResourceLocation oreBlockId,
+        ResourceLocation oreNodeHeartBlockId,
         List<ResourceLocation> generatedComponents,
         Map<BlockPos, BlockState> blocks
 ) {
@@ -33,9 +35,30 @@ public record ExpeditionSiteBlockPlan(
         if (blocks.isEmpty()) {
             throw new IllegalArgumentException("Expedition site block plans must contain at least one block");
         }
-        if (quality.isProductive() && oreBlockId == null
-                && generatedComponents.contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER)) {
+        if (oreNodeCount < 0) {
+            throw new IllegalArgumentException("Ore node count must not be negative");
+        }
+        boolean hasOreLoadChamber = generatedComponents.contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER);
+        boolean hasAe2Geode = generatedComponents.contains(IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE);
+        boolean hasEntroizedFluixGeode = generatedComponents.contains(IoeWorldgenFeatureKeys.ENTROIZED_FLUIX_GEODE);
+        boolean hasSpecialGeode = hasAe2Geode || hasEntroizedFluixGeode;
+        if (hasAe2Geode && hasEntroizedFluixGeode) {
+            throw new IllegalArgumentException("A mine cannot contain more than one special geode mode");
+        }
+        if (quality.isProductive() && oreBlockId == null && hasOreLoadChamber && !hasSpecialGeode) {
             throw new IllegalArgumentException("Productive chamber plans require a loaded ore block id");
+        }
+        if (quality.isProductive() && oreNodeHeartBlockId == null && hasOreLoadChamber && !hasSpecialGeode) {
+            throw new IllegalArgumentException("Productive chamber plans require a loaded ore-node heart block id");
+        }
+        if (quality.isProductive() && hasOreLoadChamber && !hasSpecialGeode && oreNodeCount == 0) {
+            throw new IllegalArgumentException("Productive chamber plans require at least one ore node");
+        }
+        if (hasSpecialGeode && (oreBlockId != null || oreNodeHeartBlockId != null || oreNodeCount != 0)) {
+            throw new IllegalArgumentException("Special geodes and GeOre node-geodes are mutually exclusive");
+        }
+        if (!quality.isProductive() && oreNodeCount != 0) {
+            throw new IllegalArgumentException("Dry chamber plans cannot contain ore nodes");
         }
     }
 
@@ -44,7 +67,20 @@ public record ExpeditionSiteBlockPlan(
             return 0L;
         }
         return blocks.values().stream()
-                .filter(state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(oreBlockId))
+                .map(state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()))
+                .filter(id -> id.equals(oreBlockId) || id.equals(oreNodeHeartBlockId))
+                .count();
+    }
+
+    public long oreNodeHeartCount() {
+        if (oreNodeHeartBlockId == null) {
+            return 0L;
+        }
+        if (oreNodeHeartBlockId.equals(oreBlockId)) {
+            return oreNodeCount;
+        }
+        return blocks.values().stream()
+                .filter(state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(oreNodeHeartBlockId))
                 .count();
     }
 

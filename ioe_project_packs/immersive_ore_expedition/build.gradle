@@ -32,9 +32,21 @@ neoForge {
 }
 
 repositories {
+    mavenCentral()
     maven {
         name = 'New JourneyMap Maven'
         url = uri('https://maven.blamejared.com')
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Modrinth'
+                url = uri('https://api.modrinth.com/maven')
+            }
+        }
+        filter {
+            includeGroup 'maven.modrinth'
+        }
     }
 }
 
@@ -47,7 +59,11 @@ def replacementProperties = [
         mod_license         : mod_license,
         mod_version         : mod_version,
         mod_authors         : mod_authors,
-        mod_description     : mod_description
+        mod_description     : mod_description,
+        ae2_version_range   : ae2_version_range,
+        ae2cs_version_range : ae2cs_version_range,
+        extendedae_version_range: extendedae_version_range,
+        geore_version_range : geore_version_range
 ]
 
 tasks.named('processResources', ProcessResources).configure {
@@ -64,6 +80,9 @@ tasks.named('jar', Jar).configure {
 
 dependencies {
     compileOnly group: 'info.journeymap', name: 'journeymap-api-neoforge', version: journeymap_api_version, changing: true
+    runtimeOnly "org.appliedenergistics:appliedenergistics2:${ae2_runtime_version}"
+    runtimeOnly "maven.modrinth:${ae2cs_modrinth_project}:${ae2cs_modrinth_version}"
+    runtimeOnly "maven.modrinth:${geore_modrinth_project}:${geore_modrinth_version}"
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'

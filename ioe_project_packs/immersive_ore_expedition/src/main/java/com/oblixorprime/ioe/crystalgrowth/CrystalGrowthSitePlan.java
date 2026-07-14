@@ -61,7 +61,7 @@ public record CrystalGrowthSitePlan(
             case AE2_CERTUS -> {
                 requireBlock(coreResource, "AE2 Certus core");
                 requireAe2Namespace(coreResource, "AE2 Certus core");
-                requirePathToken(coreResource, "certus", "AE2 Certus core");
+                requireBuddingCertusPath(coreResource, "AE2 Certus core");
                 outerCrustResource.ifPresent(CrystalGrowthSitePlan::requireSkyStoneCrust);
                 if (meteoriticVariant && outerCrustResource.isEmpty()) {
                     throw new IllegalArgumentException("Meteoritic AE2 Certus plans require a sky-stone outer crust");
@@ -93,7 +93,8 @@ public record CrystalGrowthSitePlan(
         if (isNamespace(coreResource, "minecraft") && coreResource.id().getPath().contains("amethyst")) {
             return;
         }
-        if (isAe2Namespace(coreResource) && coreResource.id().getPath().contains("certus")) {
+        if (isAe2Namespace(coreResource)
+                && CrystalGrowthCompatGates.isNativeBuddingCertusPath(coreResource.id().getPath())) {
             return;
         }
         if (isNamespace(coreResource, CrystalGrowthCompatGates.GEORE)) {
@@ -106,7 +107,7 @@ public record CrystalGrowthSitePlan(
         requireBlock(crustResource, "Sky-stone crust");
         requireAe2Namespace(crustResource, "Sky-stone crust");
         String path = crustResource.id().getPath();
-        if (!"sky_stone".equals(path) && !"skystone".equals(path)) {
+        if (!"sky_stone_block".equals(path)) {
             throw new IllegalArgumentException("Sky-stone crust must use an AE2 sky-stone block: " + crustResource.id());
         }
     }
@@ -132,6 +133,12 @@ public record CrystalGrowthSitePlan(
     private static void requirePathToken(ResourceRef resource, String token, String label) {
         if (!resource.id().getPath().contains(token)) {
             throw new IllegalArgumentException(label + " must contain '" + token + "': " + resource.id());
+        }
+    }
+
+    private static void requireBuddingCertusPath(ResourceRef resource, String label) {
+        if (!CrystalGrowthCompatGates.isNativeBuddingCertusPath(resource.id().getPath())) {
+            throw new IllegalArgumentException(label + " must use a native AE2 budding Certus tier: " + resource.id());
         }
     }
 

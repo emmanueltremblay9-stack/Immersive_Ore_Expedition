@@ -60,6 +60,10 @@ public final class ResourcePolicyService {
     );
     private static final Set<String> DRACONIC_EVOLUTION_TOKENS = Set.of("draconium");
     private static final Set<String> COMMON_TAG_NAMESPACES = Set.of("c", "forge");
+    private static final Set<ResourceLocation> APPROVED_SPECIAL_GROWTH_BLOCKS = Set.of(
+            ResourceLocation.fromNamespaceAndPath("ae2", "fluix_block"),
+            ResourceLocation.fromNamespaceAndPath("extendedae", "entro_budding_fully")
+    );
 
     public boolean isApprovedResource(ResourceLocation id) {
         if (id == null || isExcludedResource(id)) {
@@ -68,6 +72,9 @@ public final class ResourcePolicyService {
 
         String namespace = normalize(id.getNamespace());
         String path = normalize(id.getPath());
+        if (APPROVED_SPECIAL_GROWTH_BLOCKS.contains(id)) {
+            return true;
+        }
         if (path.contains("fluix")) {
             return false;
         }
