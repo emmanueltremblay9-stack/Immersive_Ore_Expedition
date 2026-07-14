@@ -70,17 +70,16 @@ final class MeteoriticAe2GeodePlacementPlannerTest {
     void enabledRuntimeGateCanPlanMeteoriticAe2Geode() {
         ResourceRef certus = certus();
         ResourceRef crust = skyStone();
-        ResourceRef middle = certusMiddleLayer();
         MeteoriticAe2GeodePlacementPlanner planner = planner(
                 AE2_CRYSTAL_STACK,
-                Set.of(certus, crust, middle)
+                Set.of(certus, crust)
         );
 
         MeteoriticAe2GeodePlacementPlan plan = planner.planMeteoriticAe2Geode(
                 anchor(),
                 certus,
                 crust,
-                middle,
+                null,
                 certus,
                 ORIGIN,
                 null,
@@ -94,7 +93,7 @@ final class MeteoriticAe2GeodePlacementPlannerTest {
         assertEquals(MeteoriticAe2GeodePlacementPlan.SourceSystem.AE2_METEORITIC, plan.sourceSystem());
         assertEquals(certus, plan.primaryResource());
         assertEquals(Optional.of(crust), plan.skyStoneCrustResource());
-        assertEquals(Optional.of(middle), plan.middleLayerResource());
+        assertEquals(Optional.empty(), plan.middleLayerResource());
         assertEquals(Optional.of(certus), plan.crystalCoreResource());
         assertEquals(Optional.of(ANCHOR_TYPE), plan.anchorType());
         assertTrue(plan.layerMetadata().orElseThrow().skyStoneCrustRequired());
@@ -179,7 +178,7 @@ final class MeteoriticAe2GeodePlacementPlannerTest {
     }
 
     @Test
-    void policyDeniedResourceIsSkippedSafely() {
+    void unsupportedMiddleLayerIsRejectedBeforePolicyEvaluation() {
         ResourceRef certus = certus();
         ResourceRef crust = skyStone();
         ResourceRef deniedMiddleLayer = ResourceRef.block("ae2", "decorative_layer");
@@ -202,12 +201,12 @@ final class MeteoriticAe2GeodePlacementPlannerTest {
         );
 
         assertFalse(plan.placementAllowed());
-        assertEquals(MeteoriticAe2GeodePlacementPlan.Decision.SKIP_RESOURCE_DENIED, plan.decision());
-        assertEquals(MeteoriticAe2GeodePlacementPlan.SkipReason.RESOURCE_DENIED_BY_POLICY, plan.skipReason());
+        assertEquals(MeteoriticAe2GeodePlacementPlan.Decision.SKIP_INVALID_GEODE_TYPE, plan.decision());
+        assertEquals(MeteoriticAe2GeodePlacementPlan.SkipReason.INVALID_GEODE_TYPE, plan.skipReason());
     }
 
     @Test
-    void strictExclusionsWin() {
+    void nonNativeCertusIdentifierFailsShapeValidation() {
         ResourceRef excludedCertus = ResourceRef.block("ae2", "tin_certus_quartz");
         ResourceRef crust = skyStone();
         MeteoriticAe2GeodePlacementPlanner planner = planner(
@@ -229,8 +228,8 @@ final class MeteoriticAe2GeodePlacementPlannerTest {
         );
 
         assertFalse(plan.placementAllowed());
-        assertEquals(MeteoriticAe2GeodePlacementPlan.Decision.SKIP_STRICT_EXCLUSION, plan.decision());
-        assertEquals(MeteoriticAe2GeodePlacementPlan.SkipReason.STRICT_EXCLUSION, plan.skipReason());
+        assertEquals(MeteoriticAe2GeodePlacementPlan.Decision.SKIP_INVALID_GEODE_TYPE, plan.decision());
+        assertEquals(MeteoriticAe2GeodePlacementPlan.SkipReason.INVALID_GEODE_TYPE, plan.skipReason());
     }
 
     @Test
@@ -532,7 +531,4 @@ final class MeteoriticAe2GeodePlacementPlannerTest {
         return ResourceRef.block("ae2", "sky_stone_block");
     }
 
-    private static ResourceRef certusMiddleLayer() {
-        return ResourceRef.block("ae2", "certus_quartz_block");
-    }
 }
