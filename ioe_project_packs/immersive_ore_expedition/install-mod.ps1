@@ -300,21 +300,25 @@ function Get-ModJarMatches {
 function Get-DependencyReport {
     param(
         [Parameter(Mandatory = $true)][object[]]$Dependencies,
-        [Parameter(Mandatory = $true)][System.IO.FileInfo[]]$InstalledJars
+        [Parameter(Mandatory = $true)][System.IO.FileInfo[]]$InstalledJars,
+        [Parameter(Mandatory = $true)][hashtable]$PlatformVersions
     )
 
     $platformIds = @("minecraft", "neoforge")
     $report = @()
     foreach ($dependency in $Dependencies) {
         if ($platformIds -contains $dependency.ModId) {
+            $platformVersion = $PlatformVersions[$dependency.ModId]
             $report += [ordered]@{
                 ModId = $dependency.ModId
                 Type = $dependency.Type
                 VersionRange = $dependency.VersionRange
                 PlatformDependency = $true
+                ResolvedVersion = $platformVersion
+                VersionSource = "gradle.properties"
                 Count = $null
                 ExactlyOne = $null
-                VersionCompatible = $null
+                VersionCompatible = Test-VersionRange -Version $platformVersion -VersionRange $dependency.VersionRange
                 Jars = @()
             }
             continue
@@ -414,15 +418,22 @@ if ($missingFeatureEntries.Count -gt 0) {
 $installedJars = @(Get-ChildItem -LiteralPath $ResolvedModsDir -Filter "*.jar" -File)
 $oldJarMatches = @(Get-ModJarMatches -Jars $installedJars -ModId $ModId)
 $declaredDependencies = @(Get-DeclaredDependencies -Metadata $sourceIdentity.Metadata -OwnerModId $ModId)
-$dependencyReport = @(Get-DependencyReport -Dependencies $declaredDependencies -InstalledJars $installedJars)
-$requiredRuntimeDependencies = @($dependencyReport | Where-Object {
-        $_.Type -eq "required" -and -not $_.PlatformDependency
+$platformVersions = @{
+    minecraft = $properties["minecraft_version"]
+    neoforge = $properties["neo_version"]
+}
+$dependencyReport = @(Get-DependencyReport `
+        -Dependencies $declaredDependencies `
+        -InstalledJars $installedJars `
+        -PlatformVersions $platformVersions)
+$requiredDependencies = @($dependencyReport | Where-Object {
+        $_.Type -eq "required"
     })
 $duplicateOptionalDependencies = @($dependencyReport | Where-Object {
         $_.Type -eq "optional" -and -not $_.PlatformDependency -and $_.Count -gt 1
     })
-$dependencyStackReady = (@($requiredRuntimeDependencies | Where-Object {
-            -not $_.ExactlyOne -or -not $_.VersionCompatible
+$dependencyStackReady = (@($requiredDependencies | Where-Object {
+            -not $_.VersionCompatible -or (-not $_.PlatformDependency -and -not $_.ExactlyOne)
         }).Count -eq 0) -and
         ($duplicateOptionalDependencies.Count -eq 0)
 
@@ -523,10 +534,22 @@ if (-not $PlanOnly) {
             $rollbackPerformed = $true
             try {
                 if (Test-Path -LiteralPath $targetJarPath -PathType Leaf) {
+                    $rollbackTargetIdentity = Get-JarIdentity -JarPath $targetJarPath
+                    $rollbackTargetHash = (Get-FileHash -LiteralPath $targetJarPath -Algorithm SHA256).Hash
+                    if ($rollbackTargetIdentity.ModId -ne $ModId -or $rollbackTargetHash -ne $sourceHash) {
+                        throw "Rollback refused because the target JAR changed after staging: $targetJarPath"
+                    }
                     Remove-Item -LiteralPath $targetJarPath -Force
                 }
                 foreach ($backupRecord in $backupRecords) {
-                    Copy-Item -LiteralPath $backupRecord.BackupPath -Destination $backupRecord.OriginalPath -Force
+                    if (Test-Path -LiteralPath $backupRecord.OriginalPath -PathType Leaf) {
+                        $currentOriginalHash = (Get-FileHash -LiteralPath $backupRecord.OriginalPath -Algorithm SHA256).Hash
+                        if ($currentOriginalHash -ne $backupRecord.Sha256) {
+                            throw "Rollback refused to overwrite a concurrently changed JAR: $($backupRecord.OriginalPath)"
+                        }
+                    } else {
+                        Copy-Item -LiteralPath $backupRecord.BackupPath -Destination $backupRecord.OriginalPath
+                    }
                     $restoredHash = (Get-FileHash -LiteralPath $backupRecord.OriginalPath -Algorithm SHA256).Hash
                     if ($restoredHash -ne $backupRecord.Sha256) {
                         throw "Rollback hash mismatch for $($backupRecord.OriginalPath)."
