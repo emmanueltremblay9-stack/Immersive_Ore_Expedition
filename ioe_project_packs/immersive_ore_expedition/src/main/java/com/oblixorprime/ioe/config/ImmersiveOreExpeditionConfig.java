@@ -231,10 +231,10 @@ public final class ImmersiveOreExpeditionConfig {
     private static final ModConfigSpec.BooleanValue WORLDGEN_ORE_LOAD_CHAMBER = worldgenStructure("oreLoadChamber");
 
     private static final ModConfigSpec.BooleanValue CRYSTAL_ENABLED = BUILDER
-            .comment("Enable IOE crystal-growth planning services.")
+            .comment("Enable IOE crystal-site placement planning; AE2 and AE2 Crystal Science retain crystal processing authority.")
             .define("crystalGrowth.enabled", DEFAULT_CRYSTAL_ENABLED);
     private static final ModConfigSpec.BooleanValue CRYSTAL_REQUIRE_STRUCTURE_ANCHOR = BUILDER
-            .comment("Require crystal-growth sites to be tied to an expedition anchor.")
+            .comment("Require IOE-placed crystal sites to be tied to an expedition anchor.")
             .define("crystalGrowth.requireStructureAnchor", DEFAULT_CRYSTAL_REQUIRE_STRUCTURE_ANCHOR);
     private static final ModConfigSpec.BooleanValue CRYSTAL_ALLOW_RANDOM_FREE_CRYSTAL_SITES = BUILDER
             .comment("Keep false to prevent random free crystal caves outside IOE anchors.")
@@ -252,7 +252,7 @@ public final class ImmersiveOreExpeditionConfig {
             .comment("Do not add random surface AE2 meteorites from this module.")
             .define("crystalGrowth.ae2.surfaceMeteorites", DEFAULT_AE2_SURFACE_METEORITES);
     private static final ModConfigSpec.BooleanValue CRYSTAL_AE2_BURIED_METEORITES = BUILDER
-            .comment("Allow buried AE2 Certus/meteorite site plans when AE2 is loaded.")
+            .comment("Allow buried AE2 Certus/meteorite site plans when the required AE2 and AE2 Crystal Science stack is loaded.")
             .define("crystalGrowth.ae2.buriedMeteorites", DEFAULT_AE2_BURIED_METEORITES);
     private static final ModConfigSpec.BooleanValue CRYSTAL_AE2_ALLOW_BUDDING_CERTUS_SITES = BUILDER
             .comment("Allow supplied budding Certus resources to pass site planning when present and approved.")

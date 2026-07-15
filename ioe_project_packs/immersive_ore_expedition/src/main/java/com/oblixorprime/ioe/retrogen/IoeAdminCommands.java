@@ -149,7 +149,7 @@ public final class IoeAdminCommands {
                 kind,
                 source.getLevel().dimension(),
                 origin,
-                ExpeditionLocatorService.index()
+                ExpeditionLocatorService.index(source.getLevel())
         ));
     }
 

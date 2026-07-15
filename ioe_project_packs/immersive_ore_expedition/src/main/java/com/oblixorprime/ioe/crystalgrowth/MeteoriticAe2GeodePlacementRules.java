@@ -85,7 +85,8 @@ final class MeteoriticAe2GeodePlacementRules {
                     MeteoriticAe2GeodePlacementPlan.Decision.SKIP_INVALID_LAYER_METADATA,
                     MeteoriticAe2GeodePlacementPlan.SkipReason.INVALID_LAYER_METADATA);
         }
-        if (IoeCrystalGrowthConfig.meteoriticGeodeRequiresAe2() && !CrystalGrowthCompatGates.ae2Enabled(scanner)) {
+        if (IoeCrystalGrowthConfig.meteoriticGeodeRequiresAe2()
+                && !CrystalGrowthCompatGates.ae2CrystalProcessingStackEnabled(scanner)) {
             return skipped(geodeType, sourceSystem, primaryResource, skyStoneCrustResource, middleLayerResource,
                     crystalCoreResource, origin, layerMetadata,
                     MeteoriticAe2GeodePlacementPlan.Decision.SKIP_OPTIONAL_MOD_ABSENT,
@@ -185,7 +186,7 @@ final class MeteoriticAe2GeodePlacementRules {
         if (skyStoneCrustResource != null && !isSkyStoneBlock(skyStoneCrustResource)) {
             return false;
         }
-        if (middleLayerResource != null && !isAe2MiddleLayerBlock(middleLayerResource)) {
+        if (middleLayerResource != null) {
             return false;
         }
         return crystalCoreResource == null || isAe2CertusBlock(crystalCoreResource);
@@ -203,15 +204,12 @@ final class MeteoriticAe2GeodePlacementRules {
     }
 
     private static boolean isAe2CertusBlock(ResourceRef resource) {
-        return isAe2Block(resource) && resource.id().getPath().contains("certus");
+        return isAe2Block(resource)
+                && CrystalGrowthCompatGates.isNativeBuddingCertusPath(resource.id().getPath());
     }
 
     private static boolean isSkyStoneBlock(ResourceRef resource) {
         return isAe2Block(resource) && isSkyStonePath(resource.id().getPath());
-    }
-
-    private static boolean isAe2MiddleLayerBlock(ResourceRef resource) {
-        return isAe2Block(resource) && !isFakeFluix(resource);
     }
 
     private static boolean isAe2Block(ResourceRef resource) {
@@ -222,7 +220,7 @@ final class MeteoriticAe2GeodePlacementRules {
     }
 
     private static boolean isSkyStonePath(String path) {
-        return "sky_stone".equals(path) || "skystone".equals(path);
+        return "sky_stone_block".equals(path);
     }
 
     private static MeteoriticAe2GeodePlacementPlan skipped(

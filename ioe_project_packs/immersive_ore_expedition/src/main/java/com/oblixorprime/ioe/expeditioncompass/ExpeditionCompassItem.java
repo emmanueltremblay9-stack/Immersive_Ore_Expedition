@@ -68,7 +68,7 @@ public class ExpeditionCompassItem extends CompassItem {
                         serverPlayer,
                         usedHand,
                         stack,
-                        ExpeditionLocatorService.compassIndex(serverPlayer.level().dimension(), serverPlayer.blockPosition())
+                        ExpeditionLocatorService.compassIndex(serverPlayer.serverLevel(), serverPlayer.blockPosition())
                 );
             }
         }

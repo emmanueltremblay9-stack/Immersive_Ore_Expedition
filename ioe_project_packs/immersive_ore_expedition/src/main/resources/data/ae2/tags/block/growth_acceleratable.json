@@ -1,0 +1,22 @@
+{
+  "replace": false,
+  "values": [
+    "geore:budding_aluminum",
+    "geore:budding_coal",
+    "geore:budding_copper",
+    "geore:budding_diamond",
+    "geore:budding_emerald",
+    "geore:budding_gold",
+    "geore:budding_iron",
+    "geore:budding_lapis",
+    "geore:budding_lead",
+    "geore:budding_nickel",
+    "geore:budding_redstone",
+    "geore:budding_silver",
+    "geore:budding_uranium",
+    {
+      "id": "extendedae:entro_budding_fully",
+      "required": false
+    }
+  ]
+}

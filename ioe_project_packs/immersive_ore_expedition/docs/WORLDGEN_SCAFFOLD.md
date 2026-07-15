@@ -78,6 +78,10 @@ v14 adds deterministic meteoritic AE2 geode placement planning scaffold for buri
 
 This remains scaffold-only planning. Runtime worldgen remains default-off and no-op, no live Sky Stone crust, Certus core, geode layers, or meteorite blocks are placed, no fake Fluix ore is generated, no configured features or placed features are registered, no biome modifiers are registered, no blocks are placed or removed, no ore generation is intercepted, and no retrogen mutation is added.
 
+## Current runtime integration note
+
+The v13/v14 paragraphs above describe the original planning classes and remain true for those planners in isolation. The active `worldgen` package now has a separate runtime path: IOE expedition features place mutually exclusive GeOre, AE2, or ExtendedAE formations inside connected mine chambers, and the final biome modifier removes the explicitly controlled physical ore features. See `ORE_NODE_SYSTEM.md`, `GEORE_INTEGRATION.md`, `AE2_METEORITE_INTEGRATION.md`, `EXTENDEDAE_GEODE_INTEGRATION.md`, and `IMMERSIVE_ENGINEERING_RESOURCE_INTEGRATION.md` for the current contract.
+
 The planner preserves optional AE2 safety, uses only supplied existing AE2 resource references, rejects unloaded, policy-denied, strictly excluded, malformed, or fake Fluix resources safely, and stores no world references, block-state lists, or runtime placement hooks. v15 is expected to handle Nether sub-lava geode planning scaffold work.
 
 ## Province System v15 Nether sub-lava geode planning
@@ -276,3 +280,7 @@ v37 adds a narrow default-off/manual applier proof layer for ore-load chamber bl
 The only new world mutation boundary is isolated in the applier's explicit `WorldGenLevel` adapter. No planner calls `setBlock`, no biome modifier or resource JSON invokes the applier, and no automatic placement path is registered by this slice. Source-level tests use a small target seam so replacement and result behavior can be verified without vanilla bootstrap-heavy block initialization.
 
 This remains runtime proof plumbing only. It does not enable runtime worldgen by default, change active `src/main/resources`, change active JSON, alter config defaults, bind real biomes by default, modify legacy split-module source trees, add blocks/items/entities/ores/gems/resources, add mixins, add access transformers, add dependencies, or complete the surface clue to anchored ore-load gameplay loop. Manual client/server/world smoke evidence is still required before claiming live placement or gameplay proof.
+
+## Superseding active-worldgen note
+
+All versioned scaffold statements above are historical scope records for their individual slices. The current active module now registers expedition features and a final ore-replacement biome modifier. Those older default-off statements must not be used as the present runtime contract; the current source and the integration documents linked in the earlier runtime note are authoritative. Runtime behavior remains unverified until GitHub-hosted validation and an explicitly authorized world smoke run are completed.

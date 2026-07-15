@@ -25,6 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 final class CrystalSitePlacementPlannerTest {
     private static final IoeWorldgenPlacementGates ENABLED_GATES =
             new IoeWorldgenPlacementGates(true, false, false);
+    private static final Set<String> AE2_CRYSTAL_STACK = Set.of(
+            CrystalGrowthCompatGates.AE2,
+            CrystalGrowthCompatGates.AE2_CRYSTAL_SCIENCE
+    );
     private static final BlockPos ORIGIN = new BlockPos(48, 42, 64);
     private static final ResourceLocation ANCHOR_TYPE =
             ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, "crystal_growth_chamber");
@@ -73,10 +77,10 @@ final class CrystalSitePlacementPlannerTest {
 
     @Test
     void enabledRuntimeGateCanPlanAe2CertusGrowthSite() {
-        ResourceRef certus = ResourceRef.block("ae2", "budding_certus_quartz");
-        ResourceRef crust = ResourceRef.block("ae2", "sky_stone");
+        ResourceRef certus = ResourceRef.block("ae2", "flawless_budding_quartz");
+        ResourceRef crust = ResourceRef.block("ae2", "sky_stone_block");
         CrystalSitePlacementPlanner planner = planner(
-                Set.of(CrystalGrowthCompatGates.AE2),
+                AE2_CRYSTAL_STACK,
                 Set.of(certus, crust)
         );
 
@@ -127,8 +131,8 @@ final class CrystalSitePlacementPlannerTest {
 
     @Test
     void optionalAe2AbsenceIsHandledSafely() {
-        ResourceRef certus = ResourceRef.block("ae2", "budding_certus_quartz");
-        ResourceRef crust = ResourceRef.block("ae2", "sky_stone");
+        ResourceRef certus = ResourceRef.block("ae2", "flawless_budding_quartz");
+        ResourceRef crust = ResourceRef.block("ae2", "sky_stone_block");
         CrystalSitePlacementPlanner planner = planner(Set.of(), Set.of(certus, crust));
 
         CrystalSitePlacementPlan plan = planner.planAe2CertusSite(
@@ -301,9 +305,9 @@ final class CrystalSitePlacementPlannerTest {
     @Test
     void fakeFluixOreIsForbidden() {
         ResourceRef fluix = ResourceRef.block("ae2", "fluix_ore");
-        ResourceRef crust = ResourceRef.block("ae2", "sky_stone");
+        ResourceRef crust = ResourceRef.block("ae2", "sky_stone_block");
         CrystalSitePlacementPlanner planner = planner(
-                Set.of(CrystalGrowthCompatGates.AE2),
+                AE2_CRYSTAL_STACK,
                 Set.of(fluix, crust)
         );
 
@@ -352,8 +356,8 @@ final class CrystalSitePlacementPlannerTest {
     @Test
     void existingCrystalGrowthProviderBehaviorRemainsUnchanged() {
         ResourceRef amethyst = ResourceRef.block("minecraft", "amethyst_block");
-        ResourceRef certus = ResourceRef.block("ae2", "budding_certus_quartz");
-        ResourceRef crust = ResourceRef.block("ae2", "sky_stone");
+        ResourceRef certus = ResourceRef.block("ae2", "flawless_budding_quartz");
+        ResourceRef crust = ResourceRef.block("ae2", "sky_stone_block");
         ResourceRef diamondGeOre = ResourceRef.block("geore", "diamond_geore");
 
         assertTrue(amethystProvider.planSite(anchor(), amethyst, scanner(Set.of(), Set.of(amethyst)), policyService).isPresent());
@@ -361,7 +365,7 @@ final class CrystalSitePlacementPlannerTest {
                 anchor(),
                 certus,
                 Optional.of(crust),
-                scanner(Set.of(CrystalGrowthCompatGates.AE2), Set.of(certus, crust)),
+                scanner(AE2_CRYSTAL_STACK, Set.of(certus, crust)),
                 policyService
         ).isPresent());
         assertTrue(geOreProvider.planGeOreSite(

@@ -32,7 +32,7 @@ final class CrystalGrowthSitePlanTest {
         assertThrows(IllegalArgumentException.class, () -> plan(
                 CrystalGrowthSiteType.AE2_CERTUS,
                 ResourceRef.item("ae2", "certus_quartz_crystal"),
-                Optional.of(ResourceRef.block("ae2", "sky_stone")),
+                Optional.of(ResourceRef.block("ae2", "sky_stone_block")),
                 true,
                 false
         ));
@@ -53,8 +53,8 @@ final class CrystalGrowthSitePlanTest {
     void acceptsValidMeteoriticCertusPlanShape() {
         assertDoesNotThrow(() -> plan(
                 CrystalGrowthSiteType.AE2_CERTUS,
-                ResourceRef.block("ae2", "budding_certus_quartz"),
-                Optional.of(ResourceRef.block("ae2", "sky_stone")),
+                ResourceRef.block("ae2", "flawless_budding_quartz"),
+                Optional.of(ResourceRef.block("ae2", "sky_stone_block")),
                 true,
                 false
         ));

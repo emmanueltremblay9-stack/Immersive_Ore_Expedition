@@ -1,45 +1,29 @@
 package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.core.LoadedResourceScanner;
-import com.oblixorprime.ioe.core.ResourcePolicyDecision;
-import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.ResourceRef;
+import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.core.SiteQualityRoll;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSitePlacementState;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguration> {
     private static final int BLOCK_UPDATE_FLAGS = 2;
     private static final ResourcePolicyService RESOURCE_POLICY = new ResourcePolicyService();
-    private static final List<OreChoice> VANILLA_ORE_CHOICES = List.of(
-            ore("coal_ore", Blocks.COAL_ORE),
-            ore("iron_ore", Blocks.IRON_ORE),
-            ore("copper_ore", Blocks.COPPER_ORE),
-            ore("gold_ore", Blocks.GOLD_ORE),
-            ore("redstone_ore", Blocks.REDSTONE_ORE),
-            ore("lapis_ore", Blocks.LAPIS_ORE),
-            ore("diamond_ore", Blocks.DIAMOND_ORE),
-            ore("emerald_ore", Blocks.EMERALD_ORE)
-    );
-
     private final ExpeditionSiteType siteType;
 
     public ExpeditionSiteFeature(ExpeditionSiteType siteType) {
@@ -69,9 +53,51 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         }
 
         SiteQuality quality = SiteQualityRoll.DEFAULT.roll(context.random());
-        OreChoice oreChoice = quality.isProductive() ? chooseLoadedOre(context.random()) : null;
-        if (quality.isProductive() && oreChoice == null) {
-            logSkipped(origin, "no loaded and approved ore block was available");
+        SpecialMineGeode specialGeode = null;
+        if (quality.isProductive()
+                && siteType == ExpeditionSiteType.BURIED_SURVEY_MARKER
+                && Ae2MeteoriteIntegration.isCrystalProcessingStackLoaded()) {
+            specialGeode = Ae2MeteoriteIntegration.resolve()
+                    .map(material -> new SpecialMineGeode(
+                            IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE,
+                            material.buddingResource(),
+                            material.buddingBlock(),
+                            material.skyStoneResource(),
+                            material.skyStoneBlock()
+                    ))
+                    .orElse(null);
+            if (!usableSpecialGeode(specialGeode)) {
+                logSkipped(origin, "the required AE2/AE2 Crystal Science stack is loaded but its budding Certus meteorite resources are unavailable");
+                return false;
+            }
+        }
+        if (quality.isProductive()
+                && siteType == ExpeditionSiteType.COLLAPSED_SHAFT
+                && ExtendedAeGeodeIntegration.isLoaded()) {
+            specialGeode = ExtendedAeGeodeIntegration.resolve()
+                    .map(material -> new SpecialMineGeode(
+                            IoeWorldgenFeatureKeys.ENTROIZED_FLUIX_GEODE,
+                            material.buddingResource(),
+                            material.buddingBlock(),
+                            material.shellResource(),
+                            material.shellBlock()
+                    ))
+                    .orElse(null);
+            if (!usableSpecialGeode(specialGeode)) {
+                logSkipped(origin, "ExtendedAE is loaded but its Entroized Fluix geode resources are unavailable");
+                return false;
+            }
+        }
+        boolean specialGeodeMine = specialGeode != null;
+        boolean needsOreProfile = quality.isProductive() && !specialGeodeMine;
+        BiomeOreNodeProfile oreProfile = BiomeOreNodeProfile.resolve(context.level(), origin).orElse(null);
+        if (needsOreProfile && oreProfile == null) {
+            logSkipped(origin, "the origin biome has no ore-node profile");
+            return false;
+        }
+        if (needsOreProfile
+                && !RESOURCE_POLICY.evaluate(oreProfile.resource(), LoadedResourceScanner.runtime()).shouldUse()) {
+            logSkipped(origin, "the biome ore-node resource is unavailable or denied by policy");
             return false;
         }
 
@@ -79,8 +105,15 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 siteType,
                 origin,
                 quality,
-                oreChoice == null ? null : oreChoice.resource().id(),
-                oreChoice == null ? null : oreChoice.block().defaultBlockState(),
+                needsOreProfile ? oreProfile.resource().id() : null,
+                needsOreProfile ? oreProfile.oreBlock().defaultBlockState() : null,
+                needsOreProfile ? oreProfile.buddingResource().id() : null,
+                needsOreProfile ? oreProfile.buddingBlock().defaultBlockState() : null,
+                specialGeode == null ? null : specialGeode.componentId(),
+                specialGeode == null ? null : specialGeode.buddingBlock().defaultBlockState(),
+                specialGeode == null ? null : specialGeode.shellBlock().defaultBlockState(),
+                needsOreProfile ? oreProfile.oreBudget(quality) : 0,
+                needsOreProfile ? oreProfile.nodeCount(quality) : 0,
                 context.random()
         );
         if (siteType.naturalSurfaceSite() && !plan.isConnectedExpeditionSite()) {
@@ -93,7 +126,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         }
 
         if (siteType.naturalSurfaceSite()) {
-            recordPlacedSite(context.level(), plan);
+            recordPlacedSite(context.level(), plan, oreProfile);
         }
         return true;
     }
@@ -135,6 +168,18 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         return new BlockPos(x, maxY, z);
     }
 
+    private static boolean usableSpecialGeode(SpecialMineGeode material) {
+        return material != null
+                && RESOURCE_POLICY.evaluate(
+                material.buddingResource(),
+                LoadedResourceScanner.runtime()
+        ).shouldUse()
+                && RESOURCE_POLICY.evaluate(
+                material.shellResource(),
+                LoadedResourceScanner.runtime()
+        ).shouldUse();
+    }
+
     private static int clamp(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));
     }
@@ -143,18 +188,6 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         return !type.naturalSurfaceSite()
                 || IoeWorldgenConfig.basicMineshaftConnectorEnabled()
                 && IoeWorldgenConfig.oreLoadChamberEnabled();
-    }
-
-    private static OreChoice chooseLoadedOre(RandomSource random) {
-        int start = random.nextInt(VANILLA_ORE_CHOICES.size());
-        for (int offset = 0; offset < VANILLA_ORE_CHOICES.size(); offset++) {
-            OreChoice choice = VANILLA_ORE_CHOICES.get((start + offset) % VANILLA_ORE_CHOICES.size());
-            ResourcePolicyDecision decision = RESOURCE_POLICY.evaluate(choice.resource(), LoadedResourceScanner.runtime());
-            if (decision.shouldUse()) {
-                return choice;
-            }
-        }
-        return null;
     }
 
     private static boolean withinBuildHeight(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
@@ -192,9 +225,13 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         return existing.isAir() || OreLoadChamberReplacementRules.canReplace(existing);
     }
 
-    private static void recordPlacedSite(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
+    private static void recordPlacedSite(
+            WorldGenLevel level,
+            ExpeditionSiteBlockPlan plan,
+            BiomeOreNodeProfile oreProfile
+    ) {
         ResourceLocation provinceId = ResourceLocation.tryParse(IoeWorldgenConfig.defaultProvince());
-        ExpeditionLocatorService.index().record(ExpeditionSite.anchor(
+        ExpeditionLocatorService.record(level.getLevel(), ExpeditionSite.anchor(
                 level.getLevel().dimension(),
                 plan.anchorPos(),
                 plan.requestedFeatureId(),
@@ -205,13 +242,23 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 null
         ));
         if (IoeWorldgenConfig.runtimePlacementDiagnostics()) {
+            ResourceLocation biomeId = oreProfile == null
+                    ? level.getBiome(plan.anchorPos()).unwrapKey().map(key -> key.location()).orElse(null)
+                    : oreProfile.biomeId();
+            int connectedBiomeChunks = oreProfile == null ? 0 : oreProfile.sampledConnectedChunks();
             IoeExpeditionWorldgenMod.LOGGER.info(
-                    "Generated connected IOE expedition site type={} anchor={} chamber={} quality={} ore={} blocks={}",
+                    "Generated connected IOE expedition site type={} anchor={} chamber={} biome={} connectedBiomeChunks={} quality={} ore={} oreHeart={} oreNodes={} oreHearts={} oreBlocks={} blocks={}",
                     plan.requestedFeatureId(),
                     plan.anchorPos(),
                     plan.chamberCenter(),
+                    biomeId,
+                    connectedBiomeChunks,
                     plan.quality(),
                     plan.oreBlockId(),
+                    plan.oreNodeHeartBlockId(),
+                    plan.oreNodeCount(),
+                    plan.oreNodeHeartCount(),
+                    plan.oreBlockCount(),
                     plan.blocks().size()
             );
         }
@@ -223,19 +270,20 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         }
     }
 
-    private static OreChoice ore(String path, Block block) {
-        ResourceRef resource = ResourceRef.block("minecraft", path);
-        ResourceLocation actualId = BuiltInRegistries.BLOCK.getKey(block);
-        if (!resource.id().equals(actualId)) {
-            throw new IllegalStateException("Vanilla ore palette mismatch for " + resource.id() + ": " + actualId);
+    private record SpecialMineGeode(
+            ResourceLocation componentId,
+            ResourceRef buddingResource,
+            Block buddingBlock,
+            ResourceRef shellResource,
+            Block shellBlock
+    ) {
+        private SpecialMineGeode {
+            Objects.requireNonNull(componentId, "componentId");
+            Objects.requireNonNull(buddingResource, "buddingResource");
+            Objects.requireNonNull(buddingBlock, "buddingBlock");
+            Objects.requireNonNull(shellResource, "shellResource");
+            Objects.requireNonNull(shellBlock, "shellBlock");
         }
-        return new OreChoice(resource, block);
     }
 
-    private record OreChoice(ResourceRef resource, Block block) {
-        private OreChoice {
-            Objects.requireNonNull(resource, "resource");
-            Objects.requireNonNull(block, "block");
-        }
-    }
 }

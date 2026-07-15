@@ -213,7 +213,7 @@ public final class IoeCompassNetworking {
     }
 
     private static ExpeditionLocatorIndex compassIndexFor(ServerPlayer player) {
-        return ExpeditionLocatorService.compassIndex(player.level().dimension(), player.blockPosition());
+        return ExpeditionLocatorService.compassIndex(player.serverLevel(), player.blockPosition());
     }
 
     private static Optional<ItemStack> compassStack(ServerPlayer player, InteractionHand hand) {

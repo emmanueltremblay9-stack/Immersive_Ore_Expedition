@@ -18,6 +18,7 @@ public final class IoeWorldgenFeatureKeys {
     public static final ResourceLocation AE2_CERTUS_GROWTH_SITE = id("ae2_certus_growth_site");
     public static final ResourceLocation GEORE_GROWTH_SITE = id("geore_growth_site");
     public static final ResourceLocation METEORITIC_AE2_GEODE = id("meteoritic_ae2_geode");
+    public static final ResourceLocation ENTROIZED_FLUIX_GEODE = id("entroized_fluix_geode");
     public static final ResourceLocation SUB_LAVA_GEODE = id("sub_lava_geode");
 
     private static final List<ResourceLocation> ANCHOR_FEATURE_KEYS = List.of(
@@ -45,6 +46,7 @@ public final class IoeWorldgenFeatureKeys {
             AE2_CERTUS_GROWTH_SITE,
             GEORE_GROWTH_SITE,
             METEORITIC_AE2_GEODE,
+            ENTROIZED_FLUIX_GEODE,
             SUB_LAVA_GEODE
     );
 

@@ -29,7 +29,7 @@ public final class Ae2CertusSiteProvider implements CrystalGrowthSiteProvider {
 
     @Override
     public boolean isAvailable() {
-        return CrystalGrowthCompatGates.ae2Enabled(scanner);
+        return CrystalGrowthCompatGates.ae2CrystalProcessingStackEnabled(scanner);
     }
 
     @Override
@@ -53,7 +53,7 @@ public final class Ae2CertusSiteProvider implements CrystalGrowthSiteProvider {
         Objects.requireNonNull(scanner, "scanner");
         Objects.requireNonNull(policyService, "policyService");
 
-        if (!CrystalGrowthCompatGates.ae2Enabled(scanner)
+        if (!CrystalGrowthCompatGates.ae2CrystalProcessingStackEnabled(scanner)
                 || !IoeCrystalGrowthConfig.buriedMeteorites()
                 || !IoeCrystalGrowthConfig.allowBuddingCertusSites()
                 || !CrystalGrowthSiteRules.canPlanAnchoredSite(anchor)) {
@@ -99,7 +99,7 @@ public final class Ae2CertusSiteProvider implements CrystalGrowthSiteProvider {
         return resource != null
                 && resource.type() == ResourceType.BLOCK
                 && isAe2Resource(resource)
-                && resource.id().getPath().contains("certus");
+                && CrystalGrowthCompatGates.isNativeBuddingCertusPath(resource.id().getPath());
     }
 
     private static boolean isSkyStoneCrustResource(ResourceRef resource) {
@@ -118,7 +118,7 @@ public final class Ae2CertusSiteProvider implements CrystalGrowthSiteProvider {
     }
 
     private static boolean isSkyStonePath(String path) {
-        return "sky_stone".equals(path) || "skystone".equals(path);
+        return "sky_stone_block".equals(path);
     }
 
     @Override

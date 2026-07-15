@@ -1,0 +1,18 @@
+{
+  "type": "immersive_ore_expedition:replace_normal_ores_with_nodes",
+  "biomes": "#c:is_overworld",
+  "features": "#immersive_ore_expedition:normal_ore_generation",
+  "steps": [
+    "raw_generation",
+    "lakes",
+    "local_modifications",
+    "underground_structures",
+    "surface_structures",
+    "strongholds",
+    "underground_ores",
+    "underground_decoration",
+    "fluid_springs",
+    "vegetal_decoration",
+    "top_layer_modification"
+  ]
+}
