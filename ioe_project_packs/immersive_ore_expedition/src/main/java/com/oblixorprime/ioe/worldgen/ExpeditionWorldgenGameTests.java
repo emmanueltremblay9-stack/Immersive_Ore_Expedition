@@ -121,6 +121,10 @@ public final class ExpeditionWorldgenGameTests {
                     "Motherlode plan crossed its safe source-chunk boundary at local X=" + localX);
             helper.assertTrue(motherlode.oreBlockCount() == 24L,
                     "Motherlode plan did not contain its sparse 24-block ore budget");
+            helper.assertTrue(motherlode.oreNodeCount() == 4,
+                    "Motherlode plan did not retain its four connected ore nodes");
+            helper.assertTrue(motherlode.oreNodeHeartCount() == 4L,
+                    "Motherlode plan did not retain one budding heart per ore node");
         }
         helper.assertTrue(ExpeditionSiteType.registeredFeatureIds().size() == 6,
                 "The expedition-site catalog does not expose all six Feature ids");
@@ -154,7 +158,7 @@ public final class ExpeditionWorldgenGameTests {
         if (type.naturalSurfaceSite()) {
             helper.assertTrue(containsBlock(level, testChunk, Blocks.LADDER),
                     type.id() + " did not place a connected mineshaft ladder");
-            helper.assertTrue(containsAnyBlock(level, testChunk, ORE_BLOCKS),
+            helper.assertTrue(containsProductiveResourceNode(level, testChunk, origin, type),
                     type.id() + " did not place its connected ore-load chamber");
             if (type == ExpeditionSiteType.MINER_CAMP || type == ExpeditionSiteType.BURIED_SURVEY_MARKER) {
                 assertSealedSurfaceHatch(helper, level, origin, type);
@@ -202,7 +206,12 @@ public final class ExpeditionWorldgenGameTests {
         boolean placed = new ExpeditionSiteFeature(ExpeditionSiteType.ORE_LOAD_CHAMBER).place(context);
 
         helper.assertFalse(placed, "Standalone ore-load chamber bypassed the required anchor policy");
-        helper.assertFalse(containsAnyBlock(level, testChunk, ORE_BLOCKS),
+        helper.assertFalse(containsAnyProductiveResourceBlock(
+                        level,
+                        testChunk,
+                        origin,
+                        ExpeditionSiteType.ORE_LOAD_CHAMBER
+                ),
                 "Standalone ore-load chamber placed ore despite the required anchor policy");
         helper.succeed();
     }
@@ -232,6 +241,52 @@ public final class ExpeditionWorldgenGameTests {
             }
         }
         return false;
+    }
+
+    private static boolean containsProductiveResourceNode(
+            ServerLevel level,
+            ChunkPos chunk,
+            BlockPos origin,
+            ExpeditionSiteType type
+    ) {
+        return expectedProductiveResourceBlocks(level, origin, type)
+                .map(blocks -> blocks.stream().allMatch(block -> containsBlock(level, chunk, block)))
+                .orElse(false);
+    }
+
+    private static boolean containsAnyProductiveResourceBlock(
+            ServerLevel level,
+            ChunkPos chunk,
+            BlockPos origin,
+            ExpeditionSiteType type
+    ) {
+        return expectedProductiveResourceBlocks(level, origin, type)
+                .map(blocks -> blocks.stream().anyMatch(block -> containsBlock(level, chunk, block)))
+                .orElse(false);
+    }
+
+    private static Optional<Set<Block>> expectedProductiveResourceBlocks(
+            ServerLevel level,
+            BlockPos origin,
+            ExpeditionSiteType type
+    ) {
+        if (type == ExpeditionSiteType.BURIED_SURVEY_MARKER
+                && Ae2MeteoriteIntegration.isCrystalProcessingStackLoaded()) {
+            return Ae2MeteoriteIntegration.resolve().map(material -> Set.of(
+                    material.buddingBlock(),
+                    material.skyStoneBlock()
+            ));
+        }
+        if (type == ExpeditionSiteType.COLLAPSED_SHAFT && ExtendedAeGeodeIntegration.isLoaded()) {
+            return ExtendedAeGeodeIntegration.resolve().map(material -> Set.of(
+                    material.buddingBlock(),
+                    material.shellBlock()
+            ));
+        }
+        return BiomeOreNodeProfile.resolve(level, origin).map(profile -> Set.of(
+                profile.oreBlock(),
+                profile.buddingBlock()
+        ));
     }
 
     private static Block characteristicBlock(ExpeditionSiteType type) {

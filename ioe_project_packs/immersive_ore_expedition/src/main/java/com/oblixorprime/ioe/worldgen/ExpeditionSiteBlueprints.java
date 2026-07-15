@@ -20,6 +20,7 @@ public final class ExpeditionSiteBlueprints {
     static final int MIN_CONNECTOR_DEPTH = 20;
     static final int MAX_CONNECTOR_DEPTH = 28;
     static final int CHAMBER_HORIZONTAL_OFFSET = 5;
+    private static final int NODE_AND_OUTER_WALL_MARGIN = 3;
 
     private ExpeditionSiteBlueprints() {
     }
@@ -162,7 +163,7 @@ public final class ExpeditionSiteBlueprints {
             int depth = MIN_CONNECTOR_DEPTH + random.nextInt(MAX_CONNECTOR_DEPTH - MIN_CONNECTOR_DEPTH + 1);
             int direction = directionTowardChunkCenter(origin);
             connectorEnd = addConnector(builder, origin, depth, direction, true);
-            chamberCenter = connectorEnd.offset(direction * CHAMBER_HORIZONTAL_OFFSET, 0, 0);
+            chamberCenter = connectedChamberCenter(connectorEnd, direction, quality);
             oreNodeCount = addChamber(
                     builder,
                     chamberCenter,
@@ -227,6 +228,30 @@ public final class ExpeditionSiteBlueprints {
     private static int directionTowardChunkCenter(BlockPos origin) {
         int localX = Math.floorMod(origin.getX(), 16);
         return localX <= 7 ? 1 : -1;
+    }
+
+    private static BlockPos connectedChamberCenter(
+            BlockPos connectorEnd,
+            int horizontalDirection,
+            SiteQuality quality
+    ) {
+        int horizontalExtent = horizontalRadius(quality) + NODE_AND_OUTER_WALL_MARGIN;
+        int minimumLocalCoordinate = horizontalExtent;
+        int maximumLocalCoordinate = 15 - horizontalExtent;
+        if (minimumLocalCoordinate > maximumLocalCoordinate) {
+            throw new IllegalStateException("Connected chamber cannot fit inside its source chunk");
+        }
+
+        int chunkMinX = Math.floorDiv(connectorEnd.getX(), 16) * 16;
+        int chunkMinZ = Math.floorDiv(connectorEnd.getZ(), 16) * 16;
+        int localZ = Math.floorMod(connectorEnd.getZ(), 16);
+        int chamberLocalX = horizontalDirection > 0 ? minimumLocalCoordinate : maximumLocalCoordinate;
+        int chamberLocalZ = Math.max(minimumLocalCoordinate, Math.min(maximumLocalCoordinate, localZ));
+        return new BlockPos(
+                chunkMinX + chamberLocalX,
+                connectorEnd.getY(),
+                chunkMinZ + chamberLocalZ
+        );
     }
 
     private static BlockPos addConnector(
@@ -841,8 +866,7 @@ public final class ExpeditionSiteBlueprints {
         return switch (quality) {
             case DRY, POOR -> 2;
             case NORMAL -> 3;
-            case RICH -> 4;
-            case MOTHERLODE -> 5;
+            case RICH, MOTHERLODE -> 4;
         };
     }
 
