@@ -5,12 +5,14 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorReindexer;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorResult;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSiteKind;
 import com.oblixorprime.ioe.worldgen.IoeRuntimeScaffoldStatus;
 import com.oblixorprime.ioe.worldgen.IoeRuntimeScaffoldStatusFormatter;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenRuntimeDiagnostics;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
@@ -22,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -55,6 +58,15 @@ public final class IoeAdminCommands {
                 locate.then(Commands.literal("anchor")
                         .executes(context -> locate(context, ExpeditionSiteKind.ANCHOR)));
             }
+            locate.then(Commands.literal("reindex")
+                    .then(Commands.argument(
+                                    "blocks",
+                                    IntegerArgumentType.integer(0, ExpeditionLocatorReindexer.MAX_RADIUS_BLOCKS)
+                            )
+                            .executes(context -> reindexLocator(
+                                    context,
+                                    IntegerArgumentType.getInteger(context, "blocks")
+                            )));
             root.then(locate);
         }
 
@@ -100,10 +112,12 @@ public final class IoeAdminCommands {
     }
 
     private static int runtimeStatus(CommandContext<CommandSourceStack> context) {
-        return sendAll(context, runtimeStatusMessages(IoeRuntimeScaffoldStatus.fromConfig(
+        List<String> messages = new ArrayList<>(runtimeStatusMessages(IoeRuntimeScaffoldStatus.fromConfig(
                 resolveModVersion(),
                 true
         )));
+        messages.addAll(IoeWorldgenRuntimeDiagnostics.statusMessages(context.getSource().getServer()));
+        return sendAll(context, messages);
     }
 
     static List<String> runtimeStatusMessages(IoeRuntimeScaffoldStatus status) {
@@ -151,6 +165,24 @@ public final class IoeAdminCommands {
                 origin,
                 ExpeditionLocatorService.index(source.getLevel())
         ));
+    }
+
+    private static int reindexLocator(CommandContext<CommandSourceStack> context, int radiusBlocks) {
+        CommandSourceStack source = context.getSource();
+        Vec3 position = source.getPosition();
+        BlockPos origin = new BlockPos(Mth.floor(position.x), Mth.floor(position.y), Mth.floor(position.z));
+        ExpeditionLocatorReindexer.Result result = ExpeditionLocatorReindexer.scanLoadedChunks(
+                source.getLevel(),
+                origin,
+                radiusBlocks
+        );
+        return send(context, "IOE locator bounded reindex: radius=" + radiusBlocks
+                + ", loadedChunks=" + result.loadedChunks()
+                + ", growthBlocks=" + result.growthBlocks()
+                + ", recordedSites=" + result.recordedSites()
+                + ", skippedExisting=" + result.skippedExisting()
+                + ", skippedWithoutMineSignature=" + result.skippedWithoutMineSignature()
+                + ". No chunks were loaded and no world blocks were changed.");
     }
 
     static String locateMessage(

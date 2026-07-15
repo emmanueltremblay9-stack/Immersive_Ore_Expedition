@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:old_growth_pine_taiga",
+    { "id": "biomesoplenty:coniferous_forest", "required": false },
+    { "id": "biomesoplenty:fir_clearing", "required": false },
+    { "id": "biomesoplenty:old_growth_woodland", "required": false },
+    { "id": "biomesoplenty:redwood_forest", "required": false }
+  ]
+}

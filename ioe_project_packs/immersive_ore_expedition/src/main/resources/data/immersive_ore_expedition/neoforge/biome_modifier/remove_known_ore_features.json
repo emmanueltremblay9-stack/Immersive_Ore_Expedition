@@ -1,0 +1,9 @@
+{
+  "type": "neoforge:remove_features",
+  "biomes": [
+    "#c:is_overworld",
+    "#c:is_nether",
+    "#c:is_end"
+  ],
+  "features": "#immersive_ore_expedition:normal_ore_generation"
+}

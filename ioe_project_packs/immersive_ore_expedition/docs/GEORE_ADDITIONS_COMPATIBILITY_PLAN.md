@@ -10,16 +10,16 @@ The official GeOre: Additions page describes a Budding Harvester that drops budd
 
 When the separately distributed `geore_additions` mod is loaded, IOE:
 
-1. cancels breaking any recognized budding block when the player's held item is registered by `geore_additions`, blocking the Budding Harvester from recovering GeOre, AE2, ExtendedAE, or vanilla amethyst budding blocks;
-2. cancels NeoForge entity-placement events for blocks registered under the `geore_additions` namespace, blocking ordinary placement of the current Geode Extractor and any future tier implemented as another add-on block;
+1. cancels breaking any recognized budding block only when the held `geore_additions` tool id contains `budding_harvester`, blocking that tool from recovering GeOre, AE2, ExtendedAE, or vanilla amethyst budding blocks;
+2. cancels NeoForge entity-placement events only when the add-on block id contains `geode_extractor`, covering the current extractor and later extractor tiers without blocking unrelated add-on blocks;
 3. leaves IOE's original GeOre, AE2, and ExtendedAE budding hearts in their mutually exclusive mine modes;
 4. gives the add-on no authority to add ore veins, geodes, meteorites, extractors, or alternate resource-production paths.
 
-The event rule is deliberately namespace-wide rather than tied to an unverified extractor registry name. It therefore fails closed for ordinary placement of the announced Iron, Gold, Diamond, and later extractor tiers.
+The event rule is deliberately capability-specific. It does not cancel every block or tool in the `geore_additions` namespace.
 
 ## Limits
 
-IOE does not unregister another mod's registry entries. If GeOre: Additions is installed, its items may still appear in creative tabs or recipe viewers even though its blocks cannot be placed and its budding-harvesting tool cannot recover a budding block. Complete removal from menus and registries requires not installing GeOre: Additions.
+IOE does not unregister another mod's registry entries. If GeOre: Additions is installed, the blocked tool and extractor items may still appear in creative tabs or recipe viewers even though their controlled actions are canceled. Complete removal from menus and registries requires not installing GeOre: Additions.
 
 The restriction does not scan for or destructively remove add-on blocks already present in an existing world. It also cannot intercept commands, world generation, or direct programmatic block writes that bypass NeoForge's entity-placement event. Recipe removal is outside this pass because the official 4.0 artifact cannot currently be obtained through its advertised Curse Maven coordinate while third-party distribution is disabled.
 

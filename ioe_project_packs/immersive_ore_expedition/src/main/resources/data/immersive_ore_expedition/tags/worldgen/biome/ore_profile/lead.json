@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:windswept_gravelly_hills",
+    { "id": "biomesoplenty:dead_forest", "required": false },
+    { "id": "biomesoplenty:moor", "required": false },
+    { "id": "biomesoplenty:old_growth_dead_forest", "required": false },
+    { "id": "biomesoplenty:rocky_shrubland", "required": false }
+  ]
+}

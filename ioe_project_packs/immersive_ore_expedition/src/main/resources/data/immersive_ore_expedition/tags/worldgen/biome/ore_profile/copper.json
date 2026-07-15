@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:savanna",
+    "minecraft:savanna_plateau",
+    "minecraft:windswept_savanna",
+    "minecraft:jungle",
+    "minecraft:bamboo_jungle",
+    "minecraft:sparse_jungle",
+    { "id": "biomesoplenty:lush_savanna", "required": false },
+    { "id": "biomesoplenty:rainforest", "required": false },
+    { "id": "biomesoplenty:rocky_rainforest", "required": false },
+    { "id": "biomesoplenty:tropics", "required": false }
+  ]
+}

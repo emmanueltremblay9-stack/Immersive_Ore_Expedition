@@ -67,7 +67,7 @@ public final class IoeCompassNetworking {
     ) {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(stack, "stack");
-        return ExpeditionCompassMenuSnapshot.fromIndex(
+        return ExpeditionCompassMenuSnapshot.fromNaturalGenerationIndex(
                 player.level().dimension(),
                 player.blockPosition(),
                 Objects.requireNonNull(hand, "hand"),

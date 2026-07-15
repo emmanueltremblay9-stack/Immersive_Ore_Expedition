@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:desert",
+    { "id": "biomesoplenty:dryland", "required": false },
+    { "id": "biomesoplenty:scrubland", "required": false },
+    { "id": "biomesoplenty:volcanic_plains", "required": false }
+  ]
+}

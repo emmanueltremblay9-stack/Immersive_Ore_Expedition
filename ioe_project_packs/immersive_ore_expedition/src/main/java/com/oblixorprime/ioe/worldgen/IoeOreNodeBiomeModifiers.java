@@ -63,13 +63,21 @@ public final class IoeOreNodeBiomeModifiers {
                 Phase phase,
                 ModifiableBiomeInfo.BiomeInfo.Builder builder
         ) {
-            if (phase != Phase.AFTER_EVERYTHING || !biomes.contains(biome)) {
+            if (phase != Phase.REMOVE || !biomes.contains(biome)) {
                 return;
             }
             BiomeGenerationSettingsBuilder generationSettings = builder.getGenerationSettings();
+            int removedFeatures = 0;
             for (GenerationStep.Decoration step : steps) {
-                generationSettings.getFeatures(step).removeIf(this::isNormalOreFeature);
+                List<Holder<PlacedFeature>> stepFeatures = generationSettings.getFeatures(step);
+                int before = stepFeatures.size();
+                stepFeatures.removeIf(this::isNormalOreFeature);
+                removedFeatures += before - stepFeatures.size();
             }
+            biome.unwrapKey().ifPresent(key -> IoeWorldgenRuntimeDiagnostics.recordModifierApplication(
+                    key.location(),
+                    removedFeatures
+            ));
         }
 
         @Override

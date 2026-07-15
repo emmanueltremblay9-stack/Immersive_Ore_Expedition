@@ -1,8 +1,18 @@
 {
   "replace": false,
   "values": [
-    "minecraft:plains",
-    "minecraft:meadow",
-    "minecraft:stony_peaks"
+    "#immersive_ore_expedition:ore_profile/coal",
+    "#immersive_ore_expedition:ore_profile/iron",
+    "#immersive_ore_expedition:ore_profile/copper",
+    "#immersive_ore_expedition:ore_profile/gold",
+    "#immersive_ore_expedition:ore_profile/redstone",
+    "#immersive_ore_expedition:ore_profile/lapis",
+    "#immersive_ore_expedition:ore_profile/diamond",
+    "#immersive_ore_expedition:ore_profile/emerald",
+    "#immersive_ore_expedition:ore_profile/aluminum",
+    "#immersive_ore_expedition:ore_profile/lead",
+    "#immersive_ore_expedition:ore_profile/silver",
+    "#immersive_ore_expedition:ore_profile/nickel",
+    "#immersive_ore_expedition:ore_profile/uranium"
   ]
 }

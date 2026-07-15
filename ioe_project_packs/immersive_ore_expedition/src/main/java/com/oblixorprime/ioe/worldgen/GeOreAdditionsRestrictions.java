@@ -10,7 +10,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 
 /**
  * Progression guard for the separately installed GeOre: Additions mod.
- * IOE blocks budding-block recovery and every add-on block placement without linking to add-on classes.
+ * Only the Budding Harvester and Geode Extractor families are blocked; unrelated add-on content remains usable.
  */
 public final class GeOreAdditionsRestrictions {
     public static final String MOD_ID = "geore_additions";
@@ -28,7 +28,7 @@ public final class GeOreAdditionsRestrictions {
             return;
         }
         ResourceLocation toolId = BuiltInRegistries.ITEM.getKey(event.getPlayer().getMainHandItem().getItem());
-        if (MOD_ID.equals(toolId.getNamespace())) {
+        if (MOD_ID.equals(toolId.getNamespace()) && toolId.getPath().contains("budding_harvester")) {
             event.setCanceled(true);
         }
     }
@@ -38,7 +38,7 @@ public final class GeOreAdditionsRestrictions {
             return;
         }
         ResourceLocation placedId = BuiltInRegistries.BLOCK.getKey(event.getPlacedBlock().getBlock());
-        if (MOD_ID.equals(placedId.getNamespace())) {
+        if (MOD_ID.equals(placedId.getNamespace()) && placedId.getPath().contains("geode_extractor")) {
             event.setCanceled(true);
         }
     }

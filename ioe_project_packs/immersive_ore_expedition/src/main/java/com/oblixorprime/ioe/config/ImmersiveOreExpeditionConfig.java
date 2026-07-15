@@ -32,9 +32,9 @@ public final class ImmersiveOreExpeditionConfig {
             "Monazite"
     );
 
-    private static final double DEFAULT_WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER = 0.03D;
+    private static final double DEFAULT_WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER = 0.0D;
     private static final boolean DEFAULT_WORLDGEN_REQUIRE_STRUCTURE_ANCHOR = true;
-    private static final boolean DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES = true;
+    private static final boolean DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES = false;
     private static final boolean DEFAULT_WORLDGEN_NATURAL_EXPEDITION_SITE_GENERATION_ENABLED = true;
     private static final boolean DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED = false;
     private static final boolean DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS = false;
@@ -144,15 +144,15 @@ public final class ImmersiveOreExpeditionConfig {
             .define("resourcePolicy.debugDiagnostics", DEFAULT_RESOURCE_POLICY_DEBUG_DIAGNOSTICS);
 
     private static final ModConfigSpec.DoubleValue WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER = BUILDER
-            .comment("Multiplier applied by future ore-suppression hooks to non-expedition useful ore placement.")
+            .comment("Legacy compatibility key. IOE forces autonomous useful-ore density to zero.")
             .defineInRange("worldgen.global.randomOreDensityMultiplier",
-                    DEFAULT_WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER, 0.0D, 1.0D);
+                    DEFAULT_WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER, 0.0D, 0.0D);
     private static final ModConfigSpec.BooleanValue WORLDGEN_REQUIRE_STRUCTURE_ANCHOR_FOR_MAJOR_ORE_LOADS = BUILDER
             .comment("Require major ore loads to be tied to an expedition anchor.")
             .define("worldgen.global.requireStructureAnchorForMajorOreLoads",
                     DEFAULT_WORLDGEN_REQUIRE_STRUCTURE_ANCHOR);
     private static final ModConfigSpec.BooleanValue WORLDGEN_ALLOW_TINY_SCRAP_ORE_OUTSIDE_PROVINCES = BUILDER
-            .comment("Allow future hooks to leave tiny scrap ore outside full expedition provinces.")
+            .comment("Legacy compatibility key. Tiny scrap ore outside expedition sites is always disabled.")
             .define("worldgen.global.allowTinyScrapOreOutsideProvinces",
                     DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES);
     private static final ModConfigSpec.BooleanValue WORLDGEN_NATURAL_EXPEDITION_SITE_GENERATION_ENABLED = BUILDER
@@ -472,8 +472,7 @@ public final class ImmersiveOreExpeditionConfig {
     }
 
     public static double worldgenRandomOreDensityMultiplier() {
-        return getOrDefault(WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER,
-                DEFAULT_WORLDGEN_RANDOM_ORE_DENSITY_MULTIPLIER);
+        return 0.0D;
     }
 
     public static boolean worldgenRequireStructureAnchorForMajorOreLoads() {
@@ -482,8 +481,7 @@ public final class ImmersiveOreExpeditionConfig {
     }
 
     public static boolean worldgenAllowTinyScrapOreOutsideProvinces() {
-        return getOrDefault(WORLDGEN_ALLOW_TINY_SCRAP_ORE_OUTSIDE_PROVINCES,
-                DEFAULT_WORLDGEN_ALLOW_TINY_SCRAP_OUTSIDE_PROVINCES);
+        return false;
     }
 
     public static boolean worldgenNaturalExpeditionSiteGenerationEnabled() {

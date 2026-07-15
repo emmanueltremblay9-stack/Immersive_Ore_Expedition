@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:jagged_peaks",
+    "minecraft:frozen_peaks",
+    { "id": "biomesoplenty:crag", "required": false },
+    { "id": "biomesoplenty:highland", "required": false },
+    { "id": "biomesoplenty:volcano", "required": false }
+  ]
+}

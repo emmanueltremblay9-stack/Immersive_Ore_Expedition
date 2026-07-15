@@ -20,6 +20,8 @@ public final class IoeExpeditionWorldgenMod {
     public static void bootstrap(IEventBus modEventBus) {
         IoeOreNodeBiomeModifiers.register(modEventBus);
         GeOreAdditionsRestrictions.register();
+        IoeWorldgenRuntimeDiagnostics.register();
+        IoeNewChunkOreGuard.register();
         IoeWorldgenBootstrap.bootstrap(modEventBus);
         LOGGER.info("Initializing Immersive Ore Expedition: Worldgen alpha services");
     }

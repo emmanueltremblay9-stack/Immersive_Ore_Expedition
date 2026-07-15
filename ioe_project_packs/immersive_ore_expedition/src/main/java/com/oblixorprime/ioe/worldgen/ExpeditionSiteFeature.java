@@ -34,14 +34,18 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
     @Override
     public boolean place(FeaturePlaceContext<NoneFeatureConfiguration> context) {
         Objects.requireNonNull(context, "context");
+        IoeWorldgenRuntimeDiagnostics.recordSiteAttempt();
         if (!IoeWorldgenConfig.naturalExpeditionSiteGenerationEnabled()
                 || !siteType.enabledFromConfig()
                 || !requiredComponentsEnabled(siteType)) {
+            skip(context.origin(), IoeWorldgenRuntimeDiagnostics.SiteSkipReason.CONFIG_DISABLED,
+                    "natural generation or a required site component is disabled");
             return false;
         }
         if (siteType == ExpeditionSiteType.ORE_LOAD_CHAMBER
                 && IoeWorldgenConfig.requireStructureAnchorForMajorOreLoads()) {
-            logSkipped(context.origin(), "standalone ore-load chambers are forbidden by anchor policy");
+            skip(context.origin(), IoeWorldgenRuntimeDiagnostics.SiteSkipReason.STANDALONE_CHAMBER_FORBIDDEN,
+                    "standalone ore-load chambers are forbidden by anchor policy");
             return false;
         }
 
@@ -49,6 +53,8 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 ? resolveSurfaceOrigin(context.level(), context.origin(), siteType)
                 : context.origin();
         if (origin == null) {
+            skip(context.origin(), IoeWorldgenRuntimeDiagnostics.SiteSkipReason.SURFACE_UNSUITABLE,
+                    "the surface is too steep, obstructed, or fluid-covered");
             return false;
         }
 
@@ -67,7 +73,8 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     ))
                     .orElse(null);
             if (!usableSpecialGeode(specialGeode)) {
-                logSkipped(origin, "the required AE2/AE2 Crystal Science stack is loaded but its budding Certus meteorite resources are unavailable");
+                skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.AE2_RESOURCE_MISSING,
+                        "the required AE2/AE2 Crystal Science budding Certus resources are unavailable");
                 return false;
             }
         }
@@ -84,7 +91,8 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     ))
                     .orElse(null);
             if (!usableSpecialGeode(specialGeode)) {
-                logSkipped(origin, "ExtendedAE is loaded but its Entroized Fluix geode resources are unavailable");
+                skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.EXTENDED_AE_RESOURCE_MISSING,
+                        "ExtendedAE is loaded but its Entroized Fluix geode resources are unavailable");
                 return false;
             }
         }
@@ -92,12 +100,14 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         boolean needsOreProfile = quality.isProductive() && !specialGeodeMine;
         BiomeOreNodeProfile oreProfile = BiomeOreNodeProfile.resolve(context.level(), origin).orElse(null);
         if (needsOreProfile && oreProfile == null) {
-            logSkipped(origin, "the origin biome has no ore-node profile");
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.PROFILE_MISSING,
+                    "the origin biome has no ore-node profile");
             return false;
         }
         if (needsOreProfile
                 && !RESOURCE_POLICY.evaluate(oreProfile.resource(), LoadedResourceScanner.runtime()).shouldUse()) {
-            logSkipped(origin, "the biome ore-node resource is unavailable or denied by policy");
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                    "the biome ore-node resource is unavailable or denied by policy");
             return false;
         }
 
@@ -117,17 +127,21 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 context.random()
         );
         if (siteType.naturalSurfaceSite() && !plan.isConnectedExpeditionSite()) {
-            logSkipped(origin, "the configured anchor distance window excludes the connected chamber");
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.DISCONNECTED_PLAN,
+                    "the configured anchor distance window excludes the connected chamber");
             return false;
         }
         if (!withinBuildHeight(context.level(), plan) || !apply(context.level(), plan)) {
-            logSkipped(origin, "the connected block plan could not be written safely");
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
+                    "the connected block plan could not be written safely");
             return false;
         }
 
         if (siteType.naturalSurfaceSite()) {
+            IoeOrePlacementAuthorization.authorize(context.level().getLevel().dimension(), plan);
             recordPlacedSite(context.level(), plan, oreProfile);
         }
+        IoeWorldgenRuntimeDiagnostics.recordSitePlaced();
         return true;
     }
 
@@ -264,9 +278,19 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         }
     }
 
-    private static void logSkipped(BlockPos origin, String reason) {
+    private static void skip(
+            BlockPos origin,
+            IoeWorldgenRuntimeDiagnostics.SiteSkipReason skipReason,
+            String reason
+    ) {
+        IoeWorldgenRuntimeDiagnostics.recordSiteSkip(skipReason);
         if (IoeWorldgenConfig.runtimePlacementDiagnostics()) {
-            IoeExpeditionWorldgenMod.LOGGER.info("Skipped IOE expedition site at {}: {}", origin, reason);
+            IoeExpeditionWorldgenMod.LOGGER.info(
+                    "Skipped IOE expedition site at {} code={}: {}",
+                    origin,
+                    skipReason.id(),
+                    reason
+            );
         }
     }
 

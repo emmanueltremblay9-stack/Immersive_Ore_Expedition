@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:meadow",
+    "minecraft:taiga",
+    "minecraft:windswept_hills",
+    "minecraft:old_growth_spruce_taiga",
+    "minecraft:snowy_taiga",
+    { "id": "biomesoplenty:hot_springs", "required": false },
+    { "id": "biomesoplenty:maple_woods", "required": false },
+    { "id": "biomesoplenty:muskeg", "required": false },
+    { "id": "biomesoplenty:tundra", "required": false }
+  ]
+}

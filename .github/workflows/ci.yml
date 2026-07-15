@@ -570,7 +570,6 @@ jobs:
                   )
                   expected_modifier_fields = {
                       "type": f"{expected_mod_id}:replace_normal_ores_with_nodes",
-                      "biomes": "#c:is_overworld",
                       "features": f"#{expected_mod_id}:normal_ore_generation",
                   }
                   for field, expected_value in expected_modifier_fields.items():
@@ -580,6 +579,20 @@ jobs:
                               f"Ore replacement modifier field {field!r} must be "
                               f"{expected_value!r}, found {actual_value!r}"
                           )
+
+                  required_dimension_biome_tags = {
+                      "#c:is_overworld",
+                      "#c:is_nether",
+                      "#c:is_end",
+                  }
+                  actual_dimension_biome_tags = set(
+                      ore_replacement_modifier.get("biomes", [])
+                  )
+                  if actual_dimension_biome_tags != required_dimension_biome_tags:
+                      failures.append(
+                          "Ore replacement modifier must cover Overworld, Nether, and End; "
+                          f"found {sorted(actual_dimension_biome_tags)}"
+                      )
 
                   required_generation_steps = {
                       "raw_generation",

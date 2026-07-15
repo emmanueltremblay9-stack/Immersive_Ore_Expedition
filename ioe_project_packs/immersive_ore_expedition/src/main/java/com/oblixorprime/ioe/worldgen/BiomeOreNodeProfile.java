@@ -7,7 +7,9 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -16,9 +18,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.RandomState;
 
 import java.util.ArrayDeque;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public record BiomeOreNodeProfile(
         int sampledConnectedChunks
 ) {
     private static final int SURVEY_RADIUS_CHUNKS = 4;
-    private static final Map<ResourceLocation, OreDefinition> ORES_BY_BIOME = oreDefinitions();
+    private static final List<OreDefinition> ORE_DEFINITIONS = oreDefinitions();
 
     public BiomeOreNodeProfile {
         Objects.requireNonNull(biomeId, "biomeId");
@@ -58,7 +59,10 @@ public record BiomeOreNodeProfile(
             return Optional.empty();
         }
 
-        OreDefinition definition = ORES_BY_BIOME.get(originBiomeKey.location());
+        OreDefinition definition = ORE_DEFINITIONS.stream()
+                .filter(candidate -> originBiome.is(candidate.biomeTag()))
+                .findFirst()
+                .orElse(null);
         if (definition == null) {
             return Optional.empty();
         }
@@ -177,41 +181,41 @@ public record BiomeOreNodeProfile(
         );
     }
 
-    private static Map<ResourceLocation, OreDefinition> oreDefinitions() {
-        LinkedHashMap<ResourceLocation, OreDefinition> definitions = new LinkedHashMap<>();
-        register(definitions, "plains", "coal");
-        register(definitions, "forest", "coal");
-        register(definitions, "meadow", "iron");
-        register(definitions, "taiga", "iron");
-        register(definitions, "windswept_hills", "iron");
-        register(definitions, "savanna", "copper");
-        register(definitions, "badlands", "gold");
-        register(definitions, "desert", "redstone");
-        register(definitions, "swamp", "lapis");
-        register(definitions, "jagged_peaks", "diamond");
-        register(definitions, "stony_peaks", "emerald");
-        register(definitions, "eroded_badlands", "aluminum");
-        register(definitions, "windswept_gravelly_hills", "lead");
-        register(definitions, "snowy_slopes", "silver");
-        register(definitions, "old_growth_pine_taiga", "nickel");
-        register(definitions, "dark_forest", "uranium");
-        return Map.copyOf(definitions);
-    }
-
-    private static void register(
-            Map<ResourceLocation, OreDefinition> definitions,
-            String biomePath,
-            String materialName
-    ) {
-        definitions.put(
-                ResourceLocation.withDefaultNamespace(biomePath),
-                new OreDefinition(materialName)
+    private static List<OreDefinition> oreDefinitions() {
+        return List.of(
+                definition("uranium"),
+                definition("nickel"),
+                definition("silver"),
+                definition("lead"),
+                definition("aluminum"),
+                definition("emerald"),
+                definition("diamond"),
+                definition("gold"),
+                definition("lapis"),
+                definition("redstone"),
+                definition("copper"),
+                definition("iron"),
+                definition("coal")
         );
     }
 
-    private record OreDefinition(String materialName) {
+    private static OreDefinition definition(String materialName) {
+        return new OreDefinition(
+                materialName,
+                TagKey.create(
+                        Registries.BIOME,
+                        ResourceLocation.fromNamespaceAndPath(
+                                IoeExpeditionWorldgenMod.MODID,
+                                "ore_profile/" + materialName
+                        )
+                )
+        );
+    }
+
+    private record OreDefinition(String materialName, TagKey<Biome> biomeTag) {
         private OreDefinition {
             Objects.requireNonNull(materialName, "materialName");
+            Objects.requireNonNull(biomeTag, "biomeTag");
         }
     }
 }
