@@ -420,6 +420,9 @@ jobs:
                   "ore_replacement_modifier": (
                       f"data/{expected_mod_id}/neoforge/biome_modifier/replace_normal_ores_with_nodes.json"
                   ),
+                  "resource_suppression_biomes": (
+                      f"data/{expected_mod_id}/tags/worldgen/biome/resource_suppression_biomes.json"
+                  ),
                   "normal_ore_tag": (
                       f"data/{expected_mod_id}/tags/worldgen/placed_feature/normal_ore_generation.json"
                   ),
@@ -570,6 +573,7 @@ jobs:
                   )
                   expected_modifier_fields = {
                       "type": f"{expected_mod_id}:replace_normal_ores_with_nodes",
+                      "biomes": f"#{expected_mod_id}:resource_suppression_biomes",
                       "features": f"#{expected_mod_id}:normal_ore_generation",
                   }
                   for field, expected_value in expected_modifier_fields.items():
@@ -580,13 +584,18 @@ jobs:
                               f"{expected_value!r}, found {actual_value!r}"
                           )
 
+                  resource_suppression_biomes = json.loads(
+                      jar.read(
+                          crystal_integration_resources["resource_suppression_biomes"]
+                      ).decode("utf-8")
+                  )
                   required_dimension_biome_tags = {
                       "#c:is_overworld",
                       "#c:is_nether",
                       "#c:is_end",
                   }
                   actual_dimension_biome_tags = set(
-                      ore_replacement_modifier.get("biomes", [])
+                      resource_suppression_biomes.get("values", [])
                   )
                   if actual_dimension_biome_tags != required_dimension_biome_tags:
                       failures.append(

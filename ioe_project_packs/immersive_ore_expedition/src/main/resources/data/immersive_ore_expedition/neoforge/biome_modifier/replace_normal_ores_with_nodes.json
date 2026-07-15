@@ -1,10 +1,6 @@
 {
   "type": "immersive_ore_expedition:replace_normal_ores_with_nodes",
-  "biomes": [
-    "#c:is_overworld",
-    "#c:is_nether",
-    "#c:is_end"
-  ],
+  "biomes": "#immersive_ore_expedition:resource_suppression_biomes",
   "features": "#immersive_ore_expedition:normal_ore_generation",
   "steps": [
     "raw_generation",
