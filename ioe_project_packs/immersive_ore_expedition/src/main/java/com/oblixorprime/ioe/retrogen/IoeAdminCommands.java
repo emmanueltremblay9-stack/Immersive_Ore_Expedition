@@ -66,7 +66,7 @@ public final class IoeAdminCommands {
                             .executes(context -> reindexLocator(
                                     context,
                                     IntegerArgumentType.getInteger(context, "blocks")
-                            )));
+                            ))));
             root.then(locate);
         }
 
