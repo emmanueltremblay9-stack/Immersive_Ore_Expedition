@@ -164,6 +164,7 @@ public final class ExpeditionSiteBlueprints {
             int direction = directionTowardChunkCenter(origin);
             connectorEnd = addConnector(builder, origin, depth, direction, true);
             chamberCenter = connectedChamberCenter(connectorEnd, direction, quality);
+            connectTunnelToChamber(builder, connectorEnd, direction, chamberCenter);
             oreNodeCount = addChamber(
                     builder,
                     chamberCenter,
@@ -292,6 +293,29 @@ public final class ExpeditionSiteBlueprints {
             addDryBranch(builder, bottom.offset(horizontalDirection * 2, 0, 0));
         }
         return bottom;
+    }
+
+    private static void connectTunnelToChamber(
+            Builder builder,
+            BlockPos connectorEnd,
+            int horizontalDirection,
+            BlockPos chamberCenter
+    ) {
+        BlockPos elbow = connectorEnd.offset(horizontalDirection * CHAMBER_HORIZONTAL_OFFSET, 0, 0);
+        int zDirection = Integer.signum(chamberCenter.getZ() - elbow.getZ());
+        int zDistance = Math.abs(chamberCenter.getZ() - elbow.getZ());
+        for (int step = 1; step <= zDistance; step++) {
+            carveNorthSouthTunnelSection(builder, elbow.offset(0, 0, zDirection * step));
+        }
+    }
+
+    private static void carveNorthSouthTunnelSection(Builder builder, BlockPos center) {
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                builder.put(center.offset(dx, dy, 0), Blocks.AIR.defaultBlockState());
+            }
+        }
+        builder.put(center.offset(0, -2, 0), Blocks.OAK_PLANKS.defaultBlockState());
     }
 
     private static void carveTunnelSection(Builder builder, BlockPos center) {

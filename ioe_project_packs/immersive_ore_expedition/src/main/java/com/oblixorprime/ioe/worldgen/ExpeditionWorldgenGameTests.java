@@ -74,6 +74,7 @@ public final class ExpeditionWorldgenGameTests {
     public static void connectedBlueprintInvariants(GameTestHelper helper) {
         BlockPos origin = new BlockPos(4, 90, 6);
         ResourceLocation ironOreId = ResourceLocation.fromNamespaceAndPath("minecraft", "iron_ore");
+        ResourceLocation buddingAmethystId = ResourceLocation.fromNamespaceAndPath("minecraft", "budding_amethyst");
         for (ExpeditionSiteType type : ExpeditionSiteType.naturalSurfaceSites()) {
             ExpeditionSiteBlockPlan plan = ExpeditionSiteBlueprints.plan(
                     type,
@@ -114,6 +115,10 @@ public final class ExpeditionWorldgenGameTests {
                     SiteQuality.MOTHERLODE,
                     ironOreId,
                     Blocks.IRON_ORE.defaultBlockState(),
+                    buddingAmethystId,
+                    Blocks.BUDDING_AMETHYST.defaultBlockState(),
+                    24,
+                    4,
                     RandomSource.create(19L)
             );
             helper.assertTrue(motherlode.blocks().keySet().stream()
