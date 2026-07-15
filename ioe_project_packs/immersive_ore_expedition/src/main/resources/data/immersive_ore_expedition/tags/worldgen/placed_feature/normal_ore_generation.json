@@ -56,6 +56,7 @@
     { "id": "geore:unobtainium_geode", "required": false },
     { "id": "geore:zinc_geode", "required": false },
     { "id": "geore:aluminum_geode", "required": false },
+    { "id": "geore:budding_ancient_debris", "required": false },
     { "id": "immersiveengineering:bauxite", "required": false },
     { "id": "immersiveengineering:lead", "required": false },
     { "id": "immersiveengineering:silver", "required": false },
