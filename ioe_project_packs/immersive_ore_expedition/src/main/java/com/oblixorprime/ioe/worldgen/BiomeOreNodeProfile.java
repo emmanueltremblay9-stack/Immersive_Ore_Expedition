@@ -59,13 +59,21 @@ public record BiomeOreNodeProfile(
             return Optional.empty();
         }
 
-        OreDefinition definition = ORE_DEFINITIONS.stream()
+        List<OreDefinition> matchingDefinitions = ORE_DEFINITIONS.stream()
                 .filter(candidate -> originBiome.is(candidate.biomeTag()))
-                .findFirst()
-                .orElse(null);
-        if (definition == null) {
+                .toList();
+        if (matchingDefinitions.size() != 1) {
+            if (matchingDefinitions.size() > 1) {
+                IoeExpeditionWorldgenMod.LOGGER.warn(
+                        "Rejected ambiguous IOE ore profile biome={} origin={} matches={}",
+                        originBiomeKey.location(),
+                        origin,
+                        matchingDefinitions.stream().map(OreDefinition::materialName).toList()
+                );
+            }
             return Optional.empty();
         }
+        OreDefinition definition = matchingDefinitions.getFirst();
         GeOreNodeIntegration.NodeMaterial material = GeOreNodeIntegration.resolve(definition.materialName())
                 .orElse(null);
         if (material == null) {

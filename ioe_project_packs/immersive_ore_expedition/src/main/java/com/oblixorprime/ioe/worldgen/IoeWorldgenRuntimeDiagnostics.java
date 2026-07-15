@@ -140,6 +140,7 @@ public final class IoeWorldgenRuntimeDiagnostics {
     private static void onServerStopped(ServerStoppedEvent event) {
         IoeOrePlacementAuthorization.clear();
         IoeNewChunkOreGuard.clearPending();
+        IoePendingExpeditionSites.clear();
         SITE_ATTEMPTS.reset();
         SITES_PLACED.reset();
         REMOVED_FEATURES.reset();

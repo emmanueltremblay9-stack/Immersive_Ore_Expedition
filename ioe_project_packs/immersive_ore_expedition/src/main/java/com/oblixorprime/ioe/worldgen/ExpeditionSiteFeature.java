@@ -5,9 +5,6 @@ import com.oblixorprime.ioe.core.ResourceRef;
 import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.core.SiteQualityRoll;
-import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
-import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
-import com.oblixorprime.ioe.expeditionlocator.ExpeditionSitePlacementState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.WorldGenLevel;
@@ -23,6 +20,7 @@ import java.util.Objects;
 
 public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguration> {
     private static final int BLOCK_UPDATE_FLAGS = 2;
+    private static final SiteQualityRoll PRODUCTIVE_SITE_QUALITY = new SiteQualityRoll(0, 25, 45, 17, 3);
     private static final ResourcePolicyService RESOURCE_POLICY = new ResourcePolicyService();
     private final ExpeditionSiteType siteType;
 
@@ -58,7 +56,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             return false;
         }
 
-        SiteQuality quality = SiteQualityRoll.DEFAULT.roll(context.random());
+        SiteQuality quality = PRODUCTIVE_SITE_QUALITY.roll(context.random());
         SpecialMineGeode specialGeode = null;
         if (quality.isProductive()
                 && siteType == ExpeditionSiteType.BURIED_SURVEY_MARKER
@@ -101,7 +99,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         BiomeOreNodeProfile oreProfile = BiomeOreNodeProfile.resolve(context.level(), origin).orElse(null);
         if (needsOreProfile && oreProfile == null) {
             skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.PROFILE_MISSING,
-                    "the origin biome has no ore-node profile");
+                    "the origin biome does not have exactly one usable ore-node profile");
             return false;
         }
         if (needsOreProfile
@@ -139,9 +137,8 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
 
         if (siteType.naturalSurfaceSite()) {
             IoeOrePlacementAuthorization.authorize(context.level().getLevel().dimension(), plan);
-            recordPlacedSite(context.level(), plan, oreProfile);
+            IoePendingExpeditionSites.stage(context.level(), plan, oreProfile);
         }
-        IoeWorldgenRuntimeDiagnostics.recordSitePlaced();
         return true;
     }
 
@@ -237,45 +234,6 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             return false;
         }
         return existing.isAir() || OreLoadChamberReplacementRules.canReplace(existing);
-    }
-
-    private static void recordPlacedSite(
-            WorldGenLevel level,
-            ExpeditionSiteBlockPlan plan,
-            BiomeOreNodeProfile oreProfile
-    ) {
-        ResourceLocation provinceId = ResourceLocation.tryParse(IoeWorldgenConfig.defaultProvince());
-        ExpeditionLocatorService.record(level.getLevel(), ExpeditionSite.anchor(
-                level.getLevel().dimension(),
-                plan.anchorPos(),
-                plan.requestedFeatureId(),
-                provinceId,
-                plan.quality(),
-                "natural_connected_expedition_site",
-                ExpeditionSitePlacementState.PROVEN,
-                null
-        ));
-        if (IoeWorldgenConfig.runtimePlacementDiagnostics()) {
-            ResourceLocation biomeId = oreProfile == null
-                    ? level.getBiome(plan.anchorPos()).unwrapKey().map(key -> key.location()).orElse(null)
-                    : oreProfile.biomeId();
-            int connectedBiomeChunks = oreProfile == null ? 0 : oreProfile.sampledConnectedChunks();
-            IoeExpeditionWorldgenMod.LOGGER.info(
-                    "Generated connected IOE expedition site type={} anchor={} chamber={} biome={} connectedBiomeChunks={} quality={} ore={} oreHeart={} oreNodes={} oreHearts={} oreBlocks={} blocks={}",
-                    plan.requestedFeatureId(),
-                    plan.anchorPos(),
-                    plan.chamberCenter(),
-                    biomeId,
-                    connectedBiomeChunks,
-                    plan.quality(),
-                    plan.oreBlockId(),
-                    plan.oreNodeHeartBlockId(),
-                    plan.oreNodeCount(),
-                    plan.oreNodeHeartCount(),
-                    plan.oreBlockCount(),
-                    plan.blocks().size()
-            );
-        }
     }
 
     private static void skip(

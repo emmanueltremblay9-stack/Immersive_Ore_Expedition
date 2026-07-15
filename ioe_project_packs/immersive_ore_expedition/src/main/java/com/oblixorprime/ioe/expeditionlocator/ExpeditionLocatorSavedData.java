@@ -22,7 +22,9 @@ final class ExpeditionLocatorSavedData extends SavedData {
             ExpeditionLocatorSavedData::load
     );
 
-    private static final int DATA_VERSION = 1;
+    private static final int DATA_VERSION = 2;
+    private static final String NATURAL_CONNECTED_SITE_SOURCE = "natural_connected_expedition_site";
+    private static final String LEGACY_UNVERIFIED_REASON = "legacy_site_requires_bounded_reindex";
     private static final String SITES = "sites";
     private final ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
 
@@ -65,11 +67,36 @@ final class ExpeditionLocatorSavedData extends SavedData {
 
     private static ExpeditionLocatorSavedData load(CompoundTag tag, HolderLookup.Provider registries) {
         ExpeditionLocatorSavedData data = new ExpeditionLocatorSavedData();
+        int loadedVersion = tag.getInt("data_version");
         ListTag sites = tag.getList(SITES, Tag.TAG_COMPOUND);
         for (int index = 0; index < sites.size(); index++) {
-            readSite(sites.getCompound(index)).ifPresent(data.index::record);
+            readSite(sites.getCompound(index))
+                    .map(site -> migrateLegacyNaturalSite(site, loadedVersion))
+                    .ifPresent(data.index::record);
+        }
+        if (loadedVersion < DATA_VERSION) {
+            data.setDirty();
         }
         return data;
+    }
+
+    private static ExpeditionSite migrateLegacyNaturalSite(ExpeditionSite site, int loadedVersion) {
+        if (loadedVersion >= DATA_VERSION
+                || site.source().filter(NATURAL_CONNECTED_SITE_SOURCE::equals).isEmpty()
+                || !site.playable()) {
+            return site;
+        }
+        return new ExpeditionSite(
+                site.dimension(),
+                site.pos(),
+                site.kind(),
+                site.anchorId(),
+                site.provinceId(),
+                site.quality(),
+                site.source(),
+                ExpeditionSitePlacementState.PLACEMENT_FAILED,
+                Optional.of(LEGACY_UNVERIFIED_REASON)
+        );
     }
 
     private static Optional<ExpeditionSite> readSite(CompoundTag tag) {

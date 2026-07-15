@@ -31,6 +31,7 @@ public final class IoeNewChunkOreGuard {
     private static final AtomicBoolean REGISTERED = new AtomicBoolean();
     private static final int BLOCK_UPDATE_FLAGS = Block.UPDATE_CLIENTS;
     private static final Set<PendingChunk> PENDING_NEW_CHUNKS = ConcurrentHashMap.newKeySet();
+    private static final Set<PendingChunk> SCHEDULED_SANITIZATIONS = ConcurrentHashMap.newKeySet();
 
     private IoeNewChunkOreGuard() {
     }
@@ -52,9 +53,16 @@ public final class IoeNewChunkOreGuard {
         } else if (!PENDING_NEW_CHUNKS.contains(chunkKey)) {
             return;
         }
+        if (!SCHEDULED_SANITIZATIONS.add(chunkKey)) {
+            return;
+        }
         level.getServer().execute(() -> {
-            if (sanitizeLoadedChunk(level, chunkPos)) {
-                PENDING_NEW_CHUNKS.remove(chunkKey);
+            try {
+                if (sanitizeLoadedChunk(level, chunkPos)) {
+                    PENDING_NEW_CHUNKS.remove(chunkKey);
+                }
+            } finally {
+                SCHEDULED_SANITIZATIONS.remove(chunkKey);
             }
         });
     }
@@ -108,7 +116,24 @@ public final class IoeNewChunkOreGuard {
                 }
             }
         }
+        IoePendingExpeditionSites.Confirmation confirmation =
+                IoePendingExpeditionSites.confirmLoadedChunk(level, chunkPos);
         IoeOrePlacementAuthorization.releaseChunk(level.dimension(), chunkPos);
+        for (BlockPos rejectedResourcePos : confirmation.rejectedResourcePositions()) {
+            TargetKind kind = targetKind(level.getBlockState(rejectedResourcePos));
+            if (kind == null || !level.setBlock(
+                    rejectedResourcePos,
+                    replacementState(level, rejectedResourcePos),
+                    BLOCK_UPDATE_FLAGS
+            )) {
+                continue;
+            }
+            if (kind == TargetKind.ORE) {
+                removedOres++;
+            } else {
+                removedGrowthBlocks++;
+            }
+        }
         IoeWorldgenRuntimeDiagnostics.recordGuardedChunk(removedOres, removedGrowthBlocks);
         if (removedOres > 0 || removedGrowthBlocks > 0) {
             IoeExpeditionWorldgenMod.LOGGER.warn(
@@ -123,6 +148,7 @@ public final class IoeNewChunkOreGuard {
 
     static void clearPending() {
         PENDING_NEW_CHUNKS.clear();
+        SCHEDULED_SANITIZATIONS.clear();
     }
 
     private static BlockState replacementState(ServerLevel level, BlockPos pos) {

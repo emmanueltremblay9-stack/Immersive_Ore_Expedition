@@ -70,9 +70,10 @@ final class IoeOrePlacementAuthorization {
             return;
         }
         positionsByChunk.remove(chunkPos.toLong());
-        if (positionsByChunk.isEmpty()) {
-            POSITIONS.remove(dimension, positionsByChunk);
-        }
+    }
+
+    static void releaseDimension(ResourceKey<Level> dimension) {
+        POSITIONS.remove(Objects.requireNonNull(dimension, "dimension"));
     }
 
     static void clear() {
