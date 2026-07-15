@@ -24,6 +24,43 @@ NATURAL_FEATURE_TAGS = {
     "miner_camp": "miner_camp_biomes",
     "buried_survey_marker": "survey_marker_biomes",
 }
+NORMAL_ORE_TAG = DATA / "tags/worldgen/placed_feature/normal_ore_generation.json"
+# Versioned allowlist from data/minecraft/worldgen/placed_feature in the Minecraft 1.21.1 client JAR.
+MINECRAFT_1_21_1_NORMAL_ORE_PLACED_FEATURES = frozenset(
+    {
+        "minecraft:ore_coal_upper",
+        "minecraft:ore_coal_lower",
+        "minecraft:ore_iron_upper",
+        "minecraft:ore_iron_middle",
+        "minecraft:ore_iron_small",
+        "minecraft:ore_copper",
+        "minecraft:ore_copper_large",
+        "minecraft:ore_gold",
+        "minecraft:ore_gold_lower",
+        "minecraft:ore_gold_extra",
+        "minecraft:ore_redstone",
+        "minecraft:ore_redstone_lower",
+        "minecraft:ore_lapis",
+        "minecraft:ore_lapis_buried",
+        "minecraft:ore_diamond",
+        "minecraft:ore_diamond_medium",
+        "minecraft:ore_diamond_large",
+        "minecraft:ore_diamond_buried",
+        "minecraft:ore_emerald",
+        "minecraft:ore_quartz_nether",
+        "minecraft:ore_gold_nether",
+        "minecraft:ore_ancient_debris_large",
+        "minecraft:ore_debris_small",
+        "minecraft:fossil_upper",
+        "minecraft:fossil_lower",
+    }
+)
+REQUIRED_EXTERNAL_ORE_PLACED_FEATURES = frozenset(
+    {
+        "ae2cs:certus_quartz_ore_placed",
+        "ae2cs:charged_certus_quartz_ore_placed",
+    }
+)
 
 
 def read_json(path: Path) -> dict:
@@ -69,6 +106,66 @@ def validate() -> None:
         if not tag.get("values"):
             failures.append(f"empty biome tag: {tag_path.relative_to(ROOT)}")
 
+    if not NORMAL_ORE_TAG.is_file():
+        failures.append(f"missing {NORMAL_ORE_TAG.relative_to(ROOT)}")
+    else:
+        normal_ore_tag = read_json(NORMAL_ORE_TAG)
+        if normal_ore_tag.get("replace") is not False:
+            failures.append("normal ore placed-feature tag must merge with replace=false")
+
+        values = normal_ore_tag.get("values")
+        if not isinstance(values, list):
+            failures.append("normal ore placed-feature tag must contain a values list")
+            values = []
+
+        required_ids: list[str] = []
+        optional_ids: list[str] = []
+        for index, value in enumerate(values):
+            if isinstance(value, str):
+                required_ids.append(value)
+                continue
+            if not isinstance(value, dict) or not isinstance(value.get("id"), str):
+                failures.append(f"invalid normal ore tag entry at index {index}: {value!r}")
+                continue
+            if value.get("required") is not False:
+                failures.append(
+                    f"external optional placed feature must declare required=false: {value!r}"
+                )
+            optional_ids.append(value["id"])
+
+        all_ids = required_ids + optional_ids
+        duplicates = sorted({feature_id for feature_id in all_ids if all_ids.count(feature_id) > 1})
+        if duplicates:
+            failures.append(f"duplicate normal ore placed-feature ids: {duplicates}")
+
+        actual_vanilla_ids = {
+            feature_id for feature_id in required_ids if feature_id.startswith("minecraft:")
+        }
+        missing_vanilla_ids = sorted(
+            MINECRAFT_1_21_1_NORMAL_ORE_PLACED_FEATURES - actual_vanilla_ids
+        )
+        unknown_vanilla_ids = sorted(
+            actual_vanilla_ids - MINECRAFT_1_21_1_NORMAL_ORE_PLACED_FEATURES
+        )
+        if missing_vanilla_ids:
+            failures.append(
+                f"normal ore tag is missing Minecraft 1.21.1 placed features: {missing_vanilla_ids}"
+            )
+        if unknown_vanilla_ids:
+            failures.append(
+                f"normal ore tag contains unknown Minecraft 1.21.1 placed features: {unknown_vanilla_ids}"
+            )
+
+        actual_required_external_ids = {
+            feature_id for feature_id in required_ids if not feature_id.startswith("minecraft:")
+        }
+        if actual_required_external_ids != REQUIRED_EXTERNAL_ORE_PLACED_FEATURES:
+            failures.append(
+                "required external normal ore placed features changed: "
+                f"expected={sorted(REQUIRED_EXTERNAL_ORE_PLACED_FEATURES)}, "
+                f"actual={sorted(actual_required_external_ids)}"
+            )
+
     template_path = DATA / "structure/expedition_worldgen_empty.nbt"
     if not template_path.is_file():
         failures.append(f"missing {template_path.relative_to(ROOT)}")
@@ -83,7 +180,9 @@ def validate() -> None:
         raise SystemExit("Worldgen asset validation failed:\n- " + "\n- ".join(failures))
     print(
         "Worldgen asset validation passed: "
-        f"{len(FEATURE_IDS)} feature pairs, {len(NATURAL_FEATURE_TAGS)} biome modifiers, 1 GameTest template"
+        f"{len(FEATURE_IDS)} feature pairs, {len(NATURAL_FEATURE_TAGS)} biome modifiers, "
+        f"{len(MINECRAFT_1_21_1_NORMAL_ORE_PLACED_FEATURES)} vanilla ore/fossil placed features, "
+        "1 GameTest template"
     )
 
 
