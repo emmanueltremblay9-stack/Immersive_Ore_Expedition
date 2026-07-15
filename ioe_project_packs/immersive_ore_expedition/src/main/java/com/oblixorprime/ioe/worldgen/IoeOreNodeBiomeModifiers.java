@@ -74,9 +74,10 @@ public final class IoeOreNodeBiomeModifiers {
                 stepFeatures.removeIf(this::isNormalOreFeature);
                 removedFeatures += before - stepFeatures.size();
             }
+            int totalRemovedFeatures = removedFeatures;
             biome.unwrapKey().ifPresent(key -> IoeWorldgenRuntimeDiagnostics.recordModifierApplication(
                     key.location(),
-                    removedFeatures
+                    totalRemovedFeatures
             ));
         }
 
