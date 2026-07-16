@@ -1,6 +1,5 @@
 package com.oblixorprime.ioe.worldgen;
 
-import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
 import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
@@ -13,10 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
@@ -31,9 +27,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Defers locator entries until the new-chunk guard has sanitized and verified the complete mine plan.
- * Worldgen can run in temporary dependency chunks that never become durable; those plans must never become
- * compass targets or retain unbounded authorization state.
+ * Defers every durable site mutation until the new-chunk guard's final server-thread pass. Worldgen can run in
+ * temporary dependency chunks that never become durable; those plans must never write blocks, create IE veins,
+ * become compass targets, or retain unbounded pending state.
  */
 final class IoePendingExpeditionSites {
     private static final int MAX_PENDING_CHUNKS = 256;
@@ -55,33 +51,63 @@ final class IoePendingExpeditionSites {
         }
     }
 
-    static void stage(
+    static boolean stage(
             WorldGenLevel worldGenLevel,
             ExpeditionSiteBlockPlan plan,
             BiomeMineResourceProfile resourceProfile
+    ) {
+        return stage(worldGenLevel, plan, resourceProfile, null, null);
+    }
+
+    static boolean stage(
+            WorldGenLevel worldGenLevel,
+            ExpeditionSiteBlockPlan plan,
+            BiomeMineResourceProfile resourceProfile,
+            IoeMotherDepositReservation motherDepositReservation
+    ) {
+        return stage(worldGenLevel, plan, resourceProfile, motherDepositReservation, null);
+    }
+
+    static boolean stage(
+            WorldGenLevel worldGenLevel,
+            ExpeditionSiteBlockPlan plan,
+            BiomeMineResourceProfile resourceProfile,
+            IoeMotherDepositReservation motherDepositReservation,
+            ExpeditionSiteBlockPlan fallbackPlan
     ) {
         Objects.requireNonNull(worldGenLevel, "worldGenLevel");
         ServerLevel level = Objects.requireNonNull(worldGenLevel.getLevel(), "level");
         Objects.requireNonNull(plan, "plan");
         ChunkPos chunkPos = new ChunkPos(plan.anchorPos());
-        PendingSite pendingSite = pendingSite(level, plan, resourceProfile, chunkPos);
+        PendingSite pendingSite = pendingSite(
+                level,
+                plan,
+                resourceProfile,
+                motherDepositReservation,
+                fallbackPlan,
+                chunkPos
+        );
+        level.getServer().execute(() -> prune(level));
         ConcurrentHashMap<Long, List<PendingSite>> byChunk = PENDING.computeIfAbsent(
                 level.dimension(),
                 ignored -> new ConcurrentHashMap<>()
         );
-        byChunk.compute(chunkPos.toLong(), (ignored, existing) -> appendDistinct(existing, pendingSite));
-        level.getServer().execute(() -> prune(level));
+        AtomicBoolean accepted = new AtomicBoolean();
+        byChunk.compute(
+                chunkPos.toLong(),
+                (ignored, existing) -> appendDistinct(existing, pendingSite, accepted)
+        );
+        return accepted.get();
     }
 
     /**
-     * Runs only from the new-chunk guard after its final sanitization pass. Rejected resource positions are
-     * returned so the guard can revoke their authorization and remove any surviving ore or budding blocks.
+     * Runs only from the new-chunk guard after its final sanitization pass. It applies the plan, commits the
+     * optional IE deposit, and records the locator entry as one compensatable server-thread transaction.
      */
     static Confirmation confirmLoadedChunk(ServerLevel level, ChunkPos chunkPos) {
         Objects.requireNonNull(level, "level");
         Objects.requireNonNull(chunkPos, "chunkPos");
-        LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z);
-        if (chunk == null) {
+        if (level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z) == null) {
             return Confirmation.NONE;
         }
         ConcurrentHashMap<Long, List<PendingSite>> byChunk = PENDING.get(level.dimension());
@@ -96,76 +122,148 @@ final class IoePendingExpeditionSites {
         int confirmedSites = 0;
         int rejectedSites = 0;
         for (PendingSite pendingSite : pendingSites) {
-            if (!pendingSite.signature().matches(chunk)) {
+            IoeExpeditionPlanPlacement.AppliedPlan effectivePlacement =
+                    IoeExpeditionPlanPlacement.apply(level, pendingSite.plan()).orElse(null);
+            if (effectivePlacement == null) {
                 rejectedSites++;
+                rollbackReservationBestEffort(pendingSite, "final plan application failed");
                 pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
                 IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
                         IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE
                 );
                 IoeExpeditionWorldgenMod.LOGGER.warn(
-                        "Discarded non-durable IOE expedition locator entry type={} anchor={} chunk={}",
+                        "Discarded unsafe IOE expedition plan type={} anchor={} chunk={}",
                         pendingSite.summary().requestedFeatureId(),
                         pendingSite.site().pos(),
                         chunkPos
                 );
                 continue;
             }
-            if (!guaranteeMotherDepositIfApplicable(level, pendingSite)) {
+
+            PendingSite effectiveSite = pendingSite;
+            boolean depositCommitted = false;
+            IoeMotherDepositReservation reservation = pendingSite.motherDepositReservation();
+            if (reservation != null) {
+                try {
+                    reservation.commit();
+                    depositCommitted = true;
+                } catch (RuntimeException | LinkageError failure) {
+                    rollbackReservationBestEffort(pendingSite, "commit failure");
+                    IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
+                            IoeWorldgenRuntimeDiagnostics.SiteSkipReason.IE_DEPOSIT_MISSING
+                    );
+                    IoeExpeditionWorldgenMod.LOGGER.error(
+                            "Failed to commit the IE deposit at {}; applying the direct lower quality pipeline",
+                            pendingSite.site().pos(),
+                            failure
+                    );
+                    FallbackApplication fallback = applyDirectLowerFallback(
+                            level,
+                            pendingSite,
+                            effectivePlacement,
+                            chunkPos
+                    );
+                    if (fallback == null) {
+                        rejectedSites++;
+                        pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
+                        continue;
+                    }
+                    effectiveSite = fallback.site();
+                    effectivePlacement = fallback.placement();
+                }
+            }
+
+            try {
+                ExpeditionLocatorService.record(level, effectiveSite.site());
+            } catch (RuntimeException | LinkageError failure) {
                 rejectedSites++;
-                pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
+                if (depositCommitted) {
+                    rollbackReservationBestEffort(pendingSite, "locator failure after commit");
+                }
+                rollbackPlacementBestEffort(level, effectivePlacement, effectiveSite, "locator failure");
+                effectiveSite.signature().appendResourcePositions(rejectedResourcePositions);
                 IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
-                        IoeWorldgenRuntimeDiagnostics.SiteSkipReason.IE_DEPOSIT_MISSING
+                        IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE
                 );
                 IoeExpeditionWorldgenMod.LOGGER.error(
-                        "Discarded IOE Mother Node without a guaranteed IE Excavator deposit anchor={} chunk={}",
-                        pendingSite.site().pos(),
-                        chunkPos
+                        "Failed to persist the final IOE locator entry at {}; compensated the site transaction",
+                        effectiveSite.site().pos(),
+                        failure
                 );
                 continue;
             }
-            ExpeditionLocatorService.record(level, pendingSite.site());
+            effectivePlacement.accept();
             IoeWorldgenRuntimeDiagnostics.recordSitePlaced();
             confirmedSites++;
-            logConfirmedSite(pendingSite);
+            logConfirmedSite(effectiveSite);
         }
         return new Confirmation(confirmedSites, rejectedSites, List.copyOf(rejectedResourcePositions));
     }
 
-    private static boolean guaranteeMotherDepositIfApplicable(ServerLevel level, PendingSite pendingSite) {
-        SiteQuality quality = pendingSite.site().quality().orElse(null);
-        ResourceLocation provinceId = pendingSite.site().provinceId().orElse(null);
-        if (quality == null || provinceId == null) {
-            return true;
+    private static FallbackApplication applyDirectLowerFallback(
+            ServerLevel level,
+            PendingSite pendingSite,
+            IoeExpeditionPlanPlacement.AppliedPlan initialPlacement,
+            ChunkPos chunkPos
+    ) {
+        ExpeditionSiteBlockPlan fallbackPlan = pendingSite.fallbackPlan();
+        if (fallbackPlan == null) {
+            rollbackPlacementBestEffort(level, initialPlacement, pendingSite, "missing lower quality fallback");
+            return null;
         }
-        var request = IoeExcavatorDepositRules.guaranteedMotherRequest(
-                pendingSite.site().pos(),
-                quality,
-                provinceId,
-                pendingSite.resourceProfile()
-        );
-        if (request.isEmpty()) {
-            return true;
+        SiteQuality currentQuality = pendingSite.site().quality().orElseThrow();
+        SiteQuality expectedLower = currentQuality.directLower().orElse(null);
+        if (expectedLower == null || fallbackPlan.quality() != expectedLower) {
+            rollbackPlacementBestEffort(level, initialPlacement, pendingSite, "invalid lower quality fallback");
+            return null;
         }
-        if (!ModList.get().isLoaded("immersiveengineering")) {
-            IoeExcavatorDepositRules.recordGuaranteedMotherIeAbsent();
-            return true;
+        if (!rollbackPlacementBestEffort(
+                level,
+                initialPlacement,
+                pendingSite,
+                "direct quality downgrade"
+        )) {
+            return null;
         }
+        IoeExpeditionPlanPlacement.AppliedPlan fallbackPlacement =
+                IoeExpeditionPlanPlacement.apply(level, fallbackPlan).orElse(null);
+        if (fallbackPlacement == null) {
+            return null;
+        }
+        PendingSite fallbackSite;
         try {
-            return IoeExcavatorMotherDepositBridge.ensureGuaranteedDeposit(level, request.orElseThrow());
+            fallbackSite = pendingSite(
+                    level,
+                    fallbackPlan,
+                    pendingSite.resourceProfile(),
+                    null,
+                    null,
+                    chunkPos
+            );
         } catch (RuntimeException | LinkageError failure) {
-            IoeExcavatorDepositRules.recordGuaranteedMotherFailed();
+            fallbackPlacement.rollback(level);
             IoeExpeditionWorldgenMod.LOGGER.error(
-                    "Failed to guarantee the Immersive Engineering deposit for Mother Node {} at {} in {}; rejecting the site",
-                    pendingSite.site().primaryId().orElse(null),
+                    "Failed to stage the direct lower quality plan at {}",
                     pendingSite.site().pos(),
-                    level.dimension().location(),
                     failure
             );
-            return false;
+            return null;
         }
+        IoeExpeditionWorldgenMod.LOGGER.warn(
+                "Downgraded IOE site after IE deposit commit failure: anchor={} {} -> {}",
+                pendingSite.site().pos(),
+                currentQuality,
+                fallbackPlan.quality()
+        );
+        return new FallbackApplication(fallbackSite, fallbackPlacement);
     }
 
     static void clear() {
+        PENDING.forEach((dimension, byChunk) -> {
+            byChunk.values().forEach(sites -> sites.forEach(site -> {
+                rollbackReservationBestEffort(site, "pending state cleared");
+            }));
+        });
         PENDING.clear();
     }
 
@@ -199,7 +297,12 @@ final class IoePendingExpeditionSites {
         for (ResourceKey<Level> dimension : List.copyOf(PENDING.keySet())) {
             ServerLevel level = event.getServer().getLevel(dimension);
             if (level == null) {
-                PENDING.remove(dimension);
+                ConcurrentHashMap<Long, List<PendingSite>> removed = PENDING.remove(dimension);
+                if (removed != null) {
+                    removed.values().forEach(sites -> sites.forEach(
+                            site -> rollbackReservationBestEffort(site, "dimension unavailable")
+                    ));
+                }
                 IoeOrePlacementAuthorization.releaseDimension(dimension);
             } else {
                 prune(level);
@@ -211,6 +314,8 @@ final class IoePendingExpeditionSites {
             ServerLevel level,
             ExpeditionSiteBlockPlan plan,
             BiomeMineResourceProfile resourceProfile,
+            IoeMotherDepositReservation motherDepositReservation,
+            ExpeditionSiteBlockPlan fallbackPlan,
             ChunkPos chunkPos
     ) {
         Objects.requireNonNull(resourceProfile, "resourceProfile");
@@ -230,25 +335,35 @@ final class IoePendingExpeditionSites {
         int connectedBiomeChunks = resourceProfile.sampledConnectedChunks();
         return new PendingSite(
                 site,
+                plan,
                 SiteSummary.from(plan),
                 biomeId,
                 connectedBiomeChunks,
                 resourceProfile,
                 PlanSignature.from(plan, chunkPos),
+                motherDepositReservation,
+                fallbackPlan,
                 NEXT_SEQUENCE.incrementAndGet(),
                 System.nanoTime()
         );
     }
 
-    private static List<PendingSite> appendDistinct(List<PendingSite> existing, PendingSite pendingSite) {
+    private static List<PendingSite> appendDistinct(
+            List<PendingSite> existing,
+            PendingSite pendingSite,
+            AtomicBoolean accepted
+    ) {
         if (existing == null) {
+            accepted.set(true);
             return List.of(pendingSite);
         }
         if (existing.stream().anyMatch(candidate -> candidate.site().pos().equals(pendingSite.site().pos()))) {
+            rollbackReservationBestEffort(pendingSite, "duplicate pending site");
             return existing;
         }
         ArrayList<PendingSite> updated = new ArrayList<>(existing);
         updated.add(pendingSite);
+        accepted.set(true);
         return List.copyOf(updated);
     }
 
@@ -257,7 +372,8 @@ final class IoePendingExpeditionSites {
                 pendingSite.site().pos(),
                 pendingSite.site().quality().orElseThrow(),
                 pendingSite.site().provinceId().orElseThrow(),
-                pendingSite.resourceProfile()
+                pendingSite.resourceProfile(),
+                pendingSite.motherDepositReservation() != null
         );
     }
 
@@ -270,6 +386,9 @@ final class IoePendingExpeditionSites {
         for (Map.Entry<Long, List<PendingSite>> entry : byChunk.entrySet()) {
             if (entry.getValue().stream().allMatch(site -> site.createdNanos() < cutoff)
                     && byChunk.remove(entry.getKey(), entry.getValue())) {
+                entry.getValue().forEach(site -> {
+                    rollbackReservationBestEffort(site, "pending site expired");
+                });
                 IoeOrePlacementAuthorization.releaseChunk(level.dimension(), new ChunkPos(entry.getKey()));
             }
         }
@@ -283,7 +402,54 @@ final class IoePendingExpeditionSites {
             if (oldest == null || !byChunk.remove(oldest.getKey(), oldest.getValue())) {
                 break;
             }
+            oldest.getValue().forEach(site -> {
+                rollbackReservationBestEffort(site, "pending capacity eviction");
+            });
             IoeOrePlacementAuthorization.releaseChunk(level.dimension(), new ChunkPos(oldest.getKey()));
+        }
+    }
+
+    private static void rollbackReservationBestEffort(PendingSite pendingSite, String reason) {
+        IoeMotherDepositReservation reservation = pendingSite.motherDepositReservation();
+        if (reservation == null) {
+            return;
+        }
+        try {
+            reservation.rollback();
+        } catch (RuntimeException | LinkageError failure) {
+            IoeExpeditionWorldgenMod.LOGGER.error(
+                    "Failed to roll back IE deposit reservation at {} reason={}",
+                    pendingSite.site().pos(),
+                    reason,
+                    failure
+            );
+        }
+    }
+
+    private static boolean rollbackPlacementBestEffort(
+            ServerLevel level,
+            IoeExpeditionPlanPlacement.AppliedPlan appliedPlan,
+            PendingSite pendingSite,
+            String reason
+    ) {
+        try {
+            boolean restored = appliedPlan.rollback(level);
+            if (!restored) {
+                IoeExpeditionWorldgenMod.LOGGER.error(
+                        "Could not fully compensate IOE site blocks at {} reason={}",
+                        pendingSite.site().pos(),
+                        reason
+                );
+            }
+            return restored;
+        } catch (RuntimeException | LinkageError failure) {
+            IoeExpeditionWorldgenMod.LOGGER.error(
+                    "Failed to compensate IOE site blocks at {} reason={}",
+                    pendingSite.site().pos(),
+                    reason,
+                    failure
+            );
+            return false;
         }
     }
 
@@ -325,19 +491,33 @@ final class IoePendingExpeditionSites {
 
     private record PendingSite(
             ExpeditionSite site,
+            ExpeditionSiteBlockPlan plan,
             SiteSummary summary,
             ResourceLocation biomeId,
             int connectedBiomeChunks,
             BiomeMineResourceProfile resourceProfile,
             PlanSignature signature,
+            IoeMotherDepositReservation motherDepositReservation,
+            ExpeditionSiteBlockPlan fallbackPlan,
             long sequence,
             long createdNanos
     ) {
         private PendingSite {
             Objects.requireNonNull(site, "site");
+            Objects.requireNonNull(plan, "plan");
             Objects.requireNonNull(summary, "summary");
             Objects.requireNonNull(resourceProfile, "resourceProfile");
             Objects.requireNonNull(signature, "signature");
+        }
+    }
+
+    private record FallbackApplication(
+            PendingSite site,
+            IoeExpeditionPlanPlacement.AppliedPlan placement
+    ) {
+        private FallbackApplication {
+            Objects.requireNonNull(site, "site");
+            Objects.requireNonNull(placement, "placement");
         }
     }
 
@@ -345,7 +525,8 @@ final class IoePendingExpeditionSites {
             BlockPos anchorPos,
             SiteQuality quality,
             ResourceLocation provinceId,
-            BiomeMineResourceProfile resourceProfile
+            BiomeMineResourceProfile resourceProfile,
+            boolean motherDepositReserved
     ) {
         ExcavatorRegion {
             Objects.requireNonNull(anchorPos, "anchorPos");
@@ -381,20 +562,14 @@ final class IoePendingExpeditionSites {
     }
 
     private static final class PlanSignature {
-        private final long[] positions;
-        private final Block[] expectedBlocks;
         private final long[] resourcePositions;
 
-        private PlanSignature(long[] positions, Block[] expectedBlocks, long[] resourcePositions) {
-            this.positions = positions;
-            this.expectedBlocks = expectedBlocks;
+        private PlanSignature(long[] resourcePositions) {
             this.resourcePositions = resourcePositions;
         }
 
         private static PlanSignature from(ExpeditionSiteBlockPlan plan, ChunkPos anchorChunk) {
             int size = plan.blocks().size();
-            long[] positions = new long[size];
-            Block[] expectedBlocks = new Block[size];
             long[] resources = new long[size];
             int structureBlockCount = 0;
             int resourceCount = 0;
@@ -407,31 +582,18 @@ final class IoePendingExpeditionSites {
                 // Later worldgen steps may legitimately decorate carved air. Durability is proven by the
                 // structure and resource blocks, not by requiring every tunnel air cell to remain untouched.
                 if (!expectedState.isAir()) {
-                    positions[structureBlockCount] = pos.asLong();
-                    expectedBlocks[structureBlockCount] = expectedState.getBlock();
                     structureBlockCount++;
                 }
                 if (IoeNewChunkOreGuard.isCandidate(expectedState)) {
                     resources[resourceCount++] = pos.asLong();
                 }
             }
-            if (structureBlockCount == 0 || resourceCount == 0) {
-                throw new IllegalStateException("Connected expedition plans require structure and resource blocks");
+            if (structureBlockCount == 0 || plan.quality().isProductive() && resourceCount == 0) {
+                throw new IllegalStateException(
+                        "Connected expedition plans require structure blocks and productive plans require resources"
+                );
             }
-            return new PlanSignature(
-                    Arrays.copyOf(positions, structureBlockCount),
-                    Arrays.copyOf(expectedBlocks, structureBlockCount),
-                    Arrays.copyOf(resources, resourceCount)
-            );
-        }
-
-        private boolean matches(LevelChunk chunk) {
-            for (int index = 0; index < positions.length; index++) {
-                if (chunk.getBlockState(BlockPos.of(positions[index])).getBlock() != expectedBlocks[index]) {
-                    return false;
-                }
-            }
-            return true;
+            return new PlanSignature(Arrays.copyOf(resources, resourceCount));
         }
 
         private void appendResourcePositions(List<BlockPos> target) {

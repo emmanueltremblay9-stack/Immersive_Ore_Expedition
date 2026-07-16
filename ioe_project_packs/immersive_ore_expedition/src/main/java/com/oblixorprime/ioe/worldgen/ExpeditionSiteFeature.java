@@ -1,12 +1,15 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
 import com.oblixorprime.ioe.core.LoadedResourceScanner;
+import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.core.ResourceRef;
 import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.core.SiteQualityRoll;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,12 +17,12 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.neoforged.fml.ModList;
 
-import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguration> {
-    private static final int BLOCK_UPDATE_FLAGS = 2;
     private static final SiteQualityRoll PRODUCTIVE_SITE_QUALITY = new SiteQualityRoll(0, 25, 45, 17, 3);
     private static final ResourcePolicyService RESOURCE_POLICY = new ResourcePolicyService();
     private final ExpeditionSiteType siteType;
@@ -118,40 +121,197 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             }
         }
 
-        boolean geOreMine = geOreMaterial != null;
-
-        ExpeditionSiteBlockPlan plan = ExpeditionSiteBlueprints.plan(
-                siteType,
+        DepositPreparation depositPreparation = prepareMotherDeposit(
+                context.level().getLevel(),
                 origin,
                 quality,
-                geOreMine ? geOreMaterial.nodeResource().id() : null,
-                geOreMine ? geOreMaterial.nodeBlock().defaultBlockState() : null,
-                geOreMine ? geOreMaterial.buddingResource().id() : null,
-                geOreMine ? geOreMaterial.buddingBlock().defaultBlockState() : null,
-                specialGeode == null ? null : specialGeode.componentId(),
-                specialGeode == null ? null : specialGeode.buddingBlock().defaultBlockState(),
-                specialGeode == null ? null : specialGeode.shellBlock().defaultBlockState(),
-                resourceProfile == null ? 0 : resourceProfile.oreBudget(quality),
-                resourceProfile == null ? 0 : resourceProfile.nodeCount(quality),
-                resourceProfile == null ? 0 : resourceProfile.specialBuddingCount(quality),
-                context.random()
+                resourceProfile,
+                siteType.naturalSurfaceSite()
         );
-        if (siteType.naturalSurfaceSite() && !plan.isConnectedExpeditionSite()) {
-            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.DISCONNECTED_PLAN,
-                    "the configured anchor distance window excludes the connected chamber");
+        if (!depositPreparation.resolution().confirmed()) {
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.IE_DEPOSIT_MISSING,
+                    "no valid lower quality remained after an IE deposit failure");
             return false;
         }
-        if (!withinBuildHeight(context.level(), plan) || !apply(context.level(), plan)) {
-            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
-                    "the connected block plan could not be written safely");
-            return false;
-        }
+        quality = depositPreparation.resolution().finalQuality();
+        IoeMotherDepositReservation depositReservation = depositPreparation.reservation().orElse(null);
+        boolean geOreMine = geOreMaterial != null;
 
-        if (siteType.naturalSurfaceSite()) {
-            IoeOrePlacementAuthorization.authorize(context.level().getLevel().dimension(), plan);
-            IoePendingExpeditionSites.stage(context.level(), plan, resourceProfile);
+        boolean reservationTransferred = false;
+        try {
+            ExpeditionSiteBlockPlan plan = ExpeditionSiteBlueprints.plan(
+                    siteType,
+                    origin,
+                    quality,
+                    geOreMine ? geOreMaterial.nodeResource().id() : null,
+                    geOreMine ? geOreMaterial.nodeBlock().defaultBlockState() : null,
+                    geOreMine ? geOreMaterial.buddingResource().id() : null,
+                    geOreMine ? geOreMaterial.buddingBlock().defaultBlockState() : null,
+                    specialGeode == null ? null : specialGeode.componentId(),
+                    specialGeode == null ? null : specialGeode.buddingBlock().defaultBlockState(),
+                    specialGeode == null ? null : specialGeode.shellBlock().defaultBlockState(),
+                    resourceProfile == null ? 0 : resourceProfile.oreBudget(quality),
+                    resourceProfile == null ? 0 : resourceProfile.nodeCount(quality),
+                    resourceProfile == null ? 0 : resourceProfile.specialBuddingCount(quality),
+                    context.random()
+            );
+            ExpeditionSiteBlockPlan fallbackPlan = null;
+            if (depositReservation != null) {
+                SiteQuality lowerQuality = quality.directLower().orElse(null);
+                if (lowerQuality == null) {
+                    skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.IE_DEPOSIT_MISSING,
+                            "a required IE deposit had no lower quality fallback");
+                    return false;
+                }
+                fallbackPlan = ExpeditionSiteBlueprints.plan(
+                        siteType,
+                        origin,
+                        lowerQuality,
+                        geOreMine ? geOreMaterial.nodeResource().id() : null,
+                        geOreMine ? geOreMaterial.nodeBlock().defaultBlockState() : null,
+                        geOreMine ? geOreMaterial.buddingResource().id() : null,
+                        geOreMine ? geOreMaterial.buddingBlock().defaultBlockState() : null,
+                        specialGeode == null ? null : specialGeode.componentId(),
+                        specialGeode == null ? null : specialGeode.buddingBlock().defaultBlockState(),
+                        specialGeode == null ? null : specialGeode.shellBlock().defaultBlockState(),
+                        resourceProfile == null ? 0 : resourceProfile.oreBudget(lowerQuality),
+                        resourceProfile == null ? 0 : resourceProfile.nodeCount(lowerQuality),
+                        resourceProfile == null ? 0 : resourceProfile.specialBuddingCount(lowerQuality),
+                        net.minecraft.util.RandomSource.create(context.random().nextLong())
+                );
+            }
+            if (siteType.naturalSurfaceSite() && !plan.isConnectedExpeditionSite()) {
+                skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.DISCONNECTED_PLAN,
+                        "the configured anchor distance window excludes the connected chamber");
+                return false;
+            }
+            if (fallbackPlan != null && (!fallbackPlan.isConnectedExpeditionSite()
+                    || !withinBuildHeight(context.level(), fallbackPlan))) {
+                skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
+                        "the direct lower quality plan could not satisfy the connected build envelope");
+                return false;
+            }
+            if (!withinBuildHeight(context.level(), plan)) {
+                skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
+                        "the connected block plan could not be written safely");
+                return false;
+            }
+            if (siteType.naturalSurfaceSite()) {
+                boolean staged = IoePendingExpeditionSites.stage(
+                        context.level(),
+                        plan,
+                        resourceProfile,
+                        depositReservation,
+                        fallbackPlan
+                );
+                if (!staged) {
+                    skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
+                            "an expedition site at the same anchor is already pending");
+                    return false;
+                }
+                reservationTransferred = true;
+            } else {
+                IoeExpeditionPlanPlacement.AppliedPlan appliedPlan =
+                        IoeExpeditionPlanPlacement.apply(context.level(), plan).orElse(null);
+                if (appliedPlan == null) {
+                    skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
+                            "the standalone block plan could not be written safely");
+                    return false;
+                }
+                appliedPlan.accept();
+            }
+            return true;
+        } finally {
+            if (!reservationTransferred) {
+                rollbackReservationBestEffort(depositReservation, origin);
+            }
         }
-        return true;
+    }
+
+    private static DepositPreparation prepareMotherDeposit(
+            ServerLevel level,
+            BlockPos origin,
+            SiteQuality initialQuality,
+            BiomeMineResourceProfile resourceProfile,
+            boolean naturalSurfaceSite
+    ) {
+        IoeMotherDepositReservation[] reservation = new IoeMotherDepositReservation[1];
+        ProvinceId province = resourceProfile == null
+                ? null
+                : ProvinceBindingResolver.fromConfig().resolve(resourceProfile.biomeId());
+        IoeSiteQualityFallbackResolver.Resolution resolution = IoeSiteQualityFallbackResolver.resolve(
+                initialQuality,
+                ignored -> true,
+                quality -> {
+                    if (!naturalSurfaceSite || resourceProfile == null || province == null) {
+                        return IoeSiteQualityFallbackResolver.DepositAttempt.NOT_REQUIRED;
+                    }
+                    Optional<IoeExcavatorDepositRules.MotherDepositRequest> request =
+                            IoeExcavatorDepositRules.guaranteedMotherRequest(
+                                    origin,
+                                    quality,
+                                    province.id(),
+                                    resourceProfile
+                            );
+                    if (request.isEmpty()) {
+                        return IoeSiteQualityFallbackResolver.DepositAttempt.NOT_REQUIRED;
+                    }
+                    if (!ModList.get().isLoaded("immersiveengineering")) {
+                        IoeExcavatorDepositRules.recordGuaranteedMotherIeAbsent();
+                        return IoeSiteQualityFallbackResolver.DepositAttempt.NOT_REQUIRED;
+                    }
+                    try {
+                        Optional<IoeMotherDepositReservation> reserved =
+                                IoeExcavatorMotherDepositBridge.reserveGuaranteedDeposit(
+                                        level,
+                                        request.orElseThrow()
+                                );
+                        if (reserved.isEmpty()) {
+                            return IoeSiteQualityFallbackResolver.DepositAttempt.FAILED;
+                        }
+                        reservation[0] = reserved.orElseThrow();
+                        return IoeSiteQualityFallbackResolver.DepositAttempt.RESOLVED;
+                    } catch (RuntimeException | LinkageError failure) {
+                        IoeExcavatorDepositRules.recordGuaranteedMotherFailed();
+                        IoeExpeditionWorldgenMod.LOGGER.error(
+                                "Failed to reserve the IE Excavator deposit for quality={} at {} in {}; downgrading",
+                                quality,
+                                origin,
+                                level.dimension().location(),
+                                failure
+                        );
+                        return IoeSiteQualityFallbackResolver.DepositAttempt.FAILED;
+                    }
+                },
+                (currentQuality, lowerQuality) -> {
+                    IoeExpeditionWorldgenMod.LOGGER.warn(
+                            "Downgraded IOE site at {} after IE deposit failure: {} -> {}",
+                            origin,
+                            currentQuality,
+                            lowerQuality
+                    );
+                    return true;
+                }
+        );
+        return new DepositPreparation(resolution, Optional.ofNullable(reservation[0]));
+    }
+
+    private static void rollbackReservationBestEffort(
+            IoeMotherDepositReservation reservation,
+            BlockPos origin
+    ) {
+        if (reservation == null) {
+            return;
+        }
+        try {
+            reservation.rollback();
+        } catch (RuntimeException | LinkageError failure) {
+            IoeExpeditionWorldgenMod.LOGGER.error(
+                    "Failed to roll back an unconfirmed IE deposit reservation at {}",
+                    origin,
+                    failure
+            );
+        }
     }
 
     private static BlockPos resolveSurfaceOrigin(
@@ -232,34 +392,6 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 .allMatch(pos -> pos.getY() >= minBuildHeight && pos.getY() < maxBuildHeight);
     }
 
-    private static boolean apply(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
-        for (BlockPos pos : plan.blocks().keySet()) {
-            if (!canWrite(level, pos)) {
-                return false;
-            }
-        }
-        for (Map.Entry<BlockPos, BlockState> placement : plan.blocks().entrySet()) {
-            BlockPos pos = placement.getKey();
-            BlockState target = placement.getValue();
-            boolean changed = level.setBlock(pos, target, BLOCK_UPDATE_FLAGS);
-            if (!changed && !level.getBlockState(pos).equals(target)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean canWrite(WorldGenLevel level, BlockPos pos) {
-        if (!level.ensureCanWrite(pos)) {
-            return false;
-        }
-        BlockState existing = level.getBlockState(pos);
-        if (!existing.getFluidState().isEmpty() || existing.hasBlockEntity()) {
-            return false;
-        }
-        return existing.isAir() || OreLoadChamberReplacementRules.canReplace(existing);
-    }
-
     private static void skip(
             BlockPos origin,
             IoeWorldgenRuntimeDiagnostics.SiteSkipReason skipReason,
@@ -289,6 +421,16 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             Objects.requireNonNull(buddingBlock, "buddingBlock");
             Objects.requireNonNull(shellResource, "shellResource");
             Objects.requireNonNull(shellBlock, "shellBlock");
+        }
+    }
+
+    private record DepositPreparation(
+            IoeSiteQualityFallbackResolver.Resolution resolution,
+            Optional<IoeMotherDepositReservation> reservation
+    ) {
+        private DepositPreparation {
+            Objects.requireNonNull(resolution, "resolution");
+            reservation = reservation == null ? Optional.empty() : reservation;
         }
     }
 

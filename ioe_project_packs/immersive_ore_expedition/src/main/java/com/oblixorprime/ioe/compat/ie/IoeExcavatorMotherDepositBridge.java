@@ -7,6 +7,8 @@ import blusunrize.immersiveengineering.common.IESaveData;
 import com.oblixorprime.ioe.worldgen.IoeExcavatorDepositRules;
 import com.oblixorprime.ioe.worldgen.IoeExcavatorDepositRules.MotherDepositRequest;
 import com.oblixorprime.ioe.worldgen.IoeExpeditionWorldgenMod;
+import com.oblixorprime.ioe.worldgen.IoeMotherDepositReservation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ColumnPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -15,6 +17,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Optional IE bridge loaded only when Immersive Engineering is present. It provisions a normal abstract
@@ -27,14 +30,17 @@ public final class IoeExcavatorMotherDepositBridge {
     private IoeExcavatorMotherDepositBridge() {
     }
 
-    public static boolean ensureGuaranteedDeposit(ServerLevel level, MotherDepositRequest request) {
+    public static Optional<IoeMotherDepositReservation> reserveGuaranteedDeposit(
+            ServerLevel level,
+            MotherDepositRequest request
+    ) {
         Objects.requireNonNull(level, "level");
         Objects.requireNonNull(request, "request");
         Object veinLock = ExcavatorHandler.getMineralVeinList();
         synchronized (veinLock) {
-            if (hasCompatibleAnchoredVein(level, request)) {
+            boolean observedExisting = hasCompatibleAnchoredVein(level, request);
+            if (observedExisting) {
                 IoeExcavatorDepositRules.recordGuaranteedMotherPresent();
-                return true;
             }
 
             List<RecipeHolder<MineralMix>> candidates = MineralMix.RECIPES.getRecipes(level).stream()
@@ -50,7 +56,7 @@ public final class IoeExcavatorMotherDepositBridge {
                         request.profileName(),
                         request.provinceId()
                 );
-                return false;
+                return Optional.empty();
             }
 
             RandomSource random = RandomSource.create(seed(level, request));
@@ -68,26 +74,26 @@ public final class IoeExcavatorMotherDepositBridge {
                                 * ExcavatorHandler.initialVeinDepletion
                 ));
             }
-            try {
-                ExcavatorHandler.addVein(level.dimension(), vein);
-                IESaveData.markInstanceDirty();
-            } catch (RuntimeException | LinkageError failure) {
-                rollbackVein(level, vein, failure);
-                throw failure;
-            }
-            recordCreatedBestEffort(request, selected.id(), radius);
-            return true;
+            return Optional.of(new RevalidatingReservation(
+                    level,
+                    request,
+                    selected.id(),
+                    radius,
+                    vein,
+                    observedExisting
+            ));
         }
     }
 
-    private static void rollbackVein(ServerLevel level, MineralVein vein, Throwable originalFailure) {
-        try {
+    private static void rollbackVein(ServerLevel level, MineralVein vein, boolean markDirty) {
+        Object veinLock = ExcavatorHandler.getMineralVeinList();
+        synchronized (veinLock) {
             if (ExcavatorHandler.getMineralVeinList().remove(level.dimension(), vein)) {
                 ExcavatorHandler.resetCache();
-                IESaveData.markInstanceDirty();
+                if (markDirty) {
+                    IESaveData.markInstanceDirty();
+                }
             }
-        } catch (RuntimeException | LinkageError rollbackFailure) {
-            originalFailure.addSuppressed(rollbackFailure);
         }
     }
 
@@ -148,5 +154,97 @@ public final class IoeExcavatorMotherDepositBridge {
         value ^= value >>> 33;
         value *= 0xc4ceb9fe1a85ec53L;
         return value ^ value >>> 33;
+    }
+
+    private static final class RevalidatingReservation implements IoeMotherDepositReservation {
+        private final ServerLevel level;
+        private final MotherDepositRequest request;
+        private final ResourceLocation mineralMixId;
+        private final int radius;
+        private final MineralVein vein;
+        private final boolean observedExisting;
+        private State state = State.PREPARED;
+
+        private RevalidatingReservation(
+                ServerLevel level,
+                MotherDepositRequest request,
+                ResourceLocation mineralMixId,
+                int radius,
+                MineralVein vein,
+                boolean observedExisting
+        ) {
+            this.level = Objects.requireNonNull(level, "level");
+            this.request = Objects.requireNonNull(request, "request");
+            this.mineralMixId = Objects.requireNonNull(mineralMixId, "mineralMixId");
+            this.radius = radius;
+            this.vein = Objects.requireNonNull(vein, "vein");
+            this.observedExisting = observedExisting;
+        }
+
+        @Override
+        public synchronized boolean createdByIoe() {
+            return state == State.COMMITTED_CREATED
+                    || state != State.COMMITTED_EXISTING && !observedExisting;
+        }
+
+        @Override
+        public synchronized void commit() {
+            if (!level.getServer().isSameThread()) {
+                throw new IllegalStateException("IE deposit commits must run on the Minecraft server thread");
+            }
+            if (state == State.COMMITTED_CREATED || state == State.COMMITTED_EXISTING) {
+                return;
+            }
+            if (state != State.PREPARED) {
+                throw new IllegalStateException("Cannot commit a rolled-back IE deposit reservation");
+            }
+
+            Object veinLock = ExcavatorHandler.getMineralVeinList();
+            synchronized (veinLock) {
+                if (hasCompatibleAnchoredVein(level, request)) {
+                    state = State.COMMITTED_EXISTING;
+                    IoeExcavatorDepositRules.recordGuaranteedMotherPresent();
+                    return;
+                }
+                state = State.COMMITTING;
+                try {
+                    ExcavatorHandler.addVein(level.dimension(), vein);
+                    IESaveData.markInstanceDirty();
+                    state = State.COMMITTED_CREATED;
+                } catch (RuntimeException | LinkageError failure) {
+                    try {
+                        rollbackVein(level, vein, false);
+                        state = State.PREPARED;
+                    } catch (RuntimeException | LinkageError rollbackFailure) {
+                        failure.addSuppressed(rollbackFailure);
+                    }
+                    throw failure;
+                }
+            }
+            recordCreatedBestEffort(request, mineralMixId, radius);
+        }
+
+        @Override
+        public synchronized void rollback() {
+            if (state == State.ROLLED_BACK) {
+                return;
+            }
+            if (state == State.COMMITTED_CREATED || state == State.COMMITTING) {
+                boolean committed = state == State.COMMITTED_CREATED;
+                rollbackVein(level, vein, committed);
+                if (committed) {
+                    IoeExcavatorDepositRules.recordGuaranteedMotherRolledBack();
+                }
+            }
+            state = State.ROLLED_BACK;
+        }
+
+        private enum State {
+            PREPARED,
+            COMMITTING,
+            COMMITTED_CREATED,
+            COMMITTED_EXISTING,
+            ROLLED_BACK
+        }
     }
 }

@@ -47,10 +47,12 @@ public final class IoeExcavatorDepositRules {
     private static final LongAdder REJECTED_PROFILE = new LongAdder();
     private static final LongAdder REJECTED_PROVINCE = new LongAdder();
     private static final LongAdder REJECTED_MAJOR_CHANCE = new LongAdder();
+    private static final LongAdder REJECTED_MOTHER_RESERVED = new LongAdder();
     private static final LongAdder GUARANTEED_MOTHER_PRESENT = new LongAdder();
     private static final LongAdder GUARANTEED_MOTHER_CREATED = new LongAdder();
     private static final LongAdder GUARANTEED_MOTHER_FAILED = new LongAdder();
     private static final LongAdder GUARANTEED_MOTHER_IE_ABSENT = new LongAdder();
+    private static final LongAdder GUARANTEED_MOTHER_ROLLED_BACK = new LongAdder();
 
     private IoeExcavatorDepositRules() {
     }
@@ -77,6 +79,10 @@ public final class IoeExcavatorDepositRules {
                 .toList();
         if (regions.isEmpty()) {
             REJECTED_OUTSIDE.increment();
+            return false;
+        }
+        if (regions.stream().anyMatch(IoePendingExpeditionSites.ExcavatorRegion::motherDepositReserved)) {
+            REJECTED_MOTHER_RESERVED.increment();
             return false;
         }
 
@@ -174,6 +180,10 @@ public final class IoeExcavatorDepositRules {
         GUARANTEED_MOTHER_IE_ABSENT.increment();
     }
 
+    public static void recordGuaranteedMotherRolledBack() {
+        GUARANTEED_MOTHER_ROLLED_BACK.increment();
+    }
+
     static String statusMessage() {
         return "IOE IE Excavator gate: attempts=" + ATTEMPTS.sum()
                 + ", acceptedMother=" + ACCEPTED_MOTHER.sum()
@@ -183,10 +193,12 @@ public final class IoeExcavatorDepositRules {
                 + ", rejectedProfile=" + REJECTED_PROFILE.sum()
                 + ", rejectedProvince=" + REJECTED_PROVINCE.sum()
                 + ", rejectedMajorChance=" + REJECTED_MAJOR_CHANCE.sum()
+                + ", rejectedMotherReserved=" + REJECTED_MOTHER_RESERVED.sum()
                 + ", guaranteedMotherPresent=" + GUARANTEED_MOTHER_PRESENT.sum()
                 + ", guaranteedMotherCreated=" + GUARANTEED_MOTHER_CREATED.sum()
                 + ", guaranteedMotherFailed=" + GUARANTEED_MOTHER_FAILED.sum()
-                + ", guaranteedMotherIeAbsent=" + GUARANTEED_MOTHER_IE_ABSENT.sum();
+                + ", guaranteedMotherIeAbsent=" + GUARANTEED_MOTHER_IE_ABSENT.sum()
+                + ", guaranteedMotherRolledBack=" + GUARANTEED_MOTHER_ROLLED_BACK.sum();
     }
 
     static void resetDiagnostics() {
@@ -198,10 +210,12 @@ public final class IoeExcavatorDepositRules {
         REJECTED_PROFILE.reset();
         REJECTED_PROVINCE.reset();
         REJECTED_MAJOR_CHANCE.reset();
+        REJECTED_MOTHER_RESERVED.reset();
         GUARANTEED_MOTHER_PRESENT.reset();
         GUARANTEED_MOTHER_CREATED.reset();
         GUARANTEED_MOTHER_FAILED.reset();
         GUARANTEED_MOTHER_IE_ABSENT.reset();
+        GUARANTEED_MOTHER_ROLLED_BACK.reset();
     }
 
     private static boolean matchesResourceProfile(

@@ -33,9 +33,13 @@ The separate `immersiveengineering:mineral_veins` configured feature records hid
 
 IOE keeps `immersiveengineering:mineral_veins` out of the global suppression tag and constrains its registration before IE records the abstract deposit:
 
-- a GeOre Mother Node with Immersive Engineering loaded guarantees one compatible native IE vein anchored on that Mother Node;
-- an already registered compatible vein at the same anchor makes the operation idempotent;
-- a Mother Node is rejected before locator registration if no compatible IE mineral mix can be selected or the native vein cannot be recorded;
+- a GeOre Mother Node with Immersive Engineering loaded prepares an immutable site plan and one compatible native IE vein candidate without writing blocks or mutating IE global state from the worldgen worker;
+- site blocks and the prepared vein are applied only during final chunk confirmation on the server thread; an already registered compatible vein at the same anchor makes that commit idempotent;
+- if no compatible mix can be prepared, the candidate is downgraded exactly from `MOTHERLODE` to `RICH` before placement, so only the complete Rich plan is written;
+- if the native commit fails, the just-applied Mother plan is compensated from its placement journal before the complete Rich plan is applied and persisted;
+- the canonical fallback order is `MOTHERLODE → RICH → NORMAL → POOR → DRY`; a lower level is retried only when its own rules require a deposit attempt;
+- a committed IOE vein remains compensatable until the locator entry is recorded; a crash before final confirmation leaves no provisional blocks or vein, and a locator failure compensates both, while a pre-existing IE vein is never removed;
+- when IE is absent, no deposit attempt is required and the optional integration does not change site quality;
 - Major Node regions retain the reduced secondary registration chance;
 - Minor Node regions and locations outside an IOE province reject normal IE deposit registration;
 - IE continues to own Core Sample discovery, depletion and Excavator extraction.
