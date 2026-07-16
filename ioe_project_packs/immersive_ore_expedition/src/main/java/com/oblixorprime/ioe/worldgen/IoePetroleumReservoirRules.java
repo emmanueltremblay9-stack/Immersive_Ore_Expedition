@@ -37,9 +37,9 @@ public final class IoePetroleumReservoirRules {
             Registries.BIOME,
             ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, "ip_lava_volcano")
     );
-    public static final TagKey<Biome> AQUIFER_BEACH_BIOMES = TagKey.create(
+    public static final TagKey<Biome> AQUIFER_WATER_BIOMES = TagKey.create(
             Registries.BIOME,
-            ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, "ip_aquifer_beach")
+            ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, "ip_aquifer_water")
     );
     private static final int RICH_SITE_CHANCE = 4;
     private static final LongAdder NATIVE_SCANS_SUPPRESSED = new LongAdder();
@@ -74,7 +74,7 @@ public final class IoePetroleumReservoirRules {
                 && "coal".equals(resourceProfile.profileName())
                 && biome.is(OIL_COAL_BIOMES);
         boolean lava = biome.is(LAVA_VOLCANO_BIOMES);
-        boolean aquifer = biome.is(AQUIFER_BEACH_BIOMES);
+        boolean aquifer = biome.is(AQUIFER_WATER_BIOMES);
         int matches = (oil ? 1 : 0) + (lava ? 1 : 0) + (aquifer ? 1 : 0);
         if (matches != 1) {
             if (matches > 1) {

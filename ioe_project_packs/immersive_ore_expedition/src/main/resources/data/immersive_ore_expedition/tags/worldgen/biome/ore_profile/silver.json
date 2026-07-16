@@ -3,6 +3,9 @@
   "values": [
     "minecraft:snowy_slopes",
     "minecraft:snowy_beach",
+    "minecraft:frozen_river",
+    "minecraft:frozen_ocean",
+    "minecraft:deep_frozen_ocean",
     "minecraft:snowy_plains",
     "minecraft:ice_spikes",
     { "id": "biomesoplenty:snowblossom_grove", "required": false },

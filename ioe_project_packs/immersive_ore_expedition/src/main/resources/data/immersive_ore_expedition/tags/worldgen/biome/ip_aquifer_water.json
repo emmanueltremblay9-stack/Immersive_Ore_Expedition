@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "#immersive_ore_expedition:ip_aquifer_beach",
+    "#minecraft:is_river",
+    "#minecraft:is_ocean"
+  ]
+}
