@@ -2,7 +2,6 @@
   "replace": false,
   "values": [
     "minecraft:desert",
-    { "id": "biomesoplenty:cold_desert", "required": false },
     { "id": "biomesoplenty:lush_desert", "required": false }
   ]
 }
