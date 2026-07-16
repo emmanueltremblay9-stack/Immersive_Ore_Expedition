@@ -58,9 +58,15 @@ Immersive Ore Expedition treats AE2 as a separately distributed required runtime
 - Integrated line: Minecraft 1.21.1, AE2 Crystal Science 1.1.12
 - Mod id: `ae2cs`
 - Modrinth project/version: `uJ9afomy` / `PP2uuQ6t`
+- Source tag inspected: `v1.1.12-1.21.1-neoforge`
+- Source revision inspected: `9b67c6407080fee43cbac95ada80c13c2d1b64ef`
 - Upstream licensing: LGPL-3.0-or-later for code; CC BY-NC-SA 3.0 for assets
+- LGPL license text: https://github.com/ExtremelyFrozen/AE2-Crystal-Science/blob/v1.1.12-1.21.1-neoforge/LICENSES/LGPL-3.0.txt
+- Embedded LGPL license copy: `src/main/resources/META-INF/licenses/immersive_ore_expedition/AE2CS-LGPL-3.0.txt`
 
-AE2 Crystal Science is a separately distributed required runtime dependency and remains the owner of its purified crystals, seeds, growth chamber, pulverizer, aggregator, pattern providers, wireless automation, recipes, code, and assets. IOE does not copy or adapt those files; it relies on the installed mod's public gameplay systems.
+AE2 Crystal Science is a separately distributed required runtime dependency and remains the owner of its purified crystals, seeds, growth chamber, pulverizer, aggregator, pattern providers, wireless automation, recipes, code, and assets. IOE relies on the installed mod's public gameplay systems.
+
+IOE includes one LGPL-3.0-or-later compatibility override at `src/main/resources/data/ae2cs/recipe/mechanical_cutting/polished_rose_quartz_from_pure_rose_quartz.json`, adapted from the same path in AE2 Crystal Science 1.1.12. The IOE source copy adds only the NeoForge `create` mod-loaded condition: when Create is installed, AE2CS retains the original cutting recipe and values; when Create is absent, NeoForge ignores the recipe before resolving the unavailable `create:cutting` serializer. No AE2CS Java source, model, texture, sound, language file, loot table, or other recipe is copied into IOE.
 
 ## GeOre: Additions
 

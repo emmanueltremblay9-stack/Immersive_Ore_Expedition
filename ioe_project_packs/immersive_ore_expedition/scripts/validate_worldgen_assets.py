@@ -9,7 +9,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "src/main/resources/data/immersive_ore_expedition"
+DATA_ROOT = ROOT / "src/main/resources/data"
+DATA = DATA_ROOT / "immersive_ore_expedition"
 FEATURE_IDS = (
     "tiny_vertical_mine_entrance",
     "collapsed_shaft",
@@ -45,6 +46,22 @@ EXPECTED_MINE_PROFILES = {
     "redstone": "geore",
     "silver": "geore",
     "uranium": "geore",
+}
+AE2CS_CREATE_RECIPE_GUARD = (
+    DATA_ROOT
+    / "ae2cs/recipe/mechanical_cutting/polished_rose_quartz_from_pure_rose_quartz.json"
+)
+EXPECTED_AE2CS_CREATE_RECIPE = {
+    "neoforge:conditions": [
+        {
+            "type": "neoforge:mod_loaded",
+            "modid": "create",
+        }
+    ],
+    "type": "create:cutting",
+    "ingredients": [{"item": "ae2cs:purified_rose_quartz"}],
+    "processing_time": 20,
+    "results": [{"id": "create:polished_rose_quartz"}],
 }
 # Versioned allowlist from data/minecraft/worldgen/placed_feature in the Minecraft 1.21.1 client JAR.
 MINECRAFT_1_21_1_NORMAL_ORE_PLACED_FEATURES = frozenset(
@@ -207,9 +224,23 @@ def validate_mine_profiles(failures: list[str]) -> int:
     return len(definition_files)
 
 
+def validate_ae2cs_create_recipe_guard(failures: list[str]) -> None:
+    if not AE2CS_CREATE_RECIPE_GUARD.is_file():
+        failures.append(
+            f"missing AE2CS/Create recipe guard: {AE2CS_CREATE_RECIPE_GUARD.relative_to(ROOT)}"
+        )
+        return
+    recipe = read_json(AE2CS_CREATE_RECIPE_GUARD)
+    if recipe != EXPECTED_AE2CS_CREATE_RECIPE:
+        failures.append(
+            "AE2CS/Create recipe guard must preserve the upstream recipe and require the create mod"
+        )
+
+
 def validate() -> None:
     failures: list[str] = []
     mine_profile_count = validate_mine_profiles(failures)
+    validate_ae2cs_create_recipe_guard(failures)
     for feature_id in FEATURE_IDS:
         configured_path = DATA / f"worldgen/configured_feature/{feature_id}.json"
         placed_path = DATA / f"worldgen/placed_feature/{feature_id}.json"
@@ -322,6 +353,7 @@ def validate() -> None:
         "Worldgen asset validation passed: "
         f"{len(FEATURE_IDS)} feature pairs, {len(NATURAL_FEATURE_TAGS)} biome modifiers, "
         f"{mine_profile_count} datapack mine profiles, "
+        "1 guarded AE2CS/Create recipe, "
         f"{len(MINECRAFT_1_21_1_NORMAL_ORE_PLACED_FEATURES)} vanilla ore/fossil placed features, "
         "1 GameTest template"
     )
