@@ -296,24 +296,33 @@ final class IoePendingExpeditionSites {
             long[] positions = new long[size];
             Block[] expectedBlocks = new Block[size];
             long[] resources = new long[size];
-            int index = 0;
+            int structureBlockCount = 0;
             int resourceCount = 0;
             for (Map.Entry<BlockPos, BlockState> placement : plan.blocks().entrySet()) {
                 BlockPos pos = placement.getKey();
                 if (!new ChunkPos(pos).equals(anchorChunk)) {
                     throw new IllegalStateException("Connected expedition plans must remain inside the anchor chunk");
                 }
-                positions[index] = pos.asLong();
-                expectedBlocks[index] = placement.getValue().getBlock();
-                index++;
-                if (IoeNewChunkOreGuard.isCandidate(placement.getValue())) {
+                BlockState expectedState = placement.getValue();
+                // Later worldgen steps may legitimately decorate carved air. Durability is proven by the
+                // structure and resource blocks, not by requiring every tunnel air cell to remain untouched.
+                if (!expectedState.isAir()) {
+                    positions[structureBlockCount] = pos.asLong();
+                    expectedBlocks[structureBlockCount] = expectedState.getBlock();
+                    structureBlockCount++;
+                }
+                if (IoeNewChunkOreGuard.isCandidate(expectedState)) {
                     resources[resourceCount++] = pos.asLong();
                 }
             }
-            if (size == 0 || resourceCount == 0) {
+            if (structureBlockCount == 0 || resourceCount == 0) {
                 throw new IllegalStateException("Connected expedition plans require structure and resource blocks");
             }
-            return new PlanSignature(positions, expectedBlocks, Arrays.copyOf(resources, resourceCount));
+            return new PlanSignature(
+                    Arrays.copyOf(positions, structureBlockCount),
+                    Arrays.copyOf(expectedBlocks, structureBlockCount),
+                    Arrays.copyOf(resources, resourceCount)
+            );
         }
 
         private boolean matches(LevelChunk chunk) {
