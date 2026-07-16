@@ -93,7 +93,7 @@ MINECRAFT_1_21_1_NORMAL_ORE_PLACED_FEATURES = frozenset(
         "minecraft:fossil_lower",
     }
 )
-REQUIRED_EXTERNAL_ORE_PLACED_FEATURES = frozenset(
+OPTIONAL_EXTERNAL_ORE_PLACED_FEATURES = frozenset(
     {
         "ae2cs:certus_quartz_ore_placed",
         "ae2cs:charged_certus_quartz_ore_placed",
@@ -330,11 +330,21 @@ def validate() -> None:
         actual_required_external_ids = {
             feature_id for feature_id in required_ids if not feature_id.startswith("minecraft:")
         }
-        if actual_required_external_ids != REQUIRED_EXTERNAL_ORE_PLACED_FEATURES:
+        if actual_required_external_ids:
             failures.append(
-                "required external normal ore placed features changed: "
-                f"expected={sorted(REQUIRED_EXTERNAL_ORE_PLACED_FEATURES)}, "
+                "external normal ore placed features must be optional: "
                 f"actual={sorted(actual_required_external_ids)}"
+            )
+        actual_optional_external_ids = {
+            feature_id for feature_id in optional_ids if not feature_id.startswith("minecraft:")
+        }
+        missing_optional_external_ids = sorted(
+            OPTIONAL_EXTERNAL_ORE_PLACED_FEATURES - actual_optional_external_ids
+        )
+        if missing_optional_external_ids:
+            failures.append(
+                "normal ore tag is missing optional external placed features: "
+                f"{missing_optional_external_ids}"
             )
 
     template_path = DATA / "structure/expedition_worldgen_empty.nbt"
