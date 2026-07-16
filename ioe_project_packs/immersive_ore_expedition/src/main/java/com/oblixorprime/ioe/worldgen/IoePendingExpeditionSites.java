@@ -156,7 +156,7 @@ final class IoePendingExpeditionSites {
             IoeExcavatorDepositRules.recordGuaranteedMotherFailed();
             IoeExpeditionWorldgenMod.LOGGER.error(
                     "Failed to guarantee the Immersive Engineering deposit for Mother Node {} at {} in {}; rejecting the site",
-                    pendingSite.site().siteId(),
+                    pendingSite.site().primaryId().orElse(null),
                     pendingSite.site().pos(),
                     level.dimension().location(),
                     failure
