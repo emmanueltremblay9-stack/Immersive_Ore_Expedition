@@ -164,6 +164,7 @@ public final class IoeWorldgenRuntimeDiagnostics {
         PROFILE_MISSING("profile_missing"),
         PROFILE_AMBIGUOUS("profile_ambiguous"),
         RESOURCE_POLICY_DENIED("resource_policy_denied"),
+        IE_DEPOSIT_MISSING("ie_deposit_missing"),
         DISCONNECTED_PLAN("disconnected_plan"),
         UNSAFE_WRITE("unsafe_write");
 

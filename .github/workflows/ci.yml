@@ -44,6 +44,9 @@ jobs:
       - name: Run expedition worldgen GameTests
         run: gradle --no-daemon runGameTestServer
 
+      - name: Run expedition worldgen GameTests with Immersive Engineering
+        run: gradle --no-daemon -PioeIncludeIeRuntime=true runGameTestServer
+
       - name: Process resources
         run: gradle --no-daemon processResources
 

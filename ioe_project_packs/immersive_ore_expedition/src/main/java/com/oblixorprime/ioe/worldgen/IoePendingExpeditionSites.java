@@ -1,5 +1,6 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
 import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
@@ -108,12 +110,59 @@ final class IoePendingExpeditionSites {
                 );
                 continue;
             }
+            if (!guaranteeMotherDepositIfApplicable(level, pendingSite)) {
+                rejectedSites++;
+                pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
+                IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
+                        IoeWorldgenRuntimeDiagnostics.SiteSkipReason.IE_DEPOSIT_MISSING
+                );
+                IoeExpeditionWorldgenMod.LOGGER.error(
+                        "Discarded IOE Mother Node without a guaranteed IE Excavator deposit anchor={} chunk={}",
+                        pendingSite.site().pos(),
+                        chunkPos
+                );
+                continue;
+            }
             ExpeditionLocatorService.record(level, pendingSite.site());
             IoeWorldgenRuntimeDiagnostics.recordSitePlaced();
             confirmedSites++;
             logConfirmedSite(pendingSite);
         }
         return new Confirmation(confirmedSites, rejectedSites, List.copyOf(rejectedResourcePositions));
+    }
+
+    private static boolean guaranteeMotherDepositIfApplicable(ServerLevel level, PendingSite pendingSite) {
+        SiteQuality quality = pendingSite.site().quality().orElse(null);
+        ResourceLocation provinceId = pendingSite.site().provinceId().orElse(null);
+        if (quality == null || provinceId == null) {
+            return true;
+        }
+        var request = IoeExcavatorDepositRules.guaranteedMotherRequest(
+                pendingSite.site().pos(),
+                quality,
+                provinceId,
+                pendingSite.resourceProfile()
+        );
+        if (request.isEmpty()) {
+            return true;
+        }
+        if (!ModList.get().isLoaded("immersiveengineering")) {
+            IoeExcavatorDepositRules.recordGuaranteedMotherIeAbsent();
+            return true;
+        }
+        try {
+            return IoeExcavatorMotherDepositBridge.ensureGuaranteedDeposit(level, request.orElseThrow());
+        } catch (RuntimeException | LinkageError failure) {
+            IoeExcavatorDepositRules.recordGuaranteedMotherFailed();
+            IoeExpeditionWorldgenMod.LOGGER.error(
+                    "Failed to guarantee the Immersive Engineering deposit for Mother Node {} at {} in {}; rejecting the site",
+                    pendingSite.site().siteId(),
+                    pendingSite.site().pos(),
+                    level.dimension().location(),
+                    failure
+            );
+            return false;
+        }
     }
 
     static void clear() {

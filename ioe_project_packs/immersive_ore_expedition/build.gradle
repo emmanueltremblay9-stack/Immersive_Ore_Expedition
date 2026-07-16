@@ -82,6 +82,9 @@ tasks.named('jar', Jar).configure {
 dependencies {
     compileOnly group: 'info.journeymap', name: 'journeymap-api-neoforge', version: journeymap_api_version, changing: true
     compileOnly "blusunrize.immersiveengineering:ImmersiveEngineering:${ie_compile_version}"
+    if (providers.gradleProperty('ioeIncludeIeRuntime').map { it.toBoolean() }.getOrElse(false)) {
+        runtimeOnly "blusunrize.immersiveengineering:ImmersiveEngineering:${ie_compile_version}"
+    }
     runtimeOnly "org.appliedenergistics:appliedenergistics2:${ae2_runtime_version}"
     runtimeOnly "maven.modrinth:${ae2cs_modrinth_project}:${ae2cs_modrinth_version}"
     runtimeOnly "maven.modrinth:${geore_modrinth_project}:${geore_modrinth_version}"
