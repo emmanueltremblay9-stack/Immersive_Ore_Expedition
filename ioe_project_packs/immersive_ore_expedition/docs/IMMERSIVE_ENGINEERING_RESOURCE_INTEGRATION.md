@@ -31,14 +31,16 @@ GeOre registers the bauxite-equivalent family under the American-English materia
 
 The separate `immersiveengineering:mineral_veins` configured feature records hidden industrial deposits for the Core Sample Drill and Excavator; it does not place ore blocks into terrain. IOE leaves that system registered because it is an Immersive Engineering machine progression path, not free world ore.
 
-The existing IOE IE/IP prospecting layer remains the coordination boundary:
+IOE keeps `immersiveengineering:mineral_veins` out of the global suppression tag and constrains its registration before IE records the abstract deposit:
 
-- `IeDepositQuantityLimiter` plans reduced deposit quantities when IE is loaded;
-- `IeMineralOutcropFeature` and `SurfaceCluePlacementPlanner` describe IOE-owned surface clues without copying IE assets;
-- runtime gates fail closed when Immersive Engineering resources are absent or denied;
-- no IE ore block is used as an uncontrolled outcrop.
+- a GeOre Mother Node with Immersive Engineering loaded guarantees one compatible native IE vein anchored on that Mother Node;
+- an already registered compatible vein at the same anchor makes the operation idempotent;
+- a Mother Node is rejected before locator registration if no compatible IE mineral mix can be selected or the native vein cannot be recorded;
+- Major Node regions retain the reduced secondary registration chance;
+- Minor Node regions and locations outside an IOE province reject normal IE deposit registration;
+- IE continues to own Core Sample discovery, depletion and Excavator extraction.
 
-Those classes are still planning/scaffolding rather than proof of a live IE deposit hook. Until their runtime adapter is implemented and verified, the physical ore suppression is confirmed only statically and IE Excavator quantity control remains unverified.
+No IE ore block is used as an uncontrolled outcrop. The bridge creates an abstract `MineralVein`; it does not convert the deposit into blocks, structures or IOE nodes. Runtime gameplay validation remains separate from this static integration proof.
 
 ## Scope boundary
 

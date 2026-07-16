@@ -32,7 +32,7 @@ public final class IoeExcavatorMotherDepositBridge {
         Objects.requireNonNull(request, "request");
         Object veinLock = ExcavatorHandler.getMineralVeinList();
         synchronized (veinLock) {
-            if (hasCompatibleCoveringVein(level, request)) {
+            if (hasCompatibleAnchoredVein(level, request)) {
                 IoeExcavatorDepositRules.recordGuaranteedMotherPresent();
                 return true;
             }
@@ -111,17 +111,11 @@ public final class IoeExcavatorMotherDepositBridge {
         }
     }
 
-    private static boolean hasCompatibleCoveringVein(ServerLevel level, MotherDepositRequest request) {
+    private static boolean hasCompatibleAnchoredVein(ServerLevel level, MotherDepositRequest request) {
         return ExcavatorHandler.getMineralVeinList().get(level.dimension()).stream()
                 .filter(vein -> IoeExcavatorDepositRules.acceptsMineralMix(request, vein.getMineralName()))
-                .anyMatch(vein -> covers(vein, request));
-    }
-
-    private static boolean covers(MineralVein vein, MotherDepositRequest request) {
-        long dx = (long) vein.getPos().x() - request.anchorPos().getX();
-        long dz = (long) vein.getPos().z() - request.anchorPos().getZ();
-        long radius = vein.getRadius();
-        return dx * dx + dz * dz < radius * radius;
+                .anyMatch(vein -> vein.getPos().x() == request.anchorPos().getX()
+                        && vein.getPos().z() == request.anchorPos().getZ());
     }
 
     private static RecipeHolder<MineralMix> selectWeighted(
