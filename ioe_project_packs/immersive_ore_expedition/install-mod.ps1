@@ -403,10 +403,21 @@ if ($sourceIdentity.Version -ne $ModVersion) {
 $requiredFeatureEntries = @(
     "META-INF/neoforge.mods.toml",
     "com/oblixorprime/ioe/ImmersiveOreExpeditionMod.class",
+    "com/oblixorprime/ioe/compat/ie/IoeExcavatorMotherDepositBridge.class",
+    "com/oblixorprime/ioe/expeditioncompass/IoeCompassNetworking.class",
+    "com/oblixorprime/ioe/expeditionlocator/ExpeditionLocatorSavedData.class",
     "com/oblixorprime/ioe/worldgen/IoeNewChunkOreGuard.class",
+    "com/oblixorprime/ioe/worldgen/ExpeditionSiteFeature.class",
+    "com/oblixorprime/ioe/worldgen/ExtendedAeGeodeIntegration.class",
+    "com/oblixorprime/ioe/worldgen/GeOreAdditionsRestrictions.class",
     "com/oblixorprime/ioe/expeditionlocator/ExpeditionLocatorReindexer.class",
     "data/immersive_ore_expedition/neoforge/biome_modifier/remove_known_ore_features.json",
-    "data/immersive_ore_expedition/tags/worldgen/biome/resource_suppression_biomes.json"
+    "data/immersive_ore_expedition/neoforge/biome_modifier/replace_normal_ores_with_nodes.json",
+    "data/immersive_ore_expedition/tags/worldgen/biome/resource_suppression_biomes.json",
+    "data/immersive_ore_expedition/tags/worldgen/placed_feature/normal_ore_generation.json",
+    "data/immersive_ore_expedition/immersive_ore_expedition/mine_resource_profile/iron.json",
+    "data/ae2/tags/block/growth_acceleratable.json",
+    "data/ae2cs/recipe/mechanical_cutting/polished_rose_quartz_from_pure_rose_quartz.json"
 )
 $missingFeatureEntries = @($requiredFeatureEntries | Where-Object {
         -not (Test-JarEntry -JarPath $ResolvedSourceJar -EntryName $_)
