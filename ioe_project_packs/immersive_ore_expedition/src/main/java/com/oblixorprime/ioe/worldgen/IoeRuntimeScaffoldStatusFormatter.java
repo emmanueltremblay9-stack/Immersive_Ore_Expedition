@@ -32,7 +32,7 @@ public final class IoeRuntimeScaffoldStatusFormatter {
                         + ", mineshaftConnectors=connected child generation"
                         + ", oreChambers=connected child generation"
                         + ", ieIpSurfaceClues=not live / planning-only"
-                        + ", crystalsGeodes=not live / planning-only"
+                        + ", crystalsGeodes=connected child generation"
                         + ", retrogenMutation=not live / planning-only",
                 "IOE registration: configuredFeaturesRegistered=" + status.configuredFeaturesRegistered()
                         + ", placedFeaturesRegistered=" + status.placedFeaturesRegistered()
