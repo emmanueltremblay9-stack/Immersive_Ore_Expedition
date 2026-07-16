@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:mushroom_fields",
+    { "id": "biomesoplenty:mystic_grove", "required": false }
+  ]
+}

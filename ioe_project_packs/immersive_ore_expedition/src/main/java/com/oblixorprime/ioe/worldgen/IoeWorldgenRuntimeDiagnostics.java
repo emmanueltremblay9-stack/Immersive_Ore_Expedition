@@ -158,6 +158,7 @@ public final class IoeWorldgenRuntimeDiagnostics {
         AE2_RESOURCE_MISSING("ae2_resource_missing"),
         EXTENDED_AE_RESOURCE_MISSING("extended_ae_resource_missing"),
         PROFILE_MISSING("profile_missing"),
+        PROFILE_AMBIGUOUS("profile_ambiguous"),
         RESOURCE_POLICY_DENIED("resource_policy_denied"),
         DISCONNECTED_PLAN("disconnected_plan"),
         UNSAFE_WRITE("unsafe_write");

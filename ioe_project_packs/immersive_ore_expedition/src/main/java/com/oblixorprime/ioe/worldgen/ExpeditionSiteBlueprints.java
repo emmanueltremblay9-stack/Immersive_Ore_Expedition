@@ -115,6 +115,40 @@ public final class ExpeditionSiteBlueprints {
             int requestedOreNodeCount,
             RandomSource random
     ) {
+        return plan(
+                requestedType,
+                origin,
+                quality,
+                oreBlockId,
+                oreState,
+                oreNodeHeartBlockId,
+                oreNodeHeartState,
+                specialGeodeComponentId,
+                specialBuddingState,
+                specialShellState,
+                oreBudget,
+                requestedOreNodeCount,
+                specialBuddingState != null && quality.isProductive() ? 1 : 0,
+                random
+        );
+    }
+
+    public static ExpeditionSiteBlockPlan plan(
+            ExpeditionSiteType requestedType,
+            BlockPos origin,
+            SiteQuality quality,
+            ResourceLocation oreBlockId,
+            BlockState oreState,
+            ResourceLocation oreNodeHeartBlockId,
+            BlockState oreNodeHeartState,
+            ResourceLocation specialGeodeComponentId,
+            BlockState specialBuddingState,
+            BlockState specialShellState,
+            int oreBudget,
+            int requestedOreNodeCount,
+            int requestedSpecialBuddingCount,
+            RandomSource random
+    ) {
         Objects.requireNonNull(requestedType, "requestedType");
         Objects.requireNonNull(origin, "origin");
         Objects.requireNonNull(quality, "quality");
@@ -137,6 +171,9 @@ public final class ExpeditionSiteBlueprints {
         if ((specialGeodeComponentId != null) != hasSpecialGeode) {
             throw new IllegalArgumentException("Special geode placement requires one component identifier");
         }
+        if (!hasSpecialGeode && requestedSpecialBuddingCount != 0) {
+            throw new IllegalArgumentException("Only special geodes can request special budding blocks");
+        }
         if (quality.isProductive()) {
             if (hasCompleteOreNodeInput == hasSpecialGeode) {
                 throw new IllegalArgumentException(
@@ -146,11 +183,14 @@ public final class ExpeditionSiteBlueprints {
             if (hasCompleteOreNodeInput && (oreBudget <= 0 || requestedOreNodeCount <= 0)) {
                 throw new IllegalArgumentException("Productive chamber plans require positive ore and node budgets");
             }
-            if (hasSpecialGeode && (oreBudget != 0 || requestedOreNodeCount != 0)) {
-                throw new IllegalArgumentException("Special geodes cannot share a GeOre node budget");
+            if (hasSpecialGeode
+                    && (oreBudget != 0 || requestedOreNodeCount != 0 || requestedSpecialBuddingCount <= 0)) {
+                throw new IllegalArgumentException(
+                        "Special geodes require budding blocks and cannot share a GeOre node budget"
+                );
             }
-        } else if (oreBudget != 0 || requestedOreNodeCount != 0) {
-            throw new IllegalArgumentException("Dry chamber plans require zero ore and node budgets");
+        } else if (oreBudget != 0 || requestedOreNodeCount != 0 || requestedSpecialBuddingCount != 0) {
+            throw new IllegalArgumentException("Dry chamber plans require zero resource budgets");
         }
 
         Builder builder = new Builder();
@@ -175,6 +215,7 @@ public final class ExpeditionSiteBlueprints {
                     specialShellState,
                     oreBudget,
                     requestedOreNodeCount,
+                    requestedSpecialBuddingCount,
                     random
             );
             addSurfaceClue(builder, requestedType, origin);
@@ -199,6 +240,7 @@ public final class ExpeditionSiteBlueprints {
                     null,
                     oreBudget,
                     requestedOreNodeCount,
+                    0,
                     random
             );
             components.add(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER);
@@ -361,6 +403,7 @@ public final class ExpeditionSiteBlueprints {
             BlockState specialShellState,
             int oreBudget,
             int requestedOreNodeCount,
+            int requestedSpecialBuddingCount,
             RandomSource random
     ) {
         int radius = horizontalRadius(quality);
@@ -418,6 +461,7 @@ public final class ExpeditionSiteBlueprints {
                     chamberMarker,
                     specialBuddingState,
                     specialShellState,
+                    requestedSpecialBuddingCount,
                     random
             );
         }
@@ -556,32 +600,34 @@ public final class ExpeditionSiteBlueprints {
             BlockPos chamberMarker,
             BlockState buddingState,
             BlockState shellState,
+            int requestedBuddingCount,
             RandomSource random
     ) {
         List<BlockPos> candidates = chamberShell(chamberCenter, chamberRadius, chamberHalfHeight);
         shuffle(candidates, random);
-        BlockPos buddingPos = candidates.stream()
-                .filter(candidate -> !builder.contains(candidate))
-                .filter(candidate -> touchesOpenChamber(
-                        candidate,
-                        chamberCenter,
-                        chamberRadius,
-                        chamberHalfHeight,
-                        chamberMarker
-                ))
-                .filter(candidate -> hasOpenAirFace(
-                        builder,
-                        candidate,
-                        chamberCenter,
-                        chamberRadius,
-                        chamberHalfHeight
-                ))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Special geode has no chamber-facing budding position"));
-
-        builder.put(buddingPos, buddingState);
-        LinkedHashSet<BlockPos> buddingCore = new LinkedHashSet<>();
-        buddingCore.add(buddingPos.immutable());
+        candidates.removeIf(candidate -> builder.contains(candidate)
+                || !touchesOpenChamber(
+                candidate,
+                chamberCenter,
+                chamberRadius,
+                chamberHalfHeight,
+                chamberMarker
+        )
+                || !hasOpenAirFace(
+                builder,
+                candidate,
+                chamberCenter,
+                chamberRadius,
+                chamberHalfHeight
+        ));
+        if (requestedBuddingCount > candidates.size()) {
+            throw new IllegalStateException("Special geode cannot satisfy the requested budding-block count");
+        }
+        List<BlockPos> buddingPositions = chooseSeparatedSeeds(candidates, requestedBuddingCount);
+        buddingPositions.forEach(buddingPos -> builder.put(buddingPos, buddingState));
+        LinkedHashSet<BlockPos> buddingCore = buddingPositions.stream()
+                .map(BlockPos::immutable)
+                .collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
         LinkedHashSet<BlockPos> innerSkyStone = outwardLayer(
                 builder,
                 buddingCore,

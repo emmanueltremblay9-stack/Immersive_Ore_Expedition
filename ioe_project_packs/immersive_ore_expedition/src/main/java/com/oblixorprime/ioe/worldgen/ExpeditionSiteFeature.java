@@ -57,71 +57,83 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         }
 
         SiteQuality quality = PRODUCTIVE_SITE_QUALITY.roll(context.random());
+        BiomeMineResourceProfile resourceProfile = null;
+        GeOreNodeIntegration.NodeMaterial geOreMaterial = null;
         SpecialMineGeode specialGeode = null;
-        if (quality.isProductive()
-                && siteType == ExpeditionSiteType.BURIED_SURVEY_MARKER
-                && Ae2MeteoriteIntegration.isCrystalProcessingStackLoaded()) {
-            specialGeode = Ae2MeteoriteIntegration.resolve()
-                    .map(material -> new SpecialMineGeode(
-                            IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE,
-                            material.buddingResource(),
-                            material.buddingBlock(),
-                            material.skyStoneResource(),
-                            material.skyStoneBlock()
-                    ))
-                    .orElse(null);
-            if (!usableSpecialGeode(specialGeode)) {
-                skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.AE2_RESOURCE_MISSING,
-                        "the required AE2/AE2 Crystal Science budding Certus resources are unavailable");
+        if (quality.isProductive()) {
+            BiomeMineResourceProfile.Resolution resolution = BiomeMineResourceProfile.resolve(
+                    context.level(),
+                    origin
+            );
+            if (resolution.failure() != BiomeMineResourceProfile.Failure.NONE) {
+                IoeWorldgenRuntimeDiagnostics.SiteSkipReason skipReason =
+                        resolution.failure() == BiomeMineResourceProfile.Failure.AMBIGUOUS
+                                ? IoeWorldgenRuntimeDiagnostics.SiteSkipReason.PROFILE_AMBIGUOUS
+                                : IoeWorldgenRuntimeDiagnostics.SiteSkipReason.PROFILE_MISSING;
+                skip(origin, skipReason, "the origin biome does not select exactly one mine resource profile");
                 return false;
             }
-        }
-        if (quality.isProductive()
-                && siteType == ExpeditionSiteType.COLLAPSED_SHAFT
-                && ExtendedAeGeodeIntegration.isLoaded()) {
-            specialGeode = ExtendedAeGeodeIntegration.resolve()
-                    .map(material -> new SpecialMineGeode(
-                            IoeWorldgenFeatureKeys.ENTROIZED_FLUIX_GEODE,
-                            material.buddingResource(),
-                            material.buddingBlock(),
-                            material.shellResource(),
-                            material.shellBlock()
-                    ))
-                    .orElse(null);
-            if (!usableSpecialGeode(specialGeode)) {
-                skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.EXTENDED_AE_RESOURCE_MISSING,
-                        "ExtendedAE is loaded but its Entroized Fluix geode resources are unavailable");
-                return false;
+            resourceProfile = resolution.profile().orElseThrow();
+            switch (resourceProfile.resourceKind()) {
+                case GEORE -> {
+                    geOreMaterial = GeOreNodeIntegration.resolve(resourceProfile.profileName()).orElse(null);
+                    if (!usableGeOreMaterial(geOreMaterial)) {
+                        skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                                "the biome GeOre node or budding resource is unavailable or denied by policy");
+                        return false;
+                    }
+                }
+                case AE2_CERTUS -> {
+                    specialGeode = Ae2MeteoriteIntegration.resolve()
+                            .map(material -> new SpecialMineGeode(
+                                    IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE,
+                                    material.buddingResource(),
+                                    material.buddingBlock(),
+                                    material.skyStoneResource(),
+                                    material.skyStoneBlock()
+                            ))
+                            .orElse(null);
+                    if (!usableSpecialGeode(specialGeode)) {
+                        skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.AE2_RESOURCE_MISSING,
+                                "the biome requires AE2 and AE2 Crystal Science budding Certus resources");
+                        return false;
+                    }
+                }
+                case EXTENDEDAE_FLUIX -> {
+                    specialGeode = ExtendedAeGeodeIntegration.resolve()
+                            .map(material -> new SpecialMineGeode(
+                                    IoeWorldgenFeatureKeys.ENTROIZED_FLUIX_GEODE,
+                                    material.buddingResource(),
+                                    material.buddingBlock(),
+                                    material.shellResource(),
+                                    material.shellBlock()
+                            ))
+                            .orElse(null);
+                    if (!usableSpecialGeode(specialGeode)) {
+                        skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.EXTENDED_AE_RESOURCE_MISSING,
+                                "the biome requires ExtendedAE Entroized Fluix geode resources");
+                        return false;
+                    }
+                }
             }
         }
-        boolean specialGeodeMine = specialGeode != null;
-        boolean needsOreProfile = quality.isProductive() && !specialGeodeMine;
-        BiomeOreNodeProfile oreProfile = BiomeOreNodeProfile.resolve(context.level(), origin).orElse(null);
-        if (needsOreProfile && oreProfile == null) {
-            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.PROFILE_MISSING,
-                    "the origin biome does not have exactly one usable ore-node profile");
-            return false;
-        }
-        if (needsOreProfile
-                && !RESOURCE_POLICY.evaluate(oreProfile.resource(), LoadedResourceScanner.runtime()).shouldUse()) {
-            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
-                    "the biome ore-node resource is unavailable or denied by policy");
-            return false;
-        }
+
+        boolean geOreMine = geOreMaterial != null;
 
         ExpeditionSiteBlockPlan plan = ExpeditionSiteBlueprints.plan(
                 siteType,
                 origin,
                 quality,
-                needsOreProfile ? oreProfile.resource().id() : null,
-                needsOreProfile ? oreProfile.oreBlock().defaultBlockState() : null,
-                needsOreProfile ? oreProfile.buddingResource().id() : null,
-                needsOreProfile ? oreProfile.buddingBlock().defaultBlockState() : null,
+                geOreMine ? geOreMaterial.nodeResource().id() : null,
+                geOreMine ? geOreMaterial.nodeBlock().defaultBlockState() : null,
+                geOreMine ? geOreMaterial.buddingResource().id() : null,
+                geOreMine ? geOreMaterial.buddingBlock().defaultBlockState() : null,
                 specialGeode == null ? null : specialGeode.componentId(),
                 specialGeode == null ? null : specialGeode.buddingBlock().defaultBlockState(),
                 specialGeode == null ? null : specialGeode.shellBlock().defaultBlockState(),
-                needsOreProfile ? oreProfile.oreBudget(quality) : 0,
-                needsOreProfile ? oreProfile.nodeCount(quality) : 0,
+                resourceProfile == null ? 0 : resourceProfile.oreBudget(quality),
+                resourceProfile == null ? 0 : resourceProfile.nodeCount(quality),
+                resourceProfile == null ? 0 : resourceProfile.specialBuddingCount(quality),
                 context.random()
         );
         if (siteType.naturalSurfaceSite() && !plan.isConnectedExpeditionSite()) {
@@ -137,7 +149,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
 
         if (siteType.naturalSurfaceSite()) {
             IoeOrePlacementAuthorization.authorize(context.level().getLevel().dimension(), plan);
-            IoePendingExpeditionSites.stage(context.level(), plan, oreProfile);
+            IoePendingExpeditionSites.stage(context.level(), plan, resourceProfile);
         }
         return true;
     }
@@ -187,6 +199,18 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         ).shouldUse()
                 && RESOURCE_POLICY.evaluate(
                 material.shellResource(),
+                LoadedResourceScanner.runtime()
+                ).shouldUse();
+    }
+
+    private static boolean usableGeOreMaterial(GeOreNodeIntegration.NodeMaterial material) {
+        return material != null
+                && RESOURCE_POLICY.evaluate(
+                material.nodeResource(),
+                LoadedResourceScanner.runtime()
+        ).shouldUse()
+                && RESOURCE_POLICY.evaluate(
+                material.buddingResource(),
                 LoadedResourceScanner.runtime()
         ).shouldUse();
     }

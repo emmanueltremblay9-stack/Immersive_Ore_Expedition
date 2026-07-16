@@ -6,7 +6,6 @@
     "minecraft:birch_forest",
     "minecraft:flower_forest",
     "minecraft:old_growth_birch_forest",
-    "minecraft:cherry_grove",
     "minecraft:sunflower_plains",
     { "id": "biomesoplenty:aspen_glade", "required": false },
     { "id": "biomesoplenty:field", "required": false },

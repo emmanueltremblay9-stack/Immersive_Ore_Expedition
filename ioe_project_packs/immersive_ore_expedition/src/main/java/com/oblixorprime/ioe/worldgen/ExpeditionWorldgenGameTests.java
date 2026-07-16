@@ -275,23 +275,22 @@ public final class ExpeditionWorldgenGameTests {
             BlockPos origin,
             ExpeditionSiteType type
     ) {
-        if (type == ExpeditionSiteType.BURIED_SURVEY_MARKER
-                && Ae2MeteoriteIntegration.isCrystalProcessingStackLoaded()) {
-            return Ae2MeteoriteIntegration.resolve().map(material -> Set.of(
+        return BiomeMineResourceProfile.resolve(level, origin).profile().flatMap(profile -> switch (
+                profile.resourceKind()
+        ) {
+            case GEORE -> GeOreNodeIntegration.resolve(profile.profileName()).map(material -> Set.of(
+                    material.nodeBlock(),
+                    material.buddingBlock()
+            ));
+            case AE2_CERTUS -> Ae2MeteoriteIntegration.resolve().map(material -> Set.of(
                     material.buddingBlock(),
                     material.skyStoneBlock()
             ));
-        }
-        if (type == ExpeditionSiteType.COLLAPSED_SHAFT && ExtendedAeGeodeIntegration.isLoaded()) {
-            return ExtendedAeGeodeIntegration.resolve().map(material -> Set.of(
+            case EXTENDEDAE_FLUIX -> ExtendedAeGeodeIntegration.resolve().map(material -> Set.of(
                     material.buddingBlock(),
                     material.shellBlock()
             ));
-        }
-        return BiomeOreNodeProfile.resolve(level, origin).map(profile -> Set.of(
-                profile.oreBlock(),
-                profile.buddingBlock()
-        ));
+        });
     }
 
     private static Block characteristicBlock(ExpeditionSiteType type) {

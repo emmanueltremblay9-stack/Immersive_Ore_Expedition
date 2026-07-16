@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
+    "#immersive_ore_expedition:ore_profile/certus",
+    "#immersive_ore_expedition:ore_profile/entroized_fluix",
     "#immersive_ore_expedition:ore_profile/coal",
     "#immersive_ore_expedition:ore_profile/iron",
     "#immersive_ore_expedition:ore_profile/copper",

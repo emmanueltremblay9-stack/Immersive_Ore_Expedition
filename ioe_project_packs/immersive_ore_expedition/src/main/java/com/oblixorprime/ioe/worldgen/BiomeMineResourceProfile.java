@@ -1,20 +1,18 @@
 package com.oblixorprime.ioe.worldgen;
 
-import com.oblixorprime.ioe.core.ResourceRef;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.levelgen.RandomState;
 
 import java.util.ArrayDeque;
@@ -23,29 +21,28 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public record BiomeOreNodeProfile(
+/**
+ * Selects exactly one mine resource from the origin biome. Site shape never participates in resource selection.
+ */
+public record BiomeMineResourceProfile(
         ResourceLocation biomeId,
-        ResourceRef resource,
-        Block oreBlock,
-        ResourceRef buddingResource,
-        Block buddingBlock,
+        ResourceKind resourceKind,
+        String profileName,
         int sampledConnectedChunks
 ) {
     private static final int SURVEY_RADIUS_CHUNKS = 4;
-    private static final List<OreDefinition> ORE_DEFINITIONS = oreDefinitions();
+    private static final List<ResourceDefinition> RESOURCE_DEFINITIONS = resourceDefinitions();
 
-    public BiomeOreNodeProfile {
+    public BiomeMineResourceProfile {
         Objects.requireNonNull(biomeId, "biomeId");
-        Objects.requireNonNull(resource, "resource");
-        Objects.requireNonNull(oreBlock, "oreBlock");
-        Objects.requireNonNull(buddingResource, "buddingResource");
-        Objects.requireNonNull(buddingBlock, "buddingBlock");
+        Objects.requireNonNull(resourceKind, "resourceKind");
+        Objects.requireNonNull(profileName, "profileName");
         if (sampledConnectedChunks <= 0) {
             throw new IllegalArgumentException("Connected biome chunk count must be positive");
         }
     }
 
-    public static Optional<BiomeOreNodeProfile> resolve(WorldGenLevel level, BlockPos origin) {
+    public static Resolution resolve(WorldGenLevel level, BlockPos origin) {
         Objects.requireNonNull(level, "level");
         Objects.requireNonNull(origin, "origin");
 
@@ -56,29 +53,26 @@ public record BiomeOreNodeProfile(
         Holder<Biome> originBiome = sampleBiomeAtBlock(biomeSource, randomState, origin);
         ResourceKey<Biome> originBiomeKey = originBiome.unwrapKey().orElse(null);
         if (originBiomeKey == null) {
-            return Optional.empty();
+            return Resolution.missing();
         }
 
-        List<OreDefinition> matchingDefinitions = ORE_DEFINITIONS.stream()
+        List<ResourceDefinition> matchingDefinitions = RESOURCE_DEFINITIONS.stream()
                 .filter(candidate -> originBiome.is(candidate.biomeTag()))
                 .toList();
-        if (matchingDefinitions.size() != 1) {
-            if (matchingDefinitions.size() > 1) {
-                IoeExpeditionWorldgenMod.LOGGER.warn(
-                        "Rejected ambiguous IOE ore profile biome={} origin={} matches={}",
-                        originBiomeKey.location(),
-                        origin,
-                        matchingDefinitions.stream().map(OreDefinition::materialName).toList()
-                );
-            }
-            return Optional.empty();
+        if (matchingDefinitions.isEmpty()) {
+            return Resolution.missing();
         }
-        OreDefinition definition = matchingDefinitions.getFirst();
-        GeOreNodeIntegration.NodeMaterial material = GeOreNodeIntegration.resolve(definition.materialName())
-                .orElse(null);
-        if (material == null) {
-            return Optional.empty();
+        if (matchingDefinitions.size() > 1) {
+            IoeExpeditionWorldgenMod.LOGGER.warn(
+                    "Rejected ambiguous IOE mine resource biome={} origin={} matches={}",
+                    originBiomeKey.location(),
+                    origin,
+                    matchingDefinitions.stream().map(ResourceDefinition::profileName).toList()
+            );
+            return Resolution.ambiguous();
         }
+
+        ResourceDefinition definition = matchingDefinitions.getFirst();
         int connectedChunks = countConnectedChunks(
                 biomeSource,
                 randomState,
@@ -86,19 +80,17 @@ public record BiomeOreNodeProfile(
                 origin.getY(),
                 originBiomeKey
         );
-        return Optional.of(new BiomeOreNodeProfile(
+        return Resolution.resolved(new BiomeMineResourceProfile(
                 originBiomeKey.location(),
-                material.nodeResource(),
-                material.nodeBlock(),
-                material.buddingResource(),
-                material.buddingBlock(),
+                definition.resourceKind(),
+                definition.profileName(),
                 connectedChunks
         ));
     }
 
     public int oreBudget(SiteQuality quality) {
         Objects.requireNonNull(quality, "quality");
-        if (!quality.isProductive()) {
+        if (resourceKind != ResourceKind.GEORE || !quality.isProductive()) {
             return 0;
         }
         int base = switch (quality) {
@@ -120,6 +112,9 @@ public record BiomeOreNodeProfile(
 
     public int nodeCount(SiteQuality quality) {
         Objects.requireNonNull(quality, "quality");
+        if (resourceKind != ResourceKind.GEORE || !quality.isProductive()) {
+            return 0;
+        }
         int base = switch (quality) {
             case DRY -> 0;
             case POOR -> 1;
@@ -127,7 +122,24 @@ public record BiomeOreNodeProfile(
             case RICH -> 3;
             case MOTHERLODE -> 4;
         };
-        return quality.isProductive() ? base + Math.min(2, sampledConnectedChunks / 24) : 0;
+        return base + Math.min(2, sampledConnectedChunks / 24);
+    }
+
+    public int specialBuddingCount(SiteQuality quality) {
+        Objects.requireNonNull(quality, "quality");
+        if (!quality.isProductive()) {
+            return 0;
+        }
+        return switch (resourceKind) {
+            case GEORE -> 0;
+            case AE2_CERTUS -> Math.min(4,
+                    (quality == SiteQuality.POOR || quality == SiteQuality.NORMAL ? 1 : 2)
+                            + (sampledConnectedChunks >= 33 ? 1 : 0)
+                            + (sampledConnectedChunks >= 65 ? 1 : 0));
+            case EXTENDEDAE_FLUIX -> Math.min(3,
+                    (quality == SiteQuality.MOTHERLODE ? 2 : 1)
+                            + (sampledConnectedChunks >= 49 ? 1 : 0));
+        };
     }
 
     private static int countConnectedChunks(
@@ -189,40 +201,82 @@ public record BiomeOreNodeProfile(
         );
     }
 
-    private static List<OreDefinition> oreDefinitions() {
+    private static List<ResourceDefinition> resourceDefinitions() {
         return List.of(
-                definition("uranium"),
-                definition("nickel"),
-                definition("silver"),
-                definition("lead"),
-                definition("aluminum"),
-                definition("emerald"),
-                definition("diamond"),
-                definition("gold"),
-                definition("lapis"),
-                definition("redstone"),
-                definition("copper"),
-                definition("iron"),
-                definition("coal")
+                definition("certus", ResourceKind.AE2_CERTUS),
+                definition("entroized_fluix", ResourceKind.EXTENDEDAE_FLUIX),
+                definition("uranium", ResourceKind.GEORE),
+                definition("nickel", ResourceKind.GEORE),
+                definition("silver", ResourceKind.GEORE),
+                definition("lead", ResourceKind.GEORE),
+                definition("aluminum", ResourceKind.GEORE),
+                definition("emerald", ResourceKind.GEORE),
+                definition("diamond", ResourceKind.GEORE),
+                definition("gold", ResourceKind.GEORE),
+                definition("lapis", ResourceKind.GEORE),
+                definition("redstone", ResourceKind.GEORE),
+                definition("copper", ResourceKind.GEORE),
+                definition("iron", ResourceKind.GEORE),
+                definition("coal", ResourceKind.GEORE)
         );
     }
 
-    private static OreDefinition definition(String materialName) {
-        return new OreDefinition(
-                materialName,
+    private static ResourceDefinition definition(String profileName, ResourceKind resourceKind) {
+        return new ResourceDefinition(
+                profileName,
+                resourceKind,
                 TagKey.create(
                         Registries.BIOME,
                         ResourceLocation.fromNamespaceAndPath(
                                 IoeExpeditionWorldgenMod.MODID,
-                                "ore_profile/" + materialName
+                                "ore_profile/" + profileName
                         )
                 )
         );
     }
 
-    private record OreDefinition(String materialName, TagKey<Biome> biomeTag) {
-        private OreDefinition {
-            Objects.requireNonNull(materialName, "materialName");
+    public enum ResourceKind {
+        GEORE,
+        AE2_CERTUS,
+        EXTENDEDAE_FLUIX
+    }
+
+    public enum Failure {
+        NONE,
+        MISSING,
+        AMBIGUOUS
+    }
+
+    public record Resolution(Optional<BiomeMineResourceProfile> profile, Failure failure) {
+        public Resolution {
+            Objects.requireNonNull(profile, "profile");
+            Objects.requireNonNull(failure, "failure");
+            if (profile.isPresent() != (failure == Failure.NONE)) {
+                throw new IllegalArgumentException("Resolved biome profiles require exactly one profile and no failure");
+            }
+        }
+
+        private static Resolution resolved(BiomeMineResourceProfile profile) {
+            return new Resolution(Optional.of(profile), Failure.NONE);
+        }
+
+        private static Resolution missing() {
+            return new Resolution(Optional.empty(), Failure.MISSING);
+        }
+
+        private static Resolution ambiguous() {
+            return new Resolution(Optional.empty(), Failure.AMBIGUOUS);
+        }
+    }
+
+    private record ResourceDefinition(
+            String profileName,
+            ResourceKind resourceKind,
+            TagKey<Biome> biomeTag
+    ) {
+        private ResourceDefinition {
+            Objects.requireNonNull(profileName, "profileName");
+            Objects.requireNonNull(resourceKind, "resourceKind");
             Objects.requireNonNull(biomeTag, "biomeTag");
         }
     }

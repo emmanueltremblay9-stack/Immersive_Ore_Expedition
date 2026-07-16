@@ -2,7 +2,6 @@
   "replace": false,
   "values": [
     "minecraft:dark_forest",
-    "minecraft:mushroom_fields",
     { "id": "biomesoplenty:fungal_jungle", "required": false },
     { "id": "biomesoplenty:glowing_grotto", "required": false },
     { "id": "biomesoplenty:ominous_woods", "required": false },

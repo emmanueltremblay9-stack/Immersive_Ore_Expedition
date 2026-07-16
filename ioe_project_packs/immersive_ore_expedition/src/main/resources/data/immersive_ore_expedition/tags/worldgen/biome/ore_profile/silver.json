@@ -5,7 +5,6 @@
     "minecraft:snowy_beach",
     "minecraft:snowy_plains",
     "minecraft:ice_spikes",
-    { "id": "biomesoplenty:auroral_garden", "required": false },
     { "id": "biomesoplenty:cold_desert", "required": false },
     { "id": "biomesoplenty:snowblossom_grove", "required": false },
     { "id": "biomesoplenty:snowy_coniferous_forest", "required": false },

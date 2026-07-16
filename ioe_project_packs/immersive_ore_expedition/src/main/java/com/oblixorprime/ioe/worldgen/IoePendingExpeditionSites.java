@@ -51,12 +51,16 @@ final class IoePendingExpeditionSites {
         }
     }
 
-    static void stage(WorldGenLevel worldGenLevel, ExpeditionSiteBlockPlan plan, BiomeOreNodeProfile oreProfile) {
+    static void stage(
+            WorldGenLevel worldGenLevel,
+            ExpeditionSiteBlockPlan plan,
+            BiomeMineResourceProfile resourceProfile
+    ) {
         Objects.requireNonNull(worldGenLevel, "worldGenLevel");
         ServerLevel level = Objects.requireNonNull(worldGenLevel.getLevel(), "level");
         Objects.requireNonNull(plan, "plan");
         ChunkPos chunkPos = new ChunkPos(plan.anchorPos());
-        PendingSite pendingSite = pendingSite(worldGenLevel, level, plan, oreProfile, chunkPos);
+        PendingSite pendingSite = pendingSite(worldGenLevel, level, plan, resourceProfile, chunkPos);
         ConcurrentHashMap<Long, List<PendingSite>> byChunk = PENDING.computeIfAbsent(
                 level.dimension(),
                 ignored -> new ConcurrentHashMap<>()
@@ -133,7 +137,7 @@ final class IoePendingExpeditionSites {
             WorldGenLevel worldGenLevel,
             ServerLevel level,
             ExpeditionSiteBlockPlan plan,
-            BiomeOreNodeProfile oreProfile,
+            BiomeMineResourceProfile resourceProfile,
             ChunkPos chunkPos
     ) {
         ResourceLocation provinceId = ResourceLocation.tryParse(IoeWorldgenConfig.defaultProvince());
@@ -147,10 +151,10 @@ final class IoePendingExpeditionSites {
                 ExpeditionSitePlacementState.PROVEN,
                 null
         );
-        ResourceLocation biomeId = oreProfile == null
+        ResourceLocation biomeId = resourceProfile == null
                 ? worldGenLevel.getBiome(plan.anchorPos()).unwrapKey().map(key -> key.location()).orElse(null)
-                : oreProfile.biomeId();
-        int connectedBiomeChunks = oreProfile == null ? 0 : oreProfile.sampledConnectedChunks();
+                : resourceProfile.biomeId();
+        int connectedBiomeChunks = resourceProfile == null ? 0 : resourceProfile.sampledConnectedChunks();
         return new PendingSite(
                 site,
                 SiteSummary.from(plan),
