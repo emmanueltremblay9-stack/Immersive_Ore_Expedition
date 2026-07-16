@@ -54,14 +54,6 @@ public final class IoeExcavatorMotherDepositBridge {
         Object veinLock = ExcavatorHandler.getMineralVeinList();
         synchronized (veinLock) {
             boolean observedExisting = hasCompatibleAnchoredVein(level, request);
-            if (observedExisting) {
-                if (requiredForSiteQuality) {
-                    IoeExcavatorDepositRules.recordGuaranteedMotherPresent();
-                } else {
-                    IoeExcavatorDepositRules.recordOptionalMajorPresent();
-                }
-            }
-
             List<RecipeHolder<MineralMix>> candidates = MineralMix.RECIPES.getRecipes(level).stream()
                     .filter(holder -> holder.value().weight > 0)
                     .filter(holder -> IoeExcavatorDepositRules.acceptsMineralMix(request, holder.id()))
@@ -242,7 +234,11 @@ public final class IoeExcavatorMotherDepositBridge {
             synchronized (veinLock) {
                 if (hasCompatibleAnchoredVein(level, request)) {
                     state = State.COMMITTED_EXISTING;
-                    IoeExcavatorDepositRules.recordGuaranteedMotherPresent();
+                    if (requiredForSiteQuality) {
+                        IoeExcavatorDepositRules.recordGuaranteedMotherPresent();
+                    } else {
+                        IoeExcavatorDepositRules.recordOptionalMajorPresent();
+                    }
                     return;
                 }
                 state = State.COMMITTING;
