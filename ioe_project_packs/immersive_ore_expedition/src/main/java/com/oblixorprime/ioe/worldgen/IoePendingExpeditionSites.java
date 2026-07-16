@@ -1,5 +1,7 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.core.ProvinceId;
+import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSitePlacementState;
@@ -60,7 +62,7 @@ final class IoePendingExpeditionSites {
         ServerLevel level = Objects.requireNonNull(worldGenLevel.getLevel(), "level");
         Objects.requireNonNull(plan, "plan");
         ChunkPos chunkPos = new ChunkPos(plan.anchorPos());
-        PendingSite pendingSite = pendingSite(worldGenLevel, level, plan, resourceProfile, chunkPos);
+        PendingSite pendingSite = pendingSite(level, plan, resourceProfile, chunkPos);
         ConcurrentHashMap<Long, List<PendingSite>> byChunk = PENDING.computeIfAbsent(
                 level.dimension(),
                 ignored -> new ConcurrentHashMap<>()
@@ -70,7 +72,7 @@ final class IoePendingExpeditionSites {
     }
 
     /**
-     * Runs only from the new-chunk guard after its first sanitization pass. Rejected resource positions are
+     * Runs only from the new-chunk guard after its final sanitization pass. Rejected resource positions are
      * returned so the guard can revoke their authorization and remove any surviving ore or budding blocks.
      */
     static Confirmation confirmLoadedChunk(ServerLevel level, ChunkPos chunkPos) {
@@ -118,6 +120,29 @@ final class IoePendingExpeditionSites {
         PENDING.clear();
     }
 
+    /**
+     * Treats the node's generation chunk as its deterministic IOE region cell. The accepted IE vein keeps its
+     * own radius, so the deposit may extend beyond that cell without making admission depend on neighboring
+     * chunk generation order.
+     */
+    static List<ExcavatorRegion> excavatorRegions(ResourceKey<Level> dimension, ChunkPos chunkPos) {
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(chunkPos, "chunkPos");
+        ConcurrentHashMap<Long, List<PendingSite>> byChunk = PENDING.get(dimension);
+        if (byChunk == null) {
+            return List.of();
+        }
+        List<PendingSite> pendingSites = byChunk.get(chunkPos.toLong());
+        if (pendingSites == null) {
+            return List.of();
+        }
+        return pendingSites.stream()
+                .filter(pendingSite -> pendingSite.site().quality().isPresent())
+                .filter(pendingSite -> pendingSite.site().provinceId().isPresent())
+                .map(IoePendingExpeditionSites::toExcavatorRegion)
+                .toList();
+    }
+
     private static void onServerTick(ServerTickEvent.Post event) {
         if (event.getServer().getTickCount() % PRUNE_INTERVAL_TICKS != 0 || PENDING.isEmpty()) {
             return;
@@ -134,32 +159,32 @@ final class IoePendingExpeditionSites {
     }
 
     private static PendingSite pendingSite(
-            WorldGenLevel worldGenLevel,
             ServerLevel level,
             ExpeditionSiteBlockPlan plan,
             BiomeMineResourceProfile resourceProfile,
             ChunkPos chunkPos
     ) {
-        ResourceLocation provinceId = ResourceLocation.tryParse(IoeWorldgenConfig.defaultProvince());
+        Objects.requireNonNull(resourceProfile, "resourceProfile");
+        ResourceLocation biomeId = resourceProfile.biomeId();
+        ProvinceBindingResolver bindingResolver = ProvinceBindingResolver.fromConfig();
+        ProvinceId province = bindingResolver.resolve(biomeId);
         ExpeditionSite site = ExpeditionSite.anchor(
                 level.dimension(),
                 plan.anchorPos(),
                 plan.requestedFeatureId(),
-                provinceId,
+                province.id(),
                 plan.quality(),
                 "natural_connected_expedition_site",
                 ExpeditionSitePlacementState.PROVEN,
                 null
         );
-        ResourceLocation biomeId = resourceProfile == null
-                ? worldGenLevel.getBiome(plan.anchorPos()).unwrapKey().map(key -> key.location()).orElse(null)
-                : resourceProfile.biomeId();
-        int connectedBiomeChunks = resourceProfile == null ? 0 : resourceProfile.sampledConnectedChunks();
+        int connectedBiomeChunks = resourceProfile.sampledConnectedChunks();
         return new PendingSite(
                 site,
                 SiteSummary.from(plan),
                 biomeId,
                 connectedBiomeChunks,
+                resourceProfile,
                 PlanSignature.from(plan, chunkPos),
                 NEXT_SEQUENCE.incrementAndGet(),
                 System.nanoTime()
@@ -176,6 +201,15 @@ final class IoePendingExpeditionSites {
         ArrayList<PendingSite> updated = new ArrayList<>(existing);
         updated.add(pendingSite);
         return List.copyOf(updated);
+    }
+
+    private static ExcavatorRegion toExcavatorRegion(PendingSite pendingSite) {
+        return new ExcavatorRegion(
+                pendingSite.site().pos(),
+                pendingSite.site().quality().orElseThrow(),
+                pendingSite.site().provinceId().orElseThrow(),
+                pendingSite.resourceProfile()
+        );
     }
 
     private static void prune(ServerLevel level) {
@@ -245,6 +279,7 @@ final class IoePendingExpeditionSites {
             SiteSummary summary,
             ResourceLocation biomeId,
             int connectedBiomeChunks,
+            BiomeMineResourceProfile resourceProfile,
             PlanSignature signature,
             long sequence,
             long createdNanos
@@ -252,8 +287,24 @@ final class IoePendingExpeditionSites {
         private PendingSite {
             Objects.requireNonNull(site, "site");
             Objects.requireNonNull(summary, "summary");
+            Objects.requireNonNull(resourceProfile, "resourceProfile");
             Objects.requireNonNull(signature, "signature");
         }
+    }
+
+    record ExcavatorRegion(
+            BlockPos anchorPos,
+            SiteQuality quality,
+            ResourceLocation provinceId,
+            BiomeMineResourceProfile resourceProfile
+    ) {
+        ExcavatorRegion {
+            Objects.requireNonNull(anchorPos, "anchorPos");
+            Objects.requireNonNull(quality, "quality");
+            Objects.requireNonNull(provinceId, "provinceId");
+            Objects.requireNonNull(resourceProfile, "resourceProfile");
+        }
+
     }
 
     private record SiteSummary(

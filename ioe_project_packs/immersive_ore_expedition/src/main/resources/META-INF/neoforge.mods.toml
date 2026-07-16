@@ -9,6 +9,9 @@ displayName="${mod_name}"
 authors="${mod_authors}"
 description='''${mod_description}'''
 
+[[mixins]]
+config="immersive_ore_expedition.mixins.json"
+
 [[dependencies.${mod_id}]]
     modId="neoforge"
     type="required"
@@ -62,7 +65,7 @@ description='''${mod_description}'''
 [[dependencies.${mod_id}]]
     modId="immersiveengineering"
     type="optional"
-    versionRange="[0,)"
+    versionRange="${ie_version_range}"
     ordering="AFTER"
     side="BOTH"
 [[dependencies.${mod_id}]]

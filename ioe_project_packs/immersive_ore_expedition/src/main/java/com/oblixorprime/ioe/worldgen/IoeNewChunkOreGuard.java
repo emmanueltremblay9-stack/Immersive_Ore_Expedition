@@ -16,6 +16,7 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +31,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class IoeNewChunkOreGuard {
     private static final AtomicBoolean REGISTERED = new AtomicBoolean();
     private static final int BLOCK_UPDATE_FLAGS = Block.UPDATE_CLIENTS;
+    private static final int FINAL_SANITIZATION_DELAY_TICKS = 20;
     private static final Set<PendingChunk> PENDING_NEW_CHUNKS = ConcurrentHashMap.newKeySet();
     private static final Set<PendingChunk> SCHEDULED_SANITIZATIONS = ConcurrentHashMap.newKeySet();
+    private static final ConcurrentHashMap<PendingChunk, Integer> FINAL_SANITIZATION_TICKS =
+            new ConcurrentHashMap<>();
 
     private IoeNewChunkOreGuard() {
     }
@@ -39,6 +43,7 @@ public final class IoeNewChunkOreGuard {
     public static void register() {
         if (REGISTERED.compareAndSet(false, true)) {
             NeoForge.EVENT_BUS.addListener(IoeNewChunkOreGuard::onChunkLoad);
+            NeoForge.EVENT_BUS.addListener(IoeNewChunkOreGuard::onServerTick);
         }
     }
 
@@ -58,8 +63,9 @@ public final class IoeNewChunkOreGuard {
         }
         level.getServer().execute(() -> {
             try {
-                if (sanitizeLoadedChunk(level, chunkPos)) {
-                    PENDING_NEW_CHUNKS.remove(chunkKey);
+                if (sanitizeLoadedChunk(level, chunkPos, false)) {
+                    int finalTick = level.getServer().getTickCount() + FINAL_SANITIZATION_DELAY_TICKS;
+                    FINAL_SANITIZATION_TICKS.merge(chunkKey, finalTick, Math::min);
                 }
             } finally {
                 SCHEDULED_SANITIZATIONS.remove(chunkKey);
@@ -67,7 +73,31 @@ public final class IoeNewChunkOreGuard {
         });
     }
 
-    private static boolean sanitizeLoadedChunk(ServerLevel level, ChunkPos chunkPos) {
+    private static void onServerTick(ServerTickEvent.Post event) {
+        if (FINAL_SANITIZATION_TICKS.isEmpty()) {
+            return;
+        }
+        int currentTick = event.getServer().getTickCount();
+        for (var entry : List.copyOf(FINAL_SANITIZATION_TICKS.entrySet())) {
+            PendingChunk chunkKey = entry.getKey();
+            int finalTick = entry.getValue();
+            if (finalTick > currentTick || !FINAL_SANITIZATION_TICKS.remove(chunkKey, finalTick)) {
+                continue;
+            }
+            ServerLevel level = event.getServer().getLevel(chunkKey.dimension());
+            ChunkPos chunkPos = new ChunkPos(chunkKey.chunkPos());
+            if (level == null) {
+                PENDING_NEW_CHUNKS.remove(chunkKey);
+                IoeOrePlacementAuthorization.releaseChunk(chunkKey.dimension(), chunkPos);
+                continue;
+            }
+            if (sanitizeLoadedChunk(level, chunkPos, true)) {
+                PENDING_NEW_CHUNKS.remove(chunkKey);
+            }
+        }
+    }
+
+    private static boolean sanitizeLoadedChunk(ServerLevel level, ChunkPos chunkPos, boolean finalizeSite) {
         LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z);
         if (chunk == null) {
             return false;
@@ -116,29 +146,32 @@ public final class IoeNewChunkOreGuard {
                 }
             }
         }
-        IoePendingExpeditionSites.Confirmation confirmation =
-                IoePendingExpeditionSites.confirmLoadedChunk(level, chunkPos);
-        IoeOrePlacementAuthorization.releaseChunk(level.dimension(), chunkPos);
-        for (BlockPos rejectedResourcePos : confirmation.rejectedResourcePositions()) {
-            TargetKind kind = targetKind(level.getBlockState(rejectedResourcePos));
-            if (kind == null || !level.setBlock(
-                    rejectedResourcePos,
-                    replacementState(level, rejectedResourcePos),
-                    BLOCK_UPDATE_FLAGS
-            )) {
-                continue;
-            }
-            if (kind == TargetKind.ORE) {
-                removedOres++;
-            } else {
-                removedGrowthBlocks++;
+        if (finalizeSite) {
+            IoePendingExpeditionSites.Confirmation confirmation =
+                    IoePendingExpeditionSites.confirmLoadedChunk(level, chunkPos);
+            IoeOrePlacementAuthorization.releaseChunk(level.dimension(), chunkPos);
+            for (BlockPos rejectedResourcePos : confirmation.rejectedResourcePositions()) {
+                TargetKind kind = targetKind(level.getBlockState(rejectedResourcePos));
+                if (kind == null || !level.setBlock(
+                        rejectedResourcePos,
+                        replacementState(level, rejectedResourcePos),
+                        BLOCK_UPDATE_FLAGS
+                )) {
+                    continue;
+                }
+                if (kind == TargetKind.ORE) {
+                    removedOres++;
+                } else {
+                    removedGrowthBlocks++;
+                }
             }
         }
-        IoeWorldgenRuntimeDiagnostics.recordGuardedChunk(removedOres, removedGrowthBlocks);
+        IoeWorldgenRuntimeDiagnostics.recordGuardPass(removedOres, removedGrowthBlocks, finalizeSite);
         if (removedOres > 0 || removedGrowthBlocks > 0) {
             IoeExpeditionWorldgenMod.LOGGER.warn(
-                    "IOE sanitized unauthorized resources in new chunk {}: ores={}, growthBlocks={}",
+                    "IOE sanitized unauthorized resources in new chunk {} pass={}: ores={}, growthBlocks={}",
                     chunkPos,
+                    finalizeSite ? "final" : "initial",
                     removedOres,
                     removedGrowthBlocks
             );
@@ -149,6 +182,7 @@ public final class IoeNewChunkOreGuard {
     static void clearPending() {
         PENDING_NEW_CHUNKS.clear();
         SCHEDULED_SANITIZATIONS.clear();
+        FINAL_SANITIZATION_TICKS.clear();
     }
 
     private static BlockState replacementState(ServerLevel level, BlockPos pos) {

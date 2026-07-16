@@ -75,8 +75,10 @@ public final class IoeWorldgenRuntimeDiagnostics {
         }
     }
 
-    static void recordGuardedChunk(int removedOres, int removedGrowthBlocks) {
-        GUARDED_CHUNKS.increment();
+    static void recordGuardPass(int removedOres, int removedGrowthBlocks, boolean finalPass) {
+        if (finalPass) {
+            GUARDED_CHUNKS.increment();
+        }
         SANITIZED_ORES.add(removedOres);
         SANITIZED_GROWTH_BLOCKS.add(removedGrowthBlocks);
     }
@@ -103,7 +105,8 @@ public final class IoeWorldgenRuntimeDiagnostics {
                         + ", skips=" + skipSummary,
                 "IOE new-chunk guard: checked=" + GUARDED_CHUNKS.sum()
                         + ", sanitizedOres=" + SANITIZED_ORES.sum()
-                        + ", sanitizedGrowthBlocks=" + SANITIZED_GROWTH_BLOCKS.sum()
+                        + ", sanitizedGrowthBlocks=" + SANITIZED_GROWTH_BLOCKS.sum(),
+                IoeExcavatorDepositRules.statusMessage()
         );
     }
 
@@ -147,6 +150,7 @@ public final class IoeWorldgenRuntimeDiagnostics {
         GUARDED_CHUNKS.reset();
         SANITIZED_ORES.reset();
         SANITIZED_GROWTH_BLOCKS.reset();
+        IoeExcavatorDepositRules.resetDiagnostics();
         MODIFIED_BIOMES.clear();
         SITE_SKIPS.values().forEach(LongAdder::reset);
     }
