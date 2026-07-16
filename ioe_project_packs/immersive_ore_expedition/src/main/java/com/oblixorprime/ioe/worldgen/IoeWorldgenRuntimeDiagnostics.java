@@ -100,7 +100,7 @@ public final class IoeWorldgenRuntimeDiagnostics {
                         + ", mineResourceProfiles=" + audit.mineResourceProfiles(),
                 "IOE worldgen application: modifiedBiomes=" + MODIFIED_BIOMES.size()
                         + ", dynamicallyRemovedPlacedFeatures=" + REMOVED_FEATURES.sum()
-                        + ", authorizedResourcePositions=" + IoeOrePlacementAuthorization.positionCount(),
+                        + ", pendingResourcePositions=" + IoePendingExpeditionSites.pendingResourcePositionCount(),
                 "IOE site outcomes: attempts=" + SITE_ATTEMPTS.sum()
                         + ", placed=" + SITES_PLACED.sum()
                         + ", skips=" + skipSummary,

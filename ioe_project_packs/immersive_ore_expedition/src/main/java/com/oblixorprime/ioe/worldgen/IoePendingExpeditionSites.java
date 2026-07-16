@@ -100,6 +100,14 @@ final class IoePendingExpeditionSites {
         return accepted.get();
     }
 
+    static int pendingResourcePositionCount() {
+        return PENDING.values().stream()
+                .flatMap(byChunk -> byChunk.values().stream())
+                .flatMap(List::stream)
+                .mapToInt(pendingSite -> pendingSite.signature().resourcePositionCount())
+                .sum();
+    }
+
     /**
      * Runs only from the new-chunk guard after its final sanitization pass. It applies the plan, commits the
      * optional IE deposit, and records the locator entry as one compensatable server-thread transaction.
@@ -600,6 +608,10 @@ final class IoePendingExpeditionSites {
             for (long resourcePosition : resourcePositions) {
                 target.add(BlockPos.of(resourcePosition));
             }
+        }
+
+        private int resourcePositionCount() {
+            return resourcePositions.length;
         }
     }
 }
