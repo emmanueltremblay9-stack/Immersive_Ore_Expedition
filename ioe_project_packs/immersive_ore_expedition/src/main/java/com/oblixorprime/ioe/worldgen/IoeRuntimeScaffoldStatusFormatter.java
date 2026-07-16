@@ -6,6 +6,8 @@ import java.util.Objects;
 public final class IoeRuntimeScaffoldStatusFormatter {
     public static final String VISIBILITY_EXPLANATION =
             "Natural expedition sites generate only in new chunks when their generation option is enabled; JourneyMap targets are indexed only after a proven placement.";
+    public static final String EXISTING_WORLD_POLICY =
+            "Existing chunks are never stripped automatically because natural and player-placed ores cannot be distinguished safely. For strict zero autonomous ore, create a new world with IOE installed before its first chunk is generated; back up any existing save before a bounded admin operation.";
 
     private IoeRuntimeScaffoldStatusFormatter() {
     }
@@ -36,7 +38,8 @@ public final class IoeRuntimeScaffoldStatusFormatter {
                         + ", placedFeaturesRegistered=" + status.placedFeaturesRegistered()
                         + ", biomeModifiersRegistered=" + status.biomeModifiersRegistered()
                         + ", scaffoldOnly=" + status.scaffoldOnly(),
-                "IOE visibility: " + VISIBILITY_EXPLANATION
+                "IOE visibility: " + VISIBILITY_EXPLANATION,
+                "IOE existing-world policy: " + EXISTING_WORLD_POLICY
         );
     }
 

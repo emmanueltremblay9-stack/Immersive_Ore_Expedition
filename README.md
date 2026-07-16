@@ -52,6 +52,12 @@ Active validation path:
 - GitHub Actions validates the consolidated module unless Emmanuel explicitly instructs otherwise.
 - Legacy split modules are not part of the active validation path.
 
+## Existing Worlds
+
+For strict zero autonomous ore, create a new world with IOE installed before its first chunk is generated. Existing chunks are never stripped automatically: IOE cannot safely distinguish naturally generated ore from player-placed ore, so automatic cleanup could damage builds or stored resources.
+
+Before using any bounded IOE administrator retrogen or locator-reindex operation on an existing world, make a complete backup of the save. Locator reindexing scans only already loaded chunks and does not change world blocks; it does not convert an old world's free ore distribution into IOE mines.
+
 The consolidated module CI verifies the release jar structure: the runtime jar must include compiled classes under `com/oblixorprime/ioe/` and `META-INF/neoforge.mods.toml`. Release and smoke guidance lives in:
 
 - `ioe_project_packs/immersive_ore_expedition/docs/RELEASE_CHECKLIST.md`
