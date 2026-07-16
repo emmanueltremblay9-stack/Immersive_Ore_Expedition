@@ -157,27 +157,35 @@ final class IoePendingExpeditionSites {
                     depositCommitted = true;
                 } catch (RuntimeException | LinkageError failure) {
                     rollbackReservationBestEffort(pendingSite, "commit failure");
-                    IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
-                            IoeWorldgenRuntimeDiagnostics.SiteSkipReason.IE_DEPOSIT_MISSING
-                    );
-                    IoeExpeditionWorldgenMod.LOGGER.error(
-                            "Failed to commit the IE deposit at {}; applying the direct lower quality pipeline",
-                            pendingSite.site().pos(),
-                            failure
-                    );
-                    FallbackApplication fallback = applyDirectLowerFallback(
-                            level,
-                            pendingSite,
-                            effectivePlacement,
-                            chunkPos
-                    );
-                    if (fallback == null) {
-                        rejectedSites++;
-                        pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
-                        continue;
+                    if (!reservation.requiredForSiteQuality()) {
+                        IoeExpeditionWorldgenMod.LOGGER.error(
+                                "Discarded the optional IE Major deposit at {}; preserving the confirmed IOE site",
+                                pendingSite.site().pos(),
+                                failure
+                        );
+                    } else {
+                        IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
+                                IoeWorldgenRuntimeDiagnostics.SiteSkipReason.IE_DEPOSIT_MISSING
+                        );
+                        IoeExpeditionWorldgenMod.LOGGER.error(
+                                "Failed to commit the IE deposit at {}; applying the direct lower quality pipeline",
+                                pendingSite.site().pos(),
+                                failure
+                        );
+                        FallbackApplication fallback = applyDirectLowerFallback(
+                                level,
+                                pendingSite,
+                                effectivePlacement,
+                                chunkPos
+                        );
+                        if (fallback == null) {
+                            rejectedSites++;
+                            pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
+                            continue;
+                        }
+                        effectiveSite = fallback.site();
+                        effectivePlacement = fallback.placement();
                     }
-                    effectiveSite = fallback.site();
-                    effectivePlacement = fallback.placement();
                 }
             }
 

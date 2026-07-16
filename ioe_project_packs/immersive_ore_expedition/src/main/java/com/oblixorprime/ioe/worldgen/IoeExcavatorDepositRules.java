@@ -48,16 +48,22 @@ public final class IoeExcavatorDepositRules {
     private static final LongAdder REJECTED_PROVINCE = new LongAdder();
     private static final LongAdder REJECTED_MAJOR_CHANCE = new LongAdder();
     private static final LongAdder REJECTED_MOTHER_RESERVED = new LongAdder();
+    private static final LongAdder SUPPRESSED_NATIVE_REGISTRATION = new LongAdder();
     private static final LongAdder GUARANTEED_MOTHER_PRESENT = new LongAdder();
     private static final LongAdder GUARANTEED_MOTHER_CREATED = new LongAdder();
     private static final LongAdder GUARANTEED_MOTHER_FAILED = new LongAdder();
     private static final LongAdder GUARANTEED_MOTHER_IE_ABSENT = new LongAdder();
     private static final LongAdder GUARANTEED_MOTHER_ROLLED_BACK = new LongAdder();
+    private static final LongAdder OPTIONAL_MAJOR_SELECTED = new LongAdder();
+    private static final LongAdder OPTIONAL_MAJOR_PRESENT = new LongAdder();
+    private static final LongAdder OPTIONAL_MAJOR_CREATED = new LongAdder();
+    private static final LongAdder OPTIONAL_MAJOR_FAILED = new LongAdder();
+    private static final LongAdder OPTIONAL_MAJOR_ROLLED_BACK = new LongAdder();
 
     private IoeExcavatorDepositRules() {
     }
 
-    public static boolean shouldRegister(
+    public static void recordNativeCandidate(
             ServerLevel level,
             ChunkPos generationChunk,
             ColumnPos depositPos,
@@ -79,11 +85,11 @@ public final class IoeExcavatorDepositRules {
                 .toList();
         if (regions.isEmpty()) {
             REJECTED_OUTSIDE.increment();
-            return false;
+            return;
         }
         if (regions.stream().anyMatch(IoePendingExpeditionSites.ExcavatorRegion::motherDepositReserved)) {
             REJECTED_MOTHER_RESERVED.increment();
-            return false;
+            return;
         }
 
         boolean eligibleTierFound = false;
@@ -118,7 +124,10 @@ public final class IoeExcavatorDepositRules {
             } else {
                 ACCEPTED_MAJOR.increment();
             }
-            return true;
+            // Never mutate IE's SavedData from the native feature callback. IOE prepares a compensatable
+            // reservation from the expedition feature and commits it only after the site survives final sanitation.
+            SUPPRESSED_NATIVE_REGISTRATION.increment();
+            return;
         }
 
         if (!eligibleTierFound) {
@@ -130,7 +139,6 @@ public final class IoeExcavatorDepositRules {
         } else {
             REJECTED_MAJOR_CHANCE.increment();
         }
-        return false;
     }
 
     public static Optional<MotherDepositRequest> guaranteedMotherRequest(
@@ -143,12 +151,46 @@ public final class IoeExcavatorDepositRules {
         Objects.requireNonNull(quality, "quality");
         Objects.requireNonNull(provinceId, "provinceId");
         Objects.requireNonNull(resourceProfile, "resourceProfile");
-        if (quality != SiteQuality.MOTHERLODE
-                || resourceProfile.resourceKind() != BiomeMineResourceProfile.ResourceKind.GEORE) {
+        if (quality != SiteQuality.MOTHERLODE) {
             return Optional.empty();
         }
         return Optional.of(new MotherDepositRequest(
                 anchorPos.immutable(),
+                provinceId,
+                resourceProfile.profileName(),
+                resourceProfile.sampledConnectedChunks()
+        ));
+    }
+
+    public static Optional<MotherDepositRequest> optionalMajorRequest(
+            ServerLevel level,
+            BlockPos anchorPos,
+            SiteQuality quality,
+            ResourceLocation provinceId,
+            BiomeMineResourceProfile resourceProfile
+    ) {
+        Objects.requireNonNull(level, "level");
+        Objects.requireNonNull(anchorPos, "anchorPos");
+        Objects.requireNonNull(quality, "quality");
+        Objects.requireNonNull(provinceId, "provinceId");
+        Objects.requireNonNull(resourceProfile, "resourceProfile");
+        if (quality != SiteQuality.RICH
+                || resourceProfile.resourceKind() != BiomeMineResourceProfile.ResourceKind.GEORE) {
+            return Optional.empty();
+        }
+        long seed = level.getSeed();
+        seed = seed * 31L + level.dimension().location().hashCode();
+        seed = seed * 31L + anchorPos.asLong();
+        seed = seed * 31L + provinceId.hashCode();
+        seed = seed * 31L + resourceProfile.profileName().hashCode();
+        seed = seed * 31L + resourceProfile.sampledConnectedChunks();
+        if (RandomSource.create(seed).nextInt(MAJOR_NODE_CHANCE_DENOMINATOR) != 0) {
+            REJECTED_MAJOR_CHANCE.increment();
+            return Optional.empty();
+        }
+        OPTIONAL_MAJOR_SELECTED.increment();
+        return Optional.of(new MotherDepositRequest(
+                anchorPos,
                 provinceId,
                 resourceProfile.profileName(),
                 resourceProfile.sampledConnectedChunks()
@@ -184,21 +226,43 @@ public final class IoeExcavatorDepositRules {
         GUARANTEED_MOTHER_ROLLED_BACK.increment();
     }
 
+    public static void recordOptionalMajorPresent() {
+        OPTIONAL_MAJOR_PRESENT.increment();
+    }
+
+    public static void recordOptionalMajorCreated() {
+        OPTIONAL_MAJOR_CREATED.increment();
+    }
+
+    public static void recordOptionalMajorFailed() {
+        OPTIONAL_MAJOR_FAILED.increment();
+    }
+
+    public static void recordOptionalMajorRolledBack() {
+        OPTIONAL_MAJOR_ROLLED_BACK.increment();
+    }
+
     static String statusMessage() {
         return "IOE IE Excavator gate: attempts=" + ATTEMPTS.sum()
-                + ", acceptedMother=" + ACCEPTED_MOTHER.sum()
-                + ", acceptedMajor=" + ACCEPTED_MAJOR.sum()
+                + ", admissibleNativeMother=" + ACCEPTED_MOTHER.sum()
+                + ", admissibleNativeMajor=" + ACCEPTED_MAJOR.sum()
                 + ", rejectedOutside=" + REJECTED_OUTSIDE.sum()
                 + ", rejectedMinor=" + REJECTED_MINOR.sum()
                 + ", rejectedProfile=" + REJECTED_PROFILE.sum()
                 + ", rejectedProvince=" + REJECTED_PROVINCE.sum()
                 + ", rejectedMajorChance=" + REJECTED_MAJOR_CHANCE.sum()
                 + ", rejectedMotherReserved=" + REJECTED_MOTHER_RESERVED.sum()
+                + ", suppressedNativeRegistration=" + SUPPRESSED_NATIVE_REGISTRATION.sum()
                 + ", guaranteedMotherPresent=" + GUARANTEED_MOTHER_PRESENT.sum()
                 + ", guaranteedMotherCreated=" + GUARANTEED_MOTHER_CREATED.sum()
                 + ", guaranteedMotherFailed=" + GUARANTEED_MOTHER_FAILED.sum()
                 + ", guaranteedMotherIeAbsent=" + GUARANTEED_MOTHER_IE_ABSENT.sum()
-                + ", guaranteedMotherRolledBack=" + GUARANTEED_MOTHER_ROLLED_BACK.sum();
+                + ", guaranteedMotherRolledBack=" + GUARANTEED_MOTHER_ROLLED_BACK.sum()
+                + ", optionalMajorSelected=" + OPTIONAL_MAJOR_SELECTED.sum()
+                + ", optionalMajorPresent=" + OPTIONAL_MAJOR_PRESENT.sum()
+                + ", optionalMajorCreated=" + OPTIONAL_MAJOR_CREATED.sum()
+                + ", optionalMajorFailed=" + OPTIONAL_MAJOR_FAILED.sum()
+                + ", optionalMajorRolledBack=" + OPTIONAL_MAJOR_ROLLED_BACK.sum();
     }
 
     static void resetDiagnostics() {
@@ -211,11 +275,17 @@ public final class IoeExcavatorDepositRules {
         REJECTED_PROVINCE.reset();
         REJECTED_MAJOR_CHANCE.reset();
         REJECTED_MOTHER_RESERVED.reset();
+        SUPPRESSED_NATIVE_REGISTRATION.reset();
         GUARANTEED_MOTHER_PRESENT.reset();
         GUARANTEED_MOTHER_CREATED.reset();
         GUARANTEED_MOTHER_FAILED.reset();
         GUARANTEED_MOTHER_IE_ABSENT.reset();
         GUARANTEED_MOTHER_ROLLED_BACK.reset();
+        OPTIONAL_MAJOR_SELECTED.reset();
+        OPTIONAL_MAJOR_PRESENT.reset();
+        OPTIONAL_MAJOR_CREATED.reset();
+        OPTIONAL_MAJOR_FAILED.reset();
+        OPTIONAL_MAJOR_ROLLED_BACK.reset();
     }
 
     private static boolean matchesResourceProfile(

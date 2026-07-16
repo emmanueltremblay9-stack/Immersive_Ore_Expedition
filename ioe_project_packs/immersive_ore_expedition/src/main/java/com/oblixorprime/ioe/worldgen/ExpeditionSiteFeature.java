@@ -156,7 +156,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     context.random()
             );
             ExpeditionSiteBlockPlan fallbackPlan = null;
-            if (depositReservation != null) {
+            if (depositReservation != null && depositReservation.requiredForSiteQuality()) {
                 SiteQuality lowerQuality = quality.directLower().orElse(null);
                 if (lowerQuality == null) {
                     skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.IE_DEPOSIT_MISSING,
@@ -293,6 +293,36 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     return true;
                 }
         );
+        if (resolution.confirmed()
+                && reservation[0] == null
+                && naturalSurfaceSite
+                && resourceProfile != null
+                && province != null
+                && ModList.get().isLoaded("immersiveengineering")) {
+            Optional<IoeExcavatorDepositRules.MotherDepositRequest> optionalMajor =
+                    IoeExcavatorDepositRules.optionalMajorRequest(
+                            level,
+                            origin,
+                            resolution.finalQuality(),
+                            province.id(),
+                            resourceProfile
+                    );
+            if (optionalMajor.isPresent()) {
+                try {
+                    reservation[0] = IoeExcavatorMotherDepositBridge.reserveOptionalDeposit(
+                            level,
+                            optionalMajor.orElseThrow()
+                    ).orElse(null);
+                } catch (RuntimeException | LinkageError failure) {
+                    IoeExcavatorDepositRules.recordOptionalMajorFailed();
+                    IoeExpeditionWorldgenMod.LOGGER.error(
+                            "Failed to prepare the optional IE Excavator deposit for Major Node at {}",
+                            origin,
+                            failure
+                    );
+                }
+            }
+        }
         return new DepositPreparation(resolution, Optional.ofNullable(reservation[0]));
     }
 

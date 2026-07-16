@@ -8,6 +8,10 @@ package com.oblixorprime.ioe.worldgen;
 public interface IoeMotherDepositReservation {
     boolean createdByIoe();
 
+    default boolean requiredForSiteQuality() {
+        return true;
+    }
+
     void commit();
 
     void rollback();

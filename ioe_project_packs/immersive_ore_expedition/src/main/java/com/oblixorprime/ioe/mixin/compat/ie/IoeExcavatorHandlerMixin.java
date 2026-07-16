@@ -1,6 +1,5 @@
 package com.oblixorprime.ioe.mixin.compat.ie;
 
-import blusunrize.immersiveengineering.api.excavator.ExcavatorHandler;
 import blusunrize.immersiveengineering.api.excavator.MineralVein;
 import com.oblixorprime.ioe.worldgen.IoeExcavatorDepositRules;
 import net.minecraft.resources.ResourceKey;
@@ -34,15 +33,13 @@ abstract class IoeExcavatorHandlerMixin {
             ChunkPos chunkPos,
             RandomSource random
     ) {
-        if (level instanceof ServerLevel serverLevel
-                && dimension.equals(serverLevel.dimension())
-                && IoeExcavatorDepositRules.shouldRegister(
-                        serverLevel,
-                        chunkPos,
-                        vein.getPos(),
-                        vein.getMineralName()
-                )) {
-            ExcavatorHandler.addVein(dimension, vein);
+        if (level instanceof ServerLevel serverLevel && dimension.equals(serverLevel.dimension())) {
+            IoeExcavatorDepositRules.recordNativeCandidate(
+                    serverLevel,
+                    chunkPos,
+                    vein.getPos(),
+                    vein.getMineralName()
+            );
         }
     }
 }

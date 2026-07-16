@@ -34,13 +34,32 @@ public final class IoeExcavatorMotherDepositBridge {
             ServerLevel level,
             MotherDepositRequest request
     ) {
+        return reserveDeposit(level, request, true);
+    }
+
+    public static Optional<IoeMotherDepositReservation> reserveOptionalDeposit(
+            ServerLevel level,
+            MotherDepositRequest request
+    ) {
+        return reserveDeposit(level, request, false);
+    }
+
+    private static Optional<IoeMotherDepositReservation> reserveDeposit(
+            ServerLevel level,
+            MotherDepositRequest request,
+            boolean requiredForSiteQuality
+    ) {
         Objects.requireNonNull(level, "level");
         Objects.requireNonNull(request, "request");
         Object veinLock = ExcavatorHandler.getMineralVeinList();
         synchronized (veinLock) {
             boolean observedExisting = hasCompatibleAnchoredVein(level, request);
             if (observedExisting) {
-                IoeExcavatorDepositRules.recordGuaranteedMotherPresent();
+                if (requiredForSiteQuality) {
+                    IoeExcavatorDepositRules.recordGuaranteedMotherPresent();
+                } else {
+                    IoeExcavatorDepositRules.recordOptionalMajorPresent();
+                }
             }
 
             List<RecipeHolder<MineralMix>> candidates = MineralMix.RECIPES.getRecipes(level).stream()
@@ -49,9 +68,14 @@ public final class IoeExcavatorMotherDepositBridge {
                     .sorted(Comparator.comparing(holder -> holder.id().toString()))
                     .toList();
             if (candidates.isEmpty()) {
-                IoeExcavatorDepositRules.recordGuaranteedMotherFailed();
+                if (requiredForSiteQuality) {
+                    IoeExcavatorDepositRules.recordGuaranteedMotherFailed();
+                } else {
+                    IoeExcavatorDepositRules.recordOptionalMajorFailed();
+                }
                 IoeExpeditionWorldgenMod.LOGGER.error(
-                        "Unable to guarantee IE Excavator deposit for Mother Node at {}: profile={} province={} has no loaded compatible mineral mix",
+                        "Unable to prepare {} IE Excavator deposit at {}: profile={} province={} has no loaded compatible mineral mix",
+                        requiredForSiteQuality ? "required Mother" : "optional Major",
                         request.anchorPos(),
                         request.profileName(),
                         request.provinceId()
@@ -80,7 +104,8 @@ public final class IoeExcavatorMotherDepositBridge {
                     selected.id(),
                     radius,
                     vein,
-                    observedExisting
+                    observedExisting,
+                    requiredForSiteQuality
             ));
         }
     }
@@ -100,12 +125,18 @@ public final class IoeExcavatorMotherDepositBridge {
     private static void recordCreatedBestEffort(
             MotherDepositRequest request,
             net.minecraft.resources.ResourceLocation mineralMixId,
-            int radius
+            int radius,
+            boolean requiredForSiteQuality
     ) {
         try {
-            IoeExcavatorDepositRules.recordGuaranteedMotherCreated();
+            if (requiredForSiteQuality) {
+                IoeExcavatorDepositRules.recordGuaranteedMotherCreated();
+            } else {
+                IoeExcavatorDepositRules.recordOptionalMajorCreated();
+            }
             IoeExpeditionWorldgenMod.LOGGER.info(
-                    "Guaranteed IE Excavator deposit for Mother Node at {} mineral={} radius={} profile={} province={}",
+                    "Committed {} IE Excavator deposit at {} mineral={} radius={} profile={} province={}",
+                    requiredForSiteQuality ? "required Mother" : "optional Major",
                     request.anchorPos(),
                     mineralMixId,
                     radius,
@@ -163,6 +194,7 @@ public final class IoeExcavatorMotherDepositBridge {
         private final int radius;
         private final MineralVein vein;
         private final boolean observedExisting;
+        private final boolean requiredForSiteQuality;
         private State state = State.PREPARED;
 
         private RevalidatingReservation(
@@ -171,7 +203,8 @@ public final class IoeExcavatorMotherDepositBridge {
                 ResourceLocation mineralMixId,
                 int radius,
                 MineralVein vein,
-                boolean observedExisting
+                boolean observedExisting,
+                boolean requiredForSiteQuality
         ) {
             this.level = Objects.requireNonNull(level, "level");
             this.request = Objects.requireNonNull(request, "request");
@@ -179,12 +212,18 @@ public final class IoeExcavatorMotherDepositBridge {
             this.radius = radius;
             this.vein = Objects.requireNonNull(vein, "vein");
             this.observedExisting = observedExisting;
+            this.requiredForSiteQuality = requiredForSiteQuality;
         }
 
         @Override
         public synchronized boolean createdByIoe() {
             return state == State.COMMITTED_CREATED
                     || state != State.COMMITTED_EXISTING && !observedExisting;
+        }
+
+        @Override
+        public boolean requiredForSiteQuality() {
+            return requiredForSiteQuality;
         }
 
         @Override
@@ -221,7 +260,7 @@ public final class IoeExcavatorMotherDepositBridge {
                     throw failure;
                 }
             }
-            recordCreatedBestEffort(request, mineralMixId, radius);
+            recordCreatedBestEffort(request, mineralMixId, radius, requiredForSiteQuality);
         }
 
         @Override
@@ -233,7 +272,11 @@ public final class IoeExcavatorMotherDepositBridge {
                 boolean committed = state == State.COMMITTED_CREATED;
                 rollbackVein(level, vein, committed);
                 if (committed) {
-                    IoeExcavatorDepositRules.recordGuaranteedMotherRolledBack();
+                    if (requiredForSiteQuality) {
+                        IoeExcavatorDepositRules.recordGuaranteedMotherRolledBack();
+                    } else {
+                        IoeExcavatorDepositRules.recordOptionalMajorRolledBack();
+                    }
                 }
             }
             state = State.ROLLED_BACK;
