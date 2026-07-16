@@ -1,14 +1,15 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.mojang.serialization.Codec;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.QuartPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.tags.TagKey;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.levelgen.RandomState;
 import java.util.ArrayDeque;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -26,17 +28,14 @@ import java.util.Optional;
  */
 public record BiomeMineResourceProfile(
         ResourceLocation biomeId,
-        ResourceKind resourceKind,
-        String profileName,
+        ResourceLocation definitionId,
+        BiomeMineResourceDefinition definition,
         int sampledConnectedChunks
 ) {
-    private static final int SURVEY_RADIUS_CHUNKS = 4;
-    private static final List<ResourceDefinition> RESOURCE_DEFINITIONS = resourceDefinitions();
-
     public BiomeMineResourceProfile {
         Objects.requireNonNull(biomeId, "biomeId");
-        Objects.requireNonNull(resourceKind, "resourceKind");
-        Objects.requireNonNull(profileName, "profileName");
+        Objects.requireNonNull(definitionId, "definitionId");
+        Objects.requireNonNull(definition, "definition");
         if (sampledConnectedChunks <= 0) {
             throw new IllegalArgumentException("Connected biome chunk count must be positive");
         }
@@ -56,8 +55,20 @@ public record BiomeMineResourceProfile(
             return Resolution.missing();
         }
 
-        List<ResourceDefinition> matchingDefinitions = RESOURCE_DEFINITIONS.stream()
-                .filter(candidate -> originBiome.is(candidate.biomeTag()))
+        Registry<BiomeMineResourceDefinition> definitionRegistry = level.registryAccess()
+                .registry(BiomeMineResourceDefinition.REGISTRY_KEY)
+                .orElse(null);
+        if (definitionRegistry == null) {
+            IoeExpeditionWorldgenMod.LOGGER.error(
+                    "Missing IOE mine resource profile datapack registry at origin={}",
+                    origin
+            );
+            return Resolution.missing();
+        }
+
+        List<Map.Entry<ResourceKey<BiomeMineResourceDefinition>, BiomeMineResourceDefinition>> matchingDefinitions =
+                definitionRegistry.entrySet().stream()
+                .filter(candidate -> originBiome.is(candidate.getValue().biomeTag()))
                 .toList();
         if (matchingDefinitions.isEmpty()) {
             return Resolution.missing();
@@ -67,62 +78,52 @@ public record BiomeMineResourceProfile(
                     "Rejected ambiguous IOE mine resource biome={} origin={} matches={}",
                     originBiomeKey.location(),
                     origin,
-                    matchingDefinitions.stream().map(ResourceDefinition::profileName).toList()
+                    matchingDefinitions.stream().map(candidate -> candidate.getKey().location()).toList()
             );
             return Resolution.ambiguous();
         }
 
-        ResourceDefinition definition = matchingDefinitions.getFirst();
+        Map.Entry<ResourceKey<BiomeMineResourceDefinition>, BiomeMineResourceDefinition> selected =
+                matchingDefinitions.getFirst();
+        BiomeMineResourceDefinition definition = selected.getValue();
         int connectedChunks = countConnectedChunks(
                 biomeSource,
                 randomState,
                 originChunk,
                 origin.getY(),
-                originBiomeKey
+                originBiomeKey,
+                definition.surveyRadiusChunks()
         );
         return Resolution.resolved(new BiomeMineResourceProfile(
                 originBiomeKey.location(),
-                definition.resourceKind(),
-                definition.profileName(),
+                selected.getKey().location(),
+                definition,
                 connectedChunks
         ));
     }
 
+    public ResourceKind resourceKind() {
+        return definition.resourceKind();
+    }
+
+    public String profileName() {
+        return definition.resourceName();
+    }
+
     public int oreBudget(SiteQuality quality) {
         Objects.requireNonNull(quality, "quality");
-        if (resourceKind != ResourceKind.GEORE || !quality.isProductive()) {
+        if (resourceKind() != ResourceKind.GEORE || !quality.isProductive()) {
             return 0;
         }
-        int base = switch (quality) {
-            case DRY -> 0;
-            case POOR -> 4;
-            case NORMAL -> 8;
-            case RICH -> 14;
-            case MOTHERLODE -> 24;
-        };
-        int chunksPerBonus = switch (quality) {
-            case DRY -> Integer.MAX_VALUE;
-            case POOR -> 6;
-            case NORMAL -> 4;
-            case RICH -> 3;
-            case MOTHERLODE -> 2;
-        };
-        return base + Math.max(0, sampledConnectedChunks - 1) / chunksPerBonus;
+        return definition.counts(quality).oreBudget().valueAt(sampledConnectedChunks);
     }
 
     public int nodeCount(SiteQuality quality) {
         Objects.requireNonNull(quality, "quality");
-        if (resourceKind != ResourceKind.GEORE || !quality.isProductive()) {
+        if (resourceKind() != ResourceKind.GEORE || !quality.isProductive()) {
             return 0;
         }
-        int base = switch (quality) {
-            case DRY -> 0;
-            case POOR -> 1;
-            case NORMAL -> 2;
-            case RICH -> 3;
-            case MOTHERLODE -> 4;
-        };
-        return base + Math.min(2, sampledConnectedChunks / 24);
+        return definition.counts(quality).nodeCount().valueAt(sampledConnectedChunks);
     }
 
     public int specialBuddingCount(SiteQuality quality) {
@@ -130,16 +131,7 @@ public record BiomeMineResourceProfile(
         if (!quality.isProductive()) {
             return 0;
         }
-        return switch (resourceKind) {
-            case GEORE -> 0;
-            case AE2_CERTUS -> Math.min(4,
-                    (quality == SiteQuality.POOR || quality == SiteQuality.NORMAL ? 1 : 2)
-                            + (sampledConnectedChunks >= 33 ? 1 : 0)
-                            + (sampledConnectedChunks >= 65 ? 1 : 0));
-            case EXTENDEDAE_FLUIX -> Math.min(3,
-                    (quality == SiteQuality.MOTHERLODE ? 2 : 1)
-                            + (sampledConnectedChunks >= 49 ? 1 : 0));
-        };
+        return definition.counts(quality).specialBuddingCount().valueAt(sampledConnectedChunks);
     }
 
     private static int countConnectedChunks(
@@ -147,7 +139,8 @@ public record BiomeMineResourceProfile(
             RandomState randomState,
             ChunkPos origin,
             int sampleY,
-            ResourceKey<Biome> targetBiome
+            ResourceKey<Biome> targetBiome,
+            int surveyRadiusChunks
     ) {
         ArrayDeque<ChunkPos> pending = new ArrayDeque<>();
         LinkedHashSet<Long> visited = new LinkedHashSet<>();
@@ -155,8 +148,8 @@ public record BiomeMineResourceProfile(
         int connected = 0;
         while (!pending.isEmpty()) {
             ChunkPos current = pending.removeFirst();
-            if (Math.abs(current.x - origin.x) > SURVEY_RADIUS_CHUNKS
-                    || Math.abs(current.z - origin.z) > SURVEY_RADIUS_CHUNKS
+            if (Math.abs(current.x - origin.x) > surveyRadiusChunks
+                    || Math.abs(current.z - origin.z) > surveyRadiusChunks
                     || !visited.add(current.toLong())) {
                 continue;
             }
@@ -201,44 +194,23 @@ public record BiomeMineResourceProfile(
         );
     }
 
-    private static List<ResourceDefinition> resourceDefinitions() {
-        return List.of(
-                definition("certus", ResourceKind.AE2_CERTUS),
-                definition("entroized_fluix", ResourceKind.EXTENDEDAE_FLUIX),
-                definition("uranium", ResourceKind.GEORE),
-                definition("nickel", ResourceKind.GEORE),
-                definition("silver", ResourceKind.GEORE),
-                definition("lead", ResourceKind.GEORE),
-                definition("aluminum", ResourceKind.GEORE),
-                definition("emerald", ResourceKind.GEORE),
-                definition("diamond", ResourceKind.GEORE),
-                definition("gold", ResourceKind.GEORE),
-                definition("lapis", ResourceKind.GEORE),
-                definition("redstone", ResourceKind.GEORE),
-                definition("copper", ResourceKind.GEORE),
-                definition("iron", ResourceKind.GEORE),
-                definition("coal", ResourceKind.GEORE)
-        );
-    }
+    public enum ResourceKind implements StringRepresentable {
+        GEORE("geore"),
+        AE2_CERTUS("ae2_certus"),
+        EXTENDEDAE_FLUIX("extendedae_fluix");
 
-    private static ResourceDefinition definition(String profileName, ResourceKind resourceKind) {
-        return new ResourceDefinition(
-                profileName,
-                resourceKind,
-                TagKey.create(
-                        Registries.BIOME,
-                        ResourceLocation.fromNamespaceAndPath(
-                                IoeExpeditionWorldgenMod.MODID,
-                                "ore_profile/" + profileName
-                        )
-                )
-        );
-    }
+        public static final Codec<ResourceKind> CODEC = StringRepresentable.fromEnum(ResourceKind::values);
 
-    public enum ResourceKind {
-        GEORE,
-        AE2_CERTUS,
-        EXTENDEDAE_FLUIX
+        private final String serializedName;
+
+        ResourceKind(String serializedName) {
+            this.serializedName = serializedName;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return serializedName;
+        }
     }
 
     public enum Failure {
@@ -266,18 +238,6 @@ public record BiomeMineResourceProfile(
 
         private static Resolution ambiguous() {
             return new Resolution(Optional.empty(), Failure.AMBIGUOUS);
-        }
-    }
-
-    private record ResourceDefinition(
-            String profileName,
-            ResourceKind resourceKind,
-            TagKey<Biome> biomeTag
-    ) {
-        private ResourceDefinition {
-            Objects.requireNonNull(profileName, "profileName");
-            Objects.requireNonNull(resourceKind, "resourceKind");
-            Objects.requireNonNull(biomeTag, "biomeTag");
         }
     }
 }

@@ -96,7 +96,8 @@ public final class IoeWorldgenRuntimeDiagnostics {
                 "IOE registry audit: features=" + audit.features() + "/" + audit.expectedFeatures()
                         + ", configured=" + audit.configuredFeatures() + "/" + audit.expectedFeatures()
                         + ", placed=" + audit.placedFeatures() + "/" + audit.expectedFeatures()
-                        + ", biomeModifiers=" + audit.biomeModifiers() + "/" + audit.expectedModifiers(),
+                        + ", biomeModifiers=" + audit.biomeModifiers() + "/" + audit.expectedModifiers()
+                        + ", mineResourceProfiles=" + audit.mineResourceProfiles(),
                 "IOE worldgen application: modifiedBiomes=" + MODIFIED_BIOMES.size()
                         + ", dynamicallyRemovedPlacedFeatures=" + REMOVED_FEATURES.sum()
                         + ", authorizedResourcePositions=" + IoeOrePlacementAuthorization.positionCount(),
@@ -117,12 +118,15 @@ public final class IoeWorldgenRuntimeDiagnostics {
         Registry<PlacedFeature> placedRegistry = server.registryAccess().registryOrThrow(Registries.PLACED_FEATURE);
         Registry<BiomeModifier> modifierRegistry =
                 server.registryAccess().registryOrThrow(NeoForgeRegistries.Keys.BIOME_MODIFIERS);
+        Registry<BiomeMineResourceDefinition> mineProfileRegistry =
+                server.registryAccess().registryOrThrow(BiomeMineResourceDefinition.REGISTRY_KEY);
         List<ResourceLocation> featureIds = ExpeditionSiteType.registeredFeatureIds();
         return new RegistryAudit(
                 count(featureRegistry, featureIds),
                 count(configuredRegistry, featureIds),
                 count(placedRegistry, featureIds),
                 count(modifierRegistry, MODIFIER_IDS),
+                (int) mineProfileRegistry.stream().count(),
                 featureIds.size(),
                 MODIFIER_IDS.size()
         );
@@ -184,6 +188,7 @@ public final class IoeWorldgenRuntimeDiagnostics {
             int configuredFeatures,
             int placedFeatures,
             int biomeModifiers,
+            int mineResourceProfiles,
             int expectedFeatures,
             int expectedModifiers
     ) {

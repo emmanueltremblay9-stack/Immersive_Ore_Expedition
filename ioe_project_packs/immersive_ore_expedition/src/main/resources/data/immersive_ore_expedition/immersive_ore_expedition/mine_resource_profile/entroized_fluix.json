@@ -1,0 +1,83 @@
+{
+  "biome_tag": "immersive_ore_expedition:ore_profile/entroized_fluix",
+  "resource_kind": "extendedae_fluix",
+  "resource_name": "entroized_fluix",
+  "survey_radius_chunks": 4,
+  "quality_counts": {
+    "dry": {
+      "ore_budget": {
+        "base": 0
+      },
+      "node_count": {
+        "base": 0
+      },
+      "special_budding_count": {
+        "base": 0
+      }
+    },
+    "poor": {
+      "ore_budget": {
+        "base": 0
+      },
+      "node_count": {
+        "base": 0
+      },
+      "special_budding_count": {
+        "base": 1,
+        "bonus": {
+          "first_chunk": 49,
+          "chunks_per_bonus": 48,
+          "max_bonus": 1
+        }
+      }
+    },
+    "normal": {
+      "ore_budget": {
+        "base": 0
+      },
+      "node_count": {
+        "base": 0
+      },
+      "special_budding_count": {
+        "base": 1,
+        "bonus": {
+          "first_chunk": 49,
+          "chunks_per_bonus": 48,
+          "max_bonus": 1
+        }
+      }
+    },
+    "rich": {
+      "ore_budget": {
+        "base": 0
+      },
+      "node_count": {
+        "base": 0
+      },
+      "special_budding_count": {
+        "base": 1,
+        "bonus": {
+          "first_chunk": 49,
+          "chunks_per_bonus": 48,
+          "max_bonus": 1
+        }
+      }
+    },
+    "motherlode": {
+      "ore_budget": {
+        "base": 0
+      },
+      "node_count": {
+        "base": 0
+      },
+      "special_budding_count": {
+        "base": 2,
+        "bonus": {
+          "first_chunk": 49,
+          "chunks_per_bonus": 48,
+          "max_bonus": 1
+        }
+      }
+    }
+  }
+}

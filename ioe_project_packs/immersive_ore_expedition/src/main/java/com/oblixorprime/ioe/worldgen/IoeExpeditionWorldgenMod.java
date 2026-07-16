@@ -18,6 +18,7 @@ public final class IoeExpeditionWorldgenMod {
     }
 
     public static void bootstrap(IEventBus modEventBus) {
+        modEventBus.addListener(BiomeMineResourceDefinition::registerDatapackRegistry);
         IoeOreNodeBiomeModifiers.register(modEventBus);
         GeOreAdditionsRestrictions.register();
         IoeWorldgenRuntimeDiagnostics.register();

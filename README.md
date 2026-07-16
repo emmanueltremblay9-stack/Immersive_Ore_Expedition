@@ -58,6 +58,12 @@ For strict zero autonomous ore, create a new world with IOE installed before its
 
 Before using any bounded IOE administrator retrogen or locator-reindex operation on an existing world, make a complete backup of the save. Locator reindexing scans only already loaded chunks and does not change world blocks; it does not convert an old world's free ore distribution into IOE mines.
 
+## Data-driven Mine Profiles
+
+Biome-to-resource selection and connected-biome quantity scaling are loaded from the server datapack registry `immersive_ore_expedition:mine_resource_profile`. Built-in entries live under `data/immersive_ore_expedition/immersive_ore_expedition/mine_resource_profile`; each entry selects a biome tag, a resource kind, a connected-chunk survey radius, and exact ore, node, or budding counts for every site quality.
+
+Datapacks may replace the built-in selection and quantity rules. A new `geore` resource name is accepted only when IOE's GeOre and Immersive Engineering integration mappings support that material; the datapack registry does not invent blocks or IE mineral definitions. Crystal profiles only select authorized budding blocks, while AE2, AE2 Crystal Science, or Extended AE continue to own crystal growth and automation.
+
 The consolidated module CI verifies the release jar structure: the runtime jar must include compiled classes under `com/oblixorprime/ioe/` and `META-INF/neoforge.mods.toml`. Release and smoke guidance lives in:
 
 - `ioe_project_packs/immersive_ore_expedition/docs/RELEASE_CHECKLIST.md`
