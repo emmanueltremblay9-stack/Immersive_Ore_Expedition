@@ -105,3 +105,17 @@ IOE resolves `extendedae:entro_budding_fully` and the separately owned AE2 block
 - License: Blu's License of Common Sense
 
 IOE references public registry and placed-feature identifiers to prevent free ore-block generation and to coordinate its original prospecting plans. No Immersive Engineering code, API class, asset, manual page, data file, or generated resource is copied into IOE. Immersive Engineering remains a separately distributed optional dependency and retains ownership of its machines, mineral-deposit system, recipes, blocks, items, assets, and behavior.
+
+## Immersive Petroleum
+
+- Project: Immersive Petroleum
+- Author: TwistedGate and contributors
+- Source: https://github.com/TwistedGate/ImmersivePetroleum
+- Distribution: https://modrinth.com/mod/immersivepetroleum
+- Integrated line: Minecraft 1.21.1, Immersive Petroleum 4.4.1-37
+- Source branch inspected: `1.21.1`
+- Source revision inspected: `09dfa613627d2f0114dc06de37f208aa1684bb89`
+- Modrinth project/version inspected: `MOw5TN6u` / `CV6UXQBi`
+- License: All Rights Reserved
+
+IOE compiles against the separately distributed Immersive Petroleum artifact and uses its native reservoir API objects and persistence entrypoint. IOE only controls spatial admission: free reservoir scans and unauthorized registrations are blocked, while admitted desert coal sites register native IP oil reservoirs transactionally. Immersive Petroleum remains the owner of reservoir recipes, fluids, SavedData format, surveying, pressure, depletion, wells, Pumpjack extraction, code and assets. No Immersive Petroleum source file, recipe, model, texture, sound, language file or other asset is copied into the IOE jar.

@@ -1,6 +1,7 @@
 package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
+import com.oblixorprime.ioe.compat.ip.IoeOilReservoirBridge;
 import com.oblixorprime.ioe.core.LoadedResourceScanner;
 import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.core.ResourceRef;
@@ -135,6 +136,13 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         }
         quality = depositPreparation.resolution().finalQuality();
         IoeMotherDepositReservation depositReservation = depositPreparation.reservation().orElse(null);
+        IoePetroleumReservoirReservation petroleumReservation = preparePetroleumReservoir(
+                context.level().getLevel(),
+                origin,
+                quality,
+                resourceProfile,
+                siteType.naturalSurfaceSite()
+        );
         boolean geOreMine = geOreMaterial != null;
 
         boolean reservationTransferred = false;
@@ -202,6 +210,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                         plan,
                         resourceProfile,
                         depositReservation,
+                        petroleumReservation,
                         fallbackPlan
                 );
                 if (!staged) {
@@ -224,7 +233,39 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         } finally {
             if (!reservationTransferred) {
                 rollbackReservationBestEffort(depositReservation, origin);
+                rollbackReservoirReservationBestEffort(petroleumReservation, origin);
             }
+        }
+    }
+
+    private static IoePetroleumReservoirReservation preparePetroleumReservoir(
+            ServerLevel level,
+            BlockPos origin,
+            SiteQuality quality,
+            BiomeMineResourceProfile resourceProfile,
+            boolean naturalSurfaceSite
+    ) {
+        if (!naturalSurfaceSite
+                || resourceProfile == null
+                || !ModList.get().isLoaded(IoePetroleumReservoirRules.MOD_ID)) {
+            return null;
+        }
+        ProvinceId province = ProvinceBindingResolver.fromConfig().resolve(resourceProfile.biomeId());
+        Optional<IoePetroleumReservoirRules.OilReservoirRequest> request =
+                IoePetroleumReservoirRules.request(level, origin, quality, province, resourceProfile);
+        if (request.isEmpty()) {
+            return null;
+        }
+        try {
+            return IoeOilReservoirBridge.reserveOilReservoir(level, request.orElseThrow()).orElse(null);
+        } catch (RuntimeException | LinkageError failure) {
+            IoePetroleumReservoirRules.recordReservationFailed();
+            IoeExpeditionWorldgenMod.LOGGER.error(
+                    "Failed to prepare the optional Immersive Petroleum oil reservoir at {}; preserving the IOE coal site",
+                    origin,
+                    failure
+            );
+            return null;
         }
     }
 
@@ -338,6 +379,24 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         } catch (RuntimeException | LinkageError failure) {
             IoeExpeditionWorldgenMod.LOGGER.error(
                     "Failed to roll back an unconfirmed IE deposit reservation at {}",
+                    origin,
+                    failure
+            );
+        }
+    }
+
+    private static void rollbackReservoirReservationBestEffort(
+            IoePetroleumReservoirReservation reservation,
+            BlockPos origin
+    ) {
+        if (reservation == null) {
+            return;
+        }
+        try {
+            reservation.rollback();
+        } catch (RuntimeException | LinkageError failure) {
+            IoeExpeditionWorldgenMod.LOGGER.error(
+                    "Failed to roll back an unconfirmed Immersive Petroleum reservoir reservation at {}",
                     origin,
                     failure
             );

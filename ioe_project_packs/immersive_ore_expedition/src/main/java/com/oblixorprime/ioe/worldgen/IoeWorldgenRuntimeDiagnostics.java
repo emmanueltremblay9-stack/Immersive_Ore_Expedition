@@ -107,7 +107,8 @@ public final class IoeWorldgenRuntimeDiagnostics {
                 "IOE new-chunk guard: checked=" + GUARDED_CHUNKS.sum()
                         + ", sanitizedOres=" + SANITIZED_ORES.sum()
                         + ", sanitizedGrowthBlocks=" + SANITIZED_GROWTH_BLOCKS.sum(),
-                IoeExcavatorDepositRules.statusMessage()
+                IoeExcavatorDepositRules.statusMessage(),
+                IoePetroleumReservoirRules.statusMessage()
         );
     }
 
@@ -155,6 +156,7 @@ public final class IoeWorldgenRuntimeDiagnostics {
         SANITIZED_ORES.reset();
         SANITIZED_GROWTH_BLOCKS.reset();
         IoeExcavatorDepositRules.resetDiagnostics();
+        IoePetroleumReservoirRules.resetDiagnostics();
         MODIFIED_BIOMES.clear();
         SITE_SKIPS.values().forEach(LongAdder::reset);
     }

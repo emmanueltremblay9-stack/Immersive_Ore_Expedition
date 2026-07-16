@@ -3,8 +3,6 @@
   "values": [
     "minecraft:badlands",
     "minecraft:wooded_badlands",
-    { "id": "biomesoplenty:lush_desert", "required": false },
-    { "id": "biomesoplenty:wasteland", "required": false },
-    { "id": "biomesoplenty:wasteland_steppe", "required": false }
+    "minecraft:eroded_badlands"
   ]
 }

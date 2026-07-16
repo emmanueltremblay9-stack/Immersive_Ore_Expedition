@@ -1,5 +1,6 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.compat.ip.IoeOilReservoirBridge;
 import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
@@ -13,6 +14,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
@@ -56,7 +58,7 @@ final class IoePendingExpeditionSites {
             ExpeditionSiteBlockPlan plan,
             BiomeMineResourceProfile resourceProfile
     ) {
-        return stage(worldGenLevel, plan, resourceProfile, null, null);
+        return stage(worldGenLevel, plan, resourceProfile, null, null, null);
     }
 
     static boolean stage(
@@ -65,7 +67,7 @@ final class IoePendingExpeditionSites {
             BiomeMineResourceProfile resourceProfile,
             IoeMotherDepositReservation motherDepositReservation
     ) {
-        return stage(worldGenLevel, plan, resourceProfile, motherDepositReservation, null);
+        return stage(worldGenLevel, plan, resourceProfile, motherDepositReservation, null, null);
     }
 
     static boolean stage(
@@ -73,6 +75,24 @@ final class IoePendingExpeditionSites {
             ExpeditionSiteBlockPlan plan,
             BiomeMineResourceProfile resourceProfile,
             IoeMotherDepositReservation motherDepositReservation,
+            ExpeditionSiteBlockPlan fallbackPlan
+    ) {
+        return stage(
+                worldGenLevel,
+                plan,
+                resourceProfile,
+                motherDepositReservation,
+                null,
+                fallbackPlan
+        );
+    }
+
+    static boolean stage(
+            WorldGenLevel worldGenLevel,
+            ExpeditionSiteBlockPlan plan,
+            BiomeMineResourceProfile resourceProfile,
+            IoeMotherDepositReservation motherDepositReservation,
+            IoePetroleumReservoirReservation petroleumReservoirReservation,
             ExpeditionSiteBlockPlan fallbackPlan
     ) {
         Objects.requireNonNull(worldGenLevel, "worldGenLevel");
@@ -84,6 +104,7 @@ final class IoePendingExpeditionSites {
                 plan,
                 resourceProfile,
                 motherDepositReservation,
+                petroleumReservoirReservation,
                 fallbackPlan,
                 chunkPos
         );
@@ -149,14 +170,12 @@ final class IoePendingExpeditionSites {
             }
 
             PendingSite effectiveSite = pendingSite;
-            boolean depositCommitted = false;
             IoeMotherDepositReservation reservation = pendingSite.motherDepositReservation();
             if (reservation != null) {
                 try {
                     reservation.commit();
-                    depositCommitted = true;
                 } catch (RuntimeException | LinkageError failure) {
-                    rollbackReservationBestEffort(pendingSite, "commit failure");
+                    rollbackMotherReservationBestEffort(pendingSite, "commit failure");
                     if (!reservation.requiredForSiteQuality()) {
                         IoeExpeditionWorldgenMod.LOGGER.error(
                                 "Discarded the optional IE Major deposit at {}; preserving the confirmed IOE site",
@@ -180,6 +199,10 @@ final class IoePendingExpeditionSites {
                         );
                         if (fallback == null) {
                             rejectedSites++;
+                            rollbackPetroleumReservationBestEffort(
+                                    pendingSite,
+                                    "IE direct lower quality fallback failed"
+                            );
                             pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
                             continue;
                         }
@@ -189,13 +212,26 @@ final class IoePendingExpeditionSites {
                 }
             }
 
+            IoePetroleumReservoirReservation petroleumReservation =
+                    effectiveSite.petroleumReservoirReservation();
+            if (petroleumReservation != null) {
+                try {
+                    petroleumReservation.commit();
+                } catch (RuntimeException | LinkageError failure) {
+                    rollbackPetroleumReservationBestEffort(effectiveSite, "commit failure");
+                    IoeExpeditionWorldgenMod.LOGGER.error(
+                            "Discarded the optional Immersive Petroleum oil reservoir at {}; preserving the confirmed IOE coal site",
+                            effectiveSite.site().pos(),
+                            failure
+                    );
+                }
+            }
+
             try {
                 ExpeditionLocatorService.record(level, effectiveSite.site());
             } catch (RuntimeException | LinkageError failure) {
                 rejectedSites++;
-                if (depositCommitted) {
-                    rollbackReservationBestEffort(pendingSite, "locator failure after commit");
-                }
+                rollbackReservationBestEffort(effectiveSite, "locator failure after reservation commit");
                 rollbackPlacementBestEffort(level, effectivePlacement, effectiveSite, "locator failure");
                 effectiveSite.signature().appendResourcePositions(rejectedResourcePositions);
                 IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
@@ -246,6 +282,8 @@ final class IoePendingExpeditionSites {
         if (fallbackPlacement == null) {
             return null;
         }
+        IoePetroleumReservoirReservation fallbackPetroleumReservation =
+                prepareFallbackPetroleumReservation(level, pendingSite, fallbackPlan.quality());
         PendingSite fallbackSite;
         try {
             fallbackSite = pendingSite(
@@ -253,11 +291,17 @@ final class IoePendingExpeditionSites {
                     fallbackPlan,
                     pendingSite.resourceProfile(),
                     null,
+                    fallbackPetroleumReservation,
                     null,
                     chunkPos
             );
         } catch (RuntimeException | LinkageError failure) {
             fallbackPlacement.rollback(level);
+            rollbackPetroleumReservationBestEffort(
+                    fallbackPetroleumReservation,
+                    pendingSite.site().pos(),
+                    "failed to create lower quality pending site"
+            );
             IoeExpeditionWorldgenMod.LOGGER.error(
                     "Failed to stage the direct lower quality plan at {}",
                     pendingSite.site().pos(),
@@ -272,6 +316,41 @@ final class IoePendingExpeditionSites {
                 fallbackPlan.quality()
         );
         return new FallbackApplication(fallbackSite, fallbackPlacement);
+    }
+
+    private static IoePetroleumReservoirReservation prepareFallbackPetroleumReservation(
+            ServerLevel level,
+            PendingSite pendingSite,
+            SiteQuality fallbackQuality
+    ) {
+        rollbackPetroleumReservationBestEffort(pendingSite, "direct quality downgrade requalification");
+        if (!ModList.get().isLoaded(IoePetroleumReservoirRules.MOD_ID)) {
+            return null;
+        }
+        BiomeMineResourceProfile resourceProfile = pendingSite.resourceProfile();
+        ProvinceId province = ProvinceBindingResolver.fromConfig().resolve(resourceProfile.biomeId());
+        Optional<IoePetroleumReservoirRules.OilReservoirRequest> request =
+                IoePetroleumReservoirRules.request(
+                        level,
+                        pendingSite.site().pos(),
+                        fallbackQuality,
+                        province,
+                        resourceProfile
+                );
+        if (request.isEmpty()) {
+            return null;
+        }
+        try {
+            return IoeOilReservoirBridge.reserveOilReservoir(level, request.orElseThrow()).orElse(null);
+        } catch (RuntimeException | LinkageError failure) {
+            IoePetroleumReservoirRules.recordReservationFailed();
+            IoeExpeditionWorldgenMod.LOGGER.error(
+                    "Failed to requalify the optional Immersive Petroleum reservoir at {} after site downgrade",
+                    pendingSite.site().pos(),
+                    failure
+            );
+            return null;
+        }
     }
 
     static void clear() {
@@ -331,6 +410,7 @@ final class IoePendingExpeditionSites {
             ExpeditionSiteBlockPlan plan,
             BiomeMineResourceProfile resourceProfile,
             IoeMotherDepositReservation motherDepositReservation,
+            IoePetroleumReservoirReservation petroleumReservoirReservation,
             ExpeditionSiteBlockPlan fallbackPlan,
             ChunkPos chunkPos
     ) {
@@ -358,6 +438,7 @@ final class IoePendingExpeditionSites {
                 resourceProfile,
                 PlanSignature.from(plan, chunkPos),
                 motherDepositReservation,
+                petroleumReservoirReservation,
                 fallbackPlan,
                 NEXT_SEQUENCE.incrementAndGet(),
                 System.nanoTime()
@@ -426,6 +507,11 @@ final class IoePendingExpeditionSites {
     }
 
     private static void rollbackReservationBestEffort(PendingSite pendingSite, String reason) {
+        rollbackMotherReservationBestEffort(pendingSite, reason);
+        rollbackPetroleumReservationBestEffort(pendingSite, reason);
+    }
+
+    private static void rollbackMotherReservationBestEffort(PendingSite pendingSite, String reason) {
         IoeMotherDepositReservation reservation = pendingSite.motherDepositReservation();
         if (reservation == null) {
             return;
@@ -436,6 +522,34 @@ final class IoePendingExpeditionSites {
             IoeExpeditionWorldgenMod.LOGGER.error(
                     "Failed to roll back IE deposit reservation at {} reason={}",
                     pendingSite.site().pos(),
+                    reason,
+                    failure
+            );
+        }
+    }
+
+    private static void rollbackPetroleumReservationBestEffort(PendingSite pendingSite, String reason) {
+        rollbackPetroleumReservationBestEffort(
+                pendingSite.petroleumReservoirReservation(),
+                pendingSite.site().pos(),
+                reason
+        );
+    }
+
+    private static void rollbackPetroleumReservationBestEffort(
+            IoePetroleumReservoirReservation reservation,
+            BlockPos anchorPos,
+            String reason
+    ) {
+        if (reservation == null) {
+            return;
+        }
+        try {
+            reservation.rollback();
+        } catch (RuntimeException | LinkageError failure) {
+            IoeExpeditionWorldgenMod.LOGGER.error(
+                    "Failed to roll back Immersive Petroleum reservoir reservation at {} reason={}",
+                    anchorPos,
                     reason,
                     failure
             );
@@ -514,6 +628,7 @@ final class IoePendingExpeditionSites {
             BiomeMineResourceProfile resourceProfile,
             PlanSignature signature,
             IoeMotherDepositReservation motherDepositReservation,
+            IoePetroleumReservoirReservation petroleumReservoirReservation,
             ExpeditionSiteBlockPlan fallbackPlan,
             long sequence,
             long createdNanos

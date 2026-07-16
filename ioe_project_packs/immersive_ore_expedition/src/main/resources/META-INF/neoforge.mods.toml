@@ -71,6 +71,6 @@ config="immersive_ore_expedition.mixins.json"
 [[dependencies.${mod_id}]]
     modId="immersivepetroleum"
     type="optional"
-    versionRange="[0,)"
+    versionRange="${ip_version_range}"
     ordering="AFTER"
     side="BOTH"

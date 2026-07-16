@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "minecraft:dark_forest",
+    { "id": "biomesoplenty:wasteland", "required": false },
+    { "id": "biomesoplenty:wasteland_steppe", "required": false },
     { "id": "biomesoplenty:fungal_jungle", "required": false },
     { "id": "biomesoplenty:glowing_grotto", "required": false },
     { "id": "biomesoplenty:ominous_woods", "required": false },

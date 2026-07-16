@@ -64,7 +64,8 @@ def replacementProperties = [
         ae2cs_version_range : ae2cs_version_range,
         extendedae_version_range: extendedae_version_range,
         geore_version_range : geore_version_range,
-        ie_version_range    : ie_version_range
+        ie_version_range    : ie_version_range,
+        ip_version_range    : ip_version_range
 ]
 
 tasks.named('processResources', ProcessResources).configure {
@@ -82,6 +83,7 @@ tasks.named('jar', Jar).configure {
 dependencies {
     compileOnly group: 'info.journeymap', name: 'journeymap-api-neoforge', version: journeymap_api_version, changing: true
     compileOnly "blusunrize.immersiveengineering:ImmersiveEngineering:${ie_compile_version}"
+    compileOnly "maven.modrinth:${ip_modrinth_project}:${ip_compile_version}"
     if (providers.gradleProperty('ioeIncludeIeRuntime').map { it.toBoolean() }.getOrElse(false)) {
         runtimeOnly "blusunrize.immersiveengineering:ImmersiveEngineering:${ie_compile_version}"
     }

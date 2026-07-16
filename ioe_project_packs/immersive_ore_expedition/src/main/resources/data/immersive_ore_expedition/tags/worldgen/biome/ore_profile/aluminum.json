@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "minecraft:eroded_badlands",
     "minecraft:beach",
     "minecraft:stony_shore",
     { "id": "biomesoplenty:dune_beach", "required": false },
