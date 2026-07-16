@@ -2,8 +2,11 @@ package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
 import com.oblixorprime.ioe.core.ProvinceId;
+import com.oblixorprime.ioe.core.ResourceRef;
+import com.oblixorprime.ioe.core.ResourceType;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -16,9 +19,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
- * Spatial admission policy for Immersive Petroleum. Oil is a parallel abstract reservoir, never a second
- * exclusive mine profile: Mother coal sites in configured deserts always request oil, while Rich coal sites
- * receive a deterministic secondary chance. Lower tiers and non-desert provinces never create reservoirs.
+ * Spatial admission policy for Immersive Petroleum. Reservoirs are parallel abstract resources, never a
+ * second exclusive mine profile. Mother sites in an admitted biome always request the biome's reservoir,
+ * while Rich sites receive a deterministic secondary chance. Lower tiers do not create reservoirs.
  */
 public final class IoePetroleumReservoirRules {
     public static final String MOD_ID = "immersivepetroleum";
@@ -30,6 +33,14 @@ public final class IoePetroleumReservoirRules {
             Registries.BIOME,
             ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, "ip_oil_coal")
     );
+    public static final TagKey<Biome> LAVA_VOLCANO_BIOMES = TagKey.create(
+            Registries.BIOME,
+            ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, "ip_lava_volcano")
+    );
+    public static final TagKey<Biome> AQUIFER_BEACH_BIOMES = TagKey.create(
+            Registries.BIOME,
+            ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, "ip_aquifer_beach")
+    );
     private static final int RICH_SITE_CHANCE = 4;
     private static final LongAdder NATIVE_SCANS_SUPPRESSED = new LongAdder();
     private static final LongAdder UNAUTHORIZED_REGISTRATIONS_BLOCKED = new LongAdder();
@@ -38,11 +49,12 @@ public final class IoePetroleumReservoirRules {
     private static final LongAdder EXISTING_RESERVOIRS_REUSED = new LongAdder();
     private static final LongAdder RESERVATIONS_FAILED = new LongAdder();
     private static final LongAdder RESERVOIRS_ROLLED_BACK = new LongAdder();
+    private static final LongAdder AMBIGUOUS_BIOME_MATCHES_REJECTED = new LongAdder();
 
     private IoePetroleumReservoirRules() {
     }
 
-    public static Optional<OilReservoirRequest> request(
+    public static Optional<PetroleumReservoirRequest> request(
             ServerLevel level,
             BlockPos anchorPos,
             SiteQuality quality,
@@ -54,17 +66,48 @@ public final class IoePetroleumReservoirRules {
         Objects.requireNonNull(quality, "quality");
         Objects.requireNonNull(province, "province");
         Objects.requireNonNull(resourceProfile, "resourceProfile");
-        if (!quality.isProductive()
-                || resourceProfile.resourceKind() != BiomeMineResourceProfile.ResourceKind.GEORE
-                || !"coal".equals(resourceProfile.profileName())
-                || !level.getBiome(anchorPos).is(OIL_COAL_BIOMES)) {
+        if (!quality.isProductive()) {
+            return Optional.empty();
+        }
+        Holder<Biome> biome = level.getBiome(anchorPos);
+        boolean oil = resourceProfile.resourceKind() == BiomeMineResourceProfile.ResourceKind.GEORE
+                && "coal".equals(resourceProfile.profileName())
+                && biome.is(OIL_COAL_BIOMES);
+        boolean lava = biome.is(LAVA_VOLCANO_BIOMES);
+        boolean aquifer = biome.is(AQUIFER_BEACH_BIOMES);
+        int matches = (oil ? 1 : 0) + (lava ? 1 : 0) + (aquifer ? 1 : 0);
+        if (matches != 1) {
+            if (matches > 1) {
+                AMBIGUOUS_BIOME_MATCHES_REJECTED.increment();
+                if (IoeWorldgenConfig.runtimePlacementDiagnostics()) {
+                    IoeExpeditionWorldgenMod.LOGGER.warn(
+                            "Rejected ambiguous Immersive Petroleum reservoir admission at {} biome={} oil={} lava={} aquifer={}",
+                            anchorPos,
+                            resourceProfile.biomeId(),
+                            oil,
+                            lava,
+                            aquifer
+                    );
+                }
+            }
+            return Optional.empty();
+        }
+        ReservoirKind reservoirKind = oil
+                ? ReservoirKind.OIL
+                : lava ? ReservoirKind.LAVA : ReservoirKind.AQUIFER;
+        if (IoeWorldgenConfig.provinceRuntimeIntegrationEnabled()
+                && !ProvinceResourcePolicyResolver.fromConfig()
+                .evaluate(province, new ResourceRef(ResourceType.FLUID, reservoirKind.fluidId()))
+                .shouldUse()) {
             return Optional.empty();
         }
         if (quality != SiteQuality.MOTHERLODE
-                && (quality != SiteQuality.RICH || !selectedRichSite(level, anchorPos, province, resourceProfile))) {
+                && (quality != SiteQuality.RICH
+                || !selectedRichSite(level, anchorPos, province, resourceProfile, reservoirKind))) {
             return Optional.empty();
         }
-        return Optional.of(new OilReservoirRequest(
+        return Optional.of(new PetroleumReservoirRequest(
+                reservoirKind,
                 anchorPos.immutable(),
                 resourceProfile.biomeId(),
                 province.id(),
@@ -117,7 +160,8 @@ public final class IoePetroleumReservoirRules {
                 + ", created=" + RESERVOIRS_CREATED.sum()
                 + ", existingReused=" + EXISTING_RESERVOIRS_REUSED.sum()
                 + ", failed=" + RESERVATIONS_FAILED.sum()
-                + ", rolledBack=" + RESERVOIRS_ROLLED_BACK.sum();
+                + ", rolledBack=" + RESERVOIRS_ROLLED_BACK.sum()
+                + ", ambiguousBiomeMatchesRejected=" + AMBIGUOUS_BIOME_MATCHES_REJECTED.sum();
     }
 
     public static void resetDiagnostics() {
@@ -128,18 +172,21 @@ public final class IoePetroleumReservoirRules {
         EXISTING_RESERVOIRS_REUSED.reset();
         RESERVATIONS_FAILED.reset();
         RESERVOIRS_ROLLED_BACK.reset();
+        AMBIGUOUS_BIOME_MATCHES_REJECTED.reset();
     }
 
     private static boolean selectedRichSite(
             ServerLevel level,
             BlockPos anchorPos,
             ProvinceId province,
-            BiomeMineResourceProfile resourceProfile
+            BiomeMineResourceProfile resourceProfile,
+            ReservoirKind reservoirKind
     ) {
         long seed = mix(level.getSeed() ^ anchorPos.asLong());
         seed = mix(seed ^ level.dimension().location().hashCode());
         seed = mix(seed ^ province.id().hashCode());
         seed = mix(seed ^ resourceProfile.biomeId().hashCode());
+        seed = mix(seed ^ reservoirKind.serializedName().hashCode());
         return Math.floorMod(seed, RICH_SITE_CHANCE) == 0;
     }
 
@@ -151,7 +198,38 @@ public final class IoePetroleumReservoirRules {
         return value ^ value >>> 33;
     }
 
-    public record OilReservoirRequest(
+    public enum ReservoirKind {
+        OIL("oil", CRUDE_OIL_ID, ResourceLocation.fromNamespaceAndPath(MOD_ID, "reservoirs/oil")),
+        LAVA("lava", ResourceLocation.fromNamespaceAndPath("minecraft", "lava"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "reservoirs/lava")),
+        AQUIFER("aquifer", ResourceLocation.fromNamespaceAndPath("minecraft", "water"),
+                ResourceLocation.fromNamespaceAndPath(MOD_ID, "reservoirs/aquifer"));
+
+        private final String serializedName;
+        private final ResourceLocation fluidId;
+        private final ResourceLocation defaultRecipeId;
+
+        ReservoirKind(String serializedName, ResourceLocation fluidId, ResourceLocation defaultRecipeId) {
+            this.serializedName = serializedName;
+            this.fluidId = fluidId;
+            this.defaultRecipeId = defaultRecipeId;
+        }
+
+        public String serializedName() {
+            return serializedName;
+        }
+
+        public ResourceLocation fluidId() {
+            return fluidId;
+        }
+
+        public ResourceLocation defaultRecipeId() {
+            return defaultRecipeId;
+        }
+    }
+
+    public record PetroleumReservoirRequest(
+            ReservoirKind reservoirKind,
             BlockPos anchorPos,
             ResourceLocation biomeId,
             ResourceLocation provinceId,
@@ -160,14 +238,15 @@ public final class IoePetroleumReservoirRules {
             int surveyRadiusChunks,
             SiteQuality quality
     ) {
-        public OilReservoirRequest {
+        public PetroleumReservoirRequest {
+            Objects.requireNonNull(reservoirKind, "reservoirKind");
             Objects.requireNonNull(anchorPos, "anchorPos");
             Objects.requireNonNull(biomeId, "biomeId");
             Objects.requireNonNull(provinceId, "provinceId");
             Objects.requireNonNull(profileName, "profileName");
             Objects.requireNonNull(quality, "quality");
             if (connectedBiomeChunks <= 0 || surveyRadiusChunks < 0) {
-                throw new IllegalArgumentException("Oil reservoir biome sampling values are invalid");
+                throw new IllegalArgumentException("Petroleum reservoir biome sampling values are invalid");
             }
         }
     }

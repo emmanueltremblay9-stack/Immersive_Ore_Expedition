@@ -1,6 +1,6 @@
 package com.oblixorprime.ioe.worldgen;
 
-import com.oblixorprime.ioe.compat.ip.IoeOilReservoirBridge;
+import com.oblixorprime.ioe.compat.ip.IoePetroleumReservoirBridge;
 import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
@@ -221,7 +221,7 @@ final class IoePendingExpeditionSites {
                 } catch (RuntimeException | LinkageError failure) {
                     rollbackPetroleumReservationBestEffort(effectiveSite, "commit failure");
                     IoeExpeditionWorldgenMod.LOGGER.error(
-                            "Discarded the optional Immersive Petroleum oil reservoir at {}; preserving the confirmed IOE coal site",
+                            "Discarded the optional Immersive Petroleum reservoir at {}; preserving the confirmed IOE site",
                             effectiveSite.site().pos(),
                             failure
                     );
@@ -330,7 +330,7 @@ final class IoePendingExpeditionSites {
         }
         BiomeMineResourceProfile resourceProfile = pendingSite.resourceProfile();
         ProvinceId province = ProvinceBindingResolver.fromConfig().resolve(resourceProfile.biomeId());
-        Optional<IoePetroleumReservoirRules.OilReservoirRequest> request =
+        Optional<IoePetroleumReservoirRules.PetroleumReservoirRequest> request =
                 IoePetroleumReservoirRules.request(
                         level,
                         pendingSite.site().pos(),
@@ -342,7 +342,7 @@ final class IoePendingExpeditionSites {
             return null;
         }
         try {
-            return IoeOilReservoirBridge.reserveOilReservoir(level, request.orElseThrow()).orElse(null);
+            return IoePetroleumReservoirBridge.reserveReservoir(level, request.orElseThrow()).orElse(null);
         } catch (RuntimeException | LinkageError failure) {
             IoePetroleumReservoirRules.recordReservationFailed();
             IoeExpeditionWorldgenMod.LOGGER.error(

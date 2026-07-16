@@ -5,7 +5,7 @@ import com.oblixorprime.ioe.mixin.compat.ie.ip.IoeReservoirRegionDataAccessor;
 import com.oblixorprime.ioe.worldgen.IoeExpeditionWorldgenMod;
 import com.oblixorprime.ioe.worldgen.IoePetroleumReservoirReservation;
 import com.oblixorprime.ioe.worldgen.IoePetroleumReservoirRules;
-import com.oblixorprime.ioe.worldgen.IoePetroleumReservoirRules.OilReservoirRequest;
+import com.oblixorprime.ioe.worldgen.IoePetroleumReservoirRules.PetroleumReservoirRequest;
 import flaxbeard.immersivepetroleum.api.reservoir.Reservoir;
 import flaxbeard.immersivepetroleum.api.reservoir.ReservoirHandler;
 import flaxbeard.immersivepetroleum.api.reservoir.ReservoirPolygon;
@@ -13,13 +13,11 @@ import flaxbeard.immersivepetroleum.api.reservoir.ReservoirType;
 import flaxbeard.immersivepetroleum.common.datastorage.reservoir.RegionData;
 import flaxbeard.immersivepetroleum.common.datastorage.reservoir.ReservoirRegionDataStorage;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ColumnPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,20 +26,16 @@ import java.util.Optional;
  * Optional IP bridge. It creates IP's native abstract Reservoir objects so survey, Pumpjack extraction,
  * depletion, pressure and persistence remain owned by Immersive Petroleum.
  */
-public final class IoeOilReservoirBridge {
-    private static final ResourceLocation DEFAULT_OIL_RECIPE = ResourceLocation.fromNamespaceAndPath(
-            IoePetroleumReservoirRules.MOD_ID,
-            "reservoirs/oil"
-    );
+public final class IoePetroleumReservoirBridge {
     private static final int MIN_RADIUS = 12;
     private static final int MAX_RADIUS = 24;
 
-    private IoeOilReservoirBridge() {
+    private IoePetroleumReservoirBridge() {
     }
 
-    public static Optional<IoePetroleumReservoirReservation> reserveOilReservoir(
+    public static Optional<IoePetroleumReservoirReservation> reserveReservoir(
             ServerLevel level,
-            OilReservoirRequest request
+            PetroleumReservoirRequest request
     ) {
         Objects.requireNonNull(level, "level");
         Objects.requireNonNull(request, "request");
@@ -49,22 +43,20 @@ public final class IoeOilReservoirBridge {
         return Optional.of(new RevalidatingReservation(level, request));
     }
 
-    private static List<RecipeHolder<ReservoirType>> oilTypes(
+    private static List<RecipeHolder<ReservoirType>> reservoirTypes(
             ServerLevel level,
-            OilReservoirRequest request
+            PetroleumReservoirRequest request
     ) {
         return ReservoirType.map.values().stream()
                 .filter(holder -> holder.value().weight > 0)
-                .filter(holder -> IoePetroleumReservoirRules.CRUDE_OIL_ID.equals(holder.value().fluidLocation))
+                .filter(holder -> request.reservoirKind().defaultRecipeId().equals(holder.id()))
+                .filter(holder -> request.reservoirKind().fluidId().equals(holder.value().fluidLocation))
                 .filter(holder -> holder.value().getDimensions().isValid(level.dimension()))
                 .filter(holder -> holder.value().getBiomes().isValid(level.getBiome(request.anchorPos())))
-                .sorted(Comparator
-                        .comparing((RecipeHolder<ReservoirType> holder) -> !DEFAULT_OIL_RECIPE.equals(holder.id()))
-                        .thenComparing(holder -> holder.id().toString()))
                 .toList();
     }
 
-    private static long reservoirCapacity(OilReservoirRequest request, ReservoirType type) {
+    private static long reservoirCapacity(PetroleumReservoirRequest request, ReservoirType type) {
         long minimum = type.minSize;
         long maximum = Math.max(minimum, type.maxSize);
         int diameter = request.surveyRadiusChunks() * 2 + 1;
@@ -76,7 +68,7 @@ public final class IoeOilReservoirBridge {
         return minimum + (maximum - minimum) * (connected - 1L) / (maximumConnected - 1L);
     }
 
-    private static int reservoirRadius(OilReservoirRequest request) {
+    private static int reservoirRadius(PetroleumReservoirRequest request) {
         int connectedBonus = Math.max(0, request.connectedBiomeChunks() - 1) / 7;
         return Math.clamp(MIN_RADIUS + connectedBonus, MIN_RADIUS, MAX_RADIUS);
     }
@@ -111,10 +103,10 @@ public final class IoeOilReservoirBridge {
         return false;
     }
 
-    private static boolean isOil(Reservoir reservoir) {
+    private static boolean hasRequestedFluid(Reservoir reservoir, PetroleumReservoirRequest request) {
         return reservoir != null
                 && reservoir.getType() != null
-                && IoePetroleumReservoirRules.CRUDE_OIL_ID.equals(reservoir.getType().value().fluidLocation);
+                && request.reservoirKind().fluidId().equals(reservoir.getType().value().fluidLocation);
     }
 
     private static boolean removeCreatedReservoir(
@@ -141,14 +133,14 @@ public final class IoeOilReservoirBridge {
 
     private static final class RevalidatingReservation implements IoePetroleumReservoirReservation {
         private final ServerLevel level;
-        private final OilReservoirRequest request;
+        private final PetroleumReservoirRequest request;
         private ReservoirRegionDataStorage storage;
         private Reservoir reservoir;
         private State state = State.PREPARED;
 
         private RevalidatingReservation(
                 ServerLevel level,
-                OilReservoirRequest request
+                PetroleumReservoirRequest request
         ) {
             this.level = level;
             this.request = request;
@@ -179,7 +171,7 @@ public final class IoeOilReservoirBridge {
             synchronized (currentStorage) {
                 ColumnPos anchor = new ColumnPos(request.anchorPos().getX(), request.anchorPos().getZ());
                 Reservoir existing = currentStorage.getReservoir(level, anchor);
-                if (isOil(existing)) {
+                if (hasRequestedFluid(existing, request)) {
                     storage = currentStorage;
                     state = State.COMMITTED_EXISTING;
                     IoePetroleumReservoirRules.recordExistingReservoirReused();
@@ -190,10 +182,16 @@ public final class IoeOilReservoirBridge {
                     throw new IllegalStateException("IP reservoir region became occupied before site confirmation");
                 }
 
-                RecipeHolder<ReservoirType> oilType = oilTypes(level, request).stream().findFirst().orElse(null);
-                if (oilType == null) {
+                RecipeHolder<ReservoirType> reservoirType = reservoirTypes(level, request)
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
+                if (reservoirType == null) {
                     IoePetroleumReservoirRules.recordReservationFailed();
-                    throw new IllegalStateException("No valid Immersive Petroleum crude-oil reservoir recipe");
+                    throw new IllegalStateException(
+                            "No valid Immersive Petroleum " + request.reservoirKind().serializedName()
+                                    + " reservoir recipe"
+                    );
                 }
                 int radius = reservoirRadius(request);
                 ReservoirPolygon polygon = squarePolygon(anchor, radius);
@@ -201,8 +199,8 @@ public final class IoeOilReservoirBridge {
                     IoePetroleumReservoirRules.recordReservationFailed();
                     throw new IllegalStateException("IP reservoir polygon is invalid or overlaps an existing reservoir");
                 }
-                long capacity = reservoirCapacity(request, oilType.value());
-                Reservoir candidate = new Reservoir(polygon, oilType, capacity);
+                long capacity = reservoirCapacity(request, reservoirType.value());
+                Reservoir candidate = new Reservoir(polygon, reservoirType, capacity);
 
                 state = State.COMMITTING;
                 try (IoePetroleumReservoirAuthorization.Scope ignored =
@@ -228,7 +226,8 @@ public final class IoeOilReservoirBridge {
             }
             IoePetroleumReservoirRules.recordReservoirCreated();
             IoeExpeditionWorldgenMod.LOGGER.info(
-                    "Committed Immersive Petroleum oil reservoir at {} type={} capacity={} radius={} biome={} province={} connectedBiomeChunks={} quality={}",
+                    "Committed Immersive Petroleum {} reservoir at {} type={} capacity={} radius={} biome={} province={} connectedBiomeChunks={} quality={}",
+                    request.reservoirKind().serializedName(),
                     request.anchorPos(),
                     reservoir.getType().id(),
                     reservoir.getCapacity(),
@@ -246,6 +245,9 @@ public final class IoeOilReservoirBridge {
                 return;
             }
             if (state == State.COMMITTED_CREATED || state == State.COMMITTING) {
+                if (!level.getServer().isSameThread()) {
+                    throw new IllegalStateException("Committed IP reservoir rollbacks must run on the Minecraft server thread");
+                }
                 if (storage == null || reservoir == null) {
                     state = State.ROLLED_BACK;
                     return;

@@ -1,7 +1,7 @@
 package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
-import com.oblixorprime.ioe.compat.ip.IoeOilReservoirBridge;
+import com.oblixorprime.ioe.compat.ip.IoePetroleumReservoirBridge;
 import com.oblixorprime.ioe.core.LoadedResourceScanner;
 import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.core.ResourceRef;
@@ -251,17 +251,17 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             return null;
         }
         ProvinceId province = ProvinceBindingResolver.fromConfig().resolve(resourceProfile.biomeId());
-        Optional<IoePetroleumReservoirRules.OilReservoirRequest> request =
+        Optional<IoePetroleumReservoirRules.PetroleumReservoirRequest> request =
                 IoePetroleumReservoirRules.request(level, origin, quality, province, resourceProfile);
         if (request.isEmpty()) {
             return null;
         }
         try {
-            return IoeOilReservoirBridge.reserveOilReservoir(level, request.orElseThrow()).orElse(null);
+            return IoePetroleumReservoirBridge.reserveReservoir(level, request.orElseThrow()).orElse(null);
         } catch (RuntimeException | LinkageError failure) {
             IoePetroleumReservoirRules.recordReservationFailed();
             IoeExpeditionWorldgenMod.LOGGER.error(
-                    "Failed to prepare the optional Immersive Petroleum oil reservoir at {}; preserving the IOE coal site",
+                    "Failed to prepare the optional Immersive Petroleum reservoir at {}; preserving the IOE site",
                     origin,
                     failure
             );
