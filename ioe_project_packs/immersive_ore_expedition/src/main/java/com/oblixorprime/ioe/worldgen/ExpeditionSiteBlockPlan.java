@@ -45,14 +45,11 @@ public record ExpeditionSiteBlockPlan(
         if (hasAe2Geode && hasEntroizedFluixGeode) {
             throw new IllegalArgumentException("A mine cannot contain more than one special geode mode");
         }
-        if (quality.isProductive() && oreBlockId == null && hasOreLoadChamber && !hasSpecialGeode) {
-            throw new IllegalArgumentException("Productive chamber plans require a loaded ore block id");
+        if ((oreBlockId == null) != (oreNodeHeartBlockId == null)) {
+            throw new IllegalArgumentException("Embedded ore nodes require both material and budding-heart ids");
         }
-        if (quality.isProductive() && oreNodeHeartBlockId == null && hasOreLoadChamber && !hasSpecialGeode) {
-            throw new IllegalArgumentException("Productive chamber plans require a loaded ore-node heart block id");
-        }
-        if (quality.isProductive() && hasOreLoadChamber && !hasSpecialGeode && oreNodeCount == 0) {
-            throw new IllegalArgumentException("Productive chamber plans require at least one ore node");
+        if (oreNodeCount > 0 && oreBlockId == null) {
+            throw new IllegalArgumentException("Embedded ore-node counts require loaded resource ids");
         }
         if (hasSpecialGeode && (oreBlockId != null || oreNodeHeartBlockId != null || oreNodeCount != 0)) {
             throw new IllegalArgumentException("Special geodes and GeOre node-geodes are mutually exclusive");

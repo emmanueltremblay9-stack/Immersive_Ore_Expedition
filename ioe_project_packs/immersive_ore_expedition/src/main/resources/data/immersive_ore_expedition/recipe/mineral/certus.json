@@ -1,0 +1,63 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "immersiveengineering"
+    },
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "ae2"
+    }
+  ],
+  "type": "immersiveengineering:mineral_mix",
+  "biome_predicates": [
+    [
+      "minecraft:is_overworld"
+    ],
+    [
+      "immersive_ore_expedition:ore_profile/certus"
+    ]
+  ],
+  "fail_chance": 0.35,
+  "ores": [
+    {
+      "chance": 0.2,
+      "output": {
+        "id": "ae2:certus_quartz_crystal"
+      }
+    },
+    {
+      "chance": 0.4,
+      "output": {
+        "id": "minecraft:calcite"
+      }
+    },
+    {
+      "chance": 0.4,
+      "output": {
+        "id": "minecraft:smooth_basalt"
+      }
+    }
+  ],
+  "spoils": [
+    {
+      "chance": 0.5,
+      "output": {
+        "id": "minecraft:gravel"
+      }
+    },
+    {
+      "chance": 0.3,
+      "output": {
+        "id": "minecraft:cobblestone"
+      }
+    },
+    {
+      "chance": 0.2,
+      "output": {
+        "id": "minecraft:cobbled_deepslate"
+      }
+    }
+  ],
+  "weight": 4
+}

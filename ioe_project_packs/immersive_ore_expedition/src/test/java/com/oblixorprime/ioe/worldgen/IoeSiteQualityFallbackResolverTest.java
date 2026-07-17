@@ -100,7 +100,7 @@ class IoeSiteQualityFallbackResolverTest {
     }
 
     @Test
-    void environmentWithoutIeDoesNotTriggerDowngrade() {
+    void nonDepositSiteDoesNotTriggerDowngrade() {
         IoeSiteQualityFallbackResolver.Resolution result = IoeSiteQualityFallbackResolver.resolve(
                 SiteQuality.MOTHERLODE,
                 ignored -> true,
@@ -125,5 +125,30 @@ class IoeSiteQualityFallbackResolverTest {
         assertFalse(result.confirmed());
         assertEquals(SiteQuality.MOTHERLODE, result.finalQuality());
         assertEquals(List.of(SiteQuality.MOTHERLODE), result.attemptedQualities());
+    }
+
+    @Test
+    void requiredDepositFailureWalksMotherMajorMinorDirectAndNeverFallsThroughToDry() {
+        ArrayList<String> transitions = new ArrayList<>();
+        IoeSiteQualityFallbackResolver.Resolution result = IoeSiteQualityFallbackResolver.resolve(
+                SiteQuality.MOTHERLODE,
+                SiteQuality::isProductive,
+                ignored -> IoeSiteQualityFallbackResolver.DepositAttempt.FAILED,
+                (current, lower) -> {
+                    transitions.add(current + "->" + lower);
+                    return true;
+                }
+        );
+
+        assertFalse(result.confirmed());
+        assertEquals(SiteQuality.POOR, result.finalQuality());
+        assertEquals(
+                List.of(SiteQuality.MOTHERLODE, SiteQuality.RICH, SiteQuality.NORMAL, SiteQuality.POOR),
+                result.attemptedQualities()
+        );
+        assertEquals(
+                List.of("MOTHERLODE->RICH", "RICH->NORMAL", "NORMAL->POOR"),
+                transitions
+        );
     }
 }

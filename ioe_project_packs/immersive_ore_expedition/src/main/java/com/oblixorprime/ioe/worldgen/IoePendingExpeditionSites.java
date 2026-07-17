@@ -1,5 +1,6 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
 import com.oblixorprime.ioe.compat.ip.IoePetroleumReservoirBridge;
 import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.core.SiteQuality;
@@ -59,7 +60,7 @@ final class IoePendingExpeditionSites {
             ExpeditionSiteBlockPlan plan,
             BiomeMineResourceProfile resourceProfile
     ) {
-        return stage(worldGenLevel, plan, resourceProfile, null, null, null);
+        return stage(worldGenLevel, plan, resourceProfile, null, null, List.of());
     }
 
     static boolean stage(
@@ -68,7 +69,7 @@ final class IoePendingExpeditionSites {
             BiomeMineResourceProfile resourceProfile,
             IoeMotherDepositReservation motherDepositReservation
     ) {
-        return stage(worldGenLevel, plan, resourceProfile, motherDepositReservation, null, null);
+        return stage(worldGenLevel, plan, resourceProfile, motherDepositReservation, null, List.of());
     }
 
     static boolean stage(
@@ -84,7 +85,7 @@ final class IoePendingExpeditionSites {
                 resourceProfile,
                 motherDepositReservation,
                 null,
-                fallbackPlan
+                fallbackPlan == null ? List.of() : List.of(fallbackPlan)
         );
     }
 
@@ -94,7 +95,7 @@ final class IoePendingExpeditionSites {
             BiomeMineResourceProfile resourceProfile,
             IoeMotherDepositReservation motherDepositReservation,
             IoePetroleumReservoirReservation petroleumReservoirReservation,
-            ExpeditionSiteBlockPlan fallbackPlan
+            List<ExpeditionSiteBlockPlan> fallbackPlans
     ) {
         Objects.requireNonNull(worldGenLevel, "worldGenLevel");
         ServerLevel level = Objects.requireNonNull(worldGenLevel.getLevel(), "level");
@@ -106,7 +107,7 @@ final class IoePendingExpeditionSites {
                 resourceProfile,
                 motherDepositReservation,
                 petroleumReservoirReservation,
-                fallbackPlan,
+                fallbackPlans,
                 chunkPos
         );
         level.getServer().execute(() -> prune(level));
@@ -135,8 +136,21 @@ final class IoePendingExpeditionSites {
      * optional IE deposit, and records the locator entry as one compensatable server-thread transaction.
      */
     static Confirmation confirmLoadedChunk(ServerLevel level, ChunkPos chunkPos) {
+        return confirmLoadedChunk(
+                level,
+                chunkPos,
+                IoeExcavatorMotherDepositBridge::reserveGuaranteedDeposit
+        );
+    }
+
+    static Confirmation confirmLoadedChunk(
+            ServerLevel level,
+            ChunkPos chunkPos,
+            DepositReservationFactory depositReservationFactory
+    ) {
         Objects.requireNonNull(level, "level");
         Objects.requireNonNull(chunkPos, "chunkPos");
+        Objects.requireNonNull(depositReservationFactory, "depositReservationFactory");
         if (level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z) == null) {
             return Confirmation.NONE;
         }
@@ -152,8 +166,21 @@ final class IoePendingExpeditionSites {
         int confirmedSites = 0;
         int rejectedSites = 0;
         for (PendingSite pendingSite : pendingSites) {
-            IoeExpeditionPlanPlacement.AppliedPlan effectivePlacement =
-                    IoeExpeditionPlanPlacement.apply(level, pendingSite.plan()).orElse(null);
+            IoeExpeditionPlanPlacement.AppliedPlan effectivePlacement;
+            try {
+                effectivePlacement = IoeExpeditionPlanPlacement.apply(
+                        level,
+                        pendingSite.plan()
+                ).orElse(null);
+            } catch (IoeExpeditionPlanPlacement.PlacementCompensationException failure) {
+                rollbackPlacementBestEffort(
+                        level,
+                        failure.appliedPlan(),
+                        pendingSite,
+                        "partial final plan application"
+                );
+                effectivePlacement = null;
+            }
             if (effectivePlacement == null) {
                 rejectedSites++;
                 rollbackReservationBestEffort(pendingSite, "final plan application failed");
@@ -192,11 +219,12 @@ final class IoePendingExpeditionSites {
                                 pendingSite.site().pos(),
                                 failure
                         );
-                        FallbackApplication fallback = applyDirectLowerFallback(
+                        FallbackApplication fallback = applyLowerTierFallbacks(
                                 level,
                                 pendingSite,
                                 effectivePlacement,
-                                chunkPos
+                                chunkPos,
+                                depositReservationFactory
                         );
                         if (fallback == null) {
                             rejectedSites++;
@@ -253,70 +281,150 @@ final class IoePendingExpeditionSites {
         return new Confirmation(confirmedSites, rejectedSites, List.copyOf(rejectedResourcePositions));
     }
 
-    private static FallbackApplication applyDirectLowerFallback(
+    private static FallbackApplication applyLowerTierFallbacks(
             ServerLevel level,
             PendingSite pendingSite,
             IoeExpeditionPlanPlacement.AppliedPlan initialPlacement,
-            ChunkPos chunkPos
+            ChunkPos chunkPos,
+            DepositReservationFactory depositReservationFactory
     ) {
-        ExpeditionSiteBlockPlan fallbackPlan = pendingSite.fallbackPlan();
-        if (fallbackPlan == null) {
+        List<ExpeditionSiteBlockPlan> fallbackPlans = pendingSite.fallbackPlans();
+        if (fallbackPlans.isEmpty()) {
             rollbackPlacementBestEffort(level, initialPlacement, pendingSite, "missing lower quality fallback");
             return null;
         }
         SiteQuality currentQuality = pendingSite.site().quality().orElseThrow();
-        SiteQuality expectedLower = currentQuality.directLower().orElse(null);
-        if (expectedLower == null || fallbackPlan.quality() != expectedLower) {
-            rollbackPlacementBestEffort(level, initialPlacement, pendingSite, "invalid lower quality fallback");
-            return null;
+        SiteQuality expectedLower = currentQuality;
+        for (ExpeditionSiteBlockPlan fallbackPlan : fallbackPlans) {
+            expectedLower = expectedLower.directLower().orElse(null);
+            if (expectedLower == null || !expectedLower.isProductive() || fallbackPlan.quality() != expectedLower) {
+                rollbackPlacementBestEffort(level, initialPlacement, pendingSite, "invalid lower quality fallback chain");
+                return null;
+            }
         }
         if (!rollbackPlacementBestEffort(
                 level,
                 initialPlacement,
                 pendingSite,
-                "direct quality downgrade"
+                "lower-tier quality downgrade"
         )) {
             return null;
         }
-        IoeExpeditionPlanPlacement.AppliedPlan fallbackPlacement =
-                IoeExpeditionPlanPlacement.apply(level, fallbackPlan).orElse(null);
-        if (fallbackPlacement == null) {
-            return null;
+        BiomeMineResourceProfile resourceProfile = pendingSite.resourceProfile();
+        ProvinceId province = ProvinceBindingResolver.fromConfig().resolve(resourceProfile.biomeId());
+        for (ExpeditionSiteBlockPlan fallbackPlan : fallbackPlans) {
+            IoeMotherDepositReservation fallbackDepositReservation = null;
+            try {
+                Optional<IoeExcavatorDepositRules.MotherDepositRequest> fallbackRequest =
+                        IoeExcavatorDepositRules.depositRequest(
+                                pendingSite.site().pos(),
+                                fallbackPlan.quality(),
+                                province.id(),
+                                resourceProfile
+                        );
+                if (fallbackRequest.isEmpty()) {
+                    continue;
+                }
+                fallbackDepositReservation = depositReservationFactory.reserve(
+                        level,
+                        fallbackRequest.orElseThrow()
+                ).orElse(null);
+                if (fallbackDepositReservation == null) {
+                    continue;
+                }
+                fallbackDepositReservation.commit();
+            } catch (RuntimeException | LinkageError failure) {
+                rollbackReservationBestEffort(
+                        fallbackDepositReservation,
+                        pendingSite.site().pos(),
+                        "lower-tier IE deposit commit failure"
+                );
+                IoeExpeditionWorldgenMod.LOGGER.error(
+                        "Failed to commit the {} IE deposit at {}; trying the next lower tier",
+                        fallbackPlan.quality(),
+                        pendingSite.site().pos(),
+                        failure
+                );
+                continue;
+            }
+
+            IoeExpeditionPlanPlacement.AppliedPlan fallbackPlacement;
+            try {
+                fallbackPlacement = IoeExpeditionPlanPlacement.apply(
+                        level,
+                        fallbackPlan
+                ).orElse(null);
+            } catch (IoeExpeditionPlanPlacement.PlacementCompensationException failure) {
+                rollbackPlacementBestEffort(
+                        level,
+                        failure.appliedPlan(),
+                        pendingSite,
+                        "partial lower-tier site placement"
+                );
+                fallbackPlacement = null;
+            }
+            if (fallbackPlacement == null) {
+                rollbackReservationBestEffort(
+                        fallbackDepositReservation,
+                        pendingSite.site().pos(),
+                        "lower-tier site placement failure"
+                );
+                continue;
+            }
+            IoePetroleumReservoirReservation fallbackPetroleumReservation = null;
+            try {
+                fallbackPetroleumReservation =
+                        prepareFallbackPetroleumReservation(level, pendingSite, fallbackPlan.quality());
+                PendingSite fallbackSite = pendingSite(
+                        level,
+                        fallbackPlan,
+                        resourceProfile,
+                        fallbackDepositReservation,
+                        fallbackPetroleumReservation,
+                        List.of(),
+                        chunkPos
+                );
+                IoeExpeditionWorldgenMod.LOGGER.warn(
+                        "Downgraded IOE site after IE deposit commit failure: anchor={} {} -> {}",
+                        pendingSite.site().pos(),
+                        currentQuality,
+                        fallbackPlan.quality()
+                );
+                return new FallbackApplication(fallbackSite, fallbackPlacement);
+            } catch (RuntimeException | LinkageError failure) {
+                rollbackPlacementBestEffort(
+                        level,
+                        fallbackPlacement,
+                        pendingSite,
+                        "failed lower-tier pending-site construction"
+                );
+                rollbackReservationBestEffort(
+                        fallbackDepositReservation,
+                        pendingSite.site().pos(),
+                        "failed to create lower quality pending site"
+                );
+                rollbackPetroleumReservationBestEffort(
+                        fallbackPetroleumReservation,
+                        pendingSite.site().pos(),
+                        "failed to create lower quality pending site"
+                );
+                IoeExpeditionWorldgenMod.LOGGER.error(
+                        "Failed to stage the {} lower quality plan at {}; trying the next lower tier",
+                        fallbackPlan.quality(),
+                        pendingSite.site().pos(),
+                        failure
+                );
+            }
         }
-        IoePetroleumReservoirReservation fallbackPetroleumReservation =
-                prepareFallbackPetroleumReservation(level, pendingSite, fallbackPlan.quality());
-        PendingSite fallbackSite;
-        try {
-            fallbackSite = pendingSite(
-                    level,
-                    fallbackPlan,
-                    pendingSite.resourceProfile(),
-                    null,
-                    fallbackPetroleumReservation,
-                    null,
-                    chunkPos
-            );
-        } catch (RuntimeException | LinkageError failure) {
-            fallbackPlacement.rollback(level);
-            rollbackPetroleumReservationBestEffort(
-                    fallbackPetroleumReservation,
-                    pendingSite.site().pos(),
-                    "failed to create lower quality pending site"
-            );
-            IoeExpeditionWorldgenMod.LOGGER.error(
-                    "Failed to stage the direct lower quality plan at {}",
-                    pendingSite.site().pos(),
-                    failure
-            );
-            return null;
-        }
-        IoeExpeditionWorldgenMod.LOGGER.warn(
-                "Downgraded IOE site after IE deposit commit failure: anchor={} {} -> {}",
-                pendingSite.site().pos(),
-                currentQuality,
-                fallbackPlan.quality()
+        return null;
+    }
+
+    @FunctionalInterface
+    interface DepositReservationFactory {
+        Optional<IoeMotherDepositReservation> reserve(
+                ServerLevel level,
+                IoeExcavatorDepositRules.MotherDepositRequest request
         );
-        return new FallbackApplication(fallbackSite, fallbackPlacement);
     }
 
     private static IoePetroleumReservoirReservation prepareFallbackPetroleumReservation(
@@ -412,7 +520,7 @@ final class IoePendingExpeditionSites {
             BiomeMineResourceProfile resourceProfile,
             IoeMotherDepositReservation motherDepositReservation,
             IoePetroleumReservoirReservation petroleumReservoirReservation,
-            ExpeditionSiteBlockPlan fallbackPlan,
+            List<ExpeditionSiteBlockPlan> fallbackPlans,
             ChunkPos chunkPos
     ) {
         Objects.requireNonNull(resourceProfile, "resourceProfile");
@@ -437,10 +545,10 @@ final class IoePendingExpeditionSites {
                 biomeId,
                 connectedBiomeChunks,
                 resourceProfile,
-                PlanSignature.from(plan, chunkPos),
+                PlanSignature.from(plan, chunkPos, motherDepositReservation),
                 motherDepositReservation,
                 petroleumReservoirReservation,
-                fallbackPlan,
+                fallbackPlans,
                 NEXT_SEQUENCE.incrementAndGet(),
                 System.nanoTime()
         );
@@ -513,7 +621,18 @@ final class IoePendingExpeditionSites {
     }
 
     private static void rollbackMotherReservationBestEffort(PendingSite pendingSite, String reason) {
-        IoeMotherDepositReservation reservation = pendingSite.motherDepositReservation();
+        rollbackReservationBestEffort(
+                pendingSite.motherDepositReservation(),
+                pendingSite.site().pos(),
+                reason
+        );
+    }
+
+    private static void rollbackReservationBestEffort(
+            IoeMotherDepositReservation reservation,
+            BlockPos anchorPos,
+            String reason
+    ) {
         if (reservation == null) {
             return;
         }
@@ -522,7 +641,7 @@ final class IoePendingExpeditionSites {
         } catch (RuntimeException | LinkageError failure) {
             IoeExpeditionWorldgenMod.LOGGER.error(
                     "Failed to roll back IE deposit reservation at {} reason={}",
-                    pendingSite.site().pos(),
+                    anchorPos,
                     reason,
                     failure
             );
@@ -630,7 +749,7 @@ final class IoePendingExpeditionSites {
             PlanSignature signature,
             IoeMotherDepositReservation motherDepositReservation,
             IoePetroleumReservoirReservation petroleumReservoirReservation,
-            ExpeditionSiteBlockPlan fallbackPlan,
+            List<ExpeditionSiteBlockPlan> fallbackPlans,
             long sequence,
             long createdNanos
     ) {
@@ -640,6 +759,7 @@ final class IoePendingExpeditionSites {
             Objects.requireNonNull(summary, "summary");
             Objects.requireNonNull(resourceProfile, "resourceProfile");
             Objects.requireNonNull(signature, "signature");
+            fallbackPlans = List.copyOf(Objects.requireNonNull(fallbackPlans, "fallbackPlans"));
         }
     }
 
@@ -700,7 +820,11 @@ final class IoePendingExpeditionSites {
             this.resourcePositions = resourcePositions;
         }
 
-        private static PlanSignature from(ExpeditionSiteBlockPlan plan, ChunkPos anchorChunk) {
+        private static PlanSignature from(
+                ExpeditionSiteBlockPlan plan,
+                ChunkPos anchorChunk,
+                IoeMotherDepositReservation motherDepositReservation
+        ) {
             int size = plan.blocks().size();
             long[] resources = new long[size];
             int structureBlockCount = 0;
@@ -720,9 +844,12 @@ final class IoePendingExpeditionSites {
                     resources[resourceCount++] = pos.asLong();
                 }
             }
-            if (structureBlockCount == 0 || plan.quality().isProductive() && resourceCount == 0) {
+            boolean depositBackedStructure = motherDepositReservation != null
+                    && motherDepositReservation.requiredForSiteQuality();
+            if (structureBlockCount == 0
+                    || plan.quality().isProductive() && resourceCount == 0 && !depositBackedStructure) {
                 throw new IllegalStateException(
-                        "Connected expedition plans require structure blocks and productive plans require resources"
+                        "Productive connected plans require structure blocks and either embedded resources or an IE deposit"
                 );
             }
             return new PlanSignature(Arrays.copyOf(resources, resourceCount));

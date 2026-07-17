@@ -1,36 +1,25 @@
 # Crystal processing authority
 
-## Required stack
+## Authority split
 
-IOE requires both Applied Energistics 2 and AE2 Crystal Science on Minecraft 1.21.1 NeoForge.
-
-AE2 and AE2 Crystal Science jointly own crystal growth, powered acceleration, purification, and crystal automation. IOE only selects and places scarce expedition sites, then leaves every processing mechanic to that required stack and to the registered behavior of the upstream crystal blocks. An AE2 Certus site is unavailable unless both required mods are loaded.
-
-- AE2: mod id `ae2`, supported line `19.2.17` up to but excluding `20.0.0`.
-- AE2 Crystal Science: mod id `ae2cs`, supported line `1.1.12` up to but excluding `1.2.0`.
-- GeOre: mod id `geore`, supported line `6.2.2` up to but excluding `7.0.0`.
-
-## Ownership boundary
+IOE does not place crystal hearts or implement a crystal-processing machine. Rare Certus and Entroized Fluix resources are outputs of real Immersive Engineering mineral mixes backed by finite abstract deposits.
 
 | Responsibility | Authority | IOE integration |
 | --- | --- | --- |
-| Natural site and mine placement | IOE | Chooses biome material, connected-biome quantity, mine type, and one budding heart for each selected node. |
-| Bud and cluster behavior | AE2/AE2 Crystal Science stack and owning crystal blocks | GeOre and AE2 keep their registered block behavior; IOE does not clone or tick it. |
-| Powered acceleration | AE2 | GeOre hearts and optional ExtendedAE Entroized Fluix hearts are added to `ae2:growth_acceleratable`. |
-| Charged Certus transformations | AE2 | IOE places a repairable flawed Certus heart; AE2 consumes its Charged Certus Quartz Crystal through native water transformations after degradation. IOE adds no recipe and does not extend the conversion to GeOre. |
-| Purified crystal progression | AE2 Crystal Science | Dust, seeds, purified crystals, and growth stages remain AE2CS-owned. |
-| Crystal factory automation | AE2 and AE2 Crystal Science | Growth Accelerator, Growth Chamber, Aggregator, Pattern Providers, ME buses and planes remain upstream systems. |
+| Mineral discovery, extraction and depletion | Immersive Engineering | Core Sample and Excavator operate on the exact IOE mineral-mix ID and finite reserve. |
+| Certus item, meteorites, growth, repair and automation | AE2 | IOE references `ae2:certus_quartz_crystal` only as a rare mix output. |
+| Purified Certus and factory progression | AE2 Crystal Science | No IOE duplicate machine, seed, purified item, or recipe family. |
+| Entroized Fluix item and progression | ExtendedAE | IOE references `extendedae:entro_crystal` only as a rare mix output. |
+| GeOre block growth | GeOre | No GeOre block is placed by the active IOE site path. |
 
-## Prohibited IOE duplicates
+## Parallel-method invariant
 
-IOE must not register its own growth accelerator, charged growth catalyst, geode extractor, budding harvester, crystal growth chamber, purified-crystal item family, or automated crystal harvester. IOE also must not copy textures, models, sounds, language files, recipes, or Java implementations from AE2 or AE2 Crystal Science.
+AE2 meteorites remain enabled: the IOE `ae2:has_meteorites` overlay merges with `replace: false`, and the new-chunk guard preserves AE2 meteorite materials. ExtendedAE's normal crafting, machine, budding, repair, and automation methods remain available. IOE does not add a fake geode or competing intermediate matrix for either resource.
 
-IOE's `ae2:growth_acceleratable` data entry is compatibility wiring only: it delegates eligible budding hearts to AE2's existing powered accelerator and contains no acceleration algorithm. Likewise, the GeOre: Additions restriction removes competing harvesting/extractor paths so the required AE2/AE2CS stack remains the accepted crystal-automation authority; it does not produce crystals itself.
+AE2 Crystal Science's physical normal and charged Certus ore placed features remain suppressed under the separate no-free-ore policy. This does not disable AE2 meteorites or the processing systems owned by AE2, AE2CS, or ExtendedAE.
 
-## Scarcity invariant
+## Compatibility-only data
 
-Only IOE-controlled mines place GeOre budding hearts. Charged Certus Quartz Crystal is not allowed to convert ordinary GeOre material blocks into new budding hearts, because that would let mined node blocks bypass biome-defined quantity and expedition-site scarcity. The IOE AE2 mine instead starts with `ae2:flawed_budding_quartz`, so AE2's own degradation and Charged Certus repair loop is part of progression without creating an IOE recipe.
+The `ae2:growth_acceleratable` overlay delegates compatible upstream budding blocks to AE2's existing accelerator. It contains no growth algorithm and creates no acquisition path. The GeOre: Additions capability restriction is likewise independent of the mineral distribution and creates no resource.
 
-## No free ore generation
-
-This authority split does not relax IOE's world rule: normal ore veins, autonomous GeOre Overworld geodes, autonomous AE2 meteorites, and AE2 Crystal Science's normal/charged Certus ore placed features remain suppressed by IOE's world-generation integration. AE2/AE2CS control processing after the player reaches an IOE-controlled crystal site; they do not add a second natural ore source.
+IOE must not register a growth accelerator, charged catalyst, geode extractor, budding harvester, crystal growth chamber, purified-crystal family, automated harvester, artificial geode, or physical crystal node.

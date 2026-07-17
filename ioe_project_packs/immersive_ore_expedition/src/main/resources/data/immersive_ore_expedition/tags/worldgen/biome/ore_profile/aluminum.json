@@ -1,17 +1,32 @@
 {
-  "replace": false,
+  "replace": true,
   "values": [
-    "minecraft:beach",
-    "minecraft:stony_shore",
-    "minecraft:river",
-    "minecraft:ocean",
-    "minecraft:deep_ocean",
-    "minecraft:cold_ocean",
-    "minecraft:deep_cold_ocean",
-    "minecraft:lukewarm_ocean",
-    "minecraft:deep_lukewarm_ocean",
-    "minecraft:warm_ocean",
-    { "id": "biomesoplenty:dune_beach", "required": false },
-    { "id": "biomesoplenty:gravel_beach", "required": false }
+    "minecraft:savanna",
+    "minecraft:savanna_plateau",
+    "minecraft:windswept_savanna",
+    {
+      "id": "biomesoplenty:lush_savanna",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:scrubland",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:baobab_savanna",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:dry_bushland",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:araucaria_savanna",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:baobab_savanna",
+      "required": false
+    }
   ]
 }

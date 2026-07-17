@@ -20,7 +20,16 @@ neoForge {
     runs {
         gameTestServer {
             type = "gameTestServer"
+            gameDirectory = project.file("run/gametest-baseline")
             systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+        }
+        fullRuntimeGameTestServer {
+            type = "gameTestServer"
+            gameDirectory = project.file("run/gametest-full")
+            systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+            systemProperty "ioe.multiSeedReport", layout.buildDirectory.file(
+                    "reports/ioe/multi-seed-biome-frequency.json"
+            ).get().asFile.absolutePath
         }
     }
 

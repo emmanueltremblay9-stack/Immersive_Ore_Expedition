@@ -1,83 +1,24 @@
 {
   "biome_tag": "immersive_ore_expedition:ore_profile/entroized_fluix",
-  "resource_kind": "extendedae_fluix",
+  "mineral_mix": "immersive_ore_expedition:mineral/entroized_fluix",
   "resource_name": "entroized_fluix",
-  "survey_radius_chunks": 4,
-  "quality_counts": {
-    "dry": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 0
-      }
+  "survey_radius_chunks": 8,
+  "deposit_tiers": {
+    "mother": {
+      "radius_blocks": 28,
+      "capacity": 2048
     },
-    "poor": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 1,
-        "bonus": {
-          "first_chunk": 49,
-          "chunks_per_bonus": 48,
-          "max_bonus": 1
-        }
-      }
+    "major": {
+      "radius_blocks": 20,
+      "capacity": 1024
     },
-    "normal": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 1,
-        "bonus": {
-          "first_chunk": 49,
-          "chunks_per_bonus": 48,
-          "max_bonus": 1
-        }
-      }
+    "minor": {
+      "radius_blocks": 14,
+      "capacity": 512
     },
-    "rich": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 1,
-        "bonus": {
-          "first_chunk": 49,
-          "chunks_per_bonus": 48,
-          "max_bonus": 1
-        }
-      }
-    },
-    "motherlode": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 2,
-        "bonus": {
-          "first_chunk": 49,
-          "chunks_per_bonus": 48,
-          "max_bonus": 1
-        }
-      }
+    "direct": {
+      "radius_blocks": 8,
+      "capacity": 256
     }
   }
 }

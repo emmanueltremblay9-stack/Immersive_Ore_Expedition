@@ -1,99 +1,24 @@
 {
   "biome_tag": "immersive_ore_expedition:ore_profile/lapis",
-  "resource_kind": "geore",
+  "mineral_mix": "immersive_ore_expedition:mineral/lapis",
   "resource_name": "lapis",
-  "survey_radius_chunks": 4,
-  "quality_counts": {
-    "dry": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 0
-      }
+  "survey_radius_chunks": 8,
+  "deposit_tiers": {
+    "mother": {
+      "radius_blocks": 44,
+      "capacity": 12288
     },
-    "poor": {
-      "ore_budget": {
-        "base": 4,
-        "bonus": {
-          "first_chunk": 7,
-          "chunks_per_bonus": 6
-        }
-      },
-      "node_count": {
-        "base": 1,
-        "bonus": {
-          "first_chunk": 24,
-          "chunks_per_bonus": 24,
-          "max_bonus": 2
-        }
-      },
-      "special_budding_count": {
-        "base": 0
-      }
+    "major": {
+      "radius_blocks": 30,
+      "capacity": 6144
     },
-    "normal": {
-      "ore_budget": {
-        "base": 8,
-        "bonus": {
-          "first_chunk": 5,
-          "chunks_per_bonus": 4
-        }
-      },
-      "node_count": {
-        "base": 2,
-        "bonus": {
-          "first_chunk": 24,
-          "chunks_per_bonus": 24,
-          "max_bonus": 2
-        }
-      },
-      "special_budding_count": {
-        "base": 0
-      }
+    "minor": {
+      "radius_blocks": 18,
+      "capacity": 3072
     },
-    "rich": {
-      "ore_budget": {
-        "base": 14,
-        "bonus": {
-          "first_chunk": 4,
-          "chunks_per_bonus": 3
-        }
-      },
-      "node_count": {
-        "base": 3,
-        "bonus": {
-          "first_chunk": 24,
-          "chunks_per_bonus": 24,
-          "max_bonus": 2
-        }
-      },
-      "special_budding_count": {
-        "base": 0
-      }
-    },
-    "motherlode": {
-      "ore_budget": {
-        "base": 24,
-        "bonus": {
-          "first_chunk": 3,
-          "chunks_per_bonus": 2
-        }
-      },
-      "node_count": {
-        "base": 4,
-        "bonus": {
-          "first_chunk": 24,
-          "chunks_per_bonus": 24,
-          "max_bonus": 2
-        }
-      },
-      "special_budding_count": {
-        "base": 0
-      }
+    "direct": {
+      "radius_blocks": 10,
+      "capacity": 1536
     }
   }
 }

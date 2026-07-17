@@ -202,6 +202,8 @@ public final class IoePetroleumReservoirBridge {
                 long capacity = reservoirCapacity(request, reservoirType.value());
                 Reservoir candidate = new Reservoir(polygon, reservoirType, capacity);
 
+                storage = currentStorage;
+                reservoir = candidate;
                 state = State.COMMITTING;
                 try (IoePetroleumReservoirAuthorization.Scope ignored =
                              IoePetroleumReservoirAuthorization.authorize(level.dimension(), candidate)) {
@@ -210,16 +212,24 @@ public final class IoePetroleumReservoirBridge {
                     if (currentStorage.getReservoir(level, anchor) != candidate) {
                         throw new IllegalStateException("IP reservoir storage rejected the IOE-authorized reservoir");
                     }
-                    storage = currentStorage;
-                    reservoir = candidate;
                     state = State.COMMITTED_CREATED;
                 } catch (RuntimeException | LinkageError failure) {
+                    boolean removed = false;
                     try {
-                        removeCreatedReservoir(level, currentStorage, candidate);
+                        removed = removeCreatedReservoir(level, currentStorage, candidate);
                     } catch (RuntimeException | LinkageError rollbackFailure) {
                         failure.addSuppressed(rollbackFailure);
                     }
-                    state = State.PREPARED;
+                    Reservoir readback = currentStorage.getReservoir(level, anchor);
+                    if (removed || readback != candidate) {
+                        storage = null;
+                        reservoir = null;
+                        state = State.PREPARED;
+                    } else {
+                        failure.addSuppressed(new IllegalStateException(
+                                "Failed to compensate the IOE-created IP reservoir"
+                        ));
+                    }
                     IoePetroleumReservoirRules.recordReservationFailed();
                     throw failure;
                 }
@@ -249,15 +259,28 @@ public final class IoePetroleumReservoirBridge {
                     throw new IllegalStateException("Committed IP reservoir rollbacks must run on the Minecraft server thread");
                 }
                 if (storage == null || reservoir == null) {
-                    state = State.ROLLED_BACK;
-                    return;
+                    throw new IllegalStateException(
+                            "Cannot compensate an IP reservoir without its storage and candidate handles"
+                    );
                 }
                 synchronized (storage) {
-                    if (removeCreatedReservoir(level, storage, reservoir)) {
+                    boolean removed = removeCreatedReservoir(level, storage, reservoir);
+                    Reservoir readback = storage.getReservoir(
+                            level,
+                            new ColumnPos(request.anchorPos().getX(), request.anchorPos().getZ())
+                    );
+                    if (!removed && readback == reservoir) {
+                        throw new IllegalStateException(
+                                "IP reservoir compensation did not remove the IOE-created candidate"
+                        );
+                    }
+                    if (removed) {
                         IoePetroleumReservoirRules.recordReservoirRolledBack();
                     }
                 }
             }
+            storage = null;
+            reservoir = null;
             state = State.ROLLED_BACK;
         }
 

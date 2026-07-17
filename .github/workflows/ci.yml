@@ -39,13 +39,69 @@ jobs:
         run: gradle --no-daemon test
 
       - name: Validate expedition worldgen assets
-        run: python3 scripts/validate_worldgen_assets.py
+        run: |
+          python3 scripts/validate_worldgen_assets.py
+          python3 scripts/analyze_distribution_seeds.py
 
       - name: Run expedition worldgen GameTests
         run: gradle --no-daemon runGameTestServer
 
-      - name: Run expedition worldgen GameTests with Immersive Engineering
-        run: gradle --no-daemon -PioeIncludeIeRuntime=true runGameTestServer
+      - name: Stage pinned biome and integration runtime
+        run: python3 scripts/stage_ci_runtime_mods.py
+
+      - name: Run expedition worldgen GameTests with complete pinned runtime
+        run: gradle --no-daemon -PioeIncludeIeRuntime=true runFullRuntimeGameTestServer
+
+      - name: Inspect runtime multi-seed biome frequency
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import json
+          import sys
+
+          report_path = Path("build/reports/ioe/multi-seed-biome-frequency.json")
+          if not report_path.is_file():
+              raise SystemExit(f"Missing full-runtime multi-seed report: {report_path}")
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+          expected_profiles = {
+              "diamond", "emerald", "certus", "entroized_fluix", "redstone",
+              "gold", "uranium", "silver", "lapis", "copper", "aluminum",
+              "coal", "nickel", "lead", "iron", "aquatic/alluvial_sift",
+              "aquatic/silt", "aquatic/ancient_seabed", "generic",
+          }
+          counts = report.get("aggregate_profile_samples", {})
+          failures = []
+          if report.get("classification") != "CONFIRMED_RUNTIME":
+              failures.append("classification is not CONFIRMED_RUNTIME")
+          if report.get("terrablender_initialized_per_seed") is not True:
+              failures.append("TerraBlender was not confirmed initialized independently per seed")
+          if len(report.get("seeds", [])) != 10:
+              failures.append("the report does not contain exactly 10 seeds")
+          if set(counts) != expected_profiles:
+              failures.append(
+                  f"profile keys differ: missing={sorted(expected_profiles - set(counts))}, "
+                  f"extra={sorted(set(counts) - expected_profiles)}"
+              )
+          missing_observations = sorted(
+              profile for profile in expected_profiles if counts.get(profile, 0) <= 0
+          )
+          if missing_observations:
+              failures.append(f"profiles with zero runtime observations: {missing_observations}")
+          if sum(counts.values()) != 192000:
+              failures.append(f"expected 192000 samples, found {sum(counts.values())}")
+          if report.get("distinct_biomes_observed", 0) < 50:
+              failures.append("fewer than 50 distinct runtime biomes were observed")
+          if failures:
+              print("Runtime multi-seed inspection failed:")
+              for failure in failures:
+                  print(f"- {failure}")
+              sys.exit(1)
+          print(
+              "Runtime multi-seed inspection passed: "
+              f"{len(report['seeds'])} seeds, {sum(counts.values())} samples, "
+              f"{report['distinct_biomes_observed']} biomes"
+          )
+          PY
 
       - name: Process resources
         run: gradle --no-daemon processResources
@@ -433,6 +489,17 @@ jobs:
               missing_crystal_resources = sorted(
                   path for path in crystal_integration_resources.values() if path not in entries
               )
+              distribution_resources = {
+                  "aquatic_alluvial": "data/immersiveengineering/recipe/mineral/alluvial_sift.json",
+                  "aquatic_silt": "data/immersiveengineering/recipe/mineral/silt.json",
+                  "aquatic_ancient_seabed": "data/immersiveengineering/recipe/mineral/ancient_seabed.json",
+                  "iron_mix": f"data/{expected_mod_id}/recipe/mineral/iron.json",
+                  "certus_mix": f"data/{expected_mod_id}/recipe/mineral/certus.json",
+                  "entro_mix": f"data/{expected_mod_id}/recipe/mineral/entroized_fluix.json",
+              }
+              missing_distribution_resources = sorted(
+                  path for path in distribution_resources.values() if path not in entries
+              )
 
               failures = []
               if duplicates:
@@ -452,6 +519,10 @@ jobs:
               if missing_crystal_resources:
                   failures.append(
                       f"Missing AE2 crystal integration resources: {missing_crystal_resources}"
+                  )
+              if missing_distribution_resources:
+                  failures.append(
+                      f"Missing biome-mineral distribution resources: {missing_distribution_resources}"
                   )
 
               if neoforge_metadata:
@@ -505,15 +576,27 @@ jobs:
                               f"Dependency {dependency_id!r} must use {expected_range!r}, found {actual_range!r}"
                           )
 
-              ae2_bridge_class = "com/oblixorprime/ioe/worldgen/Ae2MeteoriteIntegration.class"
-              if ae2_bridge_class not in entries:
-                  failures.append(f"Missing AE2 meteorite integration class: {ae2_bridge_class}")
+              active_feature_class = (
+                  "com/oblixorprime/ioe/worldgen/ExpeditionSiteFeature.class"
+              )
+              if active_feature_class not in entries:
+                  failures.append(f"Missing active expedition feature class: {active_feature_class}")
               else:
-                  bridge_bytes = jar.read(ae2_bridge_class)
-                  if b"flawed_budding_quartz" not in bridge_bytes:
-                      failures.append("AE2 meteorite integration does not select flawed_budding_quartz")
-                  if b"flawless_budding_quartz" in bridge_bytes:
-                      failures.append("AE2 meteorite integration still selects flawless_budding_quartz")
+                  feature_bytes = jar.read(active_feature_class)
+                  for forbidden_bridge in (
+                      b"GeOreNodeIntegration",
+                      b"Ae2MeteoriteIntegration",
+                      b"ExtendedAeGeodeIntegration",
+                  ):
+                      if forbidden_bridge in feature_bytes:
+                          failures.append(
+                              "Active expedition feature still references an artificial "
+                              f"resource bridge: {forbidden_bridge.decode('ascii')}"
+                          )
+                  if b"IoeMotherDepositReservation" not in feature_bytes:
+                      failures.append(
+                          "Active expedition feature does not reference the abstract IE deposit path"
+                      )
 
               if not missing_crystal_resources:
                   growth_tag = json.loads(
@@ -549,8 +632,10 @@ jobs:
                   meteorite_tag = json.loads(
                       jar.read(crystal_integration_resources["meteorite_biome_tag"]).decode("utf-8")
                   )
-                  if meteorite_tag.get("replace") is not True or meteorite_tag.get("values") != []:
-                      failures.append("AE2 meteorite biome tag must be replaced with an empty value list")
+                  if meteorite_tag.get("replace") is not False or meteorite_tag.get("values") != []:
+                      failures.append(
+                          "AE2 meteorite overlay must merge with replace=false and preserve upstream values"
+                      )
 
                   normal_ore_tag = json.loads(
                       jar.read(crystal_integration_resources["normal_ore_tag"]).decode("utf-8")
@@ -656,6 +741,8 @@ jobs:
           path: |
             ioe_project_packs/immersive_ore_expedition/build/reports/**
             ioe_project_packs/immersive_ore_expedition/build/test-results/**
+            ioe_project_packs/immersive_ore_expedition/run/gametest-full/runtime-mods-evidence.json
+            ioe_project_packs/immersive_ore_expedition/docs/biome_mineral_distribution/**
           if-no-files-found: ignore
 
   legacy-split-modules:

@@ -1,0 +1,40 @@
+{
+  "replace": true,
+  "values": [
+    "minecraft:beach",
+    "minecraft:snowy_beach",
+    "minecraft:stony_shore",
+    {
+      "id": "biomesoplenty:dune_beach",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:gravel_beach",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:grassy_beach",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:gravel_beach",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:rocky_reef",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:basalt_barrera",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:dacite_shore",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:rainbow_beach",
+      "required": false
+    }
+  ]
+}

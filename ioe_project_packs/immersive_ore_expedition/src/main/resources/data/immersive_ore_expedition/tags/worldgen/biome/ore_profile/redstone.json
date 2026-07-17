@@ -1,8 +1,17 @@
 {
-  "replace": false,
+  "replace": true,
   "values": [
-    { "id": "biomesoplenty:dryland", "required": false },
-    { "id": "biomesoplenty:scrubland", "required": false },
-    { "id": "biomesoplenty:volcanic_plains", "required": false }
+    {
+      "id": "biomesoplenty:volcanic_plains",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:volcano",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:redstone_caves",
+      "required": false
+    }
   ]
 }

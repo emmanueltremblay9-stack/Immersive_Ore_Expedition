@@ -2,17 +2,13 @@ package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
 import com.oblixorprime.ioe.compat.ip.IoePetroleumReservoirBridge;
-import com.oblixorprime.ioe.core.LoadedResourceScanner;
 import com.oblixorprime.ioe.core.ProvinceId;
-import com.oblixorprime.ioe.core.ResourceRef;
-import com.oblixorprime.ioe.core.ResourcePolicyService;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.core.SiteQualityRoll;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -20,12 +16,13 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.neoforged.fml.ModList;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguration> {
     private static final SiteQualityRoll PRODUCTIVE_SITE_QUALITY = new SiteQualityRoll(0, 25, 45, 17, 3);
-    private static final ResourcePolicyService RESOURCE_POLICY = new ResourcePolicyService();
     private final ExpeditionSiteType siteType;
 
     public ExpeditionSiteFeature(ExpeditionSiteType siteType) {
@@ -61,13 +58,13 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         }
 
         SiteQuality quality = PRODUCTIVE_SITE_QUALITY.roll(context.random());
+        long planSeed = context.random().nextLong();
+        ExpeditionSiteBlockPlan previewPlan = structureOnlyPlan(siteType, origin, quality, planSeed);
         BiomeMineResourceProfile resourceProfile = null;
-        GeOreNodeIntegration.NodeMaterial geOreMaterial = null;
-        SpecialMineGeode specialGeode = null;
         if (quality.isProductive()) {
             BiomeMineResourceProfile.Resolution resolution = BiomeMineResourceProfile.resolve(
                     context.level(),
-                    origin
+                    siteType.naturalSurfaceSite() ? previewPlan.chamberCenter() : origin
             );
             if (resolution.failure() != BiomeMineResourceProfile.Failure.NONE) {
                 IoeWorldgenRuntimeDiagnostics.SiteSkipReason skipReason =
@@ -78,51 +75,9 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 return false;
             }
             resourceProfile = resolution.profile().orElseThrow();
-            switch (resourceProfile.resourceKind()) {
-                case GEORE -> {
-                    geOreMaterial = GeOreNodeIntegration.resolve(resourceProfile.profileName()).orElse(null);
-                    if (!usableGeOreMaterial(geOreMaterial)) {
-                        skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
-                                "the biome GeOre node or budding resource is unavailable or denied by policy");
-                        return false;
-                    }
-                }
-                case AE2_CERTUS -> {
-                    specialGeode = Ae2MeteoriteIntegration.resolve()
-                            .map(material -> new SpecialMineGeode(
-                                    IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE,
-                                    material.buddingResource(),
-                                    material.buddingBlock(),
-                                    material.skyStoneResource(),
-                                    material.skyStoneBlock()
-                            ))
-                            .orElse(null);
-                    if (!usableSpecialGeode(specialGeode)) {
-                        skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.AE2_RESOURCE_MISSING,
-                                "the biome requires AE2 and AE2 Crystal Science budding Certus resources");
-                        return false;
-                    }
-                }
-                case EXTENDEDAE_FLUIX -> {
-                    specialGeode = ExtendedAeGeodeIntegration.resolve()
-                            .map(material -> new SpecialMineGeode(
-                                    IoeWorldgenFeatureKeys.ENTROIZED_FLUIX_GEODE,
-                                    material.buddingResource(),
-                                    material.buddingBlock(),
-                                    material.shellResource(),
-                                    material.shellBlock()
-                            ))
-                            .orElse(null);
-                    if (!usableSpecialGeode(specialGeode)) {
-                        skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.EXTENDED_AE_RESOURCE_MISSING,
-                                "the biome requires ExtendedAE Entroized Fluix geode resources");
-                        return false;
-                    }
-                }
-            }
         }
 
-        DepositPreparation depositPreparation = prepareMotherDeposit(
+        DepositPreparation depositPreparation = prepareExcavatorDeposit(
                 context.level().getLevel(),
                 origin,
                 quality,
@@ -143,60 +98,28 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 resourceProfile,
                 siteType.naturalSurfaceSite()
         );
-        boolean geOreMine = geOreMaterial != null;
-
         boolean reservationTransferred = false;
         try {
-            ExpeditionSiteBlockPlan plan = ExpeditionSiteBlueprints.plan(
-                    siteType,
-                    origin,
-                    quality,
-                    geOreMine ? geOreMaterial.nodeResource().id() : null,
-                    geOreMine ? geOreMaterial.nodeBlock().defaultBlockState() : null,
-                    geOreMine ? geOreMaterial.buddingResource().id() : null,
-                    geOreMine ? geOreMaterial.buddingBlock().defaultBlockState() : null,
-                    specialGeode == null ? null : specialGeode.componentId(),
-                    specialGeode == null ? null : specialGeode.buddingBlock().defaultBlockState(),
-                    specialGeode == null ? null : specialGeode.shellBlock().defaultBlockState(),
-                    resourceProfile == null ? 0 : resourceProfile.oreBudget(quality),
-                    resourceProfile == null ? 0 : resourceProfile.nodeCount(quality),
-                    resourceProfile == null ? 0 : resourceProfile.specialBuddingCount(quality),
-                    context.random()
-            );
-            ExpeditionSiteBlockPlan fallbackPlan = null;
+            ExpeditionSiteBlockPlan plan = quality == previewPlan.quality()
+                    ? previewPlan
+                    : structureOnlyPlan(siteType, origin, quality, planSeed);
+            ArrayList<ExpeditionSiteBlockPlan> fallbackPlans = new ArrayList<>();
             if (depositReservation != null && depositReservation.requiredForSiteQuality()) {
                 SiteQuality lowerQuality = quality.directLower().orElse(null);
-                if (lowerQuality == null) {
-                    skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.IE_DEPOSIT_MISSING,
-                            "a required IE deposit had no lower quality fallback");
-                    return false;
+                while (lowerQuality != null && lowerQuality.isProductive()) {
+                    fallbackPlans.add(structureOnlyPlan(siteType, origin, lowerQuality, planSeed));
+                    lowerQuality = lowerQuality.directLower().orElse(null);
                 }
-                fallbackPlan = ExpeditionSiteBlueprints.plan(
-                        siteType,
-                        origin,
-                        lowerQuality,
-                        geOreMine ? geOreMaterial.nodeResource().id() : null,
-                        geOreMine ? geOreMaterial.nodeBlock().defaultBlockState() : null,
-                        geOreMine ? geOreMaterial.buddingResource().id() : null,
-                        geOreMine ? geOreMaterial.buddingBlock().defaultBlockState() : null,
-                        specialGeode == null ? null : specialGeode.componentId(),
-                        specialGeode == null ? null : specialGeode.buddingBlock().defaultBlockState(),
-                        specialGeode == null ? null : specialGeode.shellBlock().defaultBlockState(),
-                        resourceProfile == null ? 0 : resourceProfile.oreBudget(lowerQuality),
-                        resourceProfile == null ? 0 : resourceProfile.nodeCount(lowerQuality),
-                        resourceProfile == null ? 0 : resourceProfile.specialBuddingCount(lowerQuality),
-                        net.minecraft.util.RandomSource.create(context.random().nextLong())
-                );
             }
             if (siteType.naturalSurfaceSite() && !plan.isConnectedExpeditionSite()) {
                 skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.DISCONNECTED_PLAN,
                         "the configured anchor distance window excludes the connected chamber");
                 return false;
             }
-            if (fallbackPlan != null && (!fallbackPlan.isConnectedExpeditionSite()
+            if (fallbackPlans.stream().anyMatch(fallbackPlan -> !fallbackPlan.isConnectedExpeditionSite()
                     || !withinBuildHeight(context.level(), fallbackPlan))) {
                 skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
-                        "the direct lower quality plan could not satisfy the connected build envelope");
+                        "a lower-tier quality plan could not satisfy the connected build envelope");
                 return false;
             }
             if (!withinBuildHeight(context.level(), plan)) {
@@ -211,7 +134,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                         resourceProfile,
                         depositReservation,
                         petroleumReservation,
-                        fallbackPlan
+                        List.copyOf(fallbackPlans)
                 );
                 if (!staged) {
                     skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
@@ -220,8 +143,24 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 }
                 reservationTransferred = true;
             } else {
-                IoeExpeditionPlanPlacement.AppliedPlan appliedPlan =
-                        IoeExpeditionPlanPlacement.apply(context.level(), plan).orElse(null);
+                IoeExpeditionPlanPlacement.AppliedPlan appliedPlan;
+                try {
+                    appliedPlan = IoeExpeditionPlanPlacement.apply(
+                            context.level(),
+                            plan
+                    ).orElse(null);
+                } catch (IoeExpeditionPlanPlacement.PlacementCompensationException failure) {
+                    boolean restored = failure.appliedPlan().rollback(context.level());
+                    IoeExpeditionWorldgenMod.LOGGER.error(
+                            "Standalone IOE plan at {} failed with partial compensation; retryRestored={}",
+                            origin,
+                            restored,
+                            failure
+                    );
+                    skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
+                            "the standalone block plan failed during compensated placement");
+                    return false;
+                }
                 if (appliedPlan == null) {
                     skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
                             "the standalone block plan could not be written safely");
@@ -236,6 +175,30 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 rollbackReservoirReservationBestEffort(petroleumReservation, origin);
             }
         }
+    }
+
+    private static ExpeditionSiteBlockPlan structureOnlyPlan(
+            ExpeditionSiteType siteType,
+            BlockPos origin,
+            SiteQuality quality,
+            long planSeed
+    ) {
+        return ExpeditionSiteBlueprints.plan(
+                siteType,
+                origin,
+                quality,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                0,
+                0,
+                0,
+                RandomSource.create(planSeed)
+        );
     }
 
     private static IoePetroleumReservoirReservation preparePetroleumReservoir(
@@ -269,7 +232,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         }
     }
 
-    private static DepositPreparation prepareMotherDeposit(
+    private static DepositPreparation prepareExcavatorDeposit(
             ServerLevel level,
             BlockPos origin,
             SiteQuality initialQuality,
@@ -282,24 +245,24 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 : ProvinceBindingResolver.fromConfig().resolve(resourceProfile.biomeId());
         IoeSiteQualityFallbackResolver.Resolution resolution = IoeSiteQualityFallbackResolver.resolve(
                 initialQuality,
-                ignored -> true,
+                SiteQuality::isProductive,
                 quality -> {
                     if (!naturalSurfaceSite || resourceProfile == null || province == null) {
                         return IoeSiteQualityFallbackResolver.DepositAttempt.NOT_REQUIRED;
                     }
                     Optional<IoeExcavatorDepositRules.MotherDepositRequest> request =
-                            IoeExcavatorDepositRules.guaranteedMotherRequest(
+                            IoeExcavatorDepositRules.depositRequest(
                                     origin,
                                     quality,
                                     province.id(),
                                     resourceProfile
                             );
                     if (request.isEmpty()) {
-                        return IoeSiteQualityFallbackResolver.DepositAttempt.NOT_REQUIRED;
+                        return IoeSiteQualityFallbackResolver.DepositAttempt.FAILED;
                     }
                     if (!ModList.get().isLoaded("immersiveengineering")) {
                         IoeExcavatorDepositRules.recordGuaranteedMotherIeAbsent();
-                        return IoeSiteQualityFallbackResolver.DepositAttempt.NOT_REQUIRED;
+                        return IoeSiteQualityFallbackResolver.DepositAttempt.FAILED;
                     }
                     try {
                         Optional<IoeMotherDepositReservation> reserved =
@@ -334,36 +297,6 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     return true;
                 }
         );
-        if (resolution.confirmed()
-                && reservation[0] == null
-                && naturalSurfaceSite
-                && resourceProfile != null
-                && province != null
-                && ModList.get().isLoaded("immersiveengineering")) {
-            Optional<IoeExcavatorDepositRules.MotherDepositRequest> optionalMajor =
-                    IoeExcavatorDepositRules.optionalMajorRequest(
-                            level,
-                            origin,
-                            resolution.finalQuality(),
-                            province.id(),
-                            resourceProfile
-                    );
-            if (optionalMajor.isPresent()) {
-                try {
-                    reservation[0] = IoeExcavatorMotherDepositBridge.reserveOptionalDeposit(
-                            level,
-                            optionalMajor.orElseThrow()
-                    ).orElse(null);
-                } catch (RuntimeException | LinkageError failure) {
-                    IoeExcavatorDepositRules.recordOptionalMajorFailed();
-                    IoeExpeditionWorldgenMod.LOGGER.error(
-                            "Failed to prepare the optional IE Excavator deposit for Major Node at {}",
-                            origin,
-                            failure
-                    );
-                }
-            }
-        }
         return new DepositPreparation(resolution, Optional.ofNullable(reservation[0]));
     }
 
@@ -440,30 +373,6 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         return new BlockPos(x, maxY, z);
     }
 
-    private static boolean usableSpecialGeode(SpecialMineGeode material) {
-        return material != null
-                && RESOURCE_POLICY.evaluate(
-                material.buddingResource(),
-                LoadedResourceScanner.runtime()
-        ).shouldUse()
-                && RESOURCE_POLICY.evaluate(
-                material.shellResource(),
-                LoadedResourceScanner.runtime()
-                ).shouldUse();
-    }
-
-    private static boolean usableGeOreMaterial(GeOreNodeIntegration.NodeMaterial material) {
-        return material != null
-                && RESOURCE_POLICY.evaluate(
-                material.nodeResource(),
-                LoadedResourceScanner.runtime()
-        ).shouldUse()
-                && RESOURCE_POLICY.evaluate(
-                material.buddingResource(),
-                LoadedResourceScanner.runtime()
-        ).shouldUse();
-    }
-
     private static int clamp(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));
     }
@@ -494,22 +403,6 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     skipReason.id(),
                     reason
             );
-        }
-    }
-
-    private record SpecialMineGeode(
-            ResourceLocation componentId,
-            ResourceRef buddingResource,
-            Block buddingBlock,
-            ResourceRef shellResource,
-            Block shellBlock
-    ) {
-        private SpecialMineGeode {
-            Objects.requireNonNull(componentId, "componentId");
-            Objects.requireNonNull(buddingResource, "buddingResource");
-            Objects.requireNonNull(buddingBlock, "buddingBlock");
-            Objects.requireNonNull(shellResource, "shellResource");
-            Objects.requireNonNull(shellBlock, "shellBlock");
         }
     }
 

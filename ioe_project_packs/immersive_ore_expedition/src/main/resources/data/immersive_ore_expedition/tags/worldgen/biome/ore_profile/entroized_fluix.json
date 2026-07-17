@@ -1,7 +1,26 @@
 {
-  "replace": false,
+  "replace": true,
   "values": [
     "minecraft:mushroom_fields",
-    { "id": "biomesoplenty:mystic_grove", "required": false }
+    {
+      "id": "biomesoplenty:mystic_grove",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:bioshroom_caves",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:prismachasm",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:enchanted_tangle",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:weeping_witch_forest",
+      "required": false
+    }
   ]
 }

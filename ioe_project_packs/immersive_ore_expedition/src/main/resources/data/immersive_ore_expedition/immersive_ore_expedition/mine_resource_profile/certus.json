@@ -1,83 +1,24 @@
 {
   "biome_tag": "immersive_ore_expedition:ore_profile/certus",
-  "resource_kind": "ae2_certus",
+  "mineral_mix": "immersive_ore_expedition:mineral/certus",
   "resource_name": "certus",
-  "survey_radius_chunks": 4,
-  "quality_counts": {
-    "dry": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 0
-      }
+  "survey_radius_chunks": 8,
+  "deposit_tiers": {
+    "mother": {
+      "radius_blocks": 36,
+      "capacity": 4096
     },
-    "poor": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 1,
-        "bonus": {
-          "first_chunk": 33,
-          "chunks_per_bonus": 32,
-          "max_bonus": 2
-        }
-      }
+    "major": {
+      "radius_blocks": 24,
+      "capacity": 2048
     },
-    "normal": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 1,
-        "bonus": {
-          "first_chunk": 33,
-          "chunks_per_bonus": 32,
-          "max_bonus": 2
-        }
-      }
+    "minor": {
+      "radius_blocks": 16,
+      "capacity": 1024
     },
-    "rich": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 2,
-        "bonus": {
-          "first_chunk": 33,
-          "chunks_per_bonus": 32,
-          "max_bonus": 2
-        }
-      }
-    },
-    "motherlode": {
-      "ore_budget": {
-        "base": 0
-      },
-      "node_count": {
-        "base": 0
-      },
-      "special_budding_count": {
-        "base": 2,
-        "bonus": {
-          "first_chunk": 33,
-          "chunks_per_bonus": 32,
-          "max_bonus": 2
-        }
-      }
+    "direct": {
+      "radius_blocks": 10,
+      "capacity": 512
     }
   }
 }

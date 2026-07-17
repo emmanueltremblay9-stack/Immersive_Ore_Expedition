@@ -1,15 +1,48 @@
 {
-  "replace": false,
+  "replace": true,
   "values": [
-    "minecraft:savanna",
-    "minecraft:savanna_plateau",
-    "minecraft:windswept_savanna",
     "minecraft:jungle",
     "minecraft:bamboo_jungle",
     "minecraft:sparse_jungle",
-    { "id": "biomesoplenty:lush_savanna", "required": false },
-    { "id": "biomesoplenty:rainforest", "required": false },
-    { "id": "biomesoplenty:rocky_rainforest", "required": false },
-    { "id": "biomesoplenty:tropics", "required": false }
+    {
+      "id": "biomesoplenty:rainforest",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:rocky_rainforest",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:tropics",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:rainforest",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:sparse_rainforest",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:tropics",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:bamboo_forest",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:fragment_jungle",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:jacaranda_jungle",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:tropical_rainforest",
+      "required": false
+    }
   ]
 }

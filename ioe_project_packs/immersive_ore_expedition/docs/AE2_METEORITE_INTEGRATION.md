@@ -1,32 +1,20 @@
-# AE2 meteorite integration contract
+# AE2 parallel meteorite contract
 
-## World-generation rule
+## Current world-generation rule
 
-AE2 meteorites are brought under IOE placement control. The original `ae2:meteorite` structure is disabled by replacing the `ae2:has_meteorites` biome tag with an empty tag. Because AE2 19.2.17 is required, a productive IOE mine reached through the `buried_survey_marker` surface clue can become an AE2 meteoritic-geode mine. It receives one small meteoritic formation inside its ore-load chamber instead of a GeOre node-geode.
+AE2 19.2.17 keeps ownership of its normal meteorite and Certus-growth progression. IOE does not replace, relocate, or reproduce AE2 meteorites inside expedition structures.
 
-The two mine resource modes are mutually exclusive: one chamber contains either its biome-selected GeOre node-geode or the AE2 meteoritic geode, never both.
+The IOE overlay at `data/ae2/tags/worldgen/biome/has_meteorites.json` is deliberately empty with `replace: false`. It therefore contributes no biome exclusion and preserves the upstream AE2 `has_meteorites` values. The new-chunk ore guard also leaves AE2 budding quartz, quartz buds and clusters, Sky Stone, and Fluix blocks untouched.
 
-The IOE formation contains only:
+Certus is integrated separately as the rare `immersive_ore_expedition:mineral/certus` Immersive Engineering mineral mix. The mix can output the verified item `ae2:certus_quartz_crystal`; it never places Certus ore, a budding heart, Sky Stone, a fake meteorite, a geode, or an intermediate matrix in an IOE site.
 
-- one repairable `ae2:flawed_budding_quartz` block exposed to chamber air;
-- an inward, rock-facing body made from `ae2:sky_stone_block`.
+AE2 Crystal Science's normal and charged Certus ore placed features remain part of IOE's physical free-ore suppression policy. This does not suppress AE2's meteorite structure or its normal processing, repair, growth, crafting, and automation methods.
 
-IOE never places `ae2:quartz_block`, `ae2:flawless_budding_quartz`, Certus Quartz Ore, or a charged Certus ore variant. The flawed heart can degrade through AE2's chipped and damaged tiers, then AE2's native water transformations consume `ae2:charged_certus_quartz_crystal` to restore it. IOE adds no repair recipe and does not extend this conversion to GeOre. AE2 Crystal Science 1.1.12 reintroduces normal and charged Certus ore placed features, so IOE explicitly removes `ae2cs:certus_quartz_ore_placed` and `ae2cs:charged_certus_quartz_ore_placed`. The runtime filter also rejects AE2, appeng, and AE2CS `OreConfiguration` targets whose path combines `certus` and `ore`.
+## Ownership and proof boundary
 
-## Runtime ownership
+- AE2 owns its structures, blocks, items, recipes, machines, growth and repair behavior.
+- Immersive Engineering owns mineral discovery, extraction, depletion, and output selection.
+- IOE owns only the biome allowlist, mineral-mix recipe, reserve tier, and transaction that reserves an abstract IE vein.
+- No AE2 source or asset is copied into IOE.
 
-AE2 remains a separately distributed required dependency. Development and CI pin `org.appliedenergistics:appliedenergistics2:19.2.17` at runtime, but IOE does not compile against AE2 Java classes. Registry identifiers are resolved through Minecraft registries only. AE2 Crystal Science 1.1.12 is also required for the purified-crystal and factory-automation progression.
-
-- AE2 owns all code, block behavior, models, textures, sounds, translations, recipes, loot tables, and original meteorite implementation.
-- IOE owns the empty meteorite-biome tag override, mutually exclusive mine-mode choice, budding-only composition, chamber-facing opening, and sky-stone placement inside the mine.
-
-No AE2 Java source or asset is copied into IOE.
-
-## Evidence inspected
-
-- Official source tag: `neoforge/v19.2.17`
-- Source commit: `79ee2c704ad62941a426c26b1cb1f76ef5b2ee5a`
-- Original structure set: `data/ae2/worldgen/structure_set/meteorite.json`
-- Original structure: `data/ae2/worldgen/structure/meteorite.json`
-- Official block/item identifiers: `ae2:flawed_budding_quartz`, `ae2:charged_certus_quartz_crystal`, `ae2:sky_stone_block`
-- License: GNU LGPL version 3
+Static evidence was inspected from AE2 `19.2.17` (`neoforge/v19.2.17`, source commit `79ee2c704ad62941a426c26b1cb1f76ef5b2ee5a`). Runtime proof belongs to the pinned full-runtime GitHub Actions GameTests.

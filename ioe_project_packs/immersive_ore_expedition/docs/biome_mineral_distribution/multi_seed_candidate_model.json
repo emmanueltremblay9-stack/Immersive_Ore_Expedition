@@ -1,0 +1,168 @@
+{
+  "classification": "SUPPORTED_INFERENCE",
+  "scope": "rarity-filter candidate envelope before biome, terrain, collision and transaction gates",
+  "grid_chunks_per_seed": 10000,
+  "seeds": [
+    {
+      "seed": 104729,
+      "candidate_sites": 346,
+      "candidate_sites_per_10000_chunks": 346,
+      "nearest_distance_blocks": {
+        "p50": 41.98,
+        "p90": 76.22,
+        "p99": 109.07
+      },
+      "per_feature": {
+        "buried_survey_marker": 93,
+        "collapsed_shaft": 75,
+        "miner_camp": 75,
+        "tiny_vertical_mine_entrance": 103
+      }
+    },
+    {
+      "seed": 130363,
+      "candidate_sites": 349,
+      "candidate_sites_per_10000_chunks": 349,
+      "nearest_distance_blocks": {
+        "p50": 39.2,
+        "p90": 77.83,
+        "p99": 111.77
+      },
+      "per_feature": {
+        "buried_survey_marker": 91,
+        "collapsed_shaft": 87,
+        "miner_camp": 76,
+        "tiny_vertical_mine_entrance": 95
+      }
+    },
+    {
+      "seed": 155921,
+      "candidate_sites": 331,
+      "candidate_sites_per_10000_chunks": 331,
+      "nearest_distance_blocks": {
+        "p50": 39.0,
+        "p90": 77.47,
+        "p99": 114.14
+      },
+      "per_feature": {
+        "buried_survey_marker": 98,
+        "collapsed_shaft": 76,
+        "miner_camp": 63,
+        "tiny_vertical_mine_entrance": 94
+      }
+    },
+    {
+      "seed": 181081,
+      "candidate_sites": 365,
+      "candidate_sites_per_10000_chunks": 365,
+      "nearest_distance_blocks": {
+        "p50": 43.08,
+        "p90": 75.6,
+        "p99": 106.23
+      },
+      "per_feature": {
+        "buried_survey_marker": 102,
+        "collapsed_shaft": 94,
+        "miner_camp": 78,
+        "tiny_vertical_mine_entrance": 91
+      }
+    },
+    {
+      "seed": 206369,
+      "candidate_sites": 395,
+      "candidate_sites_per_10000_chunks": 395,
+      "nearest_distance_blocks": {
+        "p50": 38.59,
+        "p90": 71.84,
+        "p99": 103.23
+      },
+      "per_feature": {
+        "buried_survey_marker": 118,
+        "collapsed_shaft": 84,
+        "miner_camp": 85,
+        "tiny_vertical_mine_entrance": 108
+      }
+    },
+    {
+      "seed": 232003,
+      "candidate_sites": 358,
+      "candidate_sites_per_10000_chunks": 358,
+      "nearest_distance_blocks": {
+        "p50": 38.48,
+        "p90": 76.56,
+        "p99": 113.07
+      },
+      "per_feature": {
+        "buried_survey_marker": 106,
+        "collapsed_shaft": 86,
+        "miner_camp": 70,
+        "tiny_vertical_mine_entrance": 96
+      }
+    },
+    {
+      "seed": 257591,
+      "candidate_sites": 382,
+      "candidate_sites_per_10000_chunks": 382,
+      "nearest_distance_blocks": {
+        "p50": 38.01,
+        "p90": 71.59,
+        "p99": 98.31
+      },
+      "per_feature": {
+        "buried_survey_marker": 110,
+        "collapsed_shaft": 86,
+        "miner_camp": 89,
+        "tiny_vertical_mine_entrance": 97
+      }
+    },
+    {
+      "seed": 283009,
+      "candidate_sites": 363,
+      "candidate_sites_per_10000_chunks": 363,
+      "nearest_distance_blocks": {
+        "p50": 37.05,
+        "p90": 76.24,
+        "p99": 111.07
+      },
+      "per_feature": {
+        "buried_survey_marker": 93,
+        "collapsed_shaft": 80,
+        "miner_camp": 88,
+        "tiny_vertical_mine_entrance": 102
+      }
+    },
+    {
+      "seed": 308411,
+      "candidate_sites": 330,
+      "candidate_sites_per_10000_chunks": 330,
+      "nearest_distance_blocks": {
+        "p50": 42.01,
+        "p90": 74.73,
+        "p99": 121.08
+      },
+      "per_feature": {
+        "buried_survey_marker": 110,
+        "collapsed_shaft": 75,
+        "miner_camp": 69,
+        "tiny_vertical_mine_entrance": 76
+      }
+    },
+    {
+      "seed": 334021,
+      "candidate_sites": 411,
+      "candidate_sites_per_10000_chunks": 411,
+      "nearest_distance_blocks": {
+        "p50": 34.83,
+        "p90": 69.46,
+        "p99": 93.34
+      },
+      "per_feature": {
+        "buried_survey_marker": 111,
+        "collapsed_shaft": 94,
+        "miner_camp": 98,
+        "tiny_vertical_mine_entrance": 108
+      }
+    }
+  ],
+  "runtime_validation": "NOT_PERFORMED"
+}

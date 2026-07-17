@@ -1,10 +1,26 @@
 {
-  "replace": false,
+  "replace": true,
   "values": [
-    "minecraft:jagged_peaks",
     "minecraft:frozen_peaks",
-    { "id": "biomesoplenty:crag", "required": false },
-    { "id": "biomesoplenty:highland", "required": false },
-    { "id": "biomesoplenty:volcano", "required": false }
+    {
+      "id": "biomesoplenty:crag",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:glowing_grotto",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:icy_heights",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:spires",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:shattered_glacier",
+      "required": false
+    }
   ]
 }

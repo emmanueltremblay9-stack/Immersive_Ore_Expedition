@@ -1,14 +1,36 @@
 {
-  "replace": false,
+  "replace": true,
   "values": [
-    "minecraft:meadow",
-    "minecraft:taiga",
     "minecraft:windswept_hills",
-    "minecraft:old_growth_spruce_taiga",
-    "minecraft:snowy_taiga",
-    { "id": "biomesoplenty:hot_springs", "required": false },
-    { "id": "biomesoplenty:maple_woods", "required": false },
-    { "id": "biomesoplenty:muskeg", "required": false },
-    { "id": "biomesoplenty:tundra", "required": false }
+    "minecraft:windswept_forest",
+    "minecraft:meadow",
+    {
+      "id": "biomesoplenty:highland",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:grassland",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:highland_fields",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:grassland",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:canadian_shield",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:ironwood_gour",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:prairie",
+      "required": false
+    }
   ]
 }

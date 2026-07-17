@@ -23,30 +23,50 @@ final class IoeExpeditionPlanPlacement {
     static Optional<AppliedPlan> apply(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
         Objects.requireNonNull(level, "level");
         Objects.requireNonNull(plan, "plan");
-        for (BlockPos pos : plan.blocks().keySet()) {
-            if (!canWrite(level, pos)) {
-                return Optional.empty();
+        try {
+            for (BlockPos pos : plan.blocks().keySet()) {
+                if (!canWrite(level, pos)) {
+                    return Optional.empty();
+                }
             }
+        } catch (RuntimeException | LinkageError failure) {
+            return Optional.empty();
         }
 
         LinkedHashMap<BlockPos, BlockState> previousStates = new LinkedHashMap<>();
-        for (Map.Entry<BlockPos, BlockState> placement : plan.blocks().entrySet()) {
-            BlockPos pos = placement.getKey();
-            BlockState target = placement.getValue();
-            if (!canWrite(level, pos)) {
-                AppliedPlan partial = new AppliedPlan(plan, previousStates, true);
-                partial.rollback(level);
-                return Optional.empty();
+        try {
+            for (Map.Entry<BlockPos, BlockState> placement : plan.blocks().entrySet()) {
+                BlockPos pos = placement.getKey();
+                BlockState target = placement.getValue();
+                if (!canWrite(level, pos)) {
+                    return abortPartialPlacement(level, plan, previousStates, null);
+                }
+                previousStates.put(pos.immutable(), level.getBlockState(pos));
+                boolean changed = level.setBlock(pos, target, BLOCK_UPDATE_FLAGS);
+                if (!changed && !level.getBlockState(pos).equals(target)) {
+                    return abortPartialPlacement(level, plan, previousStates, null);
+                }
             }
-            previousStates.put(pos.immutable(), level.getBlockState(pos));
-            boolean changed = level.setBlock(pos, target, BLOCK_UPDATE_FLAGS);
-            if (!changed && !level.getBlockState(pos).equals(target)) {
-                AppliedPlan partial = new AppliedPlan(plan, previousStates, true);
-                partial.rollback(level);
-                return Optional.empty();
-            }
+        } catch (RuntimeException | LinkageError failure) {
+            return abortPartialPlacement(level, plan, previousStates, failure);
         }
         return Optional.of(new AppliedPlan(plan, previousStates, true));
+    }
+
+    private static Optional<AppliedPlan> abortPartialPlacement(
+            WorldGenLevel level,
+            ExpeditionSiteBlockPlan plan,
+            Map<BlockPos, BlockState> previousStates,
+            Throwable cause
+    ) {
+        if (previousStates.isEmpty()) {
+            return Optional.empty();
+        }
+        AppliedPlan partial = new AppliedPlan(plan, previousStates, true);
+        if (!partial.rollback(level)) {
+            throw new PlacementCompensationException(partial, cause);
+        }
+        return Optional.empty();
     }
 
     private static boolean canWrite(WorldGenLevel level, BlockPos pos) {
@@ -90,14 +110,18 @@ final class IoeExpeditionPlanPlacement {
             }
             boolean restored = true;
             for (Map.Entry<BlockPos, BlockState> previous : previousStates.entrySet()) {
-                BlockPos pos = previous.getKey();
-                BlockState target = plan.blocks().get(pos);
-                BlockState current = level.getBlockState(pos);
-                if (current.equals(previous.getValue()) || !current.equals(target)) {
-                    continue;
-                }
-                boolean changed = level.setBlock(pos, previous.getValue(), BLOCK_UPDATE_FLAGS);
-                if (!changed && !level.getBlockState(pos).equals(previous.getValue())) {
+                try {
+                    BlockPos pos = previous.getKey();
+                    BlockState target = plan.blocks().get(pos);
+                    BlockState current = level.getBlockState(pos);
+                    if (current.equals(previous.getValue()) || !current.equals(target)) {
+                        continue;
+                    }
+                    boolean changed = level.setBlock(pos, previous.getValue(), BLOCK_UPDATE_FLAGS);
+                    if (!changed && !level.getBlockState(pos).equals(previous.getValue())) {
+                        restored = false;
+                    }
+                } catch (RuntimeException | LinkageError failure) {
                     restored = false;
                 }
             }
@@ -105,6 +129,19 @@ final class IoeExpeditionPlanPlacement {
                 active.set(false);
             }
             return restored;
+        }
+    }
+
+    static final class PlacementCompensationException extends IllegalStateException {
+        private final AppliedPlan appliedPlan;
+
+        private PlacementCompensationException(AppliedPlan appliedPlan, Throwable cause) {
+            super("Could not fully compensate a partially applied expedition plan", cause);
+            this.appliedPlan = Objects.requireNonNull(appliedPlan, "appliedPlan");
+        }
+
+        AppliedPlan appliedPlan() {
+            return appliedPlan;
         }
     }
 }

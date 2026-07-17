@@ -175,9 +175,9 @@ public final class ExpeditionSiteBlueprints {
             throw new IllegalArgumentException("Only special geodes can request special budding blocks");
         }
         if (quality.isProductive()) {
-            if (hasCompleteOreNodeInput == hasSpecialGeode) {
+            if (hasCompleteOreNodeInput && hasSpecialGeode) {
                 throw new IllegalArgumentException(
-                        "Productive mines require either a GeOre node-geode or one special geode"
+                        "Productive mines cannot combine a GeOre node-geode with a special geode"
                 );
             }
             if (hasCompleteOreNodeInput && (oreBudget <= 0 || requestedOreNodeCount <= 0)) {
@@ -187,6 +187,13 @@ public final class ExpeditionSiteBlueprints {
                     && (oreBudget != 0 || requestedOreNodeCount != 0 || requestedSpecialBuddingCount <= 0)) {
                 throw new IllegalArgumentException(
                         "Special geodes require budding blocks and cannot share a GeOre node budget"
+                );
+            }
+            if (!hasCompleteOreNodeInput
+                    && !hasSpecialGeode
+                    && (oreBudget != 0 || requestedOreNodeCount != 0 || requestedSpecialBuddingCount != 0)) {
+                throw new IllegalArgumentException(
+                        "Deposit-backed structure-only mines require zero embedded-resource budgets"
                 );
             }
         } else if (oreBudget != 0 || requestedOreNodeCount != 0 || requestedSpecialBuddingCount != 0) {

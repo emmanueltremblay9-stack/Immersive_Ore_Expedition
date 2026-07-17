@@ -1,6 +1,5 @@
 package com.oblixorprime.ioe.worldgen;
 
-import com.mojang.serialization.Codec;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -9,7 +8,6 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerChunkCache;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -23,9 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * Selects exactly one mine resource from the origin biome. Site shape never participates in resource selection.
- */
+/** Selects exactly one biome-owned IE mineral mix. Site shape never participates in resource selection. */
 public record BiomeMineResourceProfile(
         ResourceLocation biomeId,
         ResourceLocation definitionId,
@@ -59,17 +55,14 @@ public record BiomeMineResourceProfile(
                 .registry(BiomeMineResourceDefinition.REGISTRY_KEY)
                 .orElse(null);
         if (definitionRegistry == null) {
-            IoeExpeditionWorldgenMod.LOGGER.error(
-                    "Missing IOE mine resource profile datapack registry at origin={}",
-                    origin
-            );
+            IoeExpeditionWorldgenMod.LOGGER.error("Missing IOE mine resource profile registry at origin={}", origin);
             return Resolution.missing();
         }
 
         List<Map.Entry<ResourceKey<BiomeMineResourceDefinition>, BiomeMineResourceDefinition>> matchingDefinitions =
                 definitionRegistry.entrySet().stream()
-                .filter(candidate -> originBiome.is(candidate.getValue().biomeTag()))
-                .toList();
+                        .filter(candidate -> originBiome.is(candidate.getValue().biomeTag()))
+                        .toList();
         if (matchingDefinitions.isEmpty()) {
             return Resolution.missing();
         }
@@ -102,36 +95,16 @@ public record BiomeMineResourceProfile(
         ));
     }
 
-    public ResourceKind resourceKind() {
-        return definition.resourceKind();
-    }
-
     public String profileName() {
         return definition.resourceName();
     }
 
-    public int oreBudget(SiteQuality quality) {
-        Objects.requireNonNull(quality, "quality");
-        if (resourceKind() != ResourceKind.GEORE || !quality.isProductive()) {
-            return 0;
-        }
-        return definition.counts(quality).oreBudget().valueAt(sampledConnectedChunks);
+    public ResourceLocation mineralMixId() {
+        return definition.mineralMixId();
     }
 
-    public int nodeCount(SiteQuality quality) {
-        Objects.requireNonNull(quality, "quality");
-        if (resourceKind() != ResourceKind.GEORE || !quality.isProductive()) {
-            return 0;
-        }
-        return definition.counts(quality).nodeCount().valueAt(sampledConnectedChunks);
-    }
-
-    public int specialBuddingCount(SiteQuality quality) {
-        Objects.requireNonNull(quality, "quality");
-        if (!quality.isProductive()) {
-            return 0;
-        }
-        return definition.counts(quality).specialBuddingCount().valueAt(sampledConnectedChunks);
+    public Optional<BiomeMineResourceDefinition.DepositTier> depositTier(SiteQuality quality) {
+        return definition.tier(quality);
     }
 
     private static int countConnectedChunks(
@@ -181,36 +154,13 @@ public record BiomeMineResourceProfile(
         );
     }
 
-    private static Holder<Biome> sampleBiomeAtBlock(
-            BiomeSource biomeSource,
-            RandomState randomState,
-            BlockPos pos
-    ) {
+    private static Holder<Biome> sampleBiomeAtBlock(BiomeSource biomeSource, RandomState randomState, BlockPos pos) {
         return biomeSource.getNoiseBiome(
                 QuartPos.fromBlock(pos.getX()),
                 QuartPos.fromBlock(pos.getY()),
                 QuartPos.fromBlock(pos.getZ()),
                 randomState.sampler()
         );
-    }
-
-    public enum ResourceKind implements StringRepresentable {
-        GEORE("geore"),
-        AE2_CERTUS("ae2_certus"),
-        EXTENDEDAE_FLUIX("extendedae_fluix");
-
-        public static final Codec<ResourceKind> CODEC = StringRepresentable.fromEnum(ResourceKind::values);
-
-        private final String serializedName;
-
-        ResourceKind(String serializedName) {
-            this.serializedName = serializedName;
-        }
-
-        @Override
-        public String getSerializedName() {
-            return serializedName;
-        }
     }
 
     public enum Failure {

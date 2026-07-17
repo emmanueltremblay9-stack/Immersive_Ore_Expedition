@@ -42,6 +42,7 @@ public final class IoePetroleumReservoirRules {
             ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, "ip_aquifer_water")
     );
     private static final int RICH_SITE_CHANCE = 4;
+    private static final LongAdder NATIVE_SCANS_ALLOWED = new LongAdder();
     private static final LongAdder NATIVE_SCANS_SUPPRESSED = new LongAdder();
     private static final LongAdder UNAUTHORIZED_REGISTRATIONS_BLOCKED = new LongAdder();
     private static final LongAdder RESERVATIONS_PREPARED = new LongAdder();
@@ -70,9 +71,7 @@ public final class IoePetroleumReservoirRules {
             return Optional.empty();
         }
         Holder<Biome> biome = level.getBiome(anchorPos);
-        boolean oil = resourceProfile.resourceKind() == BiomeMineResourceProfile.ResourceKind.GEORE
-                && "coal".equals(resourceProfile.profileName())
-                && biome.is(OIL_COAL_BIOMES);
+        boolean oil = biome.is(OIL_COAL_BIOMES);
         boolean lava = biome.is(LAVA_VOLCANO_BIOMES);
         boolean aquifer = biome.is(AQUIFER_WATER_BIOMES);
         int matches = (oil ? 1 : 0) + (lava ? 1 : 0) + (aquifer ? 1 : 0);
@@ -118,6 +117,33 @@ public final class IoePetroleumReservoirRules {
         ));
     }
 
+    public static boolean allowsNativeScan(ServerLevel level, ChunkPos chunkPos) {
+        Objects.requireNonNull(level, "level");
+        Objects.requireNonNull(chunkPos, "chunkPos");
+        boolean allowed = reservoirKindAt(
+                level,
+                new BlockPos(chunkPos.getMiddleBlockX(), level.getSeaLevel(), chunkPos.getMiddleBlockZ())
+        ).isPresent();
+        if (allowed) {
+            NATIVE_SCANS_ALLOWED.increment();
+        }
+        return allowed;
+    }
+
+    public static boolean allowsNativeRegistration(
+            ServerLevel level,
+            BlockPos reservoirCenter,
+            ResourceLocation fluidId
+    ) {
+        Objects.requireNonNull(level, "level");
+        Objects.requireNonNull(reservoirCenter, "reservoirCenter");
+        Objects.requireNonNull(fluidId, "fluidId");
+        BlockPos surfaceCenter = new BlockPos(reservoirCenter.getX(), level.getSeaLevel(), reservoirCenter.getZ());
+        return reservoirKindAt(level, surfaceCenter)
+                .map(kind -> kind.fluidId().equals(fluidId))
+                .orElse(false);
+    }
+
     public static void recordNativeScanSuppressed(ServerLevel level, ChunkPos chunkPos) {
         NATIVE_SCANS_SUPPRESSED.increment();
         if (IoeWorldgenConfig.runtimePlacementDiagnostics()) {
@@ -154,7 +180,8 @@ public final class IoePetroleumReservoirRules {
     }
 
     public static String statusMessage() {
-        return "IOE Immersive Petroleum reservoirs: nativeScansSuppressed=" + NATIVE_SCANS_SUPPRESSED.sum()
+        return "IOE Immersive Petroleum reservoirs: nativeScansAllowed=" + NATIVE_SCANS_ALLOWED.sum()
+                + ", nativeScansSuppressed=" + NATIVE_SCANS_SUPPRESSED.sum()
                 + ", unauthorizedRegistrationsBlocked=" + UNAUTHORIZED_REGISTRATIONS_BLOCKED.sum()
                 + ", prepared=" + RESERVATIONS_PREPARED.sum()
                 + ", created=" + RESERVOIRS_CREATED.sum()
@@ -165,6 +192,7 @@ public final class IoePetroleumReservoirRules {
     }
 
     public static void resetDiagnostics() {
+        NATIVE_SCANS_ALLOWED.reset();
         NATIVE_SCANS_SUPPRESSED.reset();
         UNAUTHORIZED_REGISTRATIONS_BLOCKED.reset();
         RESERVATIONS_PREPARED.reset();
@@ -188,6 +216,17 @@ public final class IoePetroleumReservoirRules {
         seed = mix(seed ^ resourceProfile.biomeId().hashCode());
         seed = mix(seed ^ reservoirKind.serializedName().hashCode());
         return Math.floorMod(seed, RICH_SITE_CHANCE) == 0;
+    }
+
+    private static Optional<ReservoirKind> reservoirKindAt(ServerLevel level, BlockPos pos) {
+        Holder<Biome> biome = level.getBiome(pos);
+        boolean oil = biome.is(OIL_COAL_BIOMES);
+        boolean lava = biome.is(LAVA_VOLCANO_BIOMES);
+        boolean aquifer = biome.is(AQUIFER_WATER_BIOMES);
+        if ((oil ? 1 : 0) + (lava ? 1 : 0) + (aquifer ? 1 : 0) != 1) {
+            return Optional.empty();
+        }
+        return Optional.of(oil ? ReservoirKind.OIL : lava ? ReservoirKind.LAVA : ReservoirKind.AQUIFER);
     }
 
     private static long mix(long value) {

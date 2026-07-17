@@ -10,7 +10,7 @@
 - Source revision inspected: `307174eaf237e82236b8534d59c554031000ba05`
 - License: MIT
 
-Immersive Ore Expedition uses GeOre as a required, separately distributed runtime dependency. GeOre owns and supplies its code, block behavior, models, textures, sounds, language resources, recipes, loot tables, and geode world generation. No GeOre source file or asset is copied into the IOE jar by this integration. IOE selects GeOre blocks through Minecraft registry identifiers and places them inside IOE-controlled ore nodes.
+Immersive Ore Expedition uses GeOre as a required, separately distributed runtime dependency. GeOre owns and supplies its code, block behavior, models, textures, sounds, language resources, recipes, loot tables, and geode world generation. No GeOre source file or asset is copied into the IOE jar by this integration. The active biome-to-mineral path creates no GeOre block formation; it uses abstract Immersive Engineering deposits instead.
 
 The following MIT notice is preserved for attribution and for any future distribution that includes a copy or substantial portion of GeOre:
 
@@ -48,7 +48,7 @@ SOFTWARE.
 - Source revision inspected: `79ee2c704ad62941a426c26b1cb1f76ef5b2ee5a`
 - Upstream licensing: LGPL-3.0 for code, with separately identified MIT and CC BY-NC-SA material upstream
 
-Immersive Ore Expedition treats AE2 as a separately distributed required runtime dependency. IOE resolves the public registry entries `ae2:flawed_budding_quartz` and `ae2:sky_stone_block`, relies on AE2's native `ae2:charged_certus_quartz_crystal` water transformations, and extends the public `ae2:growth_acceleratable` block tag; it does not copy AE2 Java source, models, textures, sounds, recipes, loot tables, language files, or world-generation data. The empty `ae2:has_meteorites` biome-tag override and the replacement mine placement are original IOE data and code.
+Immersive Ore Expedition treats AE2 as a separately distributed required runtime dependency. IOE references `ae2:certus_quartz_crystal` as a rare Immersive Engineering mineral-mix output and extends the public `ae2:growth_acceleratable` block tag for compatibility; it does not copy AE2 Java source, models, textures, sounds, recipes, loot tables, language files, or world-generation data. The empty IOE `ae2:has_meteorites` overlay uses `replace: false`, preserving AE2's upstream meteorite biome values and normal meteorite placement.
 
 ## AE2 Crystal Science
 
@@ -91,7 +91,7 @@ IOE applies an original event-level restriction when the separately installed ad
 - Source revision inspected: `90005ee29839fb9fa83bbe6544919c722f8b0dc6`
 - License: GNU LGPL version 3
 
-IOE resolves `extendedae:entro_budding_fully` and the separately owned AE2 block `ae2:fluix_block` through Minecraft registries. No ExtendedAE Java source, model, texture, sound, recipe, language file, loot table, or generated resource is copied into IOE.
+IOE references `extendedae:entro_crystal` as a rare Immersive Engineering mineral-mix output. It creates no ExtendedAE geode or budding-heart formation. No ExtendedAE Java source, model, texture, sound, recipe, language file, loot table, or generated resource is copied into IOE.
 
 ## Immersive Engineering
 

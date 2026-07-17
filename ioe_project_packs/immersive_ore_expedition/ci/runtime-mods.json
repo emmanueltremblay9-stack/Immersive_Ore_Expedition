@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "minecraft": "1.21.1",
+  "loader": "neoforge",
+  "files": [
+    {
+      "mod_id": "biomesoplenty",
+      "filename": "BiomesOPlenty-neoforge-1.21.1-21.1.0.13.jar",
+      "url": "https://cdn.modrinth.com/data/HXF82T3G/versions/8vIRXPpR/BiomesOPlenty-neoforge-1.21.1-21.1.0.13.jar",
+      "sha512": "a238c6dbeccf9bb8f7144601e8f8fd7973d76c60344b50670141e76f49f886f6f89487eb81749dfca7c36166831924052106884a9f8dc18893261476a34d4b32"
+    },
+    {
+      "mod_id": "regions_unexplored",
+      "filename": "regions-unexplored-0.6.2-neoforge-21.1.jar",
+      "url": "https://cdn.modrinth.com/data/Tkikq67H/versions/5A8LFnXX/regions-unexplored-0.6.2-neoforge-21.1.jar",
+      "sha512": "b6475d26f22a5a3ed957b76b85f3d51d3422c0fbef16f777b74bfe9d70fd1673d75cb0c4e2a2a56121f0d0d6780a9e92fdcd7023b4f1d0d2d746d54c64c12f3c"
+    },
+    {
+      "mod_id": "biomeswevegone",
+      "filename": "Oh-The-Biomes-Weve-Gone-NeoForge-2.6.0.jar",
+      "url": "https://cdn.modrinth.com/data/NTi7d3Xc/versions/aPEcdSHb/Oh-The-Biomes-Weve-Gone-NeoForge-2.6.0.jar",
+      "sha512": "76ceb60d1058bca79e13c7059dc42f8b230cb480986e1d88b505f958fc3922a00bef463eb267c9b676be053bec1e71806fbc27fb2a41df6dcd9881a0f0711f77"
+    },
+    {
+      "mod_id": "glitchcore",
+      "filename": "GlitchCore-neoforge-1.21.1-2.1.0.2.jar",
+      "url": "https://cdn.modrinth.com/data/s3dmwKy5/versions/S2TfWrZR/GlitchCore-neoforge-1.21.1-2.1.0.2.jar",
+      "sha512": "7a009ed163d03536fdfaee7b37cb1ec3073204dffcb06a683369aa88da8dbc3780b0ac69d466bb32a3ad9394c97b698d0fda676e1b4dd4edfc50ac5aa2283c32"
+    },
+    {
+      "mod_id": "terrablender",
+      "filename": "TerraBlender-neoforge-1.21.1-4.1.0.8.jar",
+      "url": "https://cdn.modrinth.com/data/kkmrDlKT/versions/6e8GCrLb/TerraBlender-neoforge-1.21.1-4.1.0.8.jar",
+      "sha512": "9d4b2a1be5139c0fb2fad92ed21805b17d9e83b6ea48e637e018bb14063c1823a206390755dbfe8d025c20fd62ac11cdd84db53ddb956dabaeda01bff57bac50"
+    },
+    {
+      "mod_id": "lithostitched",
+      "filename": "lithostitched-1.7.13-neoforge-21.1.jar",
+      "url": "https://cdn.modrinth.com/data/XaDC71GB/versions/qPASucBM/lithostitched-1.7.13-neoforge-21.1.jar",
+      "sha512": "04409013edce65678d02489a7b830ba7d5e18e7c705243c8208f52661da62e7e337a09fe2797c85d7a00bc66cb50949b157b267afd216e7b900ddde9849dff32"
+    },
+    {
+      "mod_id": "corgilib",
+      "filename": "Corgilib-NeoForge-1.21.1-5.0.0.9.jar",
+      "url": "https://cdn.modrinth.com/data/ziOp6EO8/versions/nqrTa84r/Corgilib-NeoForge-1.21.1-5.0.0.9.jar",
+      "sha512": "d5461d5fab247fe2d30ba5578c7768cf3c4c8758b155acb5c901913c22c43ddd6af6e7dbd5ae4cca8b106f7e2953b4427c0a97e53869861d64b0266c825d178b"
+    },
+    {
+      "mod_id": "ohthetreesyoullgrow",
+      "filename": "Oh-The-Trees-Youll-Grow-neoforge-1.21.1-5.3.2.jar",
+      "url": "https://cdn.modrinth.com/data/g8NOG5OR/versions/ozzakIcu/Oh-The-Trees-Youll-Grow-neoforge-1.21.1-5.3.2.jar",
+      "sha512": "1a1bf395c5ec7366b938f1891a6b6666ab0cac9da8f5e7fbc8c07a3518b568759772a7ce6a4326b448773a75a7b5aacb032f580baf447029f329dff3aa115789"
+    },
+    {
+      "mod_id": "geckolib",
+      "filename": "geckolib-neoforge-1.21.1-4.9.2.jar",
+      "url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/tPkJmim6/geckolib-neoforge-1.21.1-4.9.2.jar",
+      "sha512": "c91012b16cc40c8f48f69b78cb8e2e5c006486ae2431fbd289dfc01be7a4217294becea22d83a155d6b32b3969450df871352a3695e1452168b84f41355f7b9e"
+    },
+    {
+      "mod_id": "immersivepetroleum",
+      "filename": "ImmersivePetroleum-1.21.1-4.4.1-37.jar",
+      "url": "https://edge.forgecdn.net/files/7512/548/ImmersivePetroleum-1.21.1-4.4.1-37.jar",
+      "sha512": "2ae60beb79901e719c4541f41644eaed9c8c9c3cf393a53b6164a9663c77b79b43c5dcf179d4eec2008ec34a064a819f339863a75e93af7ee75bfc27299fd8b3"
+    },
+    {
+      "mod_id": "extendedae",
+      "filename": "ExtendedAE-1.21-2.2.33-neoforge.jar",
+      "url": "https://edge.forgecdn.net/files/8273/365/ExtendedAE-1.21-2.2.33-neoforge.jar",
+      "sha512": "a61c6f606b5d0a27857b55b8fc6a670352d91f19d2a2dadd2d650f08ae6682f437e7b18a80c5e26122bbf7b70b007851f1aaa90442fce16d8729c71c1ec10225"
+    },
+    {
+      "mod_id": "glodium",
+      "filename": "Glodium-1.21-2.2-neoforge.jar",
+      "url": "https://cdn.modrinth.com/data/UhW5uCKw/versions/pfbmdJ3b/Glodium-1.21-2.2-neoforge.jar",
+      "sha512": "56a387a1bdaf0146c9a7e14de0aca8b6f53f25d3ba9d46255f142043387282ed9e4fa0011d309e32d9ffe5362b129c07e301226dd4ac11eda9a4f42f27c0b5d1"
+    },
+    {
+      "mod_id": "ae2wtlib",
+      "filename": "ae2wtlib-19.2.6.jar",
+      "url": "https://cdn.modrinth.com/data/pNabrMMw/versions/IQFaf9vp/ae2wtlib-19.2.6.jar",
+      "sha512": "d3b2a5039049826de6d41f737d2ccd630f32d2c3297d8ce1525a5d50a1d77c2faaaea96442660522c8c60e3758648d48c6f437783f8f91f484e3815b12f694ca"
+    }
+  ]
+}

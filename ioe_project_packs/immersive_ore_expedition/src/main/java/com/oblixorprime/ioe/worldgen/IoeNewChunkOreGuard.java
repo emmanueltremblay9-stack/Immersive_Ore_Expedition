@@ -217,25 +217,6 @@ public final class IoeNewChunkOreGuard {
                 || state.is(Tags.Blocks.CLUSTERS))) {
             return TargetKind.GROWTH_RESOURCE;
         }
-        if (Ae2MeteoriteIntegration.MOD_ID.equals(namespace)
-                && (path.contains("budding_quartz")
-                || path.contains("quartz_bud")
-                || path.equals("quartz_cluster")
-                || path.equals("sky_stone_block")
-                || path.equals("fluix_block")
-                || state.is(Tags.Blocks.BUDS)
-                || state.is(Tags.Blocks.CLUSTERS))) {
-            return TargetKind.GROWTH_RESOURCE;
-        }
-        if (ExtendedAeGeodeIntegration.MOD_ID.equals(namespace)
-                && path.startsWith("entro_")
-                && (path.contains("budding")
-                || path.contains("bud")
-                || path.contains("cluster")
-                || state.is(Tags.Blocks.BUDS)
-                || state.is(Tags.Blocks.CLUSTERS))) {
-            return TargetKind.GROWTH_RESOURCE;
-        }
         return null;
     }
 

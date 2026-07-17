@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Stops IP's expensive free reservoir scan; the storage mixin remains the authoritative admission gate. */
+/** Limits native IP scans to the three explicit, mutually exclusive biome reservoir groups. */
 @Pseudo
 @Mixin(targets = "flaxbeard.immersivepetroleum.common.world.FeatureReservoir", remap = false)
 abstract class IoeFeatureReservoirMixin {
@@ -21,7 +21,9 @@ abstract class IoeFeatureReservoirMixin {
             RandomSource random,
             CallbackInfo callback
     ) {
-        IoePetroleumReservoirRules.recordNativeScanSuppressed(level, chunkPos);
-        callback.cancel();
+        if (!IoePetroleumReservoirRules.allowsNativeScan(level, chunkPos)) {
+            IoePetroleumReservoirRules.recordNativeScanSuppressed(level, chunkPos);
+            callback.cancel();
+        }
     }
 }

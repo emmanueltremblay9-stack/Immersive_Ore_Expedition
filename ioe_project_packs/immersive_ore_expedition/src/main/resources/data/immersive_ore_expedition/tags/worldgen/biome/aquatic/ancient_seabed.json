@@ -1,0 +1,26 @@
+{
+  "replace": true,
+  "values": [
+    "minecraft:ocean",
+    "minecraft:cold_ocean",
+    "minecraft:deep_cold_ocean",
+    "minecraft:deep_frozen_ocean",
+    "minecraft:deep_lukewarm_ocean",
+    "minecraft:deep_ocean",
+    "minecraft:frozen_ocean",
+    "minecraft:lukewarm_ocean",
+    "minecraft:warm_ocean",
+    {
+      "id": "regions_unexplored:hyacinth_deeps",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:dead_sea",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:lush_stacks",
+      "required": false
+    }
+  ]
+}
