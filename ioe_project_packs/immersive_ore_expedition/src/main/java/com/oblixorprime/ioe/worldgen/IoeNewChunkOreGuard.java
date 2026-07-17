@@ -20,8 +20,10 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -31,11 +33,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class IoeNewChunkOreGuard {
     private static final AtomicBoolean REGISTERED = new AtomicBoolean();
     private static final int BLOCK_UPDATE_FLAGS = Block.UPDATE_CLIENTS;
+    private static final int SANITIZATIONS_PER_TICK = 1;
     private static final int FINAL_SANITIZATION_DELAY_TICKS = 20;
     private static final Set<PendingChunk> PENDING_NEW_CHUNKS = ConcurrentHashMap.newKeySet();
     private static final Set<PendingChunk> SCHEDULED_SANITIZATIONS = ConcurrentHashMap.newKeySet();
+    private static final Queue<PendingChunk> INITIAL_SANITIZATION_QUEUE = new ConcurrentLinkedQueue<>();
     private static final ConcurrentHashMap<PendingChunk, Integer> FINAL_SANITIZATION_TICKS =
             new ConcurrentHashMap<>();
+    private static boolean prioritizeFinalSanitization;
 
     private IoeNewChunkOreGuard() {
     }
@@ -61,39 +66,76 @@ public final class IoeNewChunkOreGuard {
         if (!SCHEDULED_SANITIZATIONS.add(chunkKey)) {
             return;
         }
-        level.getServer().execute(() -> {
-            try {
-                if (sanitizeLoadedChunk(level, chunkPos, false)) {
-                    int finalTick = level.getServer().getTickCount() + FINAL_SANITIZATION_DELAY_TICKS;
-                    FINAL_SANITIZATION_TICKS.merge(chunkKey, finalTick, Math::min);
-                }
-            } finally {
-                SCHEDULED_SANITIZATIONS.remove(chunkKey);
-            }
-        });
+        INITIAL_SANITIZATION_QUEUE.add(chunkKey);
     }
 
     private static void onServerTick(ServerTickEvent.Post event) {
-        if (FINAL_SANITIZATION_TICKS.isEmpty()) {
+        int currentTick = event.getServer().getTickCount();
+        for (int pass = 0; pass < SANITIZATIONS_PER_TICK; pass++) {
+            PendingFinal pendingFinal = findDueFinalSanitization(currentTick);
+            boolean hasInitial = !INITIAL_SANITIZATION_QUEUE.isEmpty();
+            if (!hasInitial && pendingFinal == null) {
+                break;
+            }
+
+            boolean runFinal = pendingFinal != null && (!hasInitial || prioritizeFinalSanitization);
+            if (pendingFinal != null && hasInitial) {
+                prioritizeFinalSanitization = !prioritizeFinalSanitization;
+            }
+            if (runFinal) {
+                runFinalSanitization(event, pendingFinal);
+            } else {
+                runInitialSanitization(event);
+            }
+        }
+    }
+
+    private static PendingFinal findDueFinalSanitization(int currentTick) {
+        for (var entry : FINAL_SANITIZATION_TICKS.entrySet()) {
+            if (entry.getValue() <= currentTick) {
+                return new PendingFinal(entry.getKey(), entry.getValue());
+            }
+        }
+        return null;
+    }
+
+    private static void runInitialSanitization(ServerTickEvent.Post event) {
+        PendingChunk chunkKey;
+        do {
+            chunkKey = INITIAL_SANITIZATION_QUEUE.poll();
+        } while (chunkKey != null && !SCHEDULED_SANITIZATIONS.remove(chunkKey));
+        if (chunkKey == null) {
             return;
         }
-        int currentTick = event.getServer().getTickCount();
-        for (var entry : List.copyOf(FINAL_SANITIZATION_TICKS.entrySet())) {
-            PendingChunk chunkKey = entry.getKey();
-            int finalTick = entry.getValue();
-            if (finalTick > currentTick || !FINAL_SANITIZATION_TICKS.remove(chunkKey, finalTick)) {
-                continue;
-            }
-            ServerLevel level = event.getServer().getLevel(chunkKey.dimension());
-            ChunkPos chunkPos = new ChunkPos(chunkKey.chunkPos());
-            if (level == null) {
-                PENDING_NEW_CHUNKS.remove(chunkKey);
-                IoeOrePlacementAuthorization.releaseChunk(chunkKey.dimension(), chunkPos);
-                continue;
-            }
-            if (sanitizeLoadedChunk(level, chunkPos, true)) {
-                PENDING_NEW_CHUNKS.remove(chunkKey);
-            }
+
+        ServerLevel level = event.getServer().getLevel(chunkKey.dimension());
+        ChunkPos chunkPos = new ChunkPos(chunkKey.chunkPos());
+        if (level == null) {
+            PENDING_NEW_CHUNKS.remove(chunkKey);
+            IoeOrePlacementAuthorization.releaseChunk(chunkKey.dimension(), chunkPos);
+            return;
+        }
+        if (sanitizeLoadedChunk(level, chunkPos, false)) {
+            int finalTick = event.getServer().getTickCount() + FINAL_SANITIZATION_DELAY_TICKS;
+            FINAL_SANITIZATION_TICKS.merge(chunkKey, finalTick, Math::min);
+        }
+    }
+
+    private static void runFinalSanitization(ServerTickEvent.Post event, PendingFinal pendingFinal) {
+        PendingChunk chunkKey = pendingFinal.chunkKey();
+        if (!FINAL_SANITIZATION_TICKS.remove(chunkKey, pendingFinal.scheduledTick())) {
+            return;
+        }
+
+        ServerLevel level = event.getServer().getLevel(chunkKey.dimension());
+        ChunkPos chunkPos = new ChunkPos(chunkKey.chunkPos());
+        if (level == null) {
+            PENDING_NEW_CHUNKS.remove(chunkKey);
+            IoeOrePlacementAuthorization.releaseChunk(chunkKey.dimension(), chunkPos);
+            return;
+        }
+        if (sanitizeLoadedChunk(level, chunkPos, true)) {
+            PENDING_NEW_CHUNKS.remove(chunkKey);
         }
     }
 
@@ -182,7 +224,9 @@ public final class IoeNewChunkOreGuard {
     static void clearPending() {
         PENDING_NEW_CHUNKS.clear();
         SCHEDULED_SANITIZATIONS.clear();
+        INITIAL_SANITIZATION_QUEUE.clear();
         FINAL_SANITIZATION_TICKS.clear();
+        prioritizeFinalSanitization = false;
     }
 
     private static BlockState replacementState(ServerLevel level, BlockPos pos) {
@@ -235,6 +279,9 @@ public final class IoeNewChunkOreGuard {
     }
 
     private record Target(BlockPos pos, TargetKind kind) {
+    }
+
+    private record PendingFinal(PendingChunk chunkKey, int scheduledTick) {
     }
 
     private record PendingChunk(ResourceKey<Level> dimension, long chunkPos) {
