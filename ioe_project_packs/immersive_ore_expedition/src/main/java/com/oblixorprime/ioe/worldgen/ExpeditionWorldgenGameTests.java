@@ -133,6 +133,12 @@ public final class ExpeditionWorldgenGameTests {
             )), type.id() + " did not plan exactly one surface clue, connector, and chamber");
             helper.assertTrue(plan.oreBlockCount() == 0L && plan.oreNodeCount() == 0,
                     type.id() + " embedded a forbidden free resource in its structural chamber");
+            for (int depth = 1; depth <= origin.getY() - plan.connectorEnd().getY(); depth++) {
+                BlockPos shaftCell = origin.below(depth);
+                var shaftState = plan.blocks().get(shaftCell);
+                helper.assertTrue(shaftState != null && shaftState.isAir(),
+                        type.id() + " blocked its vertical shaft at " + shaftCell);
+            }
         }
 
         ExpeditionSiteBlockPlan dry = ExpeditionSiteBlueprints.plan(

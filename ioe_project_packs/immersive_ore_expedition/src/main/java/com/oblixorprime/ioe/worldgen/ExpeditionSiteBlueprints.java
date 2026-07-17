@@ -334,7 +334,7 @@ public final class ExpeditionSiteBlueprints {
         for (int step = 0; step <= CHAMBER_HORIZONTAL_OFFSET; step++) {
             int x = bottom.getX() + horizontalDirection * step;
             carveTunnelSection(builder, new BlockPos(x, bottom.getY(), bottom.getZ()));
-            if (step % 3 == 0) {
+            if (step > 0 && step % 3 == 0) {
                 addTunnelSupport(builder, new BlockPos(x, bottom.getY(), bottom.getZ()));
             }
         }
