@@ -78,7 +78,11 @@ public final class IoeNewChunkOreGuard {
                 break;
             }
 
-            boolean runFinal = pendingFinal != null && (!hasInitial || prioritizeFinalSanitization);
+            boolean runFinal = shouldRunFinalSanitization(
+                    hasInitial,
+                    pendingFinal != null,
+                    prioritizeFinalSanitization
+            );
             if (pendingFinal != null && hasInitial) {
                 prioritizeFinalSanitization = !prioritizeFinalSanitization;
             }
@@ -92,11 +96,31 @@ public final class IoeNewChunkOreGuard {
 
     private static PendingFinal findDueFinalSanitization(int currentTick) {
         for (var entry : FINAL_SANITIZATION_TICKS.entrySet()) {
-            if (entry.getValue() <= currentTick) {
+            if (isFinalSanitizationEligible(
+                    entry.getValue(),
+                    currentTick,
+                    SCHEDULED_SANITIZATIONS.contains(entry.getKey())
+            )) {
                 return new PendingFinal(entry.getKey(), entry.getValue());
             }
         }
         return null;
+    }
+
+    static boolean isFinalSanitizationEligible(
+            int scheduledTick,
+            int currentTick,
+            boolean sameChunkInitialQueued
+    ) {
+        return scheduledTick <= currentTick && !sameChunkInitialQueued;
+    }
+
+    static boolean shouldRunFinalSanitization(
+            boolean hasInitial,
+            boolean hasDueFinal,
+            boolean prioritizeFinal
+    ) {
+        return hasDueFinal && (!hasInitial || prioritizeFinal);
     }
 
     private static void runInitialSanitization(ServerTickEvent.Post event) {
@@ -107,17 +131,22 @@ public final class IoeNewChunkOreGuard {
         if (chunkKey == null) {
             return;
         }
+        if (!PENDING_NEW_CHUNKS.contains(chunkKey)) {
+            FINAL_SANITIZATION_TICKS.remove(chunkKey);
+            return;
+        }
 
         ServerLevel level = event.getServer().getLevel(chunkKey.dimension());
         ChunkPos chunkPos = new ChunkPos(chunkKey.chunkPos());
         if (level == null) {
             PENDING_NEW_CHUNKS.remove(chunkKey);
+            FINAL_SANITIZATION_TICKS.remove(chunkKey);
             IoeOrePlacementAuthorization.releaseChunk(chunkKey.dimension(), chunkPos);
             return;
         }
         if (sanitizeLoadedChunk(level, chunkPos, false)) {
             int finalTick = event.getServer().getTickCount() + FINAL_SANITIZATION_DELAY_TICKS;
-            FINAL_SANITIZATION_TICKS.merge(chunkKey, finalTick, Math::min);
+            FINAL_SANITIZATION_TICKS.put(chunkKey, finalTick);
         }
     }
 

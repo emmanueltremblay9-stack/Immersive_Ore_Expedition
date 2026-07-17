@@ -11,6 +11,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class IoeNewChunkOreGuardSafetyTest {
     @Test
+    void schedulerAlternatesWithoutRunningFinalAheadOfInitial() {
+        assertFalse(IoeNewChunkOreGuard.shouldRunFinalSanitization(true, true, false));
+        assertTrue(IoeNewChunkOreGuard.shouldRunFinalSanitization(true, true, true));
+        assertTrue(IoeNewChunkOreGuard.shouldRunFinalSanitization(false, true, false));
+        assertFalse(IoeNewChunkOreGuard.shouldRunFinalSanitization(true, false, true));
+        assertFalse(IoeNewChunkOreGuard.isFinalSanitizationEligible(20, 20, true));
+        assertTrue(IoeNewChunkOreGuard.isFinalSanitizationEligible(20, 20, false));
+        assertFalse(IoeNewChunkOreGuard.isFinalSanitizationEligible(21, 20, false));
+    }
+
+    @Test
     void chunkLoadCallbackDefersSanitizationUntilServerTicks() throws IOException {
         String source = Files.readString(sourceFile(
                 "src/main/java/com/oblixorprime/ioe/worldgen/IoeNewChunkOreGuard.java"
@@ -26,6 +37,8 @@ final class IoeNewChunkOreGuardSafetyTest {
         assertTrue(source.contains("SANITIZATIONS_PER_TICK = 1"));
         assertTrue(source.contains("ServerTickEvent.Post"));
         assertTrue(source.contains("INITIAL_SANITIZATION_QUEUE.clear()"));
+        assertTrue(source.contains("SCHEDULED_SANITIZATIONS.contains(entry.getKey())"));
+        assertTrue(source.contains("!PENDING_NEW_CHUNKS.contains(chunkKey)"));
     }
 
     private static Path sourceFile(String relativePath) {
