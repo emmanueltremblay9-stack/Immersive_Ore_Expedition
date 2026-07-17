@@ -172,7 +172,7 @@ final class ExpeditionCompassItemTest {
     }
 
     @Test
-    void emptyMenuSnapshotDropsStoredTargetWhenItIsNoLongerIndexed() {
+    void emptyMenuSnapshotKeepsPlayableStoredTargetWhileIndexIsTemporarilyEmpty() {
         ExpeditionCompassTarget existing = target(Level.OVERWORLD, new BlockPos(10, 64, 0));
 
         ExpeditionCompassMenuSnapshot snapshot = ExpeditionCompassMenuSnapshot.fromIndex(
@@ -185,8 +185,52 @@ final class ExpeditionCompassItemTest {
 
         assertEquals(InteractionHand.OFF_HAND, snapshot.hand());
         assertEquals(ExpeditionCompassEmptyReason.WORLDGEN_DISABLED, snapshot.emptyReason());
-        assertTrue(snapshot.currentTarget().isEmpty());
+        assertEquals(existing, snapshot.currentTarget().orElseThrow());
         assertTrue(snapshot.entries().isEmpty());
+    }
+
+    @Test
+    void staleMenuSnapshotKeepsPlayableStoredTargetMissingFromCurrentIndex() {
+        ExpeditionCompassTarget existing = target(Level.OVERWORLD, new BlockPos(10, 64, 0));
+        ExpeditionLocatorIndex staleIndex = new ExpeditionLocatorIndex();
+        staleIndex.record(anchor("different_site", new BlockPos(32, 64, 0)));
+
+        ExpeditionCompassMenuSnapshot snapshot = ExpeditionCompassMenuSnapshot.fromIndex(
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                InteractionHand.MAIN_HAND,
+                Optional.of(existing),
+                staleIndex
+        );
+
+        assertEquals(existing, snapshot.currentTarget().orElseThrow());
+        assertEquals(1, snapshot.entries().size());
+        assertNotEquals(existing, snapshot.entries().getFirst().target());
+    }
+
+    @Test
+    void menuSnapshotDropsStoredTargetThatWasNeverPlayable() {
+        ExpeditionCompassTarget planned = new ExpeditionCompassTarget(
+                Level.OVERWORLD,
+                new BlockPos(10, 64, 0),
+                ExpeditionSiteKind.ANCHOR,
+                Optional.of(id("tiny_vertical_mine_entrance")),
+                Optional.of(id("granite_belt")),
+                Optional.of(SiteQuality.NORMAL),
+                Optional.of("catalog"),
+                ExpeditionSitePlacementState.PLANNED,
+                Optional.of("not generated")
+        );
+
+        ExpeditionCompassMenuSnapshot snapshot = ExpeditionCompassMenuSnapshot.fromIndex(
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                InteractionHand.MAIN_HAND,
+                Optional.of(planned),
+                new ExpeditionLocatorIndex()
+        );
+
+        assertTrue(snapshot.currentTarget().isEmpty());
     }
 
     @Test

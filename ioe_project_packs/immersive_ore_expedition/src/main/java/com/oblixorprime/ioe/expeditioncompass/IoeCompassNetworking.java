@@ -43,9 +43,6 @@ public final class IoeCompassNetworking {
             ExpeditionLocatorIndex locatorIndex
     ) {
         ExpeditionCompassMenuSnapshot snapshot = snapshotFor(player, hand, stack, locatorIndex);
-        if (ExpeditionCompassItem.target(stack).isPresent() && snapshot.currentTarget().isEmpty()) {
-            ExpeditionCompassItem.clearTarget(stack);
-        }
         IoeExpeditionCompassMod.LOGGER.debug(
                 "Sending expedition compass menu snapshot to {} hand={} entries={} currentTarget={}",
                 player.getScoreboardName(),

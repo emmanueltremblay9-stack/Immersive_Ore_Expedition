@@ -158,7 +158,7 @@ public record ExpeditionCompassMenuSnapshot(
         return new ExpeditionCompassMenuSnapshot(
                 dimension,
                 hand,
-                validCurrentTarget(currentTarget, locatorIndex),
+                validCurrentTarget(currentTarget),
                 emptyReason(dimension, locatorIndex, placementGates, proofFeatureGates),
                 entries
         );
@@ -177,14 +177,9 @@ public record ExpeditionCompassMenuSnapshot(
     }
 
     private static Optional<ExpeditionCompassTarget> validCurrentTarget(
-            Optional<ExpeditionCompassTarget> currentTarget,
-            ExpeditionLocatorIndex locatorIndex
+            Optional<ExpeditionCompassTarget> currentTarget
     ) {
-        return currentTarget
-                .filter(ExpeditionCompassTarget::playable)
-                .filter(target -> locatorIndex.sites().stream()
-                        .map(ExpeditionCompassTarget::fromSite)
-                        .anyMatch(target::equals));
+        return currentTarget.filter(ExpeditionCompassTarget::playable);
     }
 
     private static Comparator<ExpeditionCompassMenuEntry> entryComparator() {
