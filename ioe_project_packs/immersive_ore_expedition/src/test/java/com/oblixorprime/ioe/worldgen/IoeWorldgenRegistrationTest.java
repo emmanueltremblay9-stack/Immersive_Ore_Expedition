@@ -124,7 +124,7 @@ final class IoeWorldgenRegistrationTest {
                 "data/immersive_ore_expedition/tags/worldgen/biome/expedition_site_biomes.json"
         );
 
-        assertTrue(json.contains("\"replace\": false"));
+        assertTrue(json.contains("\"replace\": true"));
         assertTrue(json.contains("#immersive_ore_expedition:ore_profile/coal"));
         assertTrue(json.contains("#immersive_ore_expedition:ore_profile/nickel"));
         assertTrue(json.contains("#immersive_ore_expedition:ore_profile/uranium"));
