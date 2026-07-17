@@ -61,7 +61,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         long planSeed = context.random().nextLong();
         ExpeditionSiteBlockPlan previewPlan = structureOnlyPlan(siteType, origin, quality, planSeed);
         BiomeMineResourceProfile resourceProfile = null;
-        if (quality.isProductive()) {
+        if (quality.isProductive() && siteType.naturalSurfaceSite()) {
             BiomeMineResourceProfile.Resolution resolution = BiomeMineResourceProfile.resolve(
                     context.level(),
                     siteType.naturalSurfaceSite() ? previewPlan.chamberCenter() : origin
