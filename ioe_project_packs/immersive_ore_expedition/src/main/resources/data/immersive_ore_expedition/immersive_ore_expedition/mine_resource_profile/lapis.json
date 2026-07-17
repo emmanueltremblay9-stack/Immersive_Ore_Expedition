@@ -1,0 +1,24 @@
+{
+  "biome_tag": "immersive_ore_expedition:ore_profile/lapis",
+  "mineral_mix": "immersive_ore_expedition:mineral/lapis",
+  "resource_name": "lapis",
+  "survey_radius_chunks": 8,
+  "deposit_tiers": {
+    "mother": {
+      "radius_blocks": 44,
+      "capacity": 12288
+    },
+    "major": {
+      "radius_blocks": 30,
+      "capacity": 6144
+    },
+    "minor": {
+      "radius_blocks": 18,
+      "capacity": 3072
+    },
+    "direct": {
+      "radius_blocks": 10,
+      "capacity": 1536
+    }
+  }
+}

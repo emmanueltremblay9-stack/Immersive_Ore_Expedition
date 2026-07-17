@@ -46,7 +46,7 @@ final class RandomOreSuppressionPlannerTest {
     }
 
     @Test
-    void explicitlyEnabledRuntimeGateCanScaleRandomOreDensity() {
+    void explicitlyEnabledRuntimeGateSuppressesRandomOreDensity() {
         ResourceRef iron = ResourceRef.block("minecraft", "iron_ore");
 
         RandomOreSuppressionPlan plan = planner.planRandomOreSuppression(
@@ -57,10 +57,10 @@ final class RandomOreSuppressionPlannerTest {
         );
 
         assertTrue(plan.decisionProduced());
-        assertEquals(RandomOreSuppressionPlan.Decision.SCALE_DENSITY, plan.decision());
+        assertEquals(RandomOreSuppressionPlan.Decision.SUPPRESS, plan.decision());
         assertEquals(RandomOreSuppressionPlan.SkipReason.NONE, plan.skipReason());
         assertEquals(1.0D, plan.originalDensityMultiplier());
-        assertEquals(new OreSuppressionPolicy().densityMultiplier(), plan.effectiveDensityMultiplier());
+        assertEquals(0.0D, plan.effectiveDensityMultiplier());
         assertTrue(plan.resourceLoaded());
     }
 
@@ -130,11 +130,7 @@ final class RandomOreSuppressionPlannerTest {
                 ENABLED_GATES
         );
 
-        if (suppressionPolicy.densityMultiplier() == 1.0D) {
-            assertEquals(RandomOreSuppressionPlan.Decision.ALLOW_ORIGINAL, plan.decision());
-        } else {
-            assertEquals(RandomOreSuppressionPlan.Decision.SCALE_DENSITY, plan.decision());
-        }
+        assertEquals(RandomOreSuppressionPlan.Decision.SUPPRESS, plan.decision());
         assertEquals(suppressionPolicy.densityMultiplier(), plan.effectiveDensityMultiplier());
         assertEquals(RandomOreSuppressionPlan.SourceReason.ORE_SUPPRESSION_POLICY, plan.sourceReason());
     }

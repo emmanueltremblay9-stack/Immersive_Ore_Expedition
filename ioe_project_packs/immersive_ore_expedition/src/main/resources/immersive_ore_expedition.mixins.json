@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.oblixorprime.ioe.mixin.compat.ie",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "IoeExcavatorHandlerMixin",
+    "ip.IoeFeatureReservoirMixin",
+    "ip.IoeReservoirRegionDataAccessor",
+    "ip.IoeReservoirStorageMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

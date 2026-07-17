@@ -1,0 +1,5 @@
+{
+  "type": "neoforge:remove_features",
+  "biomes": "#immersive_ore_expedition:resource_suppression_biomes",
+  "features": "#immersive_ore_expedition:normal_ore_generation"
+}

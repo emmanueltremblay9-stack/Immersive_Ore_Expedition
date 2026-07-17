@@ -1,0 +1,18 @@
+{
+  "replace": true,
+  "values": [
+    "minecraft:grove",
+    {
+      "id": "biomesoplenty:jade_cliffs",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:wisteria_grove",
+      "required": false
+    },
+    {
+      "id": "biomeswevegone:crag_gardens",
+      "required": false
+    }
+  ]
+}

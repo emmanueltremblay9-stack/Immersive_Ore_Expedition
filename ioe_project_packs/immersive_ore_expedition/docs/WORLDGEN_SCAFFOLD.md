@@ -1,5 +1,7 @@
 # IOE Worldgen Registration Scaffold
 
+> Historical milestone log. For the current runtime contract, use `ORE_NODE_SYSTEM.md` and `docs/biome_mineral_distribution/BIOME_MINERAL_DISTRIBUTION_REPORT.md`.
+
 Province System v7 adds a scaffold for future runtime worldgen registration in the consolidated module. The scaffold centralizes:
 
 - stable IOE worldgen feature keys under the `immersive_ore_expedition` namespace;
@@ -80,7 +82,7 @@ This remains scaffold-only planning. Runtime worldgen remains default-off and no
 
 ## Current runtime integration note
 
-The v13/v14 paragraphs above describe the original planning classes and remain true for those planners in isolation. The active `worldgen` package now has a separate runtime path: IOE expedition features place mutually exclusive GeOre, AE2, or ExtendedAE formations inside connected mine chambers, and the final biome modifier removes the explicitly controlled physical ore features. See `ORE_NODE_SYSTEM.md`, `GEORE_INTEGRATION.md`, `AE2_METEORITE_INTEGRATION.md`, `EXTENDEDAE_GEODE_INTEGRATION.md`, and `IMMERSIVE_ENGINEERING_RESOURCE_INTEGRATION.md` for the current contract.
+The v13/v14 paragraphs above describe historical planning classes in isolation. The active `worldgen` path now places structure-only expedition sites backed by finite abstract IE mineral deposits; it does not place GeOre, AE2, or ExtendedAE formations. See `ORE_NODE_SYSTEM.md`, `AE2_METEORITE_INTEGRATION.md`, `EXTENDEDAE_GEODE_INTEGRATION.md`, and `IMMERSIVE_ENGINEERING_RESOURCE_INTEGRATION.md` for the current contract.
 
 The planner preserves optional AE2 safety, uses only supplied existing AE2 resource references, rejects unloaded, policy-denied, strictly excluded, malformed, or fake Fluix resources safely, and stores no world references, block-state lists, or runtime placement hooks. v15 is expected to handle Nether sub-lava geode planning scaffold work.
 

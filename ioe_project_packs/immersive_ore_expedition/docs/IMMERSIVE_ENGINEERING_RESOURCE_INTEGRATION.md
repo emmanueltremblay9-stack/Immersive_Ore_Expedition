@@ -13,32 +13,33 @@ Immersive Engineering 1.21.1 uses its custom `immersiveengineering:ie_ore` featu
 
 The final IOE biome-modifier phase removes those features from Overworld biomes. This prevents the corresponding stone and deepslate ore blocks from appearing outside IOE-controlled resource progression.
 
-## GeOre node replacement
+## No embedded resource replacement
 
-The suppressed physical resources re-enter IOE mines through GeOre-owned registry blocks. The mapping is exact and fail-closed:
-
-| Immersive Engineering resource | IOE biome | GeOre material block | GeOre budding heart |
-| --- | --- | --- | --- |
-| Aluminium / bauxite | Eroded badlands | `geore:aluminum_block` | `geore:budding_aluminum` |
-| Lead | Windswept gravelly hills | `geore:lead_block` | `geore:budding_lead` |
-| Silver | Snowy slopes | `geore:silver_block` | `geore:budding_silver` |
-| Nickel, including the suppressed deep-nickel feature | Old-growth pine taiga | `geore:nickel_block` | `geore:budding_nickel` |
-| Uranium | Dark forest | `geore:uranium_block` | `geore:budding_uranium` |
-
-GeOre registers the bauxite-equivalent family under the American-English material name `aluminum`. There is no `geore:budding_bauxite` or `geore:bauxite_block` fallback. If either exact block for a row is absent, IOE skips that mine instead of substituting an IE ore block.
+IOE expedition structures contain no loose ore, GeOre node, budding resource block, artificial geode, or intermediate crystal matrix. Productive sites are structural access points backed by one abstract Immersive Engineering `MineralVein`; the Excavator recipe is the sole IOE-controlled source of their mineral outputs.
 
 ## Mineral deposits are not ore blocks
 
 The separate `immersiveengineering:mineral_veins` configured feature records hidden industrial deposits for the Core Sample Drill and Excavator; it does not place ore blocks into terrain. IOE leaves that system registered because it is an Immersive Engineering machine progression path, not free world ore.
 
-The existing IOE IE/IP prospecting layer remains the coordination boundary:
+IOE keeps `immersiveengineering:mineral_veins` out of the global suppression tag and constrains registration as follows:
 
-- `IeDepositQuantityLimiter` plans reduced deposit quantities when IE is loaded;
-- `IeMineralOutcropFeature` and `SurfaceCluePlacementPlanner` describe IOE-owned surface clues without copying IE assets;
-- runtime gates fail closed when Immersive Engineering resources are absent or denied;
-- no IE ore block is used as an uncontrolled outcrop.
+- natural-site placement is admitted across the Overworld, then the biome profile is sampled at the planned underground chamber center; generic and aquatic chambers fail the specialized profile gate, while allowlisted cave biomes can own a deposit beneath a surface clue;
+- one exact IOE `mineral_mix` and one reserve tier are prepared without writing structure blocks from the worldgen worker;
+- site blocks and the prepared vein are committed only during final chunk confirmation on the server thread;
+- an already registered compatible vein at the same anchor and radius makes the commit idempotent;
+- reserve failure walks the complete `MOTHERLODE → RICH → NORMAL → POOR` chain, mapped to Mother → Major → Minor → Direct, without changing composition;
+- every failed tier is compensated before the next lower tier is attempted; exhaustion rejects the site instead of generating free ore or silently dropping its resource;
+- a committed IOE vein remains compensatable until the locator entry is recorded, while a pre-existing compatible IE vein is never removed;
+- natural productive sites fail closed when IE is absent; the baseline GameTests assert that no blocks or locator entry leak in that mode;
+- IE continues to own Core Sample discovery, depletion and Excavator extraction.
 
-Those classes are still planning/scaffolding rather than proof of a live IE deposit hook. Until their runtime adapter is implemented and verified, the physical ore suppression is confirmed only statically and IE Excavator quantity control remains unverified.
+## Aquatic recipes
+
+`Alluvial Sift`, `Silt`, and `Ancient Seabed` keep their native Immersive Engineering recipe identifiers, compositions, weights, failure chances, and official spoils. IOE overrides only their `biome_predicates` so each aquatic family selects exactly one of those native recipes. This avoids duplicate IOE/native aquatic candidates and preserves the official 20% diamond by-product in `Alluvial Sift`.
+
+Specialized terrestrial and subterranean biomes suppress native random IE vein creation because their exact deposit is committed transactionally with the expedition site. The native gate scans the full biome column at quart-height intervals, so a cave-owned profile is not misclassified from its surface biome. Unassigned columns retain generic native IE recipe selection.
+
+No IE ore block is used as an uncontrolled outcrop. The bridge creates an abstract `MineralVein`; it does not convert the deposit into blocks, structures, IOE nodes, or artificial geodes. Runtime gameplay validation remains separate from static integration proof.
 
 ## Scope boundary
 

@@ -119,15 +119,16 @@ final class IoeWorldgenRegistrationTest {
     }
 
     @Test
-    void expeditionSiteBiomeTagBindsSparseEligibleOverworldBiomes() throws IOException {
+    void expeditionSiteBiomeTagBindsEveryDataDrivenOreProfile() throws IOException {
         String json = readClasspathResource(
                 "data/immersive_ore_expedition/tags/worldgen/biome/expedition_site_biomes.json"
         );
 
-        assertTrue(json.contains("\"replace\": false"));
-        assertTrue(json.contains("\"minecraft:plains\""));
-        assertTrue(json.contains("\"minecraft:meadow\""));
-        assertTrue(json.contains("\"minecraft:stony_peaks\""));
+        assertTrue(json.contains("\"replace\": true"));
+        assertTrue(json.contains("#immersive_ore_expedition:ore_profile/coal"));
+        assertTrue(json.contains("#immersive_ore_expedition:ore_profile/nickel"));
+        assertTrue(json.contains("#immersive_ore_expedition:ore_profile/uranium"));
+        assertFalse(json.contains("\"minecraft:plains\""));
         assertFalse(json.contains("#minecraft:is_overworld"));
         assertFalse(json.contains("#c:"));
     }

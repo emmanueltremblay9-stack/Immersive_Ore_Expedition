@@ -10,7 +10,7 @@
 - Source revision inspected: `307174eaf237e82236b8534d59c554031000ba05`
 - License: MIT
 
-Immersive Ore Expedition uses GeOre as a required, separately distributed runtime dependency. GeOre owns and supplies its code, block behavior, models, textures, sounds, language resources, recipes, loot tables, and geode world generation. No GeOre source file or asset is copied into the IOE jar by this integration. IOE selects GeOre blocks through Minecraft registry identifiers and places them inside IOE-controlled ore nodes.
+Immersive Ore Expedition uses GeOre as a required, separately distributed runtime dependency. GeOre owns and supplies its code, block behavior, models, textures, sounds, language resources, recipes, loot tables, and geode world generation. No GeOre source file or asset is copied into the IOE jar by this integration. The active biome-to-mineral path creates no GeOre block formation; it uses abstract Immersive Engineering deposits instead.
 
 The following MIT notice is preserved for attribution and for any future distribution that includes a copy or substantial portion of GeOre:
 
@@ -48,7 +48,7 @@ SOFTWARE.
 - Source revision inspected: `79ee2c704ad62941a426c26b1cb1f76ef5b2ee5a`
 - Upstream licensing: LGPL-3.0 for code, with separately identified MIT and CC BY-NC-SA material upstream
 
-Immersive Ore Expedition treats AE2 as a separately distributed required runtime dependency. IOE resolves the public registry entries `ae2:flawed_budding_quartz` and `ae2:sky_stone_block`, relies on AE2's native `ae2:charged_certus_quartz_crystal` water transformations, and extends the public `ae2:growth_acceleratable` block tag; it does not copy AE2 Java source, models, textures, sounds, recipes, loot tables, language files, or world-generation data. The empty `ae2:has_meteorites` biome-tag override and the replacement mine placement are original IOE data and code.
+Immersive Ore Expedition treats AE2 as a separately distributed required runtime dependency. IOE references `ae2:certus_quartz_crystal` as a rare Immersive Engineering mineral-mix output and extends the public `ae2:growth_acceleratable` block tag for compatibility; it does not copy AE2 Java source, models, textures, sounds, recipes, loot tables, language files, or world-generation data. The empty IOE `ae2:has_meteorites` overlay uses `replace: false`, preserving AE2's upstream meteorite biome values and normal meteorite placement.
 
 ## AE2 Crystal Science
 
@@ -58,9 +58,15 @@ Immersive Ore Expedition treats AE2 as a separately distributed required runtime
 - Integrated line: Minecraft 1.21.1, AE2 Crystal Science 1.1.12
 - Mod id: `ae2cs`
 - Modrinth project/version: `uJ9afomy` / `PP2uuQ6t`
+- Source tag inspected: `v1.1.12-1.21.1-neoforge`
+- Source revision inspected: `9b67c6407080fee43cbac95ada80c13c2d1b64ef`
 - Upstream licensing: LGPL-3.0-or-later for code; CC BY-NC-SA 3.0 for assets
+- LGPL license text: https://github.com/ExtremelyFrozen/AE2-Crystal-Science/blob/v1.1.12-1.21.1-neoforge/LICENSES/LGPL-3.0.txt
+- Embedded LGPL license copy: `src/main/resources/META-INF/licenses/immersive_ore_expedition/AE2CS-LGPL-3.0.txt`
 
-AE2 Crystal Science is a separately distributed required runtime dependency and remains the owner of its purified crystals, seeds, growth chamber, pulverizer, aggregator, pattern providers, wireless automation, recipes, code, and assets. IOE does not copy or adapt those files; it relies on the installed mod's public gameplay systems.
+AE2 Crystal Science is a separately distributed required runtime dependency and remains the owner of its purified crystals, seeds, growth chamber, pulverizer, aggregator, pattern providers, wireless automation, recipes, code, and assets. IOE relies on the installed mod's public gameplay systems.
+
+IOE includes one LGPL-3.0-or-later compatibility override at `src/main/resources/data/ae2cs/recipe/mechanical_cutting/polished_rose_quartz_from_pure_rose_quartz.json`, adapted from the same path in AE2 Crystal Science 1.1.12. The IOE source copy adds only the NeoForge `create` mod-loaded condition: when Create is installed, AE2CS retains the original cutting recipe and values; when Create is absent, NeoForge ignores the recipe before resolving the unavailable `create:cutting` serializer. No AE2CS Java source, model, texture, sound, language file, loot table, or other recipe is copied into IOE.
 
 ## GeOre: Additions
 
@@ -85,7 +91,7 @@ IOE applies an original event-level restriction when the separately installed ad
 - Source revision inspected: `90005ee29839fb9fa83bbe6544919c722f8b0dc6`
 - License: GNU LGPL version 3
 
-IOE resolves `extendedae:entro_budding_fully` and the separately owned AE2 block `ae2:fluix_block` through Minecraft registries. No ExtendedAE Java source, model, texture, sound, recipe, language file, loot table, or generated resource is copied into IOE.
+IOE references `extendedae:entro_crystal` as a rare Immersive Engineering mineral-mix output. It creates no ExtendedAE geode or budding-heart formation. No ExtendedAE Java source, model, texture, sound, recipe, language file, loot table, or generated resource is copied into IOE.
 
 ## Immersive Engineering
 
@@ -99,3 +105,17 @@ IOE resolves `extendedae:entro_budding_fully` and the separately owned AE2 block
 - License: Blu's License of Common Sense
 
 IOE references public registry and placed-feature identifiers to prevent free ore-block generation and to coordinate its original prospecting plans. No Immersive Engineering code, API class, asset, manual page, data file, or generated resource is copied into IOE. Immersive Engineering remains a separately distributed optional dependency and retains ownership of its machines, mineral-deposit system, recipes, blocks, items, assets, and behavior.
+
+## Immersive Petroleum
+
+- Project: Immersive Petroleum
+- Author: TwistedGate and contributors
+- Source: https://github.com/TwistedGate/ImmersivePetroleum
+- Distribution: https://modrinth.com/mod/immersivepetroleum
+- Integrated line: Minecraft 1.21.1, Immersive Petroleum 4.4.1-37
+- Source branch inspected: `1.21.1`
+- Source revision inspected: `09dfa613627d2f0114dc06de37f208aa1684bb89`
+- Modrinth project/version inspected: `MOw5TN6u` / `CV6UXQBi`
+- License: All Rights Reserved
+
+IOE compiles against the separately distributed Immersive Petroleum artifact and uses its native reservoir API objects and persistence entrypoint. IOE only controls spatial admission: free reservoir scans and unauthorized registrations are blocked, while admitted desert coal sites register oil reservoirs, volcanic sites register lava reservoirs, and beach, shore, river or ocean sites register aquifers transactionally. Immersive Petroleum remains the owner of reservoir recipes, fluids, SavedData format, surveying, pressure, depletion, wells, Pumpjack extraction, code and assets. No Immersive Petroleum source file, recipe, model, texture, sound, language file or other asset is copied into the IOE jar.

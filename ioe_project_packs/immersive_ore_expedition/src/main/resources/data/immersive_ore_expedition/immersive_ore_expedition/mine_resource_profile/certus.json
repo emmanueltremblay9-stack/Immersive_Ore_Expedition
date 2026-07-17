@@ -1,0 +1,24 @@
+{
+  "biome_tag": "immersive_ore_expedition:ore_profile/certus",
+  "mineral_mix": "immersive_ore_expedition:mineral/certus",
+  "resource_name": "certus",
+  "survey_radius_chunks": 8,
+  "deposit_tiers": {
+    "mother": {
+      "radius_blocks": 36,
+      "capacity": 4096
+    },
+    "major": {
+      "radius_blocks": 24,
+      "capacity": 2048
+    },
+    "minor": {
+      "radius_blocks": 16,
+      "capacity": 1024
+    },
+    "direct": {
+      "radius_blocks": 10,
+      "capacity": 512
+    }
+  }
+}

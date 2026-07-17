@@ -52,6 +52,18 @@ Active validation path:
 - GitHub Actions validates the consolidated module unless Emmanuel explicitly instructs otherwise.
 - Legacy split modules are not part of the active validation path.
 
+## Existing Worlds
+
+For strict zero autonomous ore, create a new world with IOE installed before its first chunk is generated. Existing chunks are never stripped automatically: IOE cannot safely distinguish naturally generated ore from player-placed ore, so automatic cleanup could damage builds or stored resources.
+
+Before using any bounded IOE administrator retrogen or locator-reindex operation on an existing world, make a complete backup of the save. Locator reindexing scans only already loaded chunks and does not change world blocks; it does not convert an old world's free ore distribution into IOE mines.
+
+## Data-driven Mine Profiles
+
+Biome-to-resource selection and connected-biome quantity scaling are loaded from the server datapack registry `immersive_ore_expedition:mine_resource_profile`. Built-in entries live under `data/immersive_ore_expedition/immersive_ore_expedition/mine_resource_profile`; each entry selects a biome tag, a resource kind, a connected-chunk survey radius, and exact ore, node, or budding counts for every site quality.
+
+Datapacks may replace the built-in selection and quantity rules. A new `geore` resource name is accepted only when IOE's GeOre and Immersive Engineering integration mappings support that material; the datapack registry does not invent blocks or IE mineral definitions. Crystal profiles only select authorized budding blocks, while AE2, AE2 Crystal Science, or Extended AE continue to own crystal growth and automation.
+
 The consolidated module CI verifies the release jar structure: the runtime jar must include compiled classes under `com/oblixorprime/ioe/` and `META-INF/neoforge.mods.toml`. Release and smoke guidance lives in:
 
 - `ioe_project_packs/immersive_ore_expedition/docs/RELEASE_CHECKLIST.md`
@@ -59,7 +71,7 @@ The consolidated module CI verifies the release jar structure: the runtime jar m
 - `ioe_project_packs/immersive_ore_expedition/docs/SERVER_CONFIG_EXAMPLES.md`
 - `ioe_project_packs/immersive_ore_expedition/docs/RELEASE_NOTES_TEMPLATE.md`
 
-Current v7-v35 worldgen work is mostly scaffold, planning, policy, persistence, release validation, a default-off runtime placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature resources, a biome modifier smoke-tag bridge that binds zero real biomes by default, a docs-only controlled external smoke profile package, a docs-only controlled smoke runbook/result template, a docs-only post-smoke evidence gate, a docs-only runtime promotion readiness packet, a docs-only runtime slice implementation packet for planning a later separate runtime PR, a docs-only active runtime resource inventory snapshot, a docs-only runtime PR preflight manifest, a docs-only runtime traceability matrix, a docs-only runtime evidence packet, a docs-only runtime evidence review checklist, a docs-only runtime evidence decision record, a docs-only runtime evidence remediation tracker, a docs-only runtime evidence remediation closure record, and a docs-only runtime evidence final sign-off handoff. Live client/server smoke evidence must be recorded separately, and the release jar must remain class-bearing rather than metadata-only.
+Natural expedition worldgen is now active through the consolidated module's biome modifiers, connected site features, final new-chunk resource guard, and persistent locator. The older v7-v35 scaffold and evidence packets remain historical design records, not descriptions of the current runtime path. Live client/server smoke evidence must still be recorded separately, and the release jar must remain class-bearing rather than metadata-only.
 
 ## Build Status
 

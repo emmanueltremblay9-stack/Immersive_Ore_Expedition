@@ -1,0 +1,24 @@
+{
+  "biome_tag": "immersive_ore_expedition:ore_profile/lead",
+  "mineral_mix": "immersive_ore_expedition:mineral/lead",
+  "resource_name": "lead",
+  "survey_radius_chunks": 8,
+  "deposit_tiers": {
+    "mother": {
+      "radius_blocks": 48,
+      "capacity": 16384
+    },
+    "major": {
+      "radius_blocks": 32,
+      "capacity": 8192
+    },
+    "minor": {
+      "radius_blocks": 20,
+      "capacity": 4096
+    },
+    "direct": {
+      "radius_blocks": 12,
+      "capacity": 2048
+    }
+  }
+}

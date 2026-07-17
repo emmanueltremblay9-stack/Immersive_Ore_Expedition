@@ -3,6 +3,7 @@ package com.oblixorprime.ioe.expeditioncompass;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
 import com.oblixorprime.ioe.worldgen.IoeRuntimeProofFeatureGates;
+import com.oblixorprime.ioe.worldgen.IoeWorldgenConfig;
 import com.oblixorprime.ioe.worldgen.IoeWorldgenPlacementGates;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -59,6 +60,51 @@ public record ExpeditionCompassMenuSnapshot(
                 false,
                 IoeWorldgenPlacementGates.fromConfig(),
                 IoeRuntimeProofFeatureGates.fromConfig()
+        );
+    }
+
+    public static ExpeditionCompassMenuSnapshot fromNaturalGenerationIndex(
+            ResourceKey<Level> dimension,
+            BlockPos origin,
+            InteractionHand hand,
+            Optional<ExpeditionCompassTarget> currentTarget,
+            ExpeditionLocatorIndex locatorIndex
+    ) {
+        return fromNaturalGenerationIndex(
+                dimension,
+                origin,
+                hand,
+                currentTarget,
+                locatorIndex,
+                false,
+                IoeWorldgenPlacementGates.fromConfig()
+        );
+    }
+
+    public static ExpeditionCompassMenuSnapshot fromNaturalGenerationIndex(
+            ResourceKey<Level> dimension,
+            BlockPos origin,
+            InteractionHand hand,
+            Optional<ExpeditionCompassTarget> currentTarget,
+            ExpeditionLocatorIndex locatorIndex,
+            boolean includeDiagnosticSites,
+            IoeWorldgenPlacementGates placementGates
+    ) {
+        ExpeditionCompassMenuSnapshot snapshot = fromIndex(
+                dimension,
+                origin,
+                hand,
+                currentTarget,
+                locatorIndex,
+                includeDiagnosticSites,
+                placementGates
+        );
+        return new ExpeditionCompassMenuSnapshot(
+                snapshot.dimension(),
+                snapshot.hand(),
+                snapshot.currentTarget(),
+                naturalGenerationEmptyReason(dimension, locatorIndex),
+                snapshot.entries()
         );
     }
 
@@ -222,6 +268,26 @@ public record ExpeditionCompassMenuSnapshot(
         }
         if (proofFeatureGates == null || proofFeatureGates.shouldNoOpRuntimeProofFeature()) {
             return ExpeditionCompassEmptyReason.PROOF_FEATURE_DISABLED;
+        }
+        return ExpeditionCompassEmptyReason.NO_PLACED_SITES;
+    }
+
+    private static ExpeditionCompassEmptyReason naturalGenerationEmptyReason(
+            ResourceKey<Level> dimension,
+            ExpeditionLocatorIndex locatorIndex
+    ) {
+        boolean hasPlayableSites = locatorIndex.sites().stream()
+                .anyMatch(site -> site.dimension().equals(dimension));
+        if (hasPlayableSites) {
+            return ExpeditionCompassEmptyReason.NO_PLACED_SITES;
+        }
+        boolean hasDiagnosticSites = locatorIndex.diagnosticSites().stream()
+                .anyMatch(site -> site.dimension().equals(dimension));
+        if (hasDiagnosticSites) {
+            return ExpeditionCompassEmptyReason.ONLY_DEBUG_OR_PLANNED_SITES;
+        }
+        if (!IoeWorldgenConfig.naturalExpeditionSiteGenerationEnabled()) {
+            return ExpeditionCompassEmptyReason.WORLDGEN_DISABLED;
         }
         return ExpeditionCompassEmptyReason.NO_PLACED_SITES;
     }

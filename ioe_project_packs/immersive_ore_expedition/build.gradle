@@ -20,7 +20,16 @@ neoForge {
     runs {
         gameTestServer {
             type = "gameTestServer"
+            gameDirectory = project.file("run/gametest-baseline")
             systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+        }
+        fullRuntimeGameTestServer {
+            type = "gameTestServer"
+            gameDirectory = project.file("run/gametest-full")
+            systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+            systemProperty "ioe.multiSeedReport", layout.buildDirectory.file(
+                    "reports/ioe/multi-seed-biome-frequency.json"
+            ).get().asFile.absolutePath
         }
     }
 
@@ -63,7 +72,9 @@ def replacementProperties = [
         ae2_version_range   : ae2_version_range,
         ae2cs_version_range : ae2cs_version_range,
         extendedae_version_range: extendedae_version_range,
-        geore_version_range : geore_version_range
+        geore_version_range : geore_version_range,
+        ie_version_range    : ie_version_range,
+        ip_version_range    : ip_version_range
 ]
 
 tasks.named('processResources', ProcessResources).configure {
@@ -80,6 +91,11 @@ tasks.named('jar', Jar).configure {
 
 dependencies {
     compileOnly group: 'info.journeymap', name: 'journeymap-api-neoforge', version: journeymap_api_version, changing: true
+    compileOnly "blusunrize.immersiveengineering:ImmersiveEngineering:${ie_compile_version}"
+    compileOnly "maven.modrinth:${ip_modrinth_project}:${ip_compile_version}"
+    if (providers.gradleProperty('ioeIncludeIeRuntime').map { it.toBoolean() }.getOrElse(false)) {
+        runtimeOnly "blusunrize.immersiveengineering:ImmersiveEngineering:${ie_compile_version}"
+    }
     runtimeOnly "org.appliedenergistics:appliedenergistics2:${ae2_runtime_version}"
     runtimeOnly "maven.modrinth:${ae2cs_modrinth_project}:${ae2cs_modrinth_version}"
     runtimeOnly "maven.modrinth:${geore_modrinth_project}:${geore_modrinth_version}"

@@ -1,0 +1,800 @@
+{
+  "minecraft_version": "1.21.1",
+  "loader": "NeoForge 21.1.230",
+  "source_versions": {
+    "biomesoplenty": "21.1.0.13",
+    "regions_unexplored": "0.6.2",
+    "biomeswevegone": "2.6.0",
+    "immersiveengineering": "12.4.2-194",
+    "immersivepetroleum": "4.4.1-37",
+    "ae2": "19.2.17",
+    "extendedae": "1.21-2.2.33-neoforge"
+  },
+  "counts": {
+    "registered": 266,
+    "active": 252,
+    "ru_registered": 78,
+    "ru_removed": 14,
+    "ru_active": 64,
+    "bwg_active": 55,
+    "specialized": 140,
+    "aquatic": 30,
+    "generic_ie": 82
+  },
+  "rare_allowlists": {
+    "diamond": [
+      "minecraft:frozen_peaks",
+      "biomesoplenty:crag",
+      "biomesoplenty:glowing_grotto",
+      "regions_unexplored:icy_heights",
+      "regions_unexplored:spires",
+      "biomeswevegone:shattered_glacier"
+    ],
+    "emerald": [
+      "minecraft:grove",
+      "biomesoplenty:jade_cliffs",
+      "regions_unexplored:wisteria_grove",
+      "biomeswevegone:crag_gardens"
+    ],
+    "certus": [
+      "minecraft:cherry_grove",
+      "biomesoplenty:auroral_garden",
+      "regions_unexplored:alpha_grove",
+      "biomeswevegone:sakura_grove",
+      "biomeswevegone:skyris_vale"
+    ],
+    "entroized_fluix": [
+      "minecraft:mushroom_fields",
+      "biomesoplenty:mystic_grove",
+      "regions_unexplored:bioshroom_caves",
+      "regions_unexplored:prismachasm",
+      "biomeswevegone:enchanted_tangle",
+      "biomeswevegone:weeping_witch_forest"
+    ]
+  },
+  "ru_removed": [
+    "regions_unexplored:arid_mountains",
+    "regions_unexplored:barley_fields",
+    "regions_unexplored:cold_deciduous_forest",
+    "regions_unexplored:deciduous_forest",
+    "regions_unexplored:frozen_tundra",
+    "regions_unexplored:golden_boreal_taiga",
+    "regions_unexplored:mauve_hills",
+    "regions_unexplored:mountains",
+    "regions_unexplored:pumpkin_fields",
+    "regions_unexplored:redstone_abyss",
+    "regions_unexplored:rocky_meadow",
+    "regions_unexplored:scorching_caves",
+    "regions_unexplored:steppe",
+    "regions_unexplored:temperate_grove"
+  ],
+  "deposit_tiers": {
+    "diamond": {
+      "mother": {
+        "radius_blocks": 36,
+        "capacity": 4096
+      },
+      "major": {
+        "radius_blocks": 24,
+        "capacity": 2048
+      },
+      "minor": {
+        "radius_blocks": 16,
+        "capacity": 1024
+      },
+      "direct": {
+        "radius_blocks": 10,
+        "capacity": 512
+      }
+    },
+    "emerald": {
+      "mother": {
+        "radius_blocks": 36,
+        "capacity": 4096
+      },
+      "major": {
+        "radius_blocks": 24,
+        "capacity": 2048
+      },
+      "minor": {
+        "radius_blocks": 16,
+        "capacity": 1024
+      },
+      "direct": {
+        "radius_blocks": 10,
+        "capacity": 512
+      }
+    },
+    "certus": {
+      "mother": {
+        "radius_blocks": 36,
+        "capacity": 4096
+      },
+      "major": {
+        "radius_blocks": 24,
+        "capacity": 2048
+      },
+      "minor": {
+        "radius_blocks": 16,
+        "capacity": 1024
+      },
+      "direct": {
+        "radius_blocks": 10,
+        "capacity": 512
+      }
+    },
+    "entroized_fluix": {
+      "mother": {
+        "radius_blocks": 28,
+        "capacity": 2048
+      },
+      "major": {
+        "radius_blocks": 20,
+        "capacity": 1024
+      },
+      "minor": {
+        "radius_blocks": 14,
+        "capacity": 512
+      },
+      "direct": {
+        "radius_blocks": 8,
+        "capacity": 256
+      }
+    },
+    "redstone": {
+      "mother": {
+        "radius_blocks": 48,
+        "capacity": 16384
+      },
+      "major": {
+        "radius_blocks": 32,
+        "capacity": 8192
+      },
+      "minor": {
+        "radius_blocks": 20,
+        "capacity": 4096
+      },
+      "direct": {
+        "radius_blocks": 12,
+        "capacity": 2048
+      }
+    },
+    "gold": {
+      "mother": {
+        "radius_blocks": 48,
+        "capacity": 16384
+      },
+      "major": {
+        "radius_blocks": 32,
+        "capacity": 8192
+      },
+      "minor": {
+        "radius_blocks": 20,
+        "capacity": 4096
+      },
+      "direct": {
+        "radius_blocks": 12,
+        "capacity": 2048
+      }
+    },
+    "uranium": {
+      "mother": {
+        "radius_blocks": 48,
+        "capacity": 16384
+      },
+      "major": {
+        "radius_blocks": 32,
+        "capacity": 8192
+      },
+      "minor": {
+        "radius_blocks": 20,
+        "capacity": 4096
+      },
+      "direct": {
+        "radius_blocks": 12,
+        "capacity": 2048
+      }
+    },
+    "silver": {
+      "mother": {
+        "radius_blocks": 44,
+        "capacity": 12288
+      },
+      "major": {
+        "radius_blocks": 30,
+        "capacity": 6144
+      },
+      "minor": {
+        "radius_blocks": 18,
+        "capacity": 3072
+      },
+      "direct": {
+        "radius_blocks": 10,
+        "capacity": 1536
+      }
+    },
+    "lapis": {
+      "mother": {
+        "radius_blocks": 44,
+        "capacity": 12288
+      },
+      "major": {
+        "radius_blocks": 30,
+        "capacity": 6144
+      },
+      "minor": {
+        "radius_blocks": 18,
+        "capacity": 3072
+      },
+      "direct": {
+        "radius_blocks": 10,
+        "capacity": 1536
+      }
+    },
+    "copper": {
+      "mother": {
+        "radius_blocks": 44,
+        "capacity": 12288
+      },
+      "major": {
+        "radius_blocks": 30,
+        "capacity": 6144
+      },
+      "minor": {
+        "radius_blocks": 18,
+        "capacity": 3072
+      },
+      "direct": {
+        "radius_blocks": 10,
+        "capacity": 1536
+      }
+    },
+    "aluminum": {
+      "mother": {
+        "radius_blocks": 48,
+        "capacity": 16384
+      },
+      "major": {
+        "radius_blocks": 32,
+        "capacity": 8192
+      },
+      "minor": {
+        "radius_blocks": 20,
+        "capacity": 4096
+      },
+      "direct": {
+        "radius_blocks": 12,
+        "capacity": 2048
+      }
+    },
+    "coal": {
+      "mother": {
+        "radius_blocks": 48,
+        "capacity": 16384
+      },
+      "major": {
+        "radius_blocks": 32,
+        "capacity": 8192
+      },
+      "minor": {
+        "radius_blocks": 20,
+        "capacity": 4096
+      },
+      "direct": {
+        "radius_blocks": 12,
+        "capacity": 2048
+      }
+    },
+    "nickel": {
+      "mother": {
+        "radius_blocks": 44,
+        "capacity": 12288
+      },
+      "major": {
+        "radius_blocks": 30,
+        "capacity": 6144
+      },
+      "minor": {
+        "radius_blocks": 18,
+        "capacity": 3072
+      },
+      "direct": {
+        "radius_blocks": 10,
+        "capacity": 1536
+      }
+    },
+    "lead": {
+      "mother": {
+        "radius_blocks": 48,
+        "capacity": 16384
+      },
+      "major": {
+        "radius_blocks": 32,
+        "capacity": 8192
+      },
+      "minor": {
+        "radius_blocks": 20,
+        "capacity": 4096
+      },
+      "direct": {
+        "radius_blocks": 12,
+        "capacity": 2048
+      }
+    },
+    "iron": {
+      "mother": {
+        "radius_blocks": 48,
+        "capacity": 16384
+      },
+      "major": {
+        "radius_blocks": 32,
+        "capacity": 8192
+      },
+      "minor": {
+        "radius_blocks": 20,
+        "capacity": 4096
+      },
+      "direct": {
+        "radius_blocks": 12,
+        "capacity": 2048
+      }
+    }
+  },
+  "mineral_mix_output_roles": {
+    "diamond": {
+      "principal": [
+        {
+          "chance": 0.12,
+          "output": {
+            "tag": "c:gems/diamond"
+          }
+        }
+      ],
+      "secondary": [],
+      "trace": [],
+      "host_rock": [
+        {
+          "chance": 0.44,
+          "output": {
+            "id": "minecraft:calcite"
+          }
+        },
+        {
+          "chance": 0.44,
+          "output": {
+            "id": "minecraft:smooth_basalt"
+          }
+        }
+      ]
+    },
+    "emerald": {
+      "principal": [
+        {
+          "chance": 0.15,
+          "output": {
+            "tag": "c:gems/emerald"
+          }
+        }
+      ],
+      "secondary": [],
+      "trace": [],
+      "host_rock": [
+        {
+          "chance": 0.45,
+          "output": {
+            "id": "minecraft:prismarine"
+          }
+        },
+        {
+          "chance": 0.4,
+          "output": {
+            "id": "minecraft:stone"
+          }
+        }
+      ]
+    },
+    "certus": {
+      "principal": [
+        {
+          "chance": 0.2,
+          "output": {
+            "id": "ae2:certus_quartz_crystal"
+          }
+        }
+      ],
+      "secondary": [],
+      "trace": [],
+      "host_rock": [
+        {
+          "chance": 0.4,
+          "output": {
+            "id": "minecraft:calcite"
+          }
+        },
+        {
+          "chance": 0.4,
+          "output": {
+            "id": "minecraft:smooth_basalt"
+          }
+        }
+      ]
+    },
+    "entroized_fluix": {
+      "principal": [
+        {
+          "chance": 0.08,
+          "output": {
+            "id": "extendedae:entro_crystal"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.46,
+          "output": {
+            "id": "minecraft:amethyst_shard"
+          }
+        }
+      ],
+      "trace": [],
+      "host_rock": [
+        {
+          "chance": 0.46,
+          "output": {
+            "id": "minecraft:deepslate"
+          }
+        }
+      ]
+    },
+    "redstone": {
+      "principal": [
+        {
+          "chance": 0.65,
+          "output": {
+            "id": "minecraft:redstone"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.2,
+          "output": {
+            "tag": "c:dusts/sulfur"
+          }
+        }
+      ],
+      "trace": [],
+      "host_rock": [
+        {
+          "chance": 0.15,
+          "output": {
+            "id": "minecraft:obsidian"
+          }
+        }
+      ]
+    },
+    "gold": {
+      "principal": [
+        {
+          "chance": 0.6,
+          "output": {
+            "tag": "c:ores/gold"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.4,
+          "output": {
+            "tag": "c:ores/copper"
+          }
+        }
+      ],
+      "trace": [],
+      "host_rock": []
+    },
+    "uranium": {
+      "principal": [
+        {
+          "chance": 0.6,
+          "output": {
+            "tag": "c:ores/uranium"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.3,
+          "output": {
+            "tag": "c:ores/lead"
+          }
+        }
+      ],
+      "trace": [
+        {
+          "chance": 0.1,
+          "output": {
+            "tag": "c:dusts/sulfur"
+          }
+        }
+      ],
+      "host_rock": []
+    },
+    "silver": {
+      "principal": [
+        {
+          "chance": 0.7,
+          "output": {
+            "tag": "c:ores/silver"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.2,
+          "output": {
+            "tag": "c:ores/lead"
+          }
+        }
+      ],
+      "trace": [],
+      "host_rock": [
+        {
+          "chance": 0.1,
+          "output": {
+            "id": "minecraft:calcite"
+          }
+        }
+      ]
+    },
+    "lapis": {
+      "principal": [
+        {
+          "chance": 0.75,
+          "output": {
+            "tag": "c:ores/lapis"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.15,
+          "output": {
+            "tag": "c:ores/gold"
+          }
+        }
+      ],
+      "trace": [
+        {
+          "chance": 0.1,
+          "output": {
+            "tag": "c:dusts/sulfur"
+          }
+        }
+      ],
+      "host_rock": []
+    },
+    "copper": {
+      "principal": [
+        {
+          "chance": 0.7,
+          "output": {
+            "tag": "c:ores/copper"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.2,
+          "output": {
+            "tag": "c:ores/iron"
+          }
+        }
+      ],
+      "trace": [
+        {
+          "chance": 0.1,
+          "output": {
+            "tag": "c:dusts/sulfur"
+          }
+        }
+      ],
+      "host_rock": []
+    },
+    "aluminum": {
+      "principal": [
+        {
+          "chance": 0.6,
+          "output": {
+            "tag": "c:ores/aluminum"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.3,
+          "output": {
+            "tag": "c:ores/iron"
+          }
+        }
+      ],
+      "trace": [
+        {
+          "chance": 0.1,
+          "output": {
+            "tag": "c:ores/nickel"
+          }
+        }
+      ],
+      "host_rock": []
+    },
+    "coal": {
+      "principal": [
+        {
+          "chance": 0.8,
+          "output": {
+            "tag": "c:ores/coal"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.2,
+          "output": {
+            "tag": "c:dusts/sulfur"
+          }
+        }
+      ],
+      "trace": [],
+      "host_rock": []
+    },
+    "nickel": {
+      "principal": [
+        {
+          "chance": 0.65,
+          "output": {
+            "tag": "c:ores/nickel"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.25,
+          "output": {
+            "tag": "c:ores/iron"
+          }
+        }
+      ],
+      "trace": [
+        {
+          "chance": 0.1,
+          "output": {
+            "tag": "c:dusts/sulfur"
+          }
+        }
+      ],
+      "host_rock": []
+    },
+    "lead": {
+      "principal": [
+        {
+          "chance": 0.65,
+          "output": {
+            "tag": "c:ores/lead"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.25,
+          "output": {
+            "tag": "c:ores/silver"
+          }
+        }
+      ],
+      "trace": [
+        {
+          "chance": 0.1,
+          "output": {
+            "tag": "c:dusts/sulfur"
+          }
+        }
+      ],
+      "host_rock": []
+    },
+    "iron": {
+      "principal": [
+        {
+          "chance": 0.8,
+          "output": {
+            "tag": "c:ores/iron"
+          }
+        }
+      ],
+      "secondary": [],
+      "trace": [],
+      "host_rock": [
+        {
+          "chance": 0.2,
+          "output": {
+            "id": "minecraft:calcite"
+          }
+        }
+      ]
+    },
+    "alluvial_sift": {
+      "principal": [
+        {
+          "chance": 0.4,
+          "output": {
+            "id": "minecraft:clay"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.2,
+          "output": {
+            "tag": "c:gems/diamond"
+          }
+        }
+      ],
+      "trace": [],
+      "host_rock": [
+        {
+          "chance": 0.4,
+          "output": {
+            "id": "minecraft:sand"
+          }
+        }
+      ]
+    },
+    "silt": {
+      "principal": [
+        {
+          "chance": 0.6,
+          "output": {
+            "id": "minecraft:clay"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.4,
+          "output": {
+            "id": "minecraft:sand"
+          }
+        }
+      ],
+      "trace": [],
+      "host_rock": []
+    },
+    "ancient_seabed": {
+      "principal": [
+        {
+          "chance": 0.65,
+          "output": {
+            "id": "minecraft:calcite"
+          }
+        }
+      ],
+      "secondary": [
+        {
+          "chance": 0.3,
+          "output": {
+            "id": "minecraft:dripstone_block"
+          }
+        }
+      ],
+      "trace": [
+        {
+          "chance": 0.05,
+          "output": {
+            "id": "minecraft:bone_block"
+          }
+        }
+      ],
+      "host_rock": []
+    }
+  }
+}

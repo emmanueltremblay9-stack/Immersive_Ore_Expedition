@@ -15,6 +15,7 @@ import java.util.Set;
  */
 public final class GeOreNodeIntegration {
     public static final String MOD_ID = "geore";
+    private static final String BUDDING_ANCIENT_DEBRIS_FEATURE = "budding_ancient_debris";
     private static final Set<String> SUPPORTED_MATERIALS = Set.of(
             "aluminum",
             "coal",
@@ -58,7 +59,8 @@ public final class GeOreNodeIntegration {
     public static boolean autonomousWorldgenFeature(ResourceLocation featureId) {
         Objects.requireNonNull(featureId, "featureId");
         return MOD_ID.equals(featureId.getNamespace())
-                && featureId.getPath().endsWith("_geode");
+                && (featureId.getPath().endsWith("_geode")
+                || BUDDING_ANCIENT_DEBRIS_FEATURE.equals(featureId.getPath()));
     }
 
     public record NodeMaterial(

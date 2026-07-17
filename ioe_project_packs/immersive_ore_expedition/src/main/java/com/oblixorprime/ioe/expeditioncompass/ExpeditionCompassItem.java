@@ -40,14 +40,8 @@ public class ExpeditionCompassItem extends CompassItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack stack = player.getItemInHand(usedHand);
         if (level.isClientSide()) {
-            if (!player.isShiftKeyDown()) {
-                IoeCompassNetworking.openLocalMenuSnapshot(
-                        level.dimension(),
-                        player.blockPosition(),
-                        usedHand,
-                        target(stack)
-                );
-            }
+            // The server owns the persistent expedition index. Opening a zero-entry client placeholder
+            // races the authoritative packet and makes a working compass look empty.
             return InteractionResultHolder.sidedSuccess(stack, true);
         }
 
