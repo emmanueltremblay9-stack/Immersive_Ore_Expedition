@@ -1195,9 +1195,6 @@ public final class ExpeditionSiteBlueprints {
             builder.put(oriented(origin, horizontalDirection, forward, -1, 4),
                     Blocks.DIRT_PATH.defaultBlockState());
         }
-        BlockPos bellBase = oriented(origin, horizontalDirection, -2, -1, 3);
-        builder.put(bellBase, Blocks.COBBLESTONE.defaultBlockState());
-        builder.put(bellBase.above(), Blocks.YELLOW_TERRACOTTA.defaultBlockState());
         for (int forward = -4; forward <= -1; forward++) {
             int lateral = forward % 2 == 0 ? 3 : 5;
             builder.put(oriented(origin, horizontalDirection, forward, 0, lateral),
@@ -1207,6 +1204,9 @@ public final class ExpeditionSiteBlueprints {
                 Blocks.OAK_FENCE.defaultBlockState());
         builder.put(oriented(origin, horizontalDirection, -4, 1, 5),
                 Blocks.LANTERN.defaultBlockState());
+        BlockPos bellBase = oriented(origin, horizontalDirection, -2, -1, 3);
+        builder.put(bellBase, Blocks.COBBLESTONE.defaultBlockState());
+        builder.put(bellBase.above(), Blocks.YELLOW_TERRACOTTA.defaultBlockState());
     }
 
     private static BlockPos oriented(
