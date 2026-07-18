@@ -43,11 +43,11 @@ public record ExpeditionSiteBlockPlan(
         if (roomCenters.stream().distinct().count() != roomCenters.size()) {
             throw new IllegalArgumentException("Expedition room centers must be unique");
         }
-        if (roomCenters.stream().anyMatch(center -> {
+        for (BlockPos center : roomCenters) {
             BlockState state = blocks.get(center);
-            return state == null || !state.isAir();
-        })) {
-            throw new IllegalArgumentException("Every expedition room center must remain open");
+            if (state == null || !state.isAir()) {
+                throw new IllegalArgumentException("Every expedition room center must remain open");
+            }
         }
         boolean hasOreLoadChamber = generatedComponents.contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER);
         boolean hasAe2Geode = generatedComponents.contains(IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE);
