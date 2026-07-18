@@ -2,6 +2,7 @@ package com.oblixorprime.ioe.expeditioncompass.client;
 
 import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
 import com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassAngle;
+import com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassGearAnimation;
 import com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassItem;
 import com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassMenuSnapshot;
 import com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassTarget;
@@ -20,6 +21,8 @@ import java.util.Objects;
 public final class ExpeditionCompassClient {
     public static final ResourceLocation ANGLE_PROPERTY =
             ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, "angle");
+    public static final ResourceLocation GEAR_PHASE_PROPERTY =
+            ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, "gear_phase");
 
     private ExpeditionCompassClient() {
     }
@@ -35,6 +38,11 @@ public final class ExpeditionCompassClient {
 
     static void registerItemProperties() {
         ItemProperties.register(IoeItems.EXPEDITION_COMPASS.get(), ANGLE_PROPERTY, ExpeditionCompassClient::angle);
+        ItemProperties.register(
+                IoeItems.EXPEDITION_COMPASS.get(),
+                GEAR_PHASE_PROPERTY,
+                ExpeditionCompassClient::gearPhase
+        );
     }
 
     public static void openMenu(ExpeditionCompassMenuSnapshot snapshot) {
@@ -61,5 +69,13 @@ public final class ExpeditionCompassClient {
                 viewer.getYRot(),
                 target
         );
+    }
+
+    private static float gearPhase(ItemStack stack, ClientLevel level, LivingEntity entity, int seed) {
+        ClientLevel effectiveLevel = level == null ? Minecraft.getInstance().level : level;
+        if (effectiveLevel == null) {
+            return 0.0F;
+        }
+        return ExpeditionCompassGearAnimation.propertyValue(effectiveLevel.getGameTime());
     }
 }

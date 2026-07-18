@@ -153,6 +153,25 @@ final class ExpeditionCompassItemTest {
     }
 
     @Test
+    void unboundCompassSelectsNearestPlayableSiteInCurrentDimension() {
+        ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
+        index.record(anchor("wrong_dimension", Level.NETHER, new BlockPos(1, 64, 0)));
+        index.record(anchor("distant", new BlockPos(40, 64, 0)));
+        ExpeditionSite nearest = anchor("nearest", new BlockPos(7, 64, 0));
+        index.record(nearest);
+
+        ExpeditionCompassTarget selected = ExpeditionCompassItem.nearestTarget(
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                index
+        ).orElseThrow();
+
+        assertEquals(nearest.pos(), selected.pos());
+        assertEquals(nearest.anchorId(), selected.anchorId());
+        assertTrue(selected.playable());
+    }
+
+    @Test
     void menuSnapshotUsesDeterministicTieOrdering() {
         ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
         index.record(anchor("positive_x", new BlockPos(5, 64, 0)));
@@ -608,8 +627,12 @@ final class ExpeditionCompassItemTest {
     }
 
     private static ExpeditionSite anchor(String path, BlockPos pos) {
+        return anchor(path, Level.OVERWORLD, pos);
+    }
+
+    private static ExpeditionSite anchor(String path, ResourceKey<Level> dimension, BlockPos pos) {
         return ExpeditionSite.anchor(
-                Level.OVERWORLD,
+                dimension,
                 pos,
                 id(path),
                 null,

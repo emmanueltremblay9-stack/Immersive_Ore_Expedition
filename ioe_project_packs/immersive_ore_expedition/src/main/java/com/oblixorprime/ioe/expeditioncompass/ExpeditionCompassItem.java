@@ -1,8 +1,9 @@
 package com.oblixorprime.ioe.expeditioncompass;
 
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -45,26 +46,34 @@ public class ExpeditionCompassItem extends CompassItem {
             return InteractionResultHolder.sidedSuccess(stack, true);
         }
 
-        if (!level.isClientSide()) {
-            UseOutcome outcome = useOutcome(player.isShiftKeyDown());
-            applyOutcome(stack, outcome);
-            player.getCooldowns().addCooldown(this, USE_COOLDOWN_TICKS);
-            IoeExpeditionCompassMod.LOGGER.debug(
-                    "Expedition compass right-click reached server for {} hand={} reset={} openMenu={}",
-                    player.getScoreboardName(),
-                    usedHand,
-                    player.isShiftKeyDown(),
-                    outcome.openMenu()
+        UseOutcome outcome = useOutcome(player.isShiftKeyDown());
+        applyOutcome(stack, outcome);
+        player.getCooldowns().addCooldown(this, USE_COOLDOWN_TICKS);
+        IoeExpeditionCompassMod.LOGGER.debug(
+                "Expedition compass right-click reached server for {} hand={} reset={} openMenu={}",
+                player.getScoreboardName(),
+                usedHand,
+                player.isShiftKeyDown(),
+                outcome.openMenu()
+        );
+        outcome.message().ifPresent(message -> player.displayClientMessage(message, true));
+        if (outcome.openMenu() && player instanceof ServerPlayer serverPlayer) {
+            ExpeditionLocatorIndex locatorIndex = ExpeditionLocatorService.compassIndex(
+                    serverPlayer.serverLevel(),
+                    serverPlayer.blockPosition()
             );
-            outcome.message().ifPresent(message -> player.displayClientMessage(message, true));
-            if (outcome.openMenu() && player instanceof ServerPlayer serverPlayer) {
-                IoeCompassNetworking.sendMenuSnapshot(
-                        serverPlayer,
-                        usedHand,
-                        stack,
-                        ExpeditionLocatorService.compassIndex(serverPlayer.serverLevel(), serverPlayer.blockPosition())
-                );
-            }
+            bindNearestIfUnbound(
+                    stack,
+                    serverPlayer.level().dimension(),
+                    serverPlayer.blockPosition(),
+                    locatorIndex
+            );
+            IoeCompassNetworking.sendMenuSnapshot(
+                    serverPlayer,
+                    usedHand,
+                    stack,
+                    locatorIndex
+            );
         }
 
         return InteractionResultHolder.sidedSuccess(stack, false);
@@ -96,6 +105,31 @@ public class ExpeditionCompassItem extends CompassItem {
         Objects.requireNonNull(stack, "stack");
         stack.remove(IoeCompassDataComponents.targetComponent());
         stack.remove(DataComponents.LODESTONE_TRACKER);
+    }
+
+    static Optional<ExpeditionCompassTarget> nearestTarget(
+            ResourceKey<Level> dimension,
+            BlockPos origin,
+            ExpeditionLocatorIndex locatorIndex
+    ) {
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(origin, "origin");
+        Objects.requireNonNull(locatorIndex, "locatorIndex");
+        return locatorIndex.nearestAny(dimension, origin)
+                .site()
+                .map(ExpeditionCompassTarget::fromSite);
+    }
+
+    private static void bindNearestIfUnbound(
+            ItemStack stack,
+            ResourceKey<Level> dimension,
+            BlockPos origin,
+            ExpeditionLocatorIndex locatorIndex
+    ) {
+        if (target(stack).isPresent()) {
+            return;
+        }
+        nearestTarget(dimension, origin, locatorIndex).ifPresent(target -> setTarget(stack, target));
     }
 
     private static void applyOutcome(ItemStack stack, UseOutcome outcome) {

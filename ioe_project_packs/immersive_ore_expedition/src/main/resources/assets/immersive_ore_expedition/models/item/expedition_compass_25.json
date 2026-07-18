@@ -303,6 +303,16 @@
         12.2,
         9.2
       ],
+      "rotation": {
+        "origin": [
+          4,
+          11.7,
+          8
+        ],
+        "axis": "z",
+        "angle": -45.0,
+        "rescale": true
+      },
       "faces": {
         "north": {
           "uv": [
@@ -358,16 +368,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          4,
-          11.7,
-          8
-        ],
-        "axis": "z",
-        "angle": -45.0,
-        "rescale": true
       }
     },
     {
@@ -382,6 +382,16 @@
         12.2,
         9.2
       ],
+      "rotation": {
+        "origin": [
+          12,
+          11.7,
+          8
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": true
+      },
       "faces": {
         "north": {
           "uv": [
@@ -437,16 +447,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          12,
-          11.7,
-          8
-        ],
-        "axis": "z",
-        "angle": 45.0,
-        "rescale": true
       }
     },
     {
@@ -461,6 +461,16 @@
         4.8,
         9.2
       ],
+      "rotation": {
+        "origin": [
+          4,
+          4.3,
+          8
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": true
+      },
       "faces": {
         "north": {
           "uv": [
@@ -516,16 +526,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          4,
-          4.3,
-          8
-        ],
-        "axis": "z",
-        "angle": 45.0,
-        "rescale": true
       }
     },
     {
@@ -540,6 +540,16 @@
         4.8,
         9.2
       ],
+      "rotation": {
+        "origin": [
+          12,
+          4.3,
+          8
+        ],
+        "axis": "z",
+        "angle": -45.0,
+        "rescale": true
+      },
       "faces": {
         "north": {
           "uv": [
@@ -595,16 +605,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          12,
-          4.3,
-          8
-        ],
-        "axis": "z",
-        "angle": -45.0,
-        "rescale": true
       }
     },
     {
@@ -1342,6 +1342,7 @@
         8.4,
         11.34
       ],
+      "shade": false,
       "faces": {
         "north": {
           "uv": [
@@ -1397,8 +1398,7 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "shade": false
+      }
     },
     {
       "name": "green_indicator_north",
@@ -2931,6 +2931,16 @@
         7.55,
         9.98
       ],
+      "rotation": {
+        "origin": [
+          9.2,
+          6.6,
+          9.88
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": false
+      },
       "faces": {
         "north": {
           "uv": [
@@ -2986,28 +2996,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          9.2,
-          6.6,
-          9.88
-        ],
-        "axis": "z",
-        "angle": 22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_large_tooth_north",
       "from": [
-        7.45,
-        6.25,
+        8.85,
+        7.35,
         9.79
       ],
       "to": [
-        8.45,
-        6.95,
+        9.55,
+        8.35,
         10
       ],
       "faces": {
@@ -3065,28 +3065,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          9.2,
-          6.6,
-          9.895
-        ],
-        "axis": "z",
-        "angle": -22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_large_tooth_south",
       "from": [
-        9.95,
-        6.25,
+        8.85,
+        4.85,
         9.8
       ],
       "to": [
-        10.95,
-        6.95,
+        9.55,
+        5.85,
         10.01
       ],
       "faces": {
@@ -3144,28 +3134,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          9.2,
-          6.6,
-          9.905
-        ],
-        "axis": "z",
-        "angle": -22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_large_tooth_west",
       "from": [
-        8.85,
-        5.05,
+        7.65,
+        6.25,
         9.81
       ],
       "to": [
-        9.55,
-        6.05,
+        8.65,
+        6.95,
         10.02
       ],
       "faces": {
@@ -3223,28 +3203,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          9.2,
-          6.6,
-          9.915
-        ],
-        "axis": "z",
-        "angle": -22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_large_tooth_east",
       "from": [
-        8.85,
-        7.35,
+        9.95,
+        6.25,
         9.82
       ],
       "to": [
-        9.55,
-        8.35,
+        10.95,
+        6.95,
         10.03
       ],
       "faces": {
@@ -3302,16 +3272,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          9.2,
-          6.6,
-          9.925
-        ],
-        "axis": "z",
-        "angle": -22.5,
-        "rescale": false
       }
     },
     {
@@ -3326,6 +3286,16 @@
         10.0,
         9.98
       ],
+      "rotation": {
+        "origin": [
+          5.45,
+          9.2,
+          9.88
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": false
+      },
       "faces": {
         "north": {
           "uv": [
@@ -3381,28 +3351,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          5.45,
-          9.2,
-          9.88
-        ],
-        "axis": "z",
-        "angle": 22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_small_tooth_north",
       "from": [
-        4.3,
-        8.7,
+        4.95,
+        9.8,
         9.79
       ],
       "to": [
-        4.85,
-        9.7,
+        5.95,
+        10.35,
         10
       ],
       "faces": {
@@ -3460,28 +3420,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          5.45,
-          9.2,
-          9.895
-        ],
-        "axis": "z",
-        "angle": -22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_small_tooth_south",
       "from": [
-        6.05,
-        8.7,
+        4.95,
+        8.05,
         9.8
       ],
       "to": [
-        6.6,
-        9.7,
+        5.95,
+        8.6,
         10.01
       ],
       "faces": {
@@ -3539,28 +3489,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          5.45,
-          9.2,
-          9.905
-        ],
-        "axis": "z",
-        "angle": -22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_small_tooth_west",
       "from": [
-        4.95,
-        8.05,
+        4.3,
+        8.7,
         9.81
       ],
       "to": [
-        5.95,
-        8.7,
+        4.95,
+        9.7,
         10.02
       ],
       "faces": {
@@ -3618,28 +3558,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          5.45,
-          9.2,
-          9.915
-        ],
-        "axis": "z",
-        "angle": -22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_small_tooth_east",
       "from": [
-        4.95,
-        9.8,
+        6.05,
+        8.7,
         9.82
       ],
       "to": [
-        5.95,
-        10.35,
+        6.6,
+        9.7,
         10.03
       ],
       "faces": {
@@ -3697,16 +3627,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          5.45,
-          9.2,
-          9.925
-        ],
-        "axis": "z",
-        "angle": -22.5,
-        "rescale": false
       }
     },
     {
@@ -3721,6 +3641,16 @@
         7.45,
         9.98
       ],
+      "rotation": {
+        "origin": [
+          5.9,
+          6.6,
+          9.88
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": false
+      },
       "faces": {
         "north": {
           "uv": [
@@ -3776,28 +3706,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          5.9,
-          6.6,
-          9.88
-        ],
-        "axis": "z",
-        "angle": -22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_copper_tooth_north",
       "from": [
-        6.55,
-        6.1,
+        5.4,
+        7.25,
         9.79
       ],
       "to": [
-        7.05,
-        7.1,
+        6.4,
+        7.75,
         10
       ],
       "faces": {
@@ -3855,28 +3775,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          5.9,
-          6.6,
-          9.895
-        ],
-        "axis": "z",
-        "angle": 22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_copper_tooth_south",
       "from": [
-        4.75,
-        6.1,
+        5.4,
+        5.45,
         9.8
       ],
       "to": [
-        5.25,
-        7.1,
+        6.4,
+        5.95,
         10.01
       ],
       "faces": {
@@ -3934,28 +3844,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          5.9,
-          6.6,
-          9.905
-        ],
-        "axis": "z",
-        "angle": 22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_copper_tooth_west",
       "from": [
-        5.4,
-        7.25,
+        4.75,
+        6.1,
         9.81
       ],
       "to": [
-        6.4,
-        7.75,
+        5.25,
+        7.1,
         10.02
       ],
       "faces": {
@@ -4013,28 +3913,18 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          5.9,
-          6.6,
-          9.915
-        ],
-        "axis": "z",
-        "angle": 22.5,
-        "rescale": false
       }
     },
     {
       "name": "calibration_gear_copper_tooth_east",
       "from": [
-        5.4,
-        5.45,
+        6.5,
+        6.1,
         9.82
       ],
       "to": [
-        6.4,
-        6.0,
+        7.05,
+        7.1,
         10.03
       ],
       "faces": {
@@ -4092,16 +3982,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          5.9,
-          6.6,
-          9.925
-        ],
-        "axis": "z",
-        "angle": 22.5,
-        "rescale": false
       }
     },
     {
@@ -4392,6 +4272,16 @@
         11.15,
         10.02
       ],
+      "rotation": {
+        "origin": [
+          4.6,
+          10.95,
+          9.88
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": true
+      },
       "faces": {
         "north": {
           "uv": [
@@ -4447,16 +4337,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          4.6,
-          10.95,
-          9.88
-        ],
-        "axis": "z",
-        "angle": 45.0,
-        "rescale": true
       }
     },
     {
@@ -4471,6 +4351,16 @@
         11.15,
         10.02
       ],
+      "rotation": {
+        "origin": [
+          11.4,
+          10.95,
+          9.88
+        ],
+        "axis": "z",
+        "angle": -45.0,
+        "rescale": true
+      },
       "faces": {
         "north": {
           "uv": [
@@ -4526,16 +4416,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          11.4,
-          10.95,
-          9.88
-        ],
-        "axis": "z",
-        "angle": -45.0,
-        "rescale": true
       }
     },
     {
@@ -4550,6 +4430,16 @@
         5.25,
         10.02
       ],
+      "rotation": {
+        "origin": [
+          4.6,
+          5.05,
+          9.88
+        ],
+        "axis": "z",
+        "angle": -45.0,
+        "rescale": true
+      },
       "faces": {
         "north": {
           "uv": [
@@ -4605,16 +4495,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          4.6,
-          5.05,
-          9.88
-        ],
-        "axis": "z",
-        "angle": -45.0,
-        "rescale": true
       }
     },
     {
@@ -4629,6 +4509,16 @@
         5.25,
         10.02
       ],
+      "rotation": {
+        "origin": [
+          11.4,
+          5.05,
+          9.88
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": true
+      },
       "faces": {
         "north": {
           "uv": [
@@ -4684,16 +4574,6 @@
           ],
           "texture": "#shadow"
         }
-      },
-      "rotation": {
-        "origin": [
-          11.4,
-          5.05,
-          9.88
-        ],
-        "axis": "z",
-        "angle": 45.0,
-        "rescale": true
       }
     }
   ],

@@ -21,8 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class ExpeditionCompassResourceTest {
     private static final String ANGLE_PREDICATE = "immersive_ore_expedition:angle";
+    private static final String GEAR_PHASE_PREDICATE = "immersive_ore_expedition:gear_phase";
     private static final String MODEL_PREFIX = "immersive_ore_expedition:item/";
     private static final String FRAME_PREFIX = "expedition_compass_";
+    private static final int ANGLE_FRAME_COUNT = 32;
+    private static final int GEAR_PHASE_COUNT = 4;
     private static final Set<Float> SAFE_BLOCK_MODEL_ROTATIONS = Set.of(-45.0F, -22.5F, -0.0F, 0.0F, 22.5F, 45.0F);
     private static final Set<String> REQUIRED_MENU_LANG_KEYS = Set.of(
             "item.immersive_ore_expedition.expedition_compass.message.invalid_target",
@@ -54,19 +57,31 @@ final class ExpeditionCompassResourceTest {
     );
 
     @Test
-    void expeditionCompassModelUsesNamespacedAnglePredicateAndExistingFrameModels() throws IOException {
+    void expeditionCompassModelUsesIndependentAngleAndGearPredicates() throws IOException {
         JsonObject model = readJson(modelPath("expedition_compass"));
         JsonArray overrides = model.getAsJsonArray("overrides");
         assertNotNull(overrides);
-        assertEquals(33, overrides.size());
+        assertEquals((ANGLE_FRAME_COUNT + 1) * GEAR_PHASE_COUNT, overrides.size());
 
         Set<String> referencedFrames = new HashSet<>();
         for (int i = 0; i < overrides.size(); i++) {
+            int gearPhaseIndex = i / (ANGLE_FRAME_COUNT + 1);
+            int angleOverrideIndex = i % (ANGLE_FRAME_COUNT + 1);
             JsonObject override = overrides.get(i).getAsJsonObject();
             JsonObject predicate = override.getAsJsonObject("predicate");
             assertNotNull(predicate);
+            assertEquals(Set.of(ANGLE_PREDICATE, GEAR_PHASE_PREDICATE), predicate.keySet());
             assertTrue(predicate.has(ANGLE_PREDICATE));
-            assertEquals(expectedThreshold(i), predicate.get(ANGLE_PREDICATE).getAsFloat(), 0.000001F);
+            assertEquals(
+                    expectedAngleThreshold(angleOverrideIndex),
+                    predicate.get(ANGLE_PREDICATE).getAsFloat(),
+                    0.000001F
+            );
+            assertEquals(
+                    gearPhaseIndex / (float) GEAR_PHASE_COUNT,
+                    predicate.get(GEAR_PHASE_PREDICATE).getAsFloat(),
+                    0.000001F
+            );
 
             String modelRef = override.get("model").getAsString();
             assertTrue(modelRef.startsWith(MODEL_PREFIX));
@@ -74,16 +89,45 @@ final class ExpeditionCompassResourceTest {
             String frameName = modelRef.substring(MODEL_PREFIX.length());
             assertTrue(frameName.startsWith(FRAME_PREFIX));
             referencedFrames.add(frameName);
-            assertEquals(expectedFrameName(i), frameName);
+            assertEquals(expectedFrameName(angleOverrideIndex, gearPhaseIndex), frameName);
 
             Path framePath = modelPath(frameName);
             assertTrue(Files.isRegularFile(framePath), () -> "Missing compass frame model " + framePath);
             assertFalse(readJson(framePath).has("overrides"));
         }
 
-        assertEquals(32, referencedFrames.size());
+        assertEquals(ANGLE_FRAME_COUNT * GEAR_PHASE_COUNT, referencedFrames.size());
         assertTrue(referencedFrames.contains("expedition_compass_00"));
         assertTrue(referencedFrames.contains("expedition_compass_31"));
+        assertTrue(referencedFrames.contains("expedition_compass_00_g03"));
+        assertTrue(referencedFrames.contains("expedition_compass_31_g03"));
+    }
+
+    @Test
+    void overrideOrderingResolvesEveryAngleAndGearPhaseCombination() throws IOException {
+        JsonArray overrides = readJson(modelPath("expedition_compass")).getAsJsonArray("overrides");
+
+        for (int gearPhaseIndex = 0; gearPhaseIndex < GEAR_PHASE_COUNT; gearPhaseIndex++) {
+            float gearValue = gearPhaseIndex / (float) GEAR_PHASE_COUNT;
+            for (int angleFrameIndex = 0; angleFrameIndex < ANGLE_FRAME_COUNT; angleFrameIndex++) {
+                float angleValue = expectedAngleThreshold(angleFrameIndex);
+                String resolved = null;
+                for (JsonElement element : overrides) {
+                    JsonObject override = element.getAsJsonObject();
+                    JsonObject predicate = override.getAsJsonObject("predicate");
+                    if (angleValue >= predicate.get(ANGLE_PREDICATE).getAsFloat()
+                            && gearValue >= predicate.get(GEAR_PHASE_PREDICATE).getAsFloat()) {
+                        resolved = override.get("model").getAsString();
+                    }
+                }
+
+                assertEquals(
+                        MODEL_PREFIX + expectedFrameName(angleFrameIndex, gearPhaseIndex),
+                        resolved,
+                        () -> "Wrong model for angle frame " + angleFrameIndex + " gear phase " + gearPhaseIndex
+                );
+            }
+        }
     }
 
     @Test
@@ -105,18 +149,23 @@ final class ExpeditionCompassResourceTest {
         }
     }
 
-    private static float expectedThreshold(int overrideIndex) {
+    private static float expectedAngleThreshold(int overrideIndex) {
         if (overrideIndex == 0) {
             return 0.0F;
         }
-        return (overrideIndex - 0.5F) / 32.0F;
+        return (overrideIndex - 0.5F) / ANGLE_FRAME_COUNT;
     }
 
-    private static String expectedFrameName(int overrideIndex) {
-        if (overrideIndex == 0 || overrideIndex == 32) {
-            return "expedition_compass_00";
+    private static String expectedFrameName(int angleOverrideIndex, int gearPhaseIndex) {
+        int angleFrameIndex =
+                angleOverrideIndex == 0 || angleOverrideIndex == ANGLE_FRAME_COUNT
+                        ? 0
+                        : angleOverrideIndex;
+        String base = "expedition_compass_" + String.format("%02d", angleFrameIndex);
+        if (gearPhaseIndex == 0) {
+            return base;
         }
-        return "expedition_compass_" + String.format("%02d", overrideIndex);
+        return base + "_g" + String.format("%02d", gearPhaseIndex);
     }
 
     private static void assertTexturesExist(JsonObject model) {
@@ -176,7 +225,8 @@ final class ExpeditionCompassResourceTest {
                 .resolve("item");
         try (var stream = Files.list(modelRoot)) {
             return stream
-                    .filter(path -> path.getFileName().toString().matches("expedition_compass(_\\d{2})?\\.json"))
+                    .filter(path -> path.getFileName().toString()
+                            .matches("expedition_compass(_\\d{2}(_g\\d{2})?)?\\.json"))
                     .sorted()
                     .toList();
         }

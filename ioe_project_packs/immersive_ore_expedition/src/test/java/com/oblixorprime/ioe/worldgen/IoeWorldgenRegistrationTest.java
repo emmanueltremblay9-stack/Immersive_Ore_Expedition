@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -131,6 +132,28 @@ final class IoeWorldgenRegistrationTest {
         assertFalse(json.contains("\"minecraft:plains\""));
         assertFalse(json.contains("#minecraft:is_overworld"));
         assertFalse(json.contains("#c:"));
+    }
+
+    @Test
+    void naturalSiteTagsUseProfileBackedBiomesAndCoverCommonTemperateTerrain() throws IOException {
+        for (String siteTag : List.of(
+                "mine_entrance_biomes",
+                "collapsed_shaft_biomes",
+                "miner_camp_biomes",
+                "survey_marker_biomes"
+        )) {
+            String json = readClasspathResource(
+                    "data/immersive_ore_expedition/tags/worldgen/biome/" + siteTag + ".json"
+            );
+            assertTrue(json.contains("#immersive_ore_expedition:expedition_site_biomes"));
+            assertFalse(json.contains("#c:is_overworld"));
+        }
+
+        String ironBiomes = readClasspathResource(
+                "data/immersive_ore_expedition/tags/worldgen/biome/ore_profile/iron.json"
+        );
+        assertTrue(ironBiomes.contains("\"minecraft:plains\""));
+        assertTrue(ironBiomes.contains("\"minecraft:forest\""));
     }
 
     @Test

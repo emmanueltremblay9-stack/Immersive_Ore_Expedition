@@ -42,6 +42,11 @@ jobs:
         shell: pwsh
         run: ./install-mod.ps1 -TestVersionRanges
 
+      - name: Validate expedition compass assets
+        run: |
+          python3 tools/sync_expedition_compass_asset.py
+          python3 tools/validate_expedition_compass_asset.py
+
       - name: Validate expedition worldgen assets
         run: |
           python3 scripts/validate_worldgen_assets.py
