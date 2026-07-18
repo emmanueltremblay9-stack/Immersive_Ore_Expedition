@@ -112,10 +112,10 @@ IOE references public registry and placed-feature identifiers to prevent free or
 - Author: TwistedGate and contributors
 - Source: https://github.com/TwistedGate/ImmersivePetroleum
 - Distribution: https://modrinth.com/mod/immersivepetroleum
-- Integrated line: Minecraft 1.21.1, Immersive Petroleum 4.4.1-37
+- Integrated line: Minecraft 1.21.1, Immersive Petroleum 4.4.1-37 through 4.5.0-39
 - Source branch inspected: `1.21.1`
 - Source revision inspected: `09dfa613627d2f0114dc06de37f208aa1684bb89`
-- Modrinth project/version inspected: `MOw5TN6u` / `CV6UXQBi`
+- Modrinth project/versions inspected: `MOw5TN6u` / `CV6UXQBi` (4.4.1-37), `1nu6ZI52` (4.5.0-39)
 - License: All Rights Reserved
 
 IOE compiles against the separately distributed Immersive Petroleum artifact and uses its native reservoir API objects and persistence entrypoint. IOE only controls spatial admission: free reservoir scans and unauthorized registrations are blocked, while admitted desert coal sites register oil reservoirs, volcanic sites register lava reservoirs, and beach, shore, river or ocean sites register aquifers transactionally. Immersive Petroleum remains the owner of reservoir recipes, fluids, SavedData format, surveying, pressure, depletion, wells, Pumpjack extraction, code and assets. No Immersive Petroleum source file, recipe, model, texture, sound, language file or other asset is copied into the IOE jar.
