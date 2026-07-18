@@ -179,7 +179,62 @@ function Invoke-VersionRangeSelfTest {
     if ($failures.Count -gt 0) {
         throw "Version-range self-test failed:`n- $($failures -join "`n- ")"
     }
-    Write-Output "Version-range self-test passed: $($cases.Count) cases."
+
+    $tempDirectory = Join-Path ([System.IO.Path]::GetTempPath()) (
+        "ioe-installer-self-test-" + [guid]::NewGuid().ToString("N")
+    )
+    $tempJar = Join-Path $tempDirectory "GeOre-1.21.1-6.2.3.jar"
+    [System.IO.Directory]::CreateDirectory($tempDirectory) | Out-Null
+    try {
+        $archive = [System.IO.Compression.ZipFile]::Open(
+            $tempJar,
+            [System.IO.Compression.ZipArchiveMode]::Create
+        )
+        try {
+            $metadataEntry = $archive.CreateEntry("META-INF/neoforge.mods.toml")
+            $metadataWriter = [System.IO.StreamWriter]::new($metadataEntry.Open())
+            try {
+                $metadataWriter.Write(
+                    "[[mods]]`nmodId=`"geore`"`nversion=`"`${file.jarVersion}`"`n"
+                )
+            } finally {
+                $metadataWriter.Dispose()
+            }
+            $manifestEntry = $archive.CreateEntry("META-INF/MANIFEST.MF")
+            $manifestWriter = [System.IO.StreamWriter]::new($manifestEntry.Open())
+            try {
+                $manifestWriter.Write(
+                    "Manifest-Version: 1.0`nImplementation-Version: 6.2.3`n"
+                )
+            } finally {
+                $manifestWriter.Dispose()
+            }
+        } finally {
+            $archive.Dispose()
+        }
+
+        $identity = Get-JarIdentity -JarPath $tempJar
+        if ($identity.ModId -ne "geore" -or
+                $identity.Version -ne "6.2.3" -or
+                $identity.VersionSource -ne "manifest") {
+            throw (
+                "Manifest version self-test failed: modId=$($identity.ModId), " +
+                "version=$($identity.Version), source=$($identity.VersionSource)"
+            )
+        }
+    } finally {
+        if (Test-Path -LiteralPath $tempJar) {
+            Remove-Item -LiteralPath $tempJar -Force
+        }
+        if (Test-Path -LiteralPath $tempDirectory) {
+            Remove-Item -LiteralPath $tempDirectory -Force
+        }
+    }
+
+    Write-Output (
+        "Installer helper self-test passed: $($cases.Count) version-range cases " +
+        "and manifest version resolution."
+    )
 }
 
 function Read-GradleProperties {
@@ -199,12 +254,15 @@ function Read-GradleProperties {
     return $properties
 }
 
-function Get-JarMetadataText {
-    param([Parameter(Mandatory = $true)][string]$JarPath)
+function Get-JarEntryText {
+    param(
+        [Parameter(Mandatory = $true)][string]$JarPath,
+        [Parameter(Mandatory = $true)][string]$EntryName
+    )
 
     $zip = [System.IO.Compression.ZipFile]::OpenRead($JarPath)
     try {
-        $entry = $zip.GetEntry("META-INF/neoforge.mods.toml")
+        $entry = $zip.GetEntry($EntryName)
         if ($null -eq $entry) {
             return $null
         }
@@ -217,6 +275,29 @@ function Get-JarMetadataText {
     } finally {
         $zip.Dispose()
     }
+}
+
+function Get-JarMetadataText {
+    param([Parameter(Mandatory = $true)][string]$JarPath)
+
+    return Get-JarEntryText -JarPath $JarPath -EntryName "META-INF/neoforge.mods.toml"
+}
+
+function Get-JarManifestVersion {
+    param([Parameter(Mandatory = $true)][string]$JarPath)
+
+    $manifest = Get-JarEntryText -JarPath $JarPath -EntryName "META-INF/MANIFEST.MF"
+    if ([string]::IsNullOrWhiteSpace($manifest)) {
+        return $null
+    }
+    $versionMatch = [regex]::Match(
+        $manifest,
+        '(?m)^Implementation-Version:\s*(\S.*?)\s*$'
+    )
+    if (-not $versionMatch.Success) {
+        return $null
+    }
+    return $versionMatch.Groups[1].Value.Trim()
 }
 
 function Get-PrimaryModBlock {
@@ -265,10 +346,16 @@ function Get-JarIdentity {
         $versionSource = "metadata"
         if (-not [string]::IsNullOrWhiteSpace($modId) -and
                 ([string]::IsNullOrWhiteSpace($version) -or $version.Contains('${'))) {
-            $inferredVersion = Get-InferredJarVersion -JarPath $JarPath -ModId $modId
-            if (-not [string]::IsNullOrWhiteSpace($inferredVersion)) {
-                $version = $inferredVersion
-                $versionSource = "filename"
+            $manifestVersion = Get-JarManifestVersion -JarPath $JarPath
+            if (-not [string]::IsNullOrWhiteSpace($manifestVersion)) {
+                $version = $manifestVersion
+                $versionSource = "manifest"
+            } else {
+                $inferredVersion = Get-InferredJarVersion -JarPath $JarPath -ModId $modId
+                if (-not [string]::IsNullOrWhiteSpace($inferredVersion)) {
+                    $version = $inferredVersion
+                    $versionSource = "filename"
+                }
             }
         }
         return [pscustomobject]@{

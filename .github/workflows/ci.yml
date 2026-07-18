@@ -38,7 +38,7 @@ jobs:
       - name: Test
         run: gradle --no-daemon test
 
-      - name: Test installer version ranges
+      - name: Test installer helpers
         shell: pwsh
         run: ./install-mod.ps1 -TestVersionRanges
 
