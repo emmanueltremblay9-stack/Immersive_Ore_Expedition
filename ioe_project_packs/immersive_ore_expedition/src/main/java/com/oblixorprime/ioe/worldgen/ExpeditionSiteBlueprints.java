@@ -204,6 +204,7 @@ public final class ExpeditionSiteBlueprints {
         LinkedHashSet<ResourceLocation> components = new LinkedHashSet<>();
         BlockPos connectorEnd = origin;
         BlockPos chamberCenter = origin;
+        List<BlockPos> roomCenters = new ArrayList<>();
         int oreNodeCount = 0;
 
         if (requestedType.naturalSurfaceSite()) {
@@ -225,7 +226,16 @@ public final class ExpeditionSiteBlueprints {
                     requestedSpecialBuddingCount,
                     random
             );
-            addSurfaceClue(builder, requestedType, origin);
+            roomCenters.add(chamberCenter.immutable());
+            roomCenters.addAll(addExpeditionGalleries(
+                    builder,
+                    origin,
+                    chamberCenter,
+                    direction,
+                    quality
+            ));
+            restoreConnectorLadder(builder, origin, depth);
+            addSurfaceClue(builder, requestedType, origin, direction, quality);
             components.add(requestedType.id());
             components.add(IoeWorldgenFeatureKeys.BASIC_MINESHAFT_CONNECTOR);
             components.add(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER);
@@ -234,6 +244,7 @@ public final class ExpeditionSiteBlueprints {
             }
         } else if (requestedType == ExpeditionSiteType.BASIC_MINESHAFT_CONNECTOR) {
             connectorEnd = addConnector(builder, origin, MIN_CONNECTOR_DEPTH, 1, false);
+            restoreConnectorLadder(builder, origin, MIN_CONNECTOR_DEPTH);
             chamberCenter = connectorEnd;
             components.add(IoeWorldgenFeatureKeys.BASIC_MINESHAFT_CONNECTOR);
         } else {
@@ -250,6 +261,7 @@ public final class ExpeditionSiteBlueprints {
                     0,
                     random
             );
+            roomCenters.add(origin.immutable());
             components.add(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER);
         }
 
@@ -270,6 +282,7 @@ public final class ExpeditionSiteBlueprints {
                         && components.contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER)
                         ? oreNodeHeartBlockId
                         : null,
+                roomCenters,
                 List.copyOf(components),
                 builder.blocks()
         );
@@ -278,6 +291,11 @@ public final class ExpeditionSiteBlueprints {
     private static int directionTowardChunkCenter(BlockPos origin) {
         int localX = Math.floorMod(origin.getX(), 16);
         return localX <= 7 ? 1 : -1;
+    }
+
+    private static int zDirectionTowardChunkCenter(BlockPos origin) {
+        int localZ = Math.floorMod(origin.getZ(), 16);
+        return localZ <= 7 ? 1 : -1;
     }
 
     private static BlockPos connectedChamberCenter(
@@ -311,7 +329,6 @@ public final class ExpeditionSiteBlueprints {
             int horizontalDirection,
             boolean includeBranch
     ) {
-        BlockState ladder = Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.NORTH);
         for (int dy = 0; dy <= depth; dy++) {
             int y = top.getY() - dy;
             for (int dx = -1; dx <= 1; dx++) {
@@ -320,7 +337,6 @@ public final class ExpeditionSiteBlueprints {
                 }
             }
             builder.put(new BlockPos(top.getX(), y, top.getZ() + 2), Blocks.OAK_LOG.defaultBlockState());
-            builder.put(new BlockPos(top.getX(), y, top.getZ() + 1), ladder);
 
             if (dy % 5 == 0) {
                 builder.put(new BlockPos(top.getX() - 2, y, top.getZ() - 2), Blocks.OAK_LOG.defaultBlockState());
@@ -342,6 +358,156 @@ public final class ExpeditionSiteBlueprints {
             addDryBranch(builder, bottom.offset(horizontalDirection * 2, 0, 0));
         }
         return bottom;
+    }
+
+    private static void restoreConnectorLadder(Builder builder, BlockPos top, int depth) {
+        BlockState ladder = Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.NORTH);
+        for (int dy = 0; dy <= depth; dy++) {
+            builder.put(top.offset(0, -dy, 1), ladder);
+        }
+    }
+
+    private static List<BlockPos> addExpeditionGalleries(
+            Builder builder,
+            BlockPos origin,
+            BlockPos chamberCenter,
+            int horizontalDirection,
+            SiteQuality quality
+    ) {
+        ArrayList<BlockPos> rooms = new ArrayList<>();
+        int zDirection = zDirectionTowardChunkCenter(origin);
+        rooms.add(addGalleryLevel(
+                builder,
+                origin.below(8),
+                horizontalDirection,
+                zDirection,
+                GalleryTheme.SURVEY
+        ));
+        if (quality.ordinal() >= SiteQuality.NORMAL.ordinal()) {
+            rooms.add(addGalleryLevel(
+                    builder,
+                    origin.below(14),
+                    horizontalDirection,
+                    -zDirection,
+                    quality.ordinal() >= SiteQuality.RICH.ordinal()
+                            ? GalleryTheme.WORKSHOP
+                            : GalleryTheme.BUNK
+            ));
+        }
+        if (quality == SiteQuality.MOTHERLODE) {
+            rooms.add(addLowerVault(builder, chamberCenter, horizontalDirection));
+        }
+        return List.copyOf(rooms);
+    }
+
+    private static BlockPos addGalleryLevel(
+            Builder builder,
+            BlockPos shaftCenter,
+            int horizontalDirection,
+            int zDirection,
+            GalleryTheme theme
+    ) {
+        BlockPos elbow = shaftCenter.offset(horizontalDirection * 5, 0, 0);
+        for (int step = 0; step <= 5; step++) {
+            BlockPos section = shaftCenter.offset(horizontalDirection * step, 0, 0);
+            carveTunnelSection(builder, section);
+            if (step == 3) {
+                addTunnelSupport(builder, section);
+            }
+        }
+        for (int step = 1; step <= 3; step++) {
+            carveNorthSouthTunnelSection(builder, elbow.offset(0, 0, zDirection * step));
+        }
+
+        BlockPos roomCenter = elbow.offset(0, 0, zDirection * 3);
+        carveGalleryRoom(builder, roomCenter);
+        decorateGalleryRoom(builder, roomCenter, horizontalDirection, zDirection, theme);
+        return roomCenter.immutable();
+    }
+
+    private static BlockPos addLowerVault(
+            Builder builder,
+            BlockPos chamberCenter,
+            int horizontalDirection
+    ) {
+        BlockPos liftTop = chamberCenter.offset(-horizontalDirection * 2, 0, 0);
+        int liftDepth = 7;
+        for (int dy = 0; dy <= liftDepth; dy++) {
+            BlockPos center = liftTop.below(dy);
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    builder.put(center.offset(dx, 0, dz), Blocks.AIR.defaultBlockState());
+                }
+            }
+            builder.put(center.offset(0, 0, 2), Blocks.DARK_OAK_LOG.defaultBlockState());
+        }
+
+        BlockPos liftBottom = liftTop.below(liftDepth);
+        for (int step = 0; step <= 3; step++) {
+            carveTunnelSection(builder, liftBottom.offset(horizontalDirection * step, 0, 0));
+        }
+        BlockPos vaultCenter = liftBottom.offset(horizontalDirection * 3, 0, 0);
+        carveGalleryRoom(builder, vaultCenter);
+        decorateGalleryRoom(builder, vaultCenter, horizontalDirection, 1, GalleryTheme.VAULT);
+
+        BlockState ladder = Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.NORTH);
+        for (int dy = 0; dy <= liftDepth; dy++) {
+            builder.put(liftTop.offset(0, -dy, 1), ladder);
+        }
+        return vaultCenter.immutable();
+    }
+
+    private static void carveGalleryRoom(Builder builder, BlockPos center) {
+        for (int dy = -2; dy <= 2; dy++) {
+            for (int dx = -2; dx <= 2; dx++) {
+                for (int dz = -2; dz <= 2; dz++) {
+                    if (insideEllipsoid(dx, dy, dz, 2, 2, 1.35D)) {
+                        builder.put(center.offset(dx, dy, dz), Blocks.AIR.defaultBlockState());
+                    }
+                }
+            }
+        }
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                if (insideEllipsoid(dx, 0, dz, 2, 2, 1.0D)) {
+                    builder.put(center.offset(dx, -3, dz), Blocks.OAK_PLANKS.defaultBlockState());
+                }
+            }
+        }
+    }
+
+    private static void decorateGalleryRoom(
+            Builder builder,
+            BlockPos center,
+            int horizontalDirection,
+            int zDirection,
+            GalleryTheme theme
+    ) {
+        BlockPos backLeft = center.offset(-horizontalDirection, -2, -zDirection);
+        BlockPos backRight = center.offset(-horizontalDirection, -2, zDirection);
+        switch (theme) {
+            case SURVEY -> {
+                builder.put(backLeft, Blocks.CARTOGRAPHY_TABLE.defaultBlockState());
+                builder.put(backRight, Blocks.BOOKSHELF.defaultBlockState());
+                builder.put(center.offset(horizontalDirection, -2, zDirection), Blocks.COBWEB.defaultBlockState());
+            }
+            case BUNK -> {
+                builder.put(backLeft, Blocks.HAY_BLOCK.defaultBlockState());
+                builder.put(backRight, Blocks.WHITE_WOOL.defaultBlockState());
+                builder.put(center.offset(horizontalDirection, -2, -zDirection), Blocks.COBWEB.defaultBlockState());
+            }
+            case WORKSHOP -> {
+                builder.put(backLeft, Blocks.SMITHING_TABLE.defaultBlockState());
+                builder.put(backRight, Blocks.STONECUTTER.defaultBlockState());
+                builder.put(center.offset(horizontalDirection, -2, zDirection), Blocks.GRAVEL.defaultBlockState());
+            }
+            case VAULT -> {
+                builder.put(backLeft, Blocks.CHISELED_DEEPSLATE.defaultBlockState());
+                builder.put(backRight, Blocks.IRON_BARS.defaultBlockState());
+                builder.put(center.offset(horizontalDirection, -2, 0), Blocks.REDSTONE_TORCH.defaultBlockState());
+                builder.put(center.offset(-horizontalDirection, -1, 0), Blocks.CHAIN.defaultBlockState());
+            }
+        }
     }
 
     private static void connectTunnelToChamber(
@@ -427,7 +593,7 @@ public final class ExpeditionSiteBlueprints {
 
         BlockPos chamberMarker = center.offset(0, -halfHeight, 0);
         builder.put(chamberMarker, Blocks.CALCITE.defaultBlockState());
-        builder.put(chamberMarker.above(), Blocks.TORCH.defaultBlockState());
+        builder.put(chamberTorchPos(chamberMarker), Blocks.TORCH.defaultBlockState());
         if (!quality.isProductive()) {
             return 0;
         }
@@ -444,7 +610,7 @@ public final class ExpeditionSiteBlueprints {
             ));
             List<BlockPos> nodeCandidates = chamberNodeCandidates(center, radius, halfHeight);
             nodeCandidates.remove(chamberMarker);
-            nodeCandidates.remove(chamberMarker.above());
+            nodeCandidates.remove(chamberTorchPos(chamberMarker));
             placedNodeCount = addOreNodes(
                     builder,
                     nodeCandidates,
@@ -852,7 +1018,7 @@ public final class ExpeditionSiteBlueprints {
             int verticalHalfSize,
             BlockPos chamberMarker
     ) {
-        BlockPos torchPos = chamberMarker.above();
+        BlockPos torchPos = chamberTorchPos(chamberMarker);
         for (Direction direction : Direction.values()) {
             BlockPos neighbor = candidate.relative(direction);
             if (!neighbor.equals(chamberMarker)
@@ -869,6 +1035,10 @@ public final class ExpeditionSiteBlueprints {
             }
         }
         return false;
+    }
+
+    private static BlockPos chamberTorchPos(BlockPos chamberMarker) {
+        return chamberMarker.offset(1, 1, 0);
     }
 
     private static List<BlockPos> chamberNodeCandidates(BlockPos center, int radius, int halfHeight) {
@@ -955,7 +1125,13 @@ public final class ExpeditionSiteBlueprints {
         };
     }
 
-    private static void addSurfaceClue(Builder builder, ExpeditionSiteType type, BlockPos origin) {
+    private static void addSurfaceClue(
+            Builder builder,
+            ExpeditionSiteType type,
+            BlockPos origin,
+            int horizontalDirection,
+            SiteQuality quality
+    ) {
         switch (type) {
             case TINY_VERTICAL_MINE_ENTRANCE -> addMineEntrance(builder, origin);
             case COLLAPSED_SHAFT -> addCollapsedShaft(builder, origin);
@@ -965,6 +1141,81 @@ public final class ExpeditionSiteBlueprints {
                     "Underground components do not have surface clues"
             );
         }
+        addVillageSupplyOutpost(builder, origin, horizontalDirection, quality);
+    }
+
+    private static void addVillageSupplyOutpost(
+            Builder builder,
+            BlockPos origin,
+            int horizontalDirection,
+            SiteQuality quality
+    ) {
+        for (int forward = 0; forward <= 6; forward++) {
+            for (int lateral = -5; lateral <= -3; lateral++) {
+                builder.put(oriented(origin, horizontalDirection, forward, -1, lateral),
+                        Blocks.OAK_PLANKS.defaultBlockState());
+            }
+        }
+        for (int forward : new int[]{0, 6}) {
+            for (int lateral : new int[]{-5, -3}) {
+                for (int dy = 0; dy <= 3; dy++) {
+                    builder.put(oriented(origin, horizontalDirection, forward, dy, lateral),
+                            Blocks.STRIPPED_OAK_LOG.defaultBlockState());
+                }
+            }
+        }
+        for (int forward = 0; forward <= 6; forward++) {
+            for (int lateral = -5; lateral <= -3; lateral++) {
+                builder.put(oriented(origin, horizontalDirection, forward, 4, lateral),
+                        Blocks.OAK_PLANKS.defaultBlockState());
+            }
+        }
+
+        builder.put(oriented(origin, horizontalDirection, 2, 0, -4),
+                Blocks.CARTOGRAPHY_TABLE.defaultBlockState());
+        builder.put(oriented(origin, horizontalDirection, 4, 0, -4),
+                Blocks.CRAFTING_TABLE.defaultBlockState());
+        builder.put(oriented(origin, horizontalDirection, 3, 0, -4),
+                Blocks.OAK_FENCE.defaultBlockState());
+        builder.put(oriented(origin, horizontalDirection, 3, 1, -4),
+                Blocks.LANTERN.defaultBlockState());
+        if (quality.ordinal() >= SiteQuality.RICH.ordinal()) {
+            builder.put(oriented(origin, horizontalDirection, 6, 0, -2),
+                    Blocks.SMITHING_TABLE.defaultBlockState());
+        }
+        builder.put(oriented(origin, horizontalDirection, 7, -1, -4),
+                Blocks.COBBLESTONE.defaultBlockState());
+        builder.put(oriented(origin, horizontalDirection, 7, 0, -4),
+                quality == SiteQuality.MOTHERLODE
+                        ? Blocks.YELLOW_GLAZED_TERRACOTTA.defaultBlockState()
+                        : Blocks.HAY_BLOCK.defaultBlockState());
+
+        for (int forward = -4; forward <= 0; forward++) {
+            builder.put(oriented(origin, horizontalDirection, forward, -1, 4),
+                    Blocks.DIRT_PATH.defaultBlockState());
+        }
+        BlockPos bellBase = oriented(origin, horizontalDirection, -2, -1, 3);
+        builder.put(bellBase, Blocks.COBBLESTONE.defaultBlockState());
+        builder.put(bellBase.above(), Blocks.YELLOW_TERRACOTTA.defaultBlockState());
+        for (int forward = -4; forward <= -1; forward++) {
+            int lateral = forward % 2 == 0 ? 3 : 5;
+            builder.put(oriented(origin, horizontalDirection, forward, 0, lateral),
+                    Blocks.OAK_FENCE.defaultBlockState());
+        }
+        builder.put(oriented(origin, horizontalDirection, -4, 0, 5),
+                Blocks.OAK_FENCE.defaultBlockState());
+        builder.put(oriented(origin, horizontalDirection, -4, 1, 5),
+                Blocks.LANTERN.defaultBlockState());
+    }
+
+    private static BlockPos oriented(
+            BlockPos origin,
+            int horizontalDirection,
+            int forward,
+            int dy,
+            int lateral
+    ) {
+        return origin.offset(horizontalDirection * forward, dy, lateral);
     }
 
     private static void addMineEntrance(Builder builder, BlockPos origin) {
@@ -1090,5 +1341,12 @@ public final class ExpeditionSiteBlueprints {
         Map<BlockPos, BlockState> blocks() {
             return blocks;
         }
+    }
+
+    private enum GalleryTheme {
+        SURVEY,
+        BUNK,
+        WORKSHOP,
+        VAULT
     }
 }

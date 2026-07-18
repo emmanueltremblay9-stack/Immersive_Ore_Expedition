@@ -709,10 +709,11 @@ final class IoePendingExpeditionSites {
         }
         SiteSummary summary = pendingSite.summary();
         IoeExpeditionWorldgenMod.LOGGER.info(
-                "Generated connected IOE expedition site type={} anchor={} chamber={} biome={} connectedBiomeChunks={} quality={} ore={} oreHeart={} oreNodes={} oreHearts={} oreBlocks={} blocks={}",
+                "Generated connected IOE expedition site type={} anchor={} chamber={} rooms={} biome={} connectedBiomeChunks={} quality={} ore={} oreHeart={} oreNodes={} oreHearts={} oreBlocks={} blocks={}",
                 summary.requestedFeatureId(),
                 pendingSite.site().pos(),
                 summary.chamberCenter(),
+                summary.roomCount(),
                 pendingSite.biomeId(),
                 pendingSite.connectedBiomeChunks(),
                 pendingSite.site().quality().orElse(null),
@@ -797,6 +798,7 @@ final class IoePendingExpeditionSites {
             int oreNodeCount,
             long oreNodeHeartCount,
             long oreBlockCount,
+            int roomCount,
             int blockCount
     ) {
         private static SiteSummary from(ExpeditionSiteBlockPlan plan) {
@@ -808,6 +810,7 @@ final class IoePendingExpeditionSites {
                     plan.oreNodeCount(),
                     plan.oreNodeHeartCount(),
                     plan.oreBlockCount(),
+                    plan.roomCenters().size(),
                     plan.blocks().size()
             );
         }
