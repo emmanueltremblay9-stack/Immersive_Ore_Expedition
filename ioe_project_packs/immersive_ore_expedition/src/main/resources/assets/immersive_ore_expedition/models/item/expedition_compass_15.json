@@ -11,66 +11,67 @@
     "parchment": "immersive_ore_expedition:item/expedition_compass",
     "dark_green": "immersive_ore_expedition:item/expedition_compass",
     "locator_green": "immersive_ore_expedition:item/expedition_compass",
-    "cyan": "immersive_ore_expedition:item/expedition_compass"
+    "cyan": "immersive_ore_expedition:item/expedition_compass",
+    "glass": "immersive_ore_expedition:item/expedition_compass"
   },
   "elements": [
     {
       "name": "outer_brass_ring_top",
       "from": [
-        4,
-        13,
+        5,
+        12.8,
         6.8
       ],
       "to": [
-        12,
-        15,
-        9.4
+        11,
+        14,
+        9.15
       ],
       "faces": {
         "north": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "east": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "south": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "west": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "up": {
           "uv": [
-            4,
+            8,
             0,
-            6,
+            10,
             2
           ],
-          "texture": "#brass"
+          "texture": "#worn"
         },
         "down": {
           "uv": [
@@ -86,51 +87,51 @@
     {
       "name": "outer_brass_ring_bottom",
       "from": [
-        4,
-        1,
+        5,
+        2,
         6.8
       ],
       "to": [
-        12,
-        3,
-        9.4
+        11,
+        3.2,
+        9.15
       ],
       "faces": {
         "north": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "east": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "south": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "west": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "up": {
           "uv": [
@@ -155,26 +156,53 @@
     {
       "name": "outer_brass_ring_left",
       "from": [
-        1,
-        4,
+        2,
+        5,
         6.8
       ],
       "to": [
-        3,
-        12,
-        9.4
+        3.2,
+        11,
+        9.15
       ],
       "faces": {
         "north": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "up": {
           "uv": [
             8,
             0,
@@ -182,33 +210,6 @@
             2
           ],
           "texture": "#worn"
-        },
-        "south": {
-          "uv": [
-            4,
-            0,
-            6,
-            2
-          ],
-          "texture": "#brass"
-        },
-        "west": {
-          "uv": [
-            4,
-            0,
-            6,
-            2
-          ],
-          "texture": "#brass"
-        },
-        "up": {
-          "uv": [
-            4,
-            0,
-            6,
-            2
-          ],
-          "texture": "#brass"
         },
         "down": {
           "uv": [
@@ -224,44 +225,53 @@
     {
       "name": "outer_brass_ring_right",
       "from": [
-        13,
-        4,
+        12.8,
+        5,
         6.8
       ],
       "to": [
-        15,
-        12,
-        9.4
+        14,
+        11,
+        9.15
       ],
       "faces": {
         "north": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "east": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "south": {
           "uv": [
-            4,
             0,
-            6,
+            0,
+            2,
             2
           ],
-          "texture": "#brass"
+          "texture": "#steel"
         },
         "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "up": {
           "uv": [
             8,
             0,
@@ -269,15 +279,6 @@
             2
           ],
           "texture": "#worn"
-        },
-        "up": {
-          "uv": [
-            4,
-            0,
-            6,
-            2
-          ],
-          "texture": "#brass"
         },
         "down": {
           "uv": [
@@ -293,14 +294,14 @@
     {
       "name": "outer_brass_ring_top_left_bevel",
       "from": [
-        2.2,
-        11.4,
-        6.8
+        3,
+        11.2,
+        6.85
       ],
       "to": [
-        4.6,
-        13.8,
-        9.4
+        5,
+        12.2,
+        9.2
       ],
       "faces": {
         "north": {
@@ -314,12 +315,12 @@
         },
         "east": {
           "uv": [
-            8,
+            4,
             0,
-            10,
+            6,
             2
           ],
-          "texture": "#worn"
+          "texture": "#brass"
         },
         "south": {
           "uv": [
@@ -341,12 +342,12 @@
         },
         "up": {
           "uv": [
-            4,
+            8,
             0,
-            6,
+            10,
             2
           ],
-          "texture": "#brass"
+          "texture": "#worn"
         },
         "down": {
           "uv": [
@@ -357,19 +358,29 @@
           ],
           "texture": "#shadow"
         }
+      },
+      "rotation": {
+        "origin": [
+          4,
+          11.7,
+          8
+        ],
+        "axis": "z",
+        "angle": -45.0,
+        "rescale": true
       }
     },
     {
       "name": "outer_brass_ring_top_right_bevel",
       "from": [
-        11.4,
-        11.4,
-        6.8
+        11,
+        11.2,
+        6.85
       ],
       "to": [
-        13.8,
-        13.8,
-        9.4
+        13,
+        12.2,
+        9.2
       ],
       "faces": {
         "north": {
@@ -401,21 +412,21 @@
         },
         "west": {
           "uv": [
-            8,
-            0,
-            10,
-            2
-          ],
-          "texture": "#worn"
-        },
-        "up": {
-          "uv": [
             4,
             0,
             6,
             2
           ],
           "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            10,
+            2
+          ],
+          "texture": "#worn"
         },
         "down": {
           "uv": [
@@ -426,19 +437,29 @@
           ],
           "texture": "#shadow"
         }
+      },
+      "rotation": {
+        "origin": [
+          12,
+          11.7,
+          8
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": true
       }
     },
     {
       "name": "outer_brass_ring_bottom_left_bevel",
       "from": [
-        2.2,
-        2.2,
-        6.8
+        3,
+        3.8,
+        6.85
       ],
       "to": [
-        4.6,
-        4.6,
-        9.4
+        5,
+        4.8,
+        9.2
       ],
       "faces": {
         "north": {
@@ -452,12 +473,12 @@
         },
         "east": {
           "uv": [
-            8,
+            4,
             0,
-            10,
+            6,
             2
           ],
-          "texture": "#worn"
+          "texture": "#brass"
         },
         "south": {
           "uv": [
@@ -479,12 +500,12 @@
         },
         "up": {
           "uv": [
-            4,
+            8,
             0,
-            6,
+            10,
             2
           ],
-          "texture": "#brass"
+          "texture": "#worn"
         },
         "down": {
           "uv": [
@@ -495,19 +516,29 @@
           ],
           "texture": "#shadow"
         }
+      },
+      "rotation": {
+        "origin": [
+          4,
+          4.3,
+          8
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": true
       }
     },
     {
       "name": "outer_brass_ring_bottom_right_bevel",
       "from": [
-        11.4,
-        2.2,
-        6.8
+        11,
+        3.8,
+        6.85
       ],
       "to": [
-        13.8,
-        4.6,
-        9.4
+        13,
+        4.8,
+        9.2
       ],
       "faces": {
         "north": {
@@ -539,21 +570,21 @@
         },
         "west": {
           "uv": [
-            8,
-            0,
-            10,
-            2
-          ],
-          "texture": "#worn"
-        },
-        "up": {
-          "uv": [
             4,
             0,
             6,
             2
           ],
           "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            10,
+            2
+          ],
+          "texture": "#worn"
         },
         "down": {
           "uv": [
@@ -564,56 +595,66 @@
           ],
           "texture": "#shadow"
         }
+      },
+      "rotation": {
+        "origin": [
+          12,
+          4.3,
+          8
+        ],
+        "axis": "z",
+        "angle": -45.0,
+        "rescale": true
       }
     },
     {
       "name": "dark_steel_backplate_core",
       "from": [
-        4,
-        4,
+        3.4,
+        3.4,
         6
       ],
       "to": [
-        12,
-        12,
-        6.8
+        12.6,
+        12.6,
+        6.55
       ],
       "faces": {
         "north": {
           "uv": [
-            0,
-            0,
             2,
+            0,
+            4,
             2
           ],
-          "texture": "#steel"
+          "texture": "#shadow"
         },
         "east": {
           "uv": [
-            0,
-            0,
             2,
+            0,
+            4,
             2
           ],
-          "texture": "#steel"
+          "texture": "#shadow"
         },
         "south": {
           "uv": [
-            0,
-            0,
             2,
+            0,
+            4,
             2
           ],
-          "texture": "#steel"
+          "texture": "#shadow"
         },
         "west": {
           "uv": [
-            0,
-            0,
             2,
+            0,
+            4,
             2
           ],
-          "texture": "#steel"
+          "texture": "#shadow"
         },
         "up": {
           "uv": [
@@ -638,14 +679,14 @@
     {
       "name": "dark_steel_backplate_horizontal",
       "from": [
-        3,
+        2.8,
         5,
-        6
+        6.08
       ],
       "to": [
-        13,
+        13.2,
         11,
-        6.7
+        6.62
       ],
       "faces": {
         "north": {
@@ -659,12 +700,12 @@
         },
         "east": {
           "uv": [
-            2,
             0,
-            4,
+            0,
+            2,
             2
           ],
-          "texture": "#shadow"
+          "texture": "#steel"
         },
         "south": {
           "uv": [
@@ -677,21 +718,21 @@
         },
         "west": {
           "uv": [
-            8,
-            0,
-            10,
-            2
-          ],
-          "texture": "#worn"
-        },
-        "up": {
-          "uv": [
             0,
             0,
             2,
             2
           ],
           "texture": "#steel"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            10,
+            2
+          ],
+          "texture": "#worn"
         },
         "down": {
           "uv": [
@@ -708,13 +749,13 @@
       "name": "dark_steel_backplate_vertical",
       "from": [
         5,
-        3,
-        6
+        2.8,
+        6.12
       ],
       "to": [
         11,
-        13,
-        6.7
+        13.2,
+        6.58
       ],
       "faces": {
         "north": {
@@ -737,12 +778,12 @@
         },
         "south": {
           "uv": [
-            2,
             0,
-            4,
+            0,
+            2,
             2
           ],
-          "texture": "#shadow"
+          "texture": "#steel"
         },
         "west": {
           "uv": [
@@ -752,144 +793,6 @@
             2
           ],
           "texture": "#steel"
-        },
-        "up": {
-          "uv": [
-            0,
-            0,
-            2,
-            2
-          ],
-          "texture": "#steel"
-        },
-        "down": {
-          "uv": [
-            2,
-            0,
-            4,
-            2
-          ],
-          "texture": "#shadow"
-        }
-      }
-    },
-    {
-      "name": "inner_dial_aged_plate",
-      "from": [
-        5,
-        5,
-        9.35
-      ],
-      "to": [
-        11,
-        11,
-        9.65
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            0,
-            2,
-            2,
-            4
-          ],
-          "texture": "#parchment"
-        },
-        "east": {
-          "uv": [
-            0,
-            2,
-            2,
-            4
-          ],
-          "texture": "#parchment"
-        },
-        "south": {
-          "uv": [
-            0,
-            2,
-            2,
-            4
-          ],
-          "texture": "#parchment"
-        },
-        "west": {
-          "uv": [
-            0,
-            2,
-            2,
-            4
-          ],
-          "texture": "#parchment"
-        },
-        "up": {
-          "uv": [
-            0,
-            2,
-            2,
-            4
-          ],
-          "texture": "#parchment"
-        },
-        "down": {
-          "uv": [
-            2,
-            0,
-            4,
-            2
-          ],
-          "texture": "#shadow"
-        }
-      }
-    },
-    {
-      "name": "inner_dial_lower_shadow",
-      "from": [
-        5.3,
-        4.7,
-        9.3
-      ],
-      "to": [
-        10.7,
-        5.3,
-        9.7
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            2,
-            0,
-            4,
-            2
-          ],
-          "texture": "#shadow"
-        },
-        "east": {
-          "uv": [
-            2,
-            0,
-            4,
-            2
-          ],
-          "texture": "#shadow"
-        },
-        "south": {
-          "uv": [
-            2,
-            0,
-            4,
-            2
-          ],
-          "texture": "#shadow"
-        },
-        "west": {
-          "uv": [
-            2,
-            0,
-            4,
-            2
-          ],
-          "texture": "#shadow"
         },
         "up": {
           "uv": [
@@ -912,62 +815,200 @@
       }
     },
     {
-      "name": "inner_dial_worn_highlight",
+      "name": "dial_recess_horizontal",
       "from": [
-        5.5,
-        10.4,
-        9.7
+        3.8,
+        5.7,
+        9.48
       ],
       "to": [
-        10.5,
-        10.9,
-        10
+        12.2,
+        10.3,
+        9.72
       ],
       "faces": {
         "north": {
           "uv": [
-            8,
             0,
-            10,
-            2
+            2,
+            2,
+            4
           ],
-          "texture": "#worn"
+          "texture": "#glass"
         },
         "east": {
           "uv": [
-            8,
             0,
-            10,
-            2
+            2,
+            2,
+            4
           ],
-          "texture": "#worn"
+          "texture": "#glass"
         },
         "south": {
           "uv": [
-            8,
             0,
-            10,
-            2
+            2,
+            2,
+            4
           ],
-          "texture": "#worn"
+          "texture": "#glass"
         },
         "west": {
           "uv": [
-            8,
             0,
-            10,
-            2
+            2,
+            2,
+            4
           ],
-          "texture": "#worn"
+          "texture": "#glass"
         },
         "up": {
           "uv": [
-            8,
             0,
-            10,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
             2
           ],
-          "texture": "#worn"
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "dial_recess_vertical",
+      "from": [
+        5.7,
+        3.8,
+        9.49
+      ],
+      "to": [
+        10.3,
+        12.2,
+        9.73
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
+        },
+        "east": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
+        },
+        "south": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
+        },
+        "west": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
+        },
+        "up": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "dial_face_plate",
+      "from": [
+        4.6,
+        4.6,
+        9.5
+      ],
+      "to": [
+        11.4,
+        11.4,
+        9.74
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
+        },
+        "east": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
+        },
+        "south": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
+        },
+        "west": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
+        },
+        "up": {
+          "uv": [
+            0,
+            2,
+            2,
+            4
+          ],
+          "texture": "#glass"
         },
         "down": {
           "uv": [
@@ -983,23 +1024,23 @@
     {
       "name": "locator_needle_forward",
       "from": [
-        7.65,
-        3.8,
-        9.9
+        7.6,
+        4.45,
+        10.12
       ],
       "to": [
-        8.35,
-        8.3,
-        10.35
+        8.4,
+        8.1,
+        10.4
       ],
       "rotation": {
         "origin": [
           8,
           8,
-          10.1
+          10.25
         ],
         "axis": "z",
-        "angle": 0.0,
+        "angle": -0.0,
         "rescale": true
       },
       "shade": false,
@@ -1042,44 +1083,44 @@
         },
         "up": {
           "uv": [
-            12,
-            0,
             14,
+            0,
+            16,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#cyan"
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
       }
     },
     {
       "name": "locator_needle_tail",
       "from": [
-        7.75,
-        7.8,
-        9.85
+        7.7,
+        7.85,
+        10.08
       ],
       "to": [
-        8.25,
-        11.4,
-        10.25
+        8.3,
+        11.3,
+        10.36
       ],
       "rotation": {
         "origin": [
           8,
           8,
-          10.05
+          10.22
         ],
         "axis": "z",
-        "angle": 0.0,
+        "angle": -0.0,
         "rescale": true
       },
       "shade": false,
@@ -1122,12 +1163,12 @@
         },
         "up": {
           "uv": [
-            10,
-            0,
             12,
+            0,
+            14,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#locator_green"
         },
         "down": {
           "uv": [
@@ -1143,23 +1184,23 @@
     {
       "name": "locator_needle_cyan_tip",
       "from": [
-        7.3,
-        3,
-        9.95
+        7.15,
+        3.65,
+        10.42
       ],
       "to": [
-        8.7,
-        4.3,
-        10.45
+        8.85,
+        4.8,
+        10.72
       ],
       "rotation": {
         "origin": [
           8,
           8,
-          10.15
+          10.45
         ],
         "axis": "z",
-        "angle": 0.0,
+        "angle": -0.0,
         "rescale": true
       },
       "shade": false,
@@ -1211,28 +1252,96 @@
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
       }
     },
     {
-      "name": "cyan_crystal_core",
+      "name": "ore_indicator_hub",
       "from": [
-        7,
-        7,
-        10.1
+        7.25,
+        7.25,
+        10.76
       ],
       "to": [
-        9,
-        9,
-        11
+        8.75,
+        8.75,
+        11.08
       ],
-      "shade": false,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            10,
+            2
+          ],
+          "texture": "#worn"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "ore_indicator_glint",
+      "from": [
+        7.5,
+        7.6,
+        11.1
+      ],
+      "to": [
+        8.5,
+        8.4,
+        11.34
+      ],
       "faces": {
         "north": {
           "uv": [
@@ -1281,152 +1390,83 @@
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
-      }
-    },
-    {
-      "name": "cyan_crystal_highlight",
-      "from": [
-        7.5,
-        7.5,
-        11
-      ],
-      "to": [
-        8.5,
-        8.5,
-        11.45
-      ],
-      "shade": false,
-      "faces": {
-        "north": {
-          "uv": [
-            14,
-            0,
-            16,
-            2
-          ],
-          "texture": "#cyan"
-        },
-        "east": {
-          "uv": [
-            14,
-            0,
-            16,
-            2
-          ],
-          "texture": "#cyan"
-        },
-        "south": {
-          "uv": [
-            14,
-            0,
-            16,
-            2
-          ],
-          "texture": "#cyan"
-        },
-        "west": {
-          "uv": [
-            14,
-            0,
-            16,
-            2
-          ],
-          "texture": "#cyan"
-        },
-        "up": {
-          "uv": [
-            14,
-            0,
-            16,
-            2
-          ],
-          "texture": "#cyan"
-        },
-        "down": {
-          "uv": [
-            14,
-            0,
-            16,
-            2
-          ],
-          "texture": "#cyan"
-        }
-      }
+      },
+      "shade": false
     },
     {
       "name": "green_indicator_north",
       "from": [
         7.4,
-        12.2,
-        9.75
+        12.15,
+        10.05
       ],
       "to": [
         8.6,
-        12.8,
-        10.15
+        12.55,
+        10.25
       ],
       "shade": false,
       "faces": {
         "north": {
           "uv": [
-            12,
-            0,
             14,
+            0,
+            16,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#cyan"
         },
         "east": {
           "uv": [
-            12,
-            0,
             14,
+            0,
+            16,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#cyan"
         },
         "south": {
           "uv": [
-            12,
-            0,
             14,
+            0,
+            16,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#cyan"
         },
         "west": {
           "uv": [
-            12,
-            0,
             14,
+            0,
+            16,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#cyan"
         },
         "up": {
           "uv": [
-            12,
-            0,
             14,
+            0,
+            16,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#cyan"
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
       }
     },
@@ -1434,503 +1474,496 @@
       "name": "green_indicator_south",
       "from": [
         7.4,
-        3.2,
-        9.75
+        3.45,
+        10.05
       ],
       "to": [
         8.6,
-        3.8,
-        10.15
+        3.85,
+        10.25
       ],
-      "shade": false,
       "faces": {
         "north": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "east": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "south": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "west": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "up": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
       }
     },
     {
       "name": "green_indicator_west",
       "from": [
-        3.2,
+        3.45,
         7.4,
-        9.75
+        10.05
       ],
       "to": [
-        3.8,
+        3.85,
         8.6,
-        10.15
+        10.25
       ],
-      "shade": false,
       "faces": {
         "north": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "east": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "south": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "west": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "up": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
       }
     },
     {
       "name": "green_indicator_east",
       "from": [
-        12.2,
+        12.15,
         7.4,
-        9.75
+        10.05
       ],
       "to": [
-        12.8,
+        12.55,
         8.6,
-        10.15
+        10.25
       ],
-      "shade": false,
       "faces": {
         "north": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "east": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "south": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "west": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "up": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
       }
     },
     {
-      "name": "green_indicator_north_west",
+      "name": "minor_marker_north_west",
       "from": [
-        4.2,
-        11.2,
-        9.75
+        4.1,
+        10.9,
+        9.83
       ],
       "to": [
-        4.8,
-        11.8,
-        10.15
+        5.1,
+        11.7,
+        10.05
       ],
-      "shade": false,
       "faces": {
         "north": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "east": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "south": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "west": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "up": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
       }
     },
     {
-      "name": "green_indicator_north_east",
+      "name": "minor_marker_north_east",
       "from": [
-        11.2,
-        11.2,
-        9.75
+        10.9,
+        10.9,
+        9.83
       ],
       "to": [
-        11.8,
-        11.8,
-        10.15
+        11.9,
+        11.7,
+        10.05
       ],
-      "shade": false,
       "faces": {
         "north": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "east": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "south": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "west": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "up": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
       }
     },
     {
-      "name": "green_indicator_south_west",
+      "name": "minor_marker_south_west",
       "from": [
-        4.2,
-        4.2,
-        9.75
+        4.1,
+        4.3,
+        9.83
       ],
       "to": [
-        4.8,
-        4.8,
-        10.15
+        5.1,
+        5.1,
+        10.05
       ],
-      "shade": false,
       "faces": {
         "north": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "east": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "south": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "west": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "up": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
       }
     },
     {
-      "name": "green_indicator_south_east",
+      "name": "minor_marker_south_east",
       "from": [
-        11.2,
-        4.2,
-        9.75
+        10.9,
+        4.3,
+        9.83
       ],
       "to": [
-        11.8,
-        4.8,
-        10.15
+        11.9,
+        5.1,
+        10.05
       ],
-      "shade": false,
       "faces": {
         "north": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "east": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "south": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "west": {
           "uv": [
-            12,
+            4,
             0,
-            14,
+            6,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#brass"
         },
         "up": {
           "uv": [
-            12,
+            8,
             0,
-            14,
+            10,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#worn"
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
       }
     },
     {
       "name": "copper_side_cap_left",
       "from": [
-        0.3,
-        6.2,
+        0.9,
+        6.7,
         7
       ],
       "to": [
-        1.3,
-        9.8,
-        9.6
+        2,
+        9.3,
+        9.25
       ],
       "faces": {
         "north": {
@@ -1992,14 +2025,14 @@
     {
       "name": "copper_side_cap_right",
       "from": [
-        14.7,
-        6.2,
+        14,
+        6.7,
         7
       ],
       "to": [
-        15.7,
-        9.8,
-        9.6
+        15.1,
+        9.3,
+        9.25
       ],
       "faces": {
         "north": {
@@ -2061,14 +2094,14 @@
     {
       "name": "copper_top_cap",
       "from": [
-        6.2,
-        14.7,
+        6.8,
+        13.9,
         7
       ],
       "to": [
-        9.8,
-        15.7,
-        9.6
+        9.2,
+        15.1,
+        9.25
       ],
       "faces": {
         "north": {
@@ -2130,51 +2163,51 @@
     {
       "name": "small_bolt_top_left",
       "from": [
-        3,
-        12.5,
-        9.55
+        3.5,
+        11.6,
+        10.08
       ],
       "to": [
-        4,
-        13.5,
-        10.25
+        4.3,
+        12.6,
+        10.4
       ],
       "faces": {
         "north": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "east": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "south": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "west": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "up": {
           "uv": [
@@ -2199,51 +2232,51 @@
     {
       "name": "small_bolt_top_right",
       "from": [
-        12,
-        12.5,
-        9.55
+        11.7,
+        11.6,
+        10.08
       ],
       "to": [
-        13,
-        13.5,
-        10.25
+        12.5,
+        12.6,
+        10.4
       ],
       "faces": {
         "north": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "east": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "south": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "west": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "up": {
           "uv": [
@@ -2268,51 +2301,51 @@
     {
       "name": "small_bolt_bottom_left",
       "from": [
-        3,
-        2.5,
-        9.55
+        3.5,
+        3.4,
+        10.08
       ],
       "to": [
-        4,
-        3.5,
-        10.25
+        4.3,
+        4.4,
+        10.4
       ],
       "faces": {
         "north": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "east": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "south": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "west": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "up": {
           "uv": [
@@ -2337,51 +2370,51 @@
     {
       "name": "small_bolt_bottom_right",
       "from": [
-        12,
-        2.5,
-        9.55
+        11.7,
+        3.4,
+        10.08
       ],
       "to": [
-        13,
-        3.5,
-        10.25
+        12.5,
+        4.4,
+        10.4
       ],
       "faces": {
         "north": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "east": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "south": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "west": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
         },
         "up": {
           "uv": [
@@ -2404,53 +2437,53 @@
       }
     },
     {
-      "name": "small_bolt_left_mid",
+      "name": "service_fastener_left",
       "from": [
-        1.6,
-        7.5,
-        9.55
+        1.3,
+        7.45,
+        9.58
       ],
       "to": [
-        2.4,
-        8.5,
-        10.2
+        2.3,
+        8.55,
+        10.02
       ],
       "faces": {
         "north": {
           "uv": [
-            8,
+            2,
             0,
-            10,
+            4,
             2
           ],
-          "texture": "#worn"
+          "texture": "#shadow"
         },
         "east": {
           "uv": [
-            8,
+            2,
             0,
-            10,
+            4,
             2
           ],
-          "texture": "#worn"
+          "texture": "#shadow"
         },
         "south": {
           "uv": [
-            8,
+            2,
             0,
-            10,
+            4,
             2
           ],
-          "texture": "#worn"
+          "texture": "#shadow"
         },
         "west": {
           "uv": [
-            8,
+            2,
             0,
-            10,
+            4,
             2
           ],
-          "texture": "#worn"
+          "texture": "#shadow"
         },
         "up": {
           "uv": [
@@ -2473,53 +2506,53 @@
       }
     },
     {
-      "name": "small_bolt_right_mid",
+      "name": "service_fastener_right",
       "from": [
-        13.6,
-        7.5,
-        9.55
+        13.7,
+        7.45,
+        9.58
       ],
       "to": [
-        14.4,
-        8.5,
-        10.2
+        14.7,
+        8.55,
+        10.02
       ],
       "faces": {
         "north": {
           "uv": [
-            8,
+            2,
             0,
-            10,
+            4,
             2
           ],
-          "texture": "#worn"
+          "texture": "#shadow"
         },
         "east": {
           "uv": [
-            8,
+            2,
             0,
-            10,
+            4,
             2
           ],
-          "texture": "#worn"
+          "texture": "#shadow"
         },
         "south": {
           "uv": [
-            8,
+            2,
             0,
-            10,
+            4,
             2
           ],
-          "texture": "#worn"
+          "texture": "#shadow"
         },
         "west": {
           "uv": [
-            8,
+            2,
             0,
-            10,
+            4,
             2
           ],
-          "texture": "#worn"
+          "texture": "#shadow"
         },
         "up": {
           "uv": [
@@ -2544,13 +2577,13 @@
     {
       "name": "grip_tab_base",
       "from": [
-        6,
-        0,
-        6.7
+        6.4,
+        0.2,
+        6.85
       ],
       "to": [
-        10,
-        1.7,
+        9.6,
+        1.65,
         9.2
       ],
       "faces": {
@@ -2565,12 +2598,12 @@
         },
         "east": {
           "uv": [
-            6,
             0,
-            8,
+            0,
+            2,
             2
           ],
-          "texture": "#copper"
+          "texture": "#steel"
         },
         "south": {
           "uv": [
@@ -2583,21 +2616,21 @@
         },
         "west": {
           "uv": [
-            6,
-            0,
-            8,
-            2
-          ],
-          "texture": "#copper"
-        },
-        "up": {
-          "uv": [
             0,
             0,
             2,
             2
           ],
           "texture": "#steel"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            10,
+            2
+          ],
+          "texture": "#worn"
         },
         "down": {
           "uv": [
@@ -2613,51 +2646,51 @@
     {
       "name": "grip_tab_rivet",
       "from": [
-        7.3,
-        0.3,
-        9.2
+        7.4,
+        0.55,
+        9.22
       ],
       "to": [
-        8.7,
-        1,
-        9.8
+        8.6,
+        1.25,
+        9.62
       ],
       "faces": {
         "north": {
           "uv": [
-            8,
+            4,
             0,
-            10,
+            6,
             2
           ],
-          "texture": "#worn"
+          "texture": "#brass"
         },
         "east": {
           "uv": [
-            8,
+            4,
             0,
-            10,
+            6,
             2
           ],
-          "texture": "#worn"
+          "texture": "#brass"
         },
         "south": {
           "uv": [
-            8,
+            4,
             0,
-            10,
+            6,
             2
           ],
-          "texture": "#worn"
+          "texture": "#brass"
         },
         "west": {
           "uv": [
-            8,
+            4,
             0,
-            10,
+            6,
             2
           ],
-          "texture": "#worn"
+          "texture": "#brass"
         },
         "up": {
           "uv": [
@@ -2680,16 +2713,16 @@
       }
     },
     {
-      "name": "optional_signal_antenna_hinge",
+      "name": "top_lug_left_mount",
       "from": [
-        11.5,
-        13.2,
-        8
+        6.6,
+        15.45,
+        7.15
       ],
       "to": [
-        13,
-        14.4,
-        9.3
+        7.5,
+        16.9,
+        9.15
       ],
       "faces": {
         "north": {
@@ -2749,27 +2782,510 @@
       }
     },
     {
-      "name": "optional_signal_antenna_prong",
+      "name": "top_lug_bridge",
       "from": [
-        12.6,
-        13.8,
-        8.35
+        7.45,
+        16.35,
+        7.3
       ],
       "to": [
-        15.5,
-        14.4,
-        8.95
+        8.55,
+        17.2,
+        9
       ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            10,
+            2
+          ],
+          "texture": "#worn"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "top_lug_right_mount",
+      "from": [
+        8.5,
+        15.45,
+        7.15
+      ],
+      "to": [
+        9.4,
+        16.9,
+        9.15
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "east": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "south": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "west": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "up": {
+          "uv": [
+            8,
+            0,
+            10,
+            2
+          ],
+          "texture": "#worn"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "calibration_gear_large_core",
+      "from": [
+        8.25,
+        5.65,
+        9.78
+      ],
+      "to": [
+        10.15,
+        7.55,
+        9.98
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      },
       "rotation": {
         "origin": [
-          12.8,
-          14,
-          8.65
+          9.2,
+          6.6,
+          9.88
         ],
         "axis": "z",
-        "angle": 22.5,
-        "rescale": true
-      },
+        "angle": 45.0,
+        "rescale": false
+      }
+    },
+    {
+      "name": "calibration_gear_large_tooth_north",
+      "from": [
+        8.85,
+        4.85,
+        9.79
+      ],
+      "to": [
+        9.55,
+        5.85,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "calibration_gear_large_tooth_south",
+      "from": [
+        8.85,
+        7.35,
+        9.8
+      ],
+      "to": [
+        9.55,
+        8.35,
+        10.01
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "calibration_gear_large_tooth_west",
+      "from": [
+        9.75,
+        6.25,
+        9.81
+      ],
+      "to": [
+        10.75,
+        6.95,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "calibration_gear_large_tooth_east",
+      "from": [
+        7.45,
+        6.25,
+        9.82
+      ],
+      "to": [
+        8.45,
+        6.95,
+        10.03
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "calibration_gear_small_core",
+      "from": [
+        4.65,
+        8.4,
+        9.78
+      ],
+      "to": [
+        6.25,
+        10.0,
+        9.98
+      ],
       "faces": {
         "north": {
           "uv": [
@@ -2782,12 +3298,91 @@
         },
         "east": {
           "uv": [
-            8,
             0,
-            10,
+            0,
+            2,
             2
           ],
-          "texture": "#worn"
+          "texture": "#steel"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      },
+      "rotation": {
+        "origin": [
+          5.45,
+          9.2,
+          9.88
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": false
+      }
+    },
+    {
+      "name": "calibration_gear_small_tooth_north",
+      "from": [
+        4.95,
+        8.05,
+        9.79
+      ],
+      "to": [
+        5.95,
+        8.6,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
         },
         "south": {
           "uv": [
@@ -2828,92 +3423,1176 @@
       }
     },
     {
-      "name": "optional_signal_antenna_green_tip",
+      "name": "calibration_gear_small_tooth_south",
       "from": [
-        15.1,
-        13.6,
-        8.25
+        4.95,
+        9.8,
+        9.8
       ],
       "to": [
-        15.8,
-        14.6,
-        9.05
+        5.95,
+        10.35,
+        10.01
       ],
-      "shade": false,
       "faces": {
         "north": {
           "uv": [
-            12,
             0,
-            14,
+            0,
+            2,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#steel"
         },
         "east": {
           "uv": [
-            12,
             0,
-            14,
+            0,
+            2,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#steel"
         },
         "south": {
           "uv": [
-            12,
             0,
-            14,
+            0,
+            2,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#steel"
         },
         "west": {
           "uv": [
-            12,
             0,
-            14,
+            0,
+            2,
             2
           ],
-          "texture": "#locator_green"
+          "texture": "#steel"
         },
         "up": {
           "uv": [
-            14,
             0,
-            16,
+            0,
+            2,
             2
           ],
-          "texture": "#cyan"
+          "texture": "#steel"
         },
         "down": {
           "uv": [
-            10,
+            2,
             0,
-            12,
+            4,
             2
           ],
-          "texture": "#dark_green"
+          "texture": "#shadow"
         }
+      }
+    },
+    {
+      "name": "calibration_gear_small_tooth_west",
+      "from": [
+        5.95,
+        8.7,
+        9.81
+      ],
+      "to": [
+        6.6,
+        9.7,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "calibration_gear_small_tooth_east",
+      "from": [
+        4.3,
+        8.7,
+        9.82
+      ],
+      "to": [
+        4.85,
+        9.7,
+        10.03
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ],
+          "texture": "#steel"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "calibration_gear_copper_core",
+      "from": [
+        5.05,
+        5.75,
+        9.78
+      ],
+      "to": [
+        6.75,
+        7.45,
+        9.98
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "east": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "south": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "west": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "up": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      },
+      "rotation": {
+        "origin": [
+          5.9,
+          6.6,
+          9.88
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": false
+      }
+    },
+    {
+      "name": "calibration_gear_copper_tooth_north",
+      "from": [
+        5.4,
+        5.45,
+        9.79
+      ],
+      "to": [
+        6.4,
+        5.95,
+        10
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "east": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "south": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "west": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "up": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "calibration_gear_copper_tooth_south",
+      "from": [
+        5.4,
+        7.25,
+        9.8
+      ],
+      "to": [
+        6.4,
+        7.75,
+        10.01
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "east": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "south": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "west": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "up": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "calibration_gear_copper_tooth_west",
+      "from": [
+        6.55,
+        6.1,
+        9.81
+      ],
+      "to": [
+        7.05,
+        7.1,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "east": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "south": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "west": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "up": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "calibration_gear_copper_tooth_east",
+      "from": [
+        4.75,
+        6.1,
+        9.82
+      ],
+      "to": [
+        5.3,
+        7.1,
+        10.03
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "east": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "south": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "west": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "up": {
+          "uv": [
+            6,
+            0,
+            8,
+            2
+          ],
+          "texture": "#copper"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "dial_bezel_top",
+      "from": [
+        5.6,
+        12.15,
+        9.73
+      ],
+      "to": [
+        10.4,
+        12.55,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "dial_bezel_bottom",
+      "from": [
+        5.6,
+        3.45,
+        9.73
+      ],
+      "to": [
+        10.4,
+        3.85,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "dial_bezel_left",
+      "from": [
+        3.45,
+        5.6,
+        9.73
+      ],
+      "to": [
+        3.85,
+        10.4,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "dial_bezel_right",
+      "from": [
+        12.15,
+        5.6,
+        9.73
+      ],
+      "to": [
+        12.55,
+        10.4,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      }
+    },
+    {
+      "name": "dial_bezel_north_west",
+      "from": [
+        3.75,
+        10.75,
+        9.73
+      ],
+      "to": [
+        5.45,
+        11.15,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      },
+      "rotation": {
+        "origin": [
+          4.6,
+          10.95,
+          9.88
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": true
+      }
+    },
+    {
+      "name": "dial_bezel_north_east",
+      "from": [
+        10.55,
+        10.75,
+        9.73
+      ],
+      "to": [
+        12.25,
+        11.15,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      },
+      "rotation": {
+        "origin": [
+          11.4,
+          10.95,
+          9.88
+        ],
+        "axis": "z",
+        "angle": -45.0,
+        "rescale": true
+      }
+    },
+    {
+      "name": "dial_bezel_south_west",
+      "from": [
+        3.75,
+        4.85,
+        9.73
+      ],
+      "to": [
+        5.45,
+        5.25,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      },
+      "rotation": {
+        "origin": [
+          4.6,
+          5.05,
+          9.88
+        ],
+        "axis": "z",
+        "angle": -45.0,
+        "rescale": true
+      }
+    },
+    {
+      "name": "dial_bezel_south_east",
+      "from": [
+        10.55,
+        4.85,
+        9.73
+      ],
+      "to": [
+        12.25,
+        5.25,
+        10.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "east": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "south": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "west": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "up": {
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ],
+          "texture": "#brass"
+        },
+        "down": {
+          "uv": [
+            2,
+            0,
+            4,
+            2
+          ],
+          "texture": "#shadow"
+        }
+      },
+      "rotation": {
+        "origin": [
+          11.4,
+          5.05,
+          9.88
+        ],
+        "axis": "z",
+        "angle": 45.0,
+        "rescale": true
       }
     }
   ],
   "display": {
     "gui": {
       "rotation": [
-        30,
-        -35,
+        0,
+        180,
         0
       ],
       "translation": [
         0,
-        1,
+        -0.7,
         0
       ],
       "scale": [
-        0.88,
-        0.88,
-        0.88
+        0.86,
+        0.86,
+        0.86
       ]
     },
     "firstperson_righthand": {
@@ -2923,14 +4602,14 @@
         0
       ],
       "translation": [
-        2.2,
-        4.2,
-        1.4
+        -4.5,
+        5,
+        0
       ],
       "scale": [
-        0.82,
-        0.82,
-        0.82
+        0.52,
+        0.52,
+        0.52
       ]
     },
     "firstperson_lefthand": {
@@ -2940,14 +4619,14 @@
         0
       ],
       "translation": [
-        -2.2,
-        4.2,
-        1.4
+        -4.5,
+        5,
+        0
       ],
       "scale": [
-        0.82,
-        0.82,
-        0.82
+        0.52,
+        0.52,
+        0.52
       ]
     },
     "thirdperson_righthand": {
@@ -3068,11 +4747,34 @@
         37,
         38,
         39,
-        40
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63
       ]
     },
     {
-      "name": "outer_brass_ring",
+      "name": "outer_frame",
       "origin": [
         8,
         8,
@@ -3090,7 +4792,7 @@
       ]
     },
     {
-      "name": "dark_steel_backplate",
+      "name": "compass_body",
       "origin": [
         8,
         8,
@@ -3103,7 +4805,7 @@
       ]
     },
     {
-      "name": "inner_dial",
+      "name": "dial_recess",
       "origin": [
         8,
         8,
@@ -3112,11 +4814,34 @@
       "children": [
         11,
         12,
-        13
+        13,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55
       ]
     },
     {
-      "name": "locator_needle",
+      "name": "direction_marker",
       "origin": [
         8,
         8,
@@ -3129,7 +4854,7 @@
       ]
     },
     {
-      "name": "cyan_crystal_core",
+      "name": "ore_indicator",
       "origin": [
         8,
         8,
@@ -3141,7 +4866,7 @@
       ]
     },
     {
-      "name": "green_indicator_marks",
+      "name": "cardinal_markers",
       "origin": [
         8,
         8,
@@ -3159,7 +4884,7 @@
       ]
     },
     {
-      "name": "copper_side_caps",
+      "name": "side_grips",
       "origin": [
         8,
         8,
@@ -3172,7 +4897,7 @@
       ]
     },
     {
-      "name": "small_bolts",
+      "name": "fasteners",
       "origin": [
         8,
         8,
@@ -3188,7 +4913,7 @@
       ]
     },
     {
-      "name": "grip_tab",
+      "name": "service_grip",
       "origin": [
         8,
         1,
@@ -3200,11 +4925,11 @@
       ]
     },
     {
-      "name": "optional_signal_antenna",
+      "name": "expedition_lug",
       "origin": [
-        12.5,
-        14,
-        8.8
+        8,
+        16,
+        8.2
       ],
       "children": [
         38,

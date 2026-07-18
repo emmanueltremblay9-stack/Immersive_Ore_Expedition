@@ -23,7 +23,7 @@ final class ExpeditionCompassResourceTest {
     private static final String ANGLE_PREDICATE = "immersive_ore_expedition:angle";
     private static final String MODEL_PREFIX = "immersive_ore_expedition:item/";
     private static final String FRAME_PREFIX = "expedition_compass_";
-    private static final Set<Float> SAFE_BLOCK_MODEL_ROTATIONS = Set.of(-45.0F, -22.5F, 0.0F, 22.5F, 45.0F);
+    private static final Set<Float> SAFE_BLOCK_MODEL_ROTATIONS = Set.of(-45.0F, -22.5F, -0.0F, 0.0F, 22.5F, 45.0F);
     private static final Set<String> REQUIRED_MENU_LANG_KEYS = Set.of(
             "item.immersive_ore_expedition.expedition_compass.message.invalid_target",
             "screen.immersive_ore_expedition.expedition_compass.title",
