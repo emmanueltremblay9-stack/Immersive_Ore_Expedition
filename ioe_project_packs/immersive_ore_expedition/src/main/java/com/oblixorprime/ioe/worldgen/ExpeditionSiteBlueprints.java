@@ -363,6 +363,7 @@ public final class ExpeditionSiteBlueprints {
     private static void restoreConnectorLadder(Builder builder, BlockPos top, int depth) {
         BlockState ladder = Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.NORTH);
         for (int dy = 0; dy <= depth; dy++) {
+            builder.put(top.offset(0, -dy, 0), Blocks.AIR.defaultBlockState());
             builder.put(top.offset(0, -dy, 1), ladder);
         }
     }
