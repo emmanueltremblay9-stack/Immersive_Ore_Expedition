@@ -346,13 +346,17 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         int safeLocalX = localX <= 7 ? 4 : 11;
         int x = requestedOrigin.getX() + safeLocalX - localX;
         int z = requestedOrigin.getZ() + clamp(localZ, 6, 9) - localZ;
-        int radius = siteType == ExpeditionSiteType.MINER_CAMP ? 4 : 3;
-        int allowedSlope = siteType == ExpeditionSiteType.MINER_CAMP ? 2 : 4;
+        int horizontalDirection = safeLocalX <= 7 ? 1 : -1;
+        int allowedSlope = 2;
         int minY = Integer.MAX_VALUE;
         int maxY = Integer.MIN_VALUE;
-        for (int dx : new int[]{-radius, 0, radius}) {
-            for (int dz : new int[]{-radius, 0, radius}) {
-                int surfaceY = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x + dx, z + dz);
+        for (int forward : new int[]{-4, 0, 7}) {
+            for (int lateral : new int[]{-5, 0, 5}) {
+                int surfaceY = level.getHeight(
+                        Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                        x + horizontalDirection * forward,
+                        z + lateral
+                );
                 minY = Math.min(minY, surfaceY);
                 maxY = Math.max(maxY, surfaceY);
             }
@@ -360,10 +364,14 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         if (maxY - minY > allowedSlope) {
             return null;
         }
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dz = -radius; dz <= radius; dz++) {
+        for (int forward = -4; forward <= 7; forward++) {
+            for (int lateral = -5; lateral <= 5; lateral++) {
                 for (int dy = 0; dy <= 5; dy++) {
-                    BlockState state = level.getBlockState(new BlockPos(x + dx, maxY + dy, z + dz));
+                    BlockState state = level.getBlockState(new BlockPos(
+                            x + horizontalDirection * forward,
+                            maxY + dy,
+                            z + lateral
+                    ));
                     if (!state.isAir() && !state.canBeReplaced()) {
                         return null;
                     }

@@ -23,6 +23,7 @@ public final class IoeExpeditionCompassMod {
         IoeCompassNetworking.register(modEventBus);
         IoeItems.register(modEventBus);
         IoeCreativeModeTabs.register(modEventBus);
+        IoeVillageExpeditionTrades.register();
         registerClientOnly(modEventBus);
         LOGGER.info("Registered Immersive Ore Expedition item services");
     }

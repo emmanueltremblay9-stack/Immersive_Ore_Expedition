@@ -49,6 +49,7 @@ import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -133,6 +134,11 @@ public final class ExpeditionWorldgenGameTests {
             )), type.id() + " did not plan exactly one surface clue, connector, and chamber");
             helper.assertTrue(plan.oreBlockCount() == 0L && plan.oreNodeCount() == 0,
                     type.id() + " embedded a forbidden free resource in its structural chamber");
+            helper.assertTrue(plan.roomCenters().size() == 3,
+                    type.id() + " did not create the normal-quality three-room mine");
+            assertRoomReachability(helper, plan);
+            helper.assertTrue(plan.blocks().values().stream().anyMatch(state -> state.is(Blocks.CARTOGRAPHY_TABLE)),
+                    type.id() + " did not create a survey room or village supply desk");
             for (int depth = 1; depth <= origin.getY() - plan.connectorEnd().getY(); depth++) {
                 BlockPos shaftCell = origin.below(depth);
                 var shaftState = plan.blocks().get(shaftCell);
@@ -156,24 +162,163 @@ public final class ExpeditionWorldgenGameTests {
                 "Dry site block plan contains an ore block");
 
         for (int localX : new int[]{4, 11}) {
-            ExpeditionSiteBlockPlan motherlode = structureOnlyPlan(
-                    ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
-                    new BlockPos(localX, 90, 6),
-                    SiteQuality.MOTHERLODE,
-                    19L
-            );
-            helper.assertTrue(motherlode.blocks().keySet().stream()
-                            .allMatch(pos -> (pos.getX() >> 4) == 0 && (pos.getZ() >> 4) == 0),
-                    "Motherlode plan crossed its safe source-chunk boundary at local X=" + localX);
-            helper.assertTrue(motherlode.oreBlockCount() == 0L && motherlode.oreNodeCount() == 0,
-                    "Motherlode plan embedded a forbidden free resource");
+            for (int localZ : new int[]{6, 9}) {
+                BlockPos qualityOrigin = new BlockPos(localX, 90, localZ);
+                for (SiteQuality quality : SiteQuality.values()) {
+                    ExpeditionSiteBlockPlan plan = structureOnlyPlan(
+                            ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
+                            qualityOrigin,
+                            quality,
+                            19L
+                    );
+                    helper.assertTrue(plan.blocks().keySet().stream()
+                                    .allMatch(pos -> (pos.getX() >> 4) == 0 && (pos.getZ() >> 4) == 0),
+                            quality + " plan crossed its safe source-chunk boundary at "
+                                    + localX + "," + localZ);
+                    helper.assertTrue(plan.oreBlockCount() == 0L && plan.oreNodeCount() == 0,
+                            quality + " structure-only plan embedded a forbidden free resource");
+                    helper.assertTrue(plan.roomCenters().size() == expectedRoomCount(quality),
+                            quality + " planned the wrong number of expedition rooms");
+                    helper.assertTrue(plan.blocks().size() <= 2_500,
+                            quality + " exceeded the 2,500-block transaction cap");
+                    helper.assertTrue(surfaceSpan(plan, qualityOrigin, true) >= 12,
+                            quality + " surface outpost is not wide enough");
+                    helper.assertTrue(surfaceSpan(plan, qualityOrigin, false) >= 10,
+                            quality + " surface outpost is not deep enough");
+                    helper.assertTrue(surfaceStructureBlockCount(plan, qualityOrigin) >= 60,
+                            quality + " surface outpost is still too small");
+                    helper.assertTrue(plan.blocks().values().stream()
+                                    .anyMatch(state -> state.is(Blocks.YELLOW_TERRACOTTA)),
+                            quality + " surface outpost is missing its village-route marker");
+                    assertRoomReachability(helper, plan);
+                }
+            }
         }
+        for (SiteQuality quality : SiteQuality.values()) {
+            assertEmbeddedOreBudget(helper, quality);
+        }
+        ExpeditionSiteBlockPlan deterministicFirst = structureOnlyPlan(
+                ExpeditionSiteType.MINER_CAMP,
+                origin,
+                SiteQuality.MOTHERLODE,
+                211L
+        );
+        ExpeditionSiteBlockPlan deterministicSecond = structureOnlyPlan(
+                ExpeditionSiteType.MINER_CAMP,
+                origin,
+                SiteQuality.MOTHERLODE,
+                211L
+        );
+        helper.assertTrue(deterministicFirst.blocks().equals(deterministicSecond.blocks())
+                        && deterministicFirst.roomCenters().equals(deterministicSecond.roomCenters()),
+                "Equal seeds did not produce an equal expedition layout");
         helper.assertTrue(ExpeditionSiteType.registeredFeatureIds().size() == 6,
                 "The expedition-site catalog does not expose all six Feature ids");
         helper.assertTrue(Set.copyOf(ExpeditionSiteType.registeredFeatureIds())
                         .equals(Set.copyOf(ExpeditionStructureRegistry.enabledStructureIds())),
                 "The registered Feature ids diverge from the configured expedition-site catalog");
         helper.succeed();
+    }
+
+    private static void assertEmbeddedOreBudget(GameTestHelper helper, SiteQuality quality) {
+        int oreBudget = switch (quality) {
+            case DRY -> 0;
+            case POOR -> 4;
+            case NORMAL -> 8;
+            case RICH -> 14;
+            case MOTHERLODE -> 24;
+        };
+        int nodeBudget = switch (quality) {
+            case DRY -> 0;
+            case POOR -> 1;
+            case NORMAL -> 2;
+            case RICH -> 3;
+            case MOTHERLODE -> 4;
+        };
+        ExpeditionSiteBlockPlan plan;
+        if (quality == SiteQuality.DRY) {
+            plan = ExpeditionSiteBlueprints.plan(
+                    ExpeditionSiteType.ORE_LOAD_CHAMBER,
+                    new BlockPos(8, 40, 8),
+                    quality,
+                    null,
+                    null,
+                    RandomSource.create(307L)
+            );
+        } else {
+            ResourceLocation ironOreId = BuiltInRegistries.BLOCK.getKey(Blocks.IRON_ORE);
+            plan = ExpeditionSiteBlueprints.plan(
+                    ExpeditionSiteType.ORE_LOAD_CHAMBER,
+                    new BlockPos(8, 40, 8),
+                    quality,
+                    ironOreId,
+                    Blocks.IRON_ORE.defaultBlockState(),
+                    oreBudget,
+                    nodeBudget,
+                    RandomSource.create(307L)
+            );
+        }
+        helper.assertTrue(plan.oreBlockCount() == oreBudget,
+                quality + " changed the established ore budget");
+        helper.assertTrue(plan.oreNodeCount() == nodeBudget,
+                quality + " changed the established ore-node budget");
+    }
+
+    private static int expectedRoomCount(SiteQuality quality) {
+        return switch (quality) {
+            case DRY, POOR -> 2;
+            case NORMAL, RICH -> 3;
+            case MOTHERLODE -> 4;
+        };
+    }
+
+    private static int surfaceSpan(
+            ExpeditionSiteBlockPlan plan,
+            BlockPos origin,
+            boolean xAxis
+    ) {
+        var summary = plan.blocks().keySet().stream()
+                .filter(pos -> pos.getY() >= origin.getY() - 1)
+                .mapToInt(pos -> xAxis ? pos.getX() : pos.getZ())
+                .summaryStatistics();
+        return summary.getCount() == 0 ? 0 : summary.getMax() - summary.getMin() + 1;
+    }
+
+    private static long surfaceStructureBlockCount(ExpeditionSiteBlockPlan plan, BlockPos origin) {
+        return plan.blocks().entrySet().stream()
+                .filter(entry -> entry.getKey().getY() >= origin.getY() - 1)
+                .filter(entry -> !entry.getValue().isAir())
+                .count();
+    }
+
+    private static void assertRoomReachability(GameTestHelper helper, ExpeditionSiteBlockPlan plan) {
+        Set<BlockPos> traversable = plan.blocks().entrySet().stream()
+                .filter(entry -> entry.getValue().isAir()
+                        || entry.getValue().is(Blocks.LADDER)
+                        || entry.getValue().is(Blocks.OAK_TRAPDOOR)
+                        || entry.getValue().is(Blocks.COBWEB))
+                .map(Map.Entry::getKey)
+                .collect(java.util.stream.Collectors.toSet());
+        BlockPos start = plan.anchorPos().offset(0, -1, 1);
+        helper.assertTrue(traversable.contains(start), "The main shaft has no traversable ladder start");
+
+        ArrayDeque<BlockPos> frontier = new ArrayDeque<>();
+        HashSet<BlockPos> visited = new HashSet<>();
+        frontier.add(start);
+        visited.add(start);
+        while (!frontier.isEmpty()) {
+            BlockPos current = frontier.removeFirst();
+            for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.values()) {
+                BlockPos next = current.relative(direction);
+                if (traversable.contains(next) && visited.add(next)) {
+                    frontier.addLast(next);
+                }
+            }
+        }
+        for (BlockPos roomCenter : plan.roomCenters()) {
+            helper.assertTrue(visited.contains(roomCenter),
+                    "Expedition room is disconnected from the main shaft: " + roomCenter);
+        }
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)

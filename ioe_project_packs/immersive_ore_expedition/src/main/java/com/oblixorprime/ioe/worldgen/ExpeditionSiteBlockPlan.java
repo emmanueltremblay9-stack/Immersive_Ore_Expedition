@@ -21,6 +21,7 @@ public record ExpeditionSiteBlockPlan(
         int oreNodeCount,
         ResourceLocation oreBlockId,
         ResourceLocation oreNodeHeartBlockId,
+        List<BlockPos> roomCenters,
         List<ResourceLocation> generatedComponents,
         Map<BlockPos, BlockState> blocks
 ) {
@@ -30,6 +31,7 @@ public record ExpeditionSiteBlockPlan(
         Objects.requireNonNull(connectorEnd, "connectorEnd");
         Objects.requireNonNull(chamberCenter, "chamberCenter");
         Objects.requireNonNull(quality, "quality");
+        roomCenters = List.copyOf(Objects.requireNonNull(roomCenters, "roomCenters"));
         generatedComponents = List.copyOf(Objects.requireNonNull(generatedComponents, "generatedComponents"));
         blocks = Collections.unmodifiableMap(new LinkedHashMap<>(Objects.requireNonNull(blocks, "blocks")));
         if (blocks.isEmpty()) {
@@ -37,6 +39,15 @@ public record ExpeditionSiteBlockPlan(
         }
         if (oreNodeCount < 0) {
             throw new IllegalArgumentException("Ore node count must not be negative");
+        }
+        if (roomCenters.stream().distinct().count() != roomCenters.size()) {
+            throw new IllegalArgumentException("Expedition room centers must be unique");
+        }
+        for (BlockPos center : roomCenters) {
+            BlockState state = blocks.get(center);
+            if (state == null || !state.isAir()) {
+                throw new IllegalArgumentException("Every expedition room center must remain open");
+            }
         }
         boolean hasOreLoadChamber = generatedComponents.contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER);
         boolean hasAe2Geode = generatedComponents.contains(IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE);
