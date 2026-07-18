@@ -535,7 +535,7 @@ def generate_reports() -> None:
             "regions_unexplored": "0.6.2",
             "biomeswevegone": "2.6.0",
             "immersiveengineering": "12.4.2-194",
-            "immersivepetroleum": "4.4.1-37",
+            "immersivepetroleum": "4.5.0-39",
             "ae2": "19.2.17",
             "extendedae": "1.21-2.2.33-neoforge",
         },

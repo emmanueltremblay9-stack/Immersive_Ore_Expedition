@@ -5,7 +5,8 @@ param(
     [string]$SourceJar,
     [switch]$SkipBuild,
     [Alias("DryRun")]
-    [switch]$PlanOnly
+    [switch]$PlanOnly,
+    [switch]$TestVersionRanges
 )
 
 $ErrorActionPreference = "Stop"
@@ -96,20 +97,20 @@ function Compare-VersionNumbers {
     return 0
 }
 
-function Test-VersionRange {
+function Test-VersionRestriction {
     param(
         [AllowNull()][string]$Version,
-        [AllowNull()][string]$VersionRange
+        [AllowNull()][string]$Restriction
     )
 
-    if ([string]::IsNullOrWhiteSpace($Version) -or [string]::IsNullOrWhiteSpace($VersionRange)) {
+    if ([string]::IsNullOrWhiteSpace($Version) -or [string]::IsNullOrWhiteSpace($Restriction)) {
         return $false
     }
-    $exactMatch = [regex]::Match($VersionRange, '^\[([^,\]]+)\]$')
+    $exactMatch = [regex]::Match($Restriction, '^\[([^,\]]+)\]$')
     if ($exactMatch.Success) {
         return $Version -eq $exactMatch.Groups[1].Value
     }
-    $rangeMatch = [regex]::Match($VersionRange, '^([\[\(])([^,]*),([^\]\)]*)([\]\)])$')
+    $rangeMatch = [regex]::Match($Restriction, '^([\[\(])([^,]*),([^\]\)]*)([\]\)])$')
     if (-not $rangeMatch.Success) {
         return $false
     }
@@ -131,6 +132,54 @@ function Test-VersionRange {
         }
     }
     return $true
+}
+
+function Test-VersionRange {
+    param(
+        [AllowNull()][string]$Version,
+        [AllowNull()][string]$VersionRange
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Version) -or [string]::IsNullOrWhiteSpace($VersionRange)) {
+        return $false
+    }
+
+    $restrictionPattern = '(?:\[[^,\[\]\(\)]+\]|[\[\(][^,\[\]\(\)]*,[^,\[\]\(\)]*[\]\)])'
+    $unionPattern = '^(?:' + $restrictionPattern + ')(?:,(?:' + $restrictionPattern + '))*$'
+    if (-not [regex]::IsMatch($VersionRange, $unionPattern)) {
+        return $false
+    }
+
+    foreach ($restriction in [regex]::Matches($VersionRange, $restrictionPattern)) {
+        if (Test-VersionRestriction -Version $Version -Restriction $restriction.Value) {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Invoke-VersionRangeSelfTest {
+    $cases = @(
+        @{ Version = "4.4.1-37"; Range = "[4.4.1-37],[4.5.0-39]"; Expected = $true },
+        @{ Version = "4.5.0-39"; Range = "[4.4.1-37],[4.5.0-39]"; Expected = $true },
+        @{ Version = "4.4.1-38"; Range = "[4.4.1-37],[4.5.0-39]"; Expected = $false },
+        @{ Version = "4.5.0-40"; Range = "[4.4.1-37],[4.5.0-39]"; Expected = $false },
+        @{ Version = "19.2.17"; Range = "[19.2.17,20)"; Expected = $true },
+        @{ Version = "20.0.0"; Range = "[19.2.17,20)"; Expected = $false },
+        @{ Version = "1.21.1"; Range = "[1.21.1]"; Expected = $true },
+        @{ Version = "1.21.2"; Range = "[1.21.1]"; Expected = $false }
+    )
+    $failures = @()
+    foreach ($case in $cases) {
+        $actual = Test-VersionRange -Version $case.Version -VersionRange $case.Range
+        if ($actual -ne $case.Expected) {
+            $failures += "$($case.Version) in $($case.Range): expected $($case.Expected), found $actual"
+        }
+    }
+    if ($failures.Count -gt 0) {
+        throw "Version-range self-test failed:`n- $($failures -join "`n- ")"
+    }
+    Write-Output "Version-range self-test passed: $($cases.Count) cases."
 }
 
 function Read-GradleProperties {
@@ -351,6 +400,11 @@ function Get-DependencyReport {
         }
     }
     return @($report)
+}
+
+if ($TestVersionRanges) {
+    Invoke-VersionRangeSelfTest
+    exit 0
 }
 
 if (-not (Test-Path -LiteralPath $GradlePropertiesPath -PathType Leaf)) {

@@ -38,6 +38,10 @@ jobs:
       - name: Test
         run: gradle --no-daemon test
 
+      - name: Test installer version ranges
+        shell: pwsh
+        run: ./install-mod.ps1 -TestVersionRanges
+
       - name: Validate expedition worldgen assets
         run: |
           python3 scripts/validate_worldgen_assets.py
@@ -568,6 +572,7 @@ jobs:
                       "ae2": "[19.2.17,20)",
                       "ae2cs": "[1.1.12,1.2)",
                       "geore": "[6.2.2,7)",
+                      "immersivepetroleum": "[4.4.1-37],[4.5.0-39]",
                   }
                   for dependency_id, expected_range in expected_dependency_ranges.items():
                       actual_range = dependency_ranges.get(dependency_id)
