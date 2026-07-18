@@ -124,7 +124,7 @@ final class ExpeditionCompassResourceTest {
                 assertEquals(
                         MODEL_PREFIX + expectedFrameName(angleFrameIndex, gearPhaseIndex),
                         resolved,
-                        () -> "Wrong model for angle frame " + angleFrameIndex + " gear phase " + gearPhaseIndex
+                        "Wrong model for angle frame " + angleFrameIndex + " gear phase " + gearPhaseIndex
                 );
             }
         }
