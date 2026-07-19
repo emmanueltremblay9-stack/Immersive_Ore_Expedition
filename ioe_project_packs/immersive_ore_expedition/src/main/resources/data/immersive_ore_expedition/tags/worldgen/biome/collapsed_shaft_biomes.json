@@ -1,6 +1,6 @@
 {
   "replace": false,
   "values": [
-    "#immersive_ore_expedition:expedition_site_biomes"
+    "#c:is_overworld"
   ]
 }
