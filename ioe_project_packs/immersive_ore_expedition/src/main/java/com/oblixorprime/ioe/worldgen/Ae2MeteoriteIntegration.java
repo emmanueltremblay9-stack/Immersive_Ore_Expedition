@@ -54,6 +54,10 @@ public final class Ae2MeteoriteIntegration {
         return path.contains("certus") && path.contains("ore");
     }
 
+    static boolean expeditionFormationBlock(ResourceLocation id) {
+        return BUDDING_CERTUS.id().equals(id) || SKY_STONE.id().equals(id);
+    }
+
     public record MeteoriteMaterial(
             ResourceRef buddingResource,
             Block buddingBlock,

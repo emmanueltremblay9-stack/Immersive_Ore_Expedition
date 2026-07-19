@@ -8,6 +8,7 @@ import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSitePlacementState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -21,7 +22,6 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -162,7 +162,7 @@ final class IoePendingExpeditionSites {
         if (pendingSites == null) {
             return Confirmation.NONE;
         }
-        ArrayList<BlockPos> rejectedResourcePositions = new ArrayList<>();
+        ArrayList<RejectedResource> rejectedResources = new ArrayList<>();
         int confirmedSites = 0;
         int rejectedSites = 0;
         for (PendingSite pendingSite : pendingSites) {
@@ -184,7 +184,7 @@ final class IoePendingExpeditionSites {
             if (effectivePlacement == null) {
                 rejectedSites++;
                 rollbackReservationBestEffort(pendingSite, "final plan application failed");
-                pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
+                pendingSite.signature().appendRejectedResources(rejectedResources);
                 IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
                         IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE
                 );
@@ -224,7 +224,8 @@ final class IoePendingExpeditionSites {
                                 pendingSite,
                                 effectivePlacement,
                                 chunkPos,
-                                depositReservationFactory
+                                depositReservationFactory,
+                                rejectedResources
                         );
                         if (fallback == null) {
                             rejectedSites++;
@@ -232,7 +233,7 @@ final class IoePendingExpeditionSites {
                                     pendingSite,
                                     "IE direct lower quality fallback failed"
                             );
-                            pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
+                            pendingSite.signature().appendRejectedResources(rejectedResources);
                             continue;
                         }
                         effectiveSite = fallback.site();
@@ -262,7 +263,7 @@ final class IoePendingExpeditionSites {
                 rejectedSites++;
                 rollbackReservationBestEffort(effectiveSite, "locator failure after reservation commit");
                 rollbackPlacementBestEffort(level, effectivePlacement, effectiveSite, "locator failure");
-                effectiveSite.signature().appendResourcePositions(rejectedResourcePositions);
+                effectiveSite.signature().appendRejectedResources(rejectedResources);
                 IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
                         IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE
                 );
@@ -278,7 +279,7 @@ final class IoePendingExpeditionSites {
             confirmedSites++;
             logConfirmedSite(effectiveSite);
         }
-        return new Confirmation(confirmedSites, rejectedSites, List.copyOf(rejectedResourcePositions));
+        return new Confirmation(confirmedSites, rejectedSites, List.copyOf(rejectedResources));
     }
 
     private static FallbackApplication applyLowerTierFallbacks(
@@ -286,8 +287,10 @@ final class IoePendingExpeditionSites {
             PendingSite pendingSite,
             IoeExpeditionPlanPlacement.AppliedPlan initialPlacement,
             ChunkPos chunkPos,
-            DepositReservationFactory depositReservationFactory
+            DepositReservationFactory depositReservationFactory,
+            List<RejectedResource> rejectedResources
     ) {
+        ArrayList<RejectedResource> rejectedFallbackResources = new ArrayList<>();
         List<ExpeditionSiteBlockPlan> fallbackPlans = pendingSite.fallbackPlans();
         if (fallbackPlans.isEmpty()) {
             rollbackPlacementBestEffort(level, initialPlacement, pendingSite, "missing lower quality fallback");
@@ -348,6 +351,28 @@ final class IoePendingExpeditionSites {
                 continue;
             }
 
+            PlanSignature fallbackSignature;
+            try {
+                fallbackSignature = PlanSignature.from(
+                        fallbackPlan,
+                        chunkPos,
+                        fallbackDepositReservation
+                );
+            } catch (RuntimeException | LinkageError failure) {
+                rollbackReservationBestEffort(
+                        fallbackDepositReservation,
+                        pendingSite.site().pos(),
+                        "invalid lower-tier plan signature"
+                );
+                IoeExpeditionWorldgenMod.LOGGER.error(
+                        "Rejected the {} lower quality plan signature at {}; trying the next lower tier",
+                        fallbackPlan.quality(),
+                        pendingSite.site().pos(),
+                        failure
+                );
+                continue;
+            }
+
             IoeExpeditionPlanPlacement.AppliedPlan fallbackPlacement;
             try {
                 fallbackPlacement = IoeExpeditionPlanPlacement.apply(
@@ -355,12 +380,15 @@ final class IoePendingExpeditionSites {
                         fallbackPlan
                 ).orElse(null);
             } catch (IoeExpeditionPlanPlacement.PlacementCompensationException failure) {
-                rollbackPlacementBestEffort(
+                boolean restored = rollbackPlacementBestEffort(
                         level,
                         failure.appliedPlan(),
                         pendingSite,
                         "partial lower-tier site placement"
                 );
+                if (!restored) {
+                    fallbackSignature.appendRejectedResources(rejectedFallbackResources);
+                }
                 fallbackPlacement = null;
             }
             if (fallbackPlacement == null) {
@@ -390,14 +418,19 @@ final class IoePendingExpeditionSites {
                         currentQuality,
                         fallbackPlan.quality()
                 );
+                rejectedFallbackResources.removeAll(fallbackSignature.resources());
+                rejectedResources.addAll(rejectedFallbackResources);
                 return new FallbackApplication(fallbackSite, fallbackPlacement);
             } catch (RuntimeException | LinkageError failure) {
-                rollbackPlacementBestEffort(
+                boolean restored = rollbackPlacementBestEffort(
                         level,
                         fallbackPlacement,
                         pendingSite,
                         "failed lower-tier pending-site construction"
                 );
+                if (!restored) {
+                    fallbackSignature.appendRejectedResources(rejectedFallbackResources);
+                }
                 rollbackReservationBestEffort(
                         fallbackDepositReservation,
                         pendingSite.site().pos(),
@@ -416,6 +449,7 @@ final class IoePendingExpeditionSites {
                 );
             }
         }
+        rejectedResources.addAll(rejectedFallbackResources);
         return null;
     }
 
@@ -726,16 +760,23 @@ final class IoePendingExpeditionSites {
         );
     }
 
-    record Confirmation(int confirmedSites, int rejectedSites, List<BlockPos> rejectedResourcePositions) {
+    record RejectedResource(BlockPos pos, ResourceLocation expectedBlockId) {
+        RejectedResource {
+            pos = Objects.requireNonNull(pos, "pos").immutable();
+            Objects.requireNonNull(expectedBlockId, "expectedBlockId");
+        }
+    }
+
+    record Confirmation(int confirmedSites, int rejectedSites, List<RejectedResource> rejectedResources) {
         private static final Confirmation NONE = new Confirmation(0, 0, List.of());
 
         Confirmation {
             if (confirmedSites < 0 || rejectedSites < 0) {
                 throw new IllegalArgumentException("Confirmation counts cannot be negative");
             }
-            rejectedResourcePositions = List.copyOf(Objects.requireNonNull(
-                    rejectedResourcePositions,
-                    "rejectedResourcePositions"
+            rejectedResources = List.copyOf(Objects.requireNonNull(
+                    rejectedResources,
+                    "rejectedResources"
             ));
         }
     }
@@ -817,10 +858,10 @@ final class IoePendingExpeditionSites {
     }
 
     private static final class PlanSignature {
-        private final long[] resourcePositions;
+        private final List<RejectedResource> resources;
 
-        private PlanSignature(long[] resourcePositions) {
-            this.resourcePositions = resourcePositions;
+        private PlanSignature(List<RejectedResource> resources) {
+            this.resources = List.copyOf(resources);
         }
 
         private static PlanSignature from(
@@ -829,9 +870,8 @@ final class IoePendingExpeditionSites {
                 IoeMotherDepositReservation motherDepositReservation
         ) {
             int size = plan.blocks().size();
-            long[] resources = new long[size];
+            ArrayList<RejectedResource> resources = new ArrayList<>(size);
             int structureBlockCount = 0;
-            int resourceCount = 0;
             for (Map.Entry<BlockPos, BlockState> placement : plan.blocks().entrySet()) {
                 BlockPos pos = placement.getKey();
                 if (!new ChunkPos(pos).equals(anchorChunk)) {
@@ -843,29 +883,48 @@ final class IoePendingExpeditionSites {
                 if (!expectedState.isAir()) {
                     structureBlockCount++;
                 }
-                if (IoeNewChunkOreGuard.isCandidate(expectedState)) {
-                    resources[resourceCount++] = pos.asLong();
+                if (isEmbeddedResource(plan, expectedState)) {
+                    resources.add(new RejectedResource(
+                            pos,
+                            BuiltInRegistries.BLOCK.getKey(expectedState.getBlock())
+                    ));
                 }
             }
             boolean depositBackedStructure = motherDepositReservation != null
                     && motherDepositReservation.requiredForSiteQuality();
             if (structureBlockCount == 0
-                    || plan.quality().isProductive() && resourceCount == 0 && !depositBackedStructure) {
+                    || plan.quality().isProductive() && resources.isEmpty() && !depositBackedStructure) {
                 throw new IllegalStateException(
                         "Productive connected plans require structure blocks and either embedded resources or an IE deposit"
                 );
             }
-            return new PlanSignature(Arrays.copyOf(resources, resourceCount));
+            return new PlanSignature(resources);
         }
 
-        private void appendResourcePositions(List<BlockPos> target) {
-            for (long resourcePosition : resourcePositions) {
-                target.add(BlockPos.of(resourcePosition));
+        private static boolean isEmbeddedResource(
+                ExpeditionSiteBlockPlan plan,
+                BlockState state
+        ) {
+            ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock());
+            if (blockId.equals(plan.oreBlockId()) || blockId.equals(plan.oreNodeHeartBlockId())) {
+                return true;
             }
+            return (plan.generatedComponents().contains(IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE)
+                    && Ae2MeteoriteIntegration.expeditionFormationBlock(blockId))
+                    || (plan.generatedComponents().contains(IoeWorldgenFeatureKeys.ENTROIZED_FLUIX_GEODE)
+                    && ExtendedAeGeodeIntegration.expeditionFormationBlock(blockId));
+        }
+
+        private void appendRejectedResources(List<RejectedResource> target) {
+            target.addAll(resources);
+        }
+
+        private List<RejectedResource> resources() {
+            return resources;
         }
 
         private int resourcePositionCount() {
-            return resourcePositions.length;
+            return resources.size();
         }
     }
 }

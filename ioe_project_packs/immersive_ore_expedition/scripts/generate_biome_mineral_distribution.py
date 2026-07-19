@@ -213,7 +213,11 @@ COMMON_PROFILES = OrderedDict(
     + ids("biomesoplenty", "rocky_shrubland")
     + ids("regions_unexplored", "chalk_cliffs towering_cliffs")
     + ids("biomeswevegone", "howling_peaks dacite_ridges"),
-    iron=ids("minecraft", "windswept_hills windswept_forest meadow")
+    iron=ids(
+        "minecraft",
+        "plains sunflower_plains forest flower_forest birch_forest old_growth_birch_forest "
+        "windswept_hills windswept_forest meadow",
+    )
     + ids("biomesoplenty", "highland grassland")
     + ids("regions_unexplored", "highland_fields grassland")
     + ids("biomeswevegone", "canadian_shield ironwood_gour prairie"),
@@ -347,6 +351,8 @@ def profile_tiers(name: str) -> dict[str, dict[str, int]]:
         return ENTRO_TIERS
     if name in RARE_ALLOWLISTS:
         return RARE_TIERS
+    if name == "iron":
+        return COMMON_TIERS
     if len(PROFILES[name]) > 12:
         return DENSE_FAMILY_TIERS
     return COMMON_TIERS
@@ -610,7 +616,7 @@ Generated deterministically by `scripts/generate_biome_mineral_distribution.py`.
 - Aquatic biomes allow exactly one preserved native IE aquatic mix under an exact overridden biome predicate.
 - Alluvial Sift preserves its official 20% diamond output and reports it as a secondary resource, never as the biome's principal IOE profile.
 - Unassigned active biomes retain generic Immersive Engineering recipe selection.
-- Expedition structures contain no GeOre node, loose ore, budding crystal or artificial geode.
+- Productive expedition chambers contain one bounded biome-profile formation: a GeOre node, a Certus budding chamber, or an Entroized Fluix geode. The finite IE mineral deposit remains the bulk extraction path.
 - Immersive Petroleum oil, lava and aquifer tags are disjoint and evaluated independently.
 
 ## Reserve capacities

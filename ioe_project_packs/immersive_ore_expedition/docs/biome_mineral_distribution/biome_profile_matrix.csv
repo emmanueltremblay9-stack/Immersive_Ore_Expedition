@@ -127,7 +127,7 @@ minecraft:badlands,minecraft,specialized,gold,immersive_ore_expedition:mineral/g
 minecraft:bamboo_jungle,minecraft,specialized,copper,immersive_ore_expedition:mineral/copper,curated_profile,
 minecraft:basalt_deltas,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
 minecraft:beach,minecraft,aquatic,silt,immersiveengineering:mineral/silt,aquatic,aquifer
-minecraft:birch_forest,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
+minecraft:birch_forest,minecraft,specialized,iron,immersive_ore_expedition:mineral/iron,curated_profile,
 minecraft:cherry_grove,minecraft,specialized,certus,immersive_ore_expedition:mineral/certus,rare_allowlist,
 minecraft:cold_ocean,minecraft,aquatic,ancient_seabed,immersiveengineering:mineral/ancient_seabed,aquatic,aquifer
 minecraft:crimson_forest,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
@@ -143,8 +143,8 @@ minecraft:end_barrens,minecraft,generic_ie,,immersiveengineering:generic_by_reci
 minecraft:end_highlands,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
 minecraft:end_midlands,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
 minecraft:eroded_badlands,minecraft,specialized,gold,immersive_ore_expedition:mineral/gold,curated_profile,
-minecraft:flower_forest,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
-minecraft:forest,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
+minecraft:flower_forest,minecraft,specialized,iron,immersive_ore_expedition:mineral/iron,curated_profile,
+minecraft:forest,minecraft,specialized,iron,immersive_ore_expedition:mineral/iron,curated_profile,
 minecraft:frozen_ocean,minecraft,aquatic,ancient_seabed,immersiveengineering:mineral/ancient_seabed,aquatic,aquifer
 minecraft:frozen_peaks,minecraft,specialized,diamond,immersive_ore_expedition:mineral/diamond,rare_allowlist,
 minecraft:frozen_river,minecraft,aquatic,alluvial_sift,immersiveengineering:mineral/alluvial_sift,aquatic,aquifer
@@ -159,10 +159,10 @@ minecraft:meadow,minecraft,specialized,iron,immersive_ore_expedition:mineral/iro
 minecraft:mushroom_fields,minecraft,specialized,entroized_fluix,immersive_ore_expedition:mineral/entroized_fluix,rare_allowlist,
 minecraft:nether_wastes,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
 minecraft:ocean,minecraft,aquatic,ancient_seabed,immersiveengineering:mineral/ancient_seabed,aquatic,aquifer
-minecraft:old_growth_birch_forest,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
+minecraft:old_growth_birch_forest,minecraft,specialized,iron,immersive_ore_expedition:mineral/iron,curated_profile,
 minecraft:old_growth_pine_taiga,minecraft,specialized,nickel,immersive_ore_expedition:mineral/nickel,curated_profile,
 minecraft:old_growth_spruce_taiga,minecraft,specialized,nickel,immersive_ore_expedition:mineral/nickel,curated_profile,
-minecraft:plains,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
+minecraft:plains,minecraft,specialized,iron,immersive_ore_expedition:mineral/iron,curated_profile,
 minecraft:river,minecraft,aquatic,alluvial_sift,immersiveengineering:mineral/alluvial_sift,aquatic,aquifer
 minecraft:savanna,minecraft,specialized,aluminum,immersive_ore_expedition:mineral/aluminum,curated_profile,
 minecraft:savanna_plateau,minecraft,specialized,aluminum,immersive_ore_expedition:mineral/aluminum,curated_profile,
@@ -175,7 +175,7 @@ minecraft:soul_sand_valley,minecraft,generic_ie,,immersiveengineering:generic_by
 minecraft:sparse_jungle,minecraft,specialized,copper,immersive_ore_expedition:mineral/copper,curated_profile,
 minecraft:stony_peaks,minecraft,specialized,lead,immersive_ore_expedition:mineral/lead,curated_profile,
 minecraft:stony_shore,minecraft,aquatic,silt,immersiveengineering:mineral/silt,aquatic,aquifer
-minecraft:sunflower_plains,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,
+minecraft:sunflower_plains,minecraft,specialized,iron,immersive_ore_expedition:mineral/iron,curated_profile,
 minecraft:swamp,minecraft,specialized,lapis,immersive_ore_expedition:mineral/lapis,curated_profile,
 minecraft:taiga,minecraft,specialized,nickel,immersive_ore_expedition:mineral/nickel,curated_profile,
 minecraft:the_end,minecraft,generic_ie,,immersiveengineering:generic_by_recipe,generic,

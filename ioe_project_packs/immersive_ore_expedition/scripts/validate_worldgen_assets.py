@@ -386,18 +386,18 @@ def validate_mine_profiles(failures: list[str]) -> int:
             failures.append("candidate multi-seed model must remain a 10-seed SUPPORTED_INFERENCE")
 
     feature_source = (ROOT / "src/main/java/com/oblixorprime/ioe/worldgen/ExpeditionSiteFeature.java").read_text(encoding="utf-8")
-    forbidden_active_paths = ("GeOreNodeIntegration.resolve", "Ae2MeteoriteIntegration.resolve", "ExtendedAeGeodeIntegration.resolve")
-    for forbidden in forbidden_active_paths:
-        if forbidden in feature_source:
-            failures.append(f"ExpeditionSiteFeature still activates forbidden free-resource path {forbidden}")
     required_feature_paths = (
         "previewPlan.chamberCenter()",
         "List.copyOf(fallbackPlans)",
+        "planWithEmbeddedResource",
         "structureOnlyPlan",
+        "GeOreNodeIntegration.resolve",
+        "Ae2MeteoriteIntegration.resolve",
+        "ExtendedAeGeodeIntegration.resolve",
     )
     for required in required_feature_paths:
         if required not in feature_source:
-            failures.append(f"ExpeditionSiteFeature is missing required deposit-backed path {required}")
+            failures.append(f"ExpeditionSiteFeature is missing required connected resource path {required}")
 
     pending_source = (ROOT / "src/main/java/com/oblixorprime/ioe/worldgen/IoePendingExpeditionSites.java").read_text(
         encoding="utf-8"

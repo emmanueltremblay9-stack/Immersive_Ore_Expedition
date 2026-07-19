@@ -49,8 +49,20 @@ jobs:
 
       - name: Validate expedition worldgen assets
         run: |
-          python3 scripts/validate_worldgen_assets.py
+          python3 scripts/generate_biome_mineral_distribution.py
           python3 scripts/analyze_distribution_seeds.py
+          generated_changes="$(git status --porcelain --untracked-files=all -- \
+            docs/biome_mineral_distribution \
+            src/main/resources/data/immersive_ore_expedition/immersive_ore_expedition/mine_resource_profile \
+            src/main/resources/data/immersive_ore_expedition/recipe/mineral \
+            src/main/resources/data/immersive_ore_expedition/tags/worldgen/biome \
+            src/main/resources/data/immersiveengineering/recipe/mineral)"
+          if [ -n "$generated_changes" ]; then
+            echo "Generated worldgen assets are stale or include untracked outputs:"
+            echo "$generated_changes"
+            exit 1
+          fi
+          python3 scripts/validate_worldgen_assets.py
 
       - name: Run expedition worldgen GameTests
         run: gradle --no-daemon runGameTestServer
@@ -427,6 +439,10 @@ jobs:
           import zipfile
 
           expected_mod_id = "immersive_ore_expedition"
+          expected_version = "0.2.53-alpha"
+          expected_jar_name = (
+              f"{expected_mod_id}-{expected_version}-neoforge-1.21.1.jar"
+          )
           old_mod_ids = {
               "ioe_core",
               "ioe_expedition_worldgen",
@@ -449,6 +465,12 @@ jobs:
               sys.exit(1)
 
           jar_path = candidates[0]
+          if jar_path.name != expected_jar_name:
+              print(
+                  f"Expected runtime jar {expected_jar_name!r}, "
+                  f"found {jar_path.name!r}"
+              )
+              sys.exit(1)
           with zipfile.ZipFile(jar_path) as jar:
               entries = jar.namelist()
               counts = Counter(entries)
@@ -538,13 +560,22 @@ jobs:
                   metadata_text = jar.read(neoforge_metadata[0]).decode("utf-8")
                   mod_blocks = re.findall(r"(?ms)^\s*\[\[mods\]\]\s*(.*?)(?=^\s*\[\[|\Z)", metadata_text)
                   active_mod_ids = []
+                  active_mod_versions = []
                   for block in mod_blocks:
                       match = re.search(r'(?m)^\s*modId\s*=\s*"([^"]+)"', block)
                       if match:
                           active_mod_ids.append(match.group(1))
+                      version_match = re.search(r'(?m)^\s*version\s*=\s*"([^"]+)"', block)
+                      if version_match:
+                          active_mod_versions.append(version_match.group(1))
 
                   if active_mod_ids != [expected_mod_id]:
                       failures.append(f"Expected active mod ids [{expected_mod_id!r}], found {active_mod_ids!r}")
+                  if active_mod_versions != [expected_version]:
+                      failures.append(
+                          f"Expected active mod version [{expected_version!r}], "
+                          f"found {active_mod_versions!r}"
+                      )
 
                   old_active_ids = sorted(old_mod_ids.intersection(active_mod_ids))
                   if old_active_ids:
@@ -557,14 +588,28 @@ jobs:
                   )
                   dependency_types = {}
                   dependency_ranges = {}
+                  dependency_orderings = {}
+                  dependency_sides = {}
+                  dependency_counts = {}
                   for block in dependency_blocks:
                       id_match = re.search(r'(?m)^\s*modId\s*=\s*"([^"]+)"', block)
                       type_match = re.search(r'(?m)^\s*type\s*=\s*"([^"]+)"', block)
                       range_match = re.search(r'(?m)^\s*versionRange\s*=\s*"([^"]+)"', block)
+                      ordering_match = re.search(r'(?m)^\s*ordering\s*=\s*"([^"]+)"', block)
+                      side_match = re.search(r'(?m)^\s*side\s*=\s*"([^"]+)"', block)
+                      if id_match:
+                          dependency_id = id_match.group(1)
+                          dependency_counts[dependency_id] = (
+                              dependency_counts.get(dependency_id, 0) + 1
+                          )
                       if id_match and type_match:
                           dependency_types[id_match.group(1)] = type_match.group(1)
                       if id_match and range_match:
                           dependency_ranges[id_match.group(1)] = range_match.group(1)
+                      if id_match and ordering_match:
+                          dependency_orderings[id_match.group(1)] = ordering_match.group(1)
+                      if id_match and side_match:
+                          dependency_sides[id_match.group(1)] = side_match.group(1)
 
                   for required_dependency in ("ae2", "ae2cs", "geore"):
                       actual_type = dependency_types.get(required_dependency)
@@ -586,6 +631,33 @@ jobs:
                               f"Dependency {dependency_id!r} must use {expected_range!r}, found {actual_range!r}"
                           )
 
+                  decor_dependency = "immersive_engineer_decor_controls_tool_reforged"
+                  if dependency_counts.get(decor_dependency) != 1:
+                      failures.append(
+                          f"Expected exactly one {decor_dependency!r} dependency, "
+                          f"found {dependency_counts.get(decor_dependency, 0)}"
+                      )
+                  if dependency_types.get(decor_dependency) != "optional":
+                      failures.append(
+                          f"Dependency {decor_dependency!r} must be optional, "
+                          f"found {dependency_types.get(decor_dependency)!r}"
+                      )
+                  if dependency_ranges.get(decor_dependency) != "[0,)":
+                      failures.append(
+                          f"Dependency {decor_dependency!r} must use '[0,)', "
+                          f"found {dependency_ranges.get(decor_dependency)!r}"
+                      )
+                  if dependency_orderings.get(decor_dependency) != "AFTER":
+                      failures.append(
+                          f"Dependency {decor_dependency!r} must load AFTER, "
+                          f"found {dependency_orderings.get(decor_dependency)!r}"
+                      )
+                  if dependency_sides.get(decor_dependency) != "BOTH":
+                      failures.append(
+                          f"Dependency {decor_dependency!r} must apply to BOTH sides, "
+                          f"found {dependency_sides.get(decor_dependency)!r}"
+                      )
+
               active_feature_class = (
                   "com/oblixorprime/ioe/worldgen/ExpeditionSiteFeature.class"
               )
@@ -593,15 +665,15 @@ jobs:
                   failures.append(f"Missing active expedition feature class: {active_feature_class}")
               else:
                   feature_bytes = jar.read(active_feature_class)
-                  for forbidden_bridge in (
+                  for required_bridge in (
                       b"GeOreNodeIntegration",
                       b"Ae2MeteoriteIntegration",
                       b"ExtendedAeGeodeIntegration",
                   ):
-                      if forbidden_bridge in feature_bytes:
+                      if required_bridge not in feature_bytes:
                           failures.append(
-                              "Active expedition feature still references an artificial "
-                              f"resource bridge: {forbidden_bridge.decode('ascii')}"
+                              "Active expedition feature does not reference its profile "
+                              f"resource bridge: {required_bridge.decode('ascii')}"
                           )
                   if b"IoeMotherDepositReservation" not in feature_bytes:
                       failures.append(

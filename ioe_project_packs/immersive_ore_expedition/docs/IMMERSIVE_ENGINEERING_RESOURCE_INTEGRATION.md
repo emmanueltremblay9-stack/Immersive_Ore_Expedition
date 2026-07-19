@@ -13,9 +13,9 @@ Immersive Engineering 1.21.1 uses its custom `immersiveengineering:ie_ore` featu
 
 The final IOE biome-modifier phase removes those features from Overworld biomes. This prevents the corresponding stone and deepslate ore blocks from appearing outside IOE-controlled resource progression.
 
-## No embedded resource replacement
+## Bounded chamber formations
 
-IOE expedition structures contain no loose ore, GeOre node, budding resource block, artificial geode, or intermediate crystal matrix. Productive sites are structural access points backed by one abstract Immersive Engineering `MineralVein`; the Excavator recipe is the sole IOE-controlled source of their mineral outputs.
+Productive expedition sites combine one bounded biome-profile chamber formation with one abstract Immersive Engineering `MineralVein`. The formation provides visible mine identity and upstream growth-block gameplay; the finite vein remains the bulk Core Sample and Excavator source. Autonomous terrain ore and geodes remain suppressed.
 
 ## Mineral deposits are not ore blocks
 
@@ -39,7 +39,7 @@ IOE keeps `immersiveengineering:mineral_veins` out of the global suppression tag
 
 Specialized terrestrial and subterranean biomes suppress native random IE vein creation because their exact deposit is committed transactionally with the expedition site. The native gate scans the full biome column at quart-height intervals, so a cave-owned profile is not misclassified from its surface biome. Unassigned columns retain generic native IE recipe selection.
 
-No IE ore block is used as an uncontrolled outcrop. The bridge creates an abstract `MineralVein`; it does not convert the deposit into blocks, structures, IOE nodes, or artificial geodes. Runtime gameplay validation remains separate from static integration proof.
+No IE ore block is used as an uncontrolled outcrop. The bridge creates an abstract `MineralVein`; the separate expedition transaction places only the bounded GeOre/AE-family formation selected by the same biome profile. Runtime gameplay validation remains separate from static integration proof.
 
 ## Scope boundary
 

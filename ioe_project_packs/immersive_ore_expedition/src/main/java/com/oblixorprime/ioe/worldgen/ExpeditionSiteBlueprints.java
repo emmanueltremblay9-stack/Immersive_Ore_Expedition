@@ -488,23 +488,29 @@ public final class ExpeditionSiteBlueprints {
         BlockPos backRight = center.offset(-horizontalDirection, -2, zDirection);
         switch (theme) {
             case SURVEY -> {
-                builder.put(backLeft, Blocks.CARTOGRAPHY_TABLE.defaultBlockState());
-                builder.put(backRight, Blocks.BOOKSHELF.defaultBlockState());
+                builder.put(backLeft, MineLifeFurnitureIntegration.surveyDesk(Blocks.CARTOGRAPHY_TABLE));
+                builder.put(backRight, MineLifeFurnitureIntegration.storageCrate(Blocks.BOOKSHELF));
                 builder.put(center.offset(horizontalDirection, -2, zDirection), Blocks.COBWEB.defaultBlockState());
             }
             case BUNK -> {
-                builder.put(backLeft, Blocks.HAY_BLOCK.defaultBlockState());
-                builder.put(backRight, Blocks.WHITE_WOOL.defaultBlockState());
-                builder.put(center.offset(horizontalDirection, -2, -zDirection), Blocks.COBWEB.defaultBlockState());
+                builder.put(backLeft, MineLifeFurnitureIntegration.stool(Blocks.HAY_BLOCK));
+                builder.put(backRight, MineLifeFurnitureIntegration.storageCrate(Blocks.WHITE_WOOL));
+                builder.put(
+                        center.offset(horizontalDirection, -2, -zDirection),
+                        MineLifeFurnitureIntegration.treatedTable(Blocks.OAK_PLANKS)
+                );
             }
             case WORKSHOP -> {
-                builder.put(backLeft, Blocks.SMITHING_TABLE.defaultBlockState());
-                builder.put(backRight, Blocks.STONECUTTER.defaultBlockState());
-                builder.put(center.offset(horizontalDirection, -2, zDirection), Blocks.GRAVEL.defaultBlockState());
+                builder.put(backLeft, MineLifeFurnitureIntegration.workbench(Blocks.SMITHING_TABLE));
+                builder.put(backRight, MineLifeFurnitureIntegration.surveyDesk(Blocks.STONECUTTER));
+                builder.put(
+                        center.offset(horizontalDirection, -2, zDirection),
+                        MineLifeFurnitureIntegration.fluidBarrel(Blocks.GRAVEL)
+                );
             }
             case VAULT -> {
-                builder.put(backLeft, Blocks.CHISELED_DEEPSLATE.defaultBlockState());
-                builder.put(backRight, Blocks.IRON_BARS.defaultBlockState());
+                builder.put(backLeft, MineLifeFurnitureIntegration.storageCrate(Blocks.CHISELED_DEEPSLATE));
+                builder.put(backRight, MineLifeFurnitureIntegration.fluidBarrel(Blocks.IRON_BARS));
                 builder.put(center.offset(horizontalDirection, -2, 0), Blocks.REDSTONE_TORCH.defaultBlockState());
                 builder.put(center.offset(-horizontalDirection, -1, 0), Blocks.CHAIN.defaultBlockState());
             }
@@ -1090,7 +1096,7 @@ public final class ExpeditionSiteBlueprints {
         }
     }
 
-    private static int oreCount(SiteQuality quality) {
+    static int oreCount(SiteQuality quality) {
         return switch (quality) {
             case DRY -> 0;
             case POOR -> 4;
@@ -1100,7 +1106,7 @@ public final class ExpeditionSiteBlueprints {
         };
     }
 
-    private static int oreNodeCount(SiteQuality quality) {
+    static int oreNodeCount(SiteQuality quality) {
         return switch (quality) {
             case DRY -> 0;
             case POOR -> 1;
@@ -1173,16 +1179,16 @@ public final class ExpeditionSiteBlueprints {
         }
 
         builder.put(oriented(origin, horizontalDirection, 2, 0, -4),
-                Blocks.CARTOGRAPHY_TABLE.defaultBlockState());
+                MineLifeFurnitureIntegration.surveyDesk(Blocks.CARTOGRAPHY_TABLE));
         builder.put(oriented(origin, horizontalDirection, 4, 0, -4),
-                Blocks.CRAFTING_TABLE.defaultBlockState());
+                MineLifeFurnitureIntegration.workbench(Blocks.CRAFTING_TABLE));
         builder.put(oriented(origin, horizontalDirection, 3, 0, -4),
                 Blocks.OAK_FENCE.defaultBlockState());
-        builder.put(oriented(origin, horizontalDirection, 3, 1, -4),
-                Blocks.LANTERN.defaultBlockState());
+        builder.put(oriented(origin, horizontalDirection, 3, 3, -4),
+                MineLifeFurnitureIntegration.ceilingAlarmLamp(Blocks.LANTERN));
         if (quality.ordinal() >= SiteQuality.RICH.ordinal()) {
             builder.put(oriented(origin, horizontalDirection, 6, 0, -2),
-                    Blocks.SMITHING_TABLE.defaultBlockState());
+                    MineLifeFurnitureIntegration.treatedTable(Blocks.SMITHING_TABLE));
         }
         builder.put(oriented(origin, horizontalDirection, 7, -1, -4),
                 Blocks.COBBLESTONE.defaultBlockState());

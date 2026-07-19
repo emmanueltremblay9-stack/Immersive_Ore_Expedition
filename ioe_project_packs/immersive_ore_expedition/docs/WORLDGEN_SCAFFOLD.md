@@ -82,7 +82,7 @@ This remains scaffold-only planning. Runtime worldgen remains default-off and no
 
 ## Current runtime integration note
 
-The v13/v14 paragraphs above describe historical planning classes in isolation. The active `worldgen` path now places structure-only expedition sites backed by finite abstract IE mineral deposits; it does not place GeOre, AE2, or ExtendedAE formations. See `ORE_NODE_SYSTEM.md`, `AE2_METEORITE_INTEGRATION.md`, `EXTENDEDAE_GEODE_INTEGRATION.md`, and `IMMERSIVE_ENGINEERING_RESOURCE_INTEGRATION.md` for the current contract.
+The v13/v14 paragraphs above describe historical planning classes in isolation. The active `worldgen` path now places connected expedition sites with one bounded GeOre, AE2, or ExtendedAE chamber formation and a finite abstract IE mineral deposit. See `ORE_NODE_SYSTEM.md`, `AE2_METEORITE_INTEGRATION.md`, `EXTENDEDAE_GEODE_INTEGRATION.md`, and `IMMERSIVE_ENGINEERING_RESOURCE_INTEGRATION.md` for the current contract.
 
 The planner preserves optional AE2 safety, uses only supplied existing AE2 resource references, rejects unloaded, policy-denied, strictly excluded, malformed, or fake Fluix resources safely, and stores no world references, block-state lists, or runtime placement hooks. v15 is expected to handle Nether sub-lava geode planning scaffold work.
 

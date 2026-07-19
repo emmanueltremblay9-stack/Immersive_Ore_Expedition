@@ -2,13 +2,18 @@ package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
 import com.oblixorprime.ioe.compat.ip.IoePetroleumReservoirBridge;
+import com.oblixorprime.ioe.core.LoadedResourceScanner;
 import com.oblixorprime.ioe.core.ProvinceId;
+import com.oblixorprime.ioe.core.ResourcePolicyService;
+import com.oblixorprime.ioe.core.ResourceRef;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.core.SiteQualityRoll;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -23,6 +28,7 @@ import java.util.Optional;
 
 public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguration> {
     private static final SiteQualityRoll PRODUCTIVE_SITE_QUALITY = new SiteQualityRoll(0, 25, 45, 17, 3);
+    private static final ResourcePolicyService RESOURCE_POLICY = new ResourcePolicyService();
     private final ExpeditionSiteType siteType;
 
     public ExpeditionSiteFeature(ExpeditionSiteType siteType) {
@@ -76,6 +82,16 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             }
             resourceProfile = resolution.profile().orElseThrow();
         }
+        ResourcePreparation resourcePreparation = prepareEmbeddedResource(resourceProfile);
+        if (!resourcePreparation.resolved()) {
+            skip(
+                    origin,
+                    resourcePreparation.failureReason(),
+                    resourcePreparation.failureMessage()
+            );
+            return false;
+        }
+        ResolvedSiteResource embeddedResource = resourcePreparation.resource();
 
         DepositPreparation depositPreparation = prepareExcavatorDeposit(
                 context.level().getLevel(),
@@ -100,14 +116,24 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         );
         boolean reservationTransferred = false;
         try {
-            ExpeditionSiteBlockPlan plan = quality == previewPlan.quality()
-                    ? previewPlan
-                    : structureOnlyPlan(siteType, origin, quality, planSeed);
+            ExpeditionSiteBlockPlan plan = planWithEmbeddedResource(
+                    siteType,
+                    origin,
+                    quality,
+                    planSeed,
+                    embeddedResource
+            );
             ArrayList<ExpeditionSiteBlockPlan> fallbackPlans = new ArrayList<>();
             if (depositReservation != null && depositReservation.requiredForSiteQuality()) {
                 SiteQuality lowerQuality = quality.directLower().orElse(null);
                 while (lowerQuality != null && lowerQuality.isProductive()) {
-                    fallbackPlans.add(structureOnlyPlan(siteType, origin, lowerQuality, planSeed));
+                    fallbackPlans.add(planWithEmbeddedResource(
+                            siteType,
+                            origin,
+                            lowerQuality,
+                            planSeed,
+                            embeddedResource
+                    ));
                     lowerQuality = lowerQuality.directLower().orElse(null);
                 }
             }
@@ -175,6 +201,123 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 rollbackReservoirReservationBestEffort(petroleumReservation, origin);
             }
         }
+    }
+
+    private static ResourcePreparation prepareEmbeddedResource(BiomeMineResourceProfile resourceProfile) {
+        if (resourceProfile == null) {
+            return ResourcePreparation.resolved(null);
+        }
+        return prepareEmbeddedResource(resourceProfile.profileName());
+    }
+
+    static ResourcePreparation prepareEmbeddedResource(String profileName) {
+        Objects.requireNonNull(profileName, "profileName");
+        return switch (profileName) {
+            case "certus" -> {
+                Ae2MeteoriteIntegration.MeteoriteMaterial material =
+                        Ae2MeteoriteIntegration.resolve().orElse(null);
+                if (material == null) {
+                    yield ResourcePreparation.failed(
+                            IoeWorldgenRuntimeDiagnostics.SiteSkipReason.AE2_RESOURCE_MISSING,
+                            "the biome requires AE2 and AE2 Crystal Science budding Certus resources"
+                    );
+                }
+                if (!resourcesAllowed(material.buddingResource(), material.skyStoneResource())) {
+                    yield ResourcePreparation.failed(
+                            IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                            "the biome Certus budding or shell resource is denied by policy"
+                    );
+                }
+                yield ResourcePreparation.resolved(ResolvedSiteResource.specialGeode(
+                        IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE,
+                        material.buddingBlock(),
+                        material.skyStoneBlock()
+                ));
+            }
+            case "entroized_fluix" -> {
+                ExtendedAeGeodeIntegration.GeodeMaterial material =
+                        ExtendedAeGeodeIntegration.resolve().orElse(null);
+                if (material == null) {
+                    yield ResourcePreparation.failed(
+                            IoeWorldgenRuntimeDiagnostics.SiteSkipReason.EXTENDED_AE_RESOURCE_MISSING,
+                            "the biome requires ExtendedAE Entroized Fluix geode resources"
+                    );
+                }
+                if (!resourcesAllowed(material.buddingResource(), material.shellResource())) {
+                    yield ResourcePreparation.failed(
+                            IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                            "the biome Entroized Fluix budding or shell resource is denied by policy"
+                    );
+                }
+                yield ResourcePreparation.resolved(ResolvedSiteResource.specialGeode(
+                        IoeWorldgenFeatureKeys.ENTROIZED_FLUIX_GEODE,
+                        material.buddingBlock(),
+                        material.shellBlock()
+                ));
+            }
+            default -> {
+                GeOreNodeIntegration.NodeMaterial material =
+                        GeOreNodeIntegration.resolve(profileName).orElse(null);
+                if (material == null || !resourcesAllowed(material.nodeResource(), material.buddingResource())) {
+                    yield ResourcePreparation.failed(
+                            IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                            "the biome GeOre node or budding resource is unavailable or denied by policy"
+                    );
+                }
+                yield ResourcePreparation.resolved(ResolvedSiteResource.geOre(material));
+            }
+        };
+    }
+
+    private static boolean resourcesAllowed(ResourceRef... resources) {
+        LoadedResourceScanner scanner = LoadedResourceScanner.runtime();
+        for (ResourceRef resource : resources) {
+            if (!RESOURCE_POLICY.evaluate(resource, scanner).shouldUse()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static ExpeditionSiteBlockPlan planWithEmbeddedResource(
+            ExpeditionSiteType siteType,
+            BlockPos origin,
+            SiteQuality quality,
+            long planSeed,
+            ResolvedSiteResource resource
+    ) {
+        if (resource == null || !quality.isProductive()) {
+            return structureOnlyPlan(siteType, origin, quality, planSeed);
+        }
+        if (resource.oreBlockId() != null) {
+            return ExpeditionSiteBlueprints.plan(
+                    siteType,
+                    origin,
+                    quality,
+                    resource.oreBlockId(),
+                    resource.oreState(),
+                    resource.oreNodeHeartBlockId(),
+                    resource.oreNodeHeartState(),
+                    ExpeditionSiteBlueprints.oreCount(quality),
+                    ExpeditionSiteBlueprints.oreNodeCount(quality),
+                    RandomSource.create(planSeed)
+            );
+        }
+        return ExpeditionSiteBlueprints.plan(
+                siteType,
+                origin,
+                quality,
+                null,
+                null,
+                null,
+                null,
+                resource.specialGeodeComponentId(),
+                resource.specialBuddingState(),
+                resource.specialShellState(),
+                0,
+                0,
+                RandomSource.create(planSeed)
+        );
     }
 
     private static ExpeditionSiteBlockPlan structureOnlyPlan(
@@ -410,6 +553,93 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     origin,
                     skipReason.id(),
                     reason
+            );
+        }
+    }
+
+    record ResourcePreparation(
+            ResolvedSiteResource resource,
+            IoeWorldgenRuntimeDiagnostics.SiteSkipReason failureReason,
+            String failureMessage
+    ) {
+        ResourcePreparation {
+            if ((failureReason == null) != (failureMessage == null)) {
+                throw new IllegalArgumentException("Resource failure reason and message must be paired");
+            }
+            if (resource != null && failureReason != null) {
+                throw new IllegalArgumentException("Resolved resources cannot also carry a failure");
+            }
+        }
+
+        private static ResourcePreparation resolved(ResolvedSiteResource resource) {
+            return new ResourcePreparation(resource, null, null);
+        }
+
+        private static ResourcePreparation failed(
+                IoeWorldgenRuntimeDiagnostics.SiteSkipReason failureReason,
+                String failureMessage
+        ) {
+            return new ResourcePreparation(
+                    null,
+                    Objects.requireNonNull(failureReason, "failureReason"),
+                    Objects.requireNonNull(failureMessage, "failureMessage")
+            );
+        }
+
+        boolean resolved() {
+            return failureReason == null;
+        }
+    }
+
+    record ResolvedSiteResource(
+            ResourceLocation oreBlockId,
+            BlockState oreState,
+            ResourceLocation oreNodeHeartBlockId,
+            BlockState oreNodeHeartState,
+            ResourceLocation specialGeodeComponentId,
+            BlockState specialBuddingState,
+            BlockState specialShellState
+    ) {
+        ResolvedSiteResource {
+            boolean geOre = oreBlockId != null
+                    && oreState != null
+                    && oreNodeHeartBlockId != null
+                    && oreNodeHeartState != null;
+            boolean specialGeode = specialGeodeComponentId != null
+                    && specialBuddingState != null
+                    && specialShellState != null;
+            if (geOre == specialGeode) {
+                throw new IllegalArgumentException(
+                        "An embedded site resource must be exactly one GeOre node or special geode"
+                );
+            }
+        }
+
+        private static ResolvedSiteResource geOre(GeOreNodeIntegration.NodeMaterial material) {
+            return new ResolvedSiteResource(
+                    material.nodeResource().id(),
+                    material.nodeBlock().defaultBlockState(),
+                    material.buddingResource().id(),
+                    material.buddingBlock().defaultBlockState(),
+                    null,
+                    null,
+                    null
+            );
+        }
+
+        private static ResolvedSiteResource specialGeode(
+                ResourceLocation componentId,
+                Block buddingBlock,
+                Block shellBlock
+        ) {
+            return new ResolvedSiteResource(
+                    null,
+                    null,
+                    null,
+                    null,
+                    componentId,
+                    buddingBlock.defaultBlockState(),
+                    shellBlock.defaultBlockState()
             );
         }
     }

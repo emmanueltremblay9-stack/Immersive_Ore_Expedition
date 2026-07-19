@@ -10,7 +10,7 @@
 - Source revision inspected: `307174eaf237e82236b8534d59c554031000ba05`
 - License: MIT
 
-Immersive Ore Expedition uses GeOre as a required, separately distributed runtime dependency. GeOre owns and supplies its code, block behavior, models, textures, sounds, language resources, recipes, loot tables, and geode world generation. No GeOre source file or asset is copied into the IOE jar by this integration. The active biome-to-mineral path creates no GeOre block formation; it uses abstract Immersive Engineering deposits instead.
+Immersive Ore Expedition uses GeOre as a required, separately distributed runtime dependency. GeOre owns and supplies its code, block behavior, models, textures, sounds, language resources, recipes, loot tables, and geode world generation. No GeOre source file or asset is copied into the IOE jar by this integration. The active expedition path places a bounded formation made from GeOre's registered material and budding blocks alongside an abstract Immersive Engineering deposit.
 
 The following MIT notice is preserved for attribution and for any future distribution that includes a copy or substantial portion of GeOre:
 
@@ -91,7 +91,7 @@ IOE applies an original event-level restriction when the separately installed ad
 - Source revision inspected: `90005ee29839fb9fa83bbe6544919c722f8b0dc6`
 - License: GNU LGPL version 3
 
-IOE references `extendedae:entro_crystal` as a rare Immersive Engineering mineral-mix output. It creates no ExtendedAE geode or budding-heart formation. No ExtendedAE Java source, model, texture, sound, recipe, language file, loot table, or generated resource is copied into IOE.
+IOE references `extendedae:entro_crystal` as a rare Immersive Engineering mineral-mix output and places a bounded expedition-chamber formation made from ExtendedAE's registered budding block and AE2 Fluix shell. No ExtendedAE Java source, model, texture, sound, recipe, language file, loot table, or generated resource is copied into IOE.
 
 ## Immersive Engineering
 

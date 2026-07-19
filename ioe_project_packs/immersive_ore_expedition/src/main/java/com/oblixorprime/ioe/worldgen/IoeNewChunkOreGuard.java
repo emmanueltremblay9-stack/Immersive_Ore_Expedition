@@ -221,21 +221,9 @@ public final class IoeNewChunkOreGuard {
             IoePendingExpeditionSites.Confirmation confirmation =
                     IoePendingExpeditionSites.confirmLoadedChunk(level, chunkPos);
             IoeOrePlacementAuthorization.releaseChunk(level.dimension(), chunkPos);
-            for (BlockPos rejectedResourcePos : confirmation.rejectedResourcePositions()) {
-                TargetKind kind = targetKind(level.getBlockState(rejectedResourcePos));
-                if (kind == null || !level.setBlock(
-                        rejectedResourcePos,
-                        replacementState(level, rejectedResourcePos),
-                        BLOCK_UPDATE_FLAGS
-                )) {
-                    continue;
-                }
-                if (kind == TargetKind.ORE) {
-                    removedOres++;
-                } else {
-                    removedGrowthBlocks++;
-                }
-            }
+            CleanupResult cleanup = cleanupRejectedResources(level, confirmation.rejectedResources());
+            removedOres += cleanup.removedOres();
+            removedGrowthBlocks += cleanup.removedGrowthBlocks();
         }
         IoeWorldgenRuntimeDiagnostics.recordGuardPass(removedOres, removedGrowthBlocks, finalizeSite);
         if (removedOres > 0 || removedGrowthBlocks > 0) {
@@ -248,6 +236,36 @@ public final class IoeNewChunkOreGuard {
             );
         }
         return true;
+    }
+
+    static CleanupResult cleanupRejectedResources(
+            ServerLevel level,
+            List<IoePendingExpeditionSites.RejectedResource> rejectedResources
+    ) {
+        int removedOres = 0;
+        int removedGrowthBlocks = 0;
+        for (IoePendingExpeditionSites.RejectedResource rejectedResource : rejectedResources) {
+            BlockPos rejectedResourcePos = rejectedResource.pos();
+            BlockState currentState = level.getBlockState(rejectedResourcePos);
+            if (!BuiltInRegistries.BLOCK.getKey(currentState.getBlock())
+                    .equals(rejectedResource.expectedBlockId())) {
+                continue;
+            }
+            TargetKind kind = targetKind(currentState);
+            if (!level.setBlock(
+                    rejectedResourcePos,
+                    replacementState(level, rejectedResourcePos),
+                    BLOCK_UPDATE_FLAGS
+            )) {
+                continue;
+            }
+            if (kind == TargetKind.ORE) {
+                removedOres++;
+            } else {
+                removedGrowthBlocks++;
+            }
+        }
+        return new CleanupResult(removedOres, removedGrowthBlocks);
     }
 
     static void clearPending() {
@@ -305,6 +323,9 @@ public final class IoeNewChunkOreGuard {
     private enum TargetKind {
         ORE,
         GROWTH_RESOURCE
+    }
+
+    record CleanupResult(int removedOres, int removedGrowthBlocks) {
     }
 
     private record Target(BlockPos pos, TargetKind kind) {

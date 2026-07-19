@@ -119,6 +119,9 @@ public final class ExpeditionWorldgenGameTests {
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void connectedBlueprintInvariants(GameTestHelper helper) {
         BlockPos origin = new BlockPos(4, 90, 6);
+        Block expectedSurveyDesk = MineLifeFurnitureIntegration
+                .surveyDesk(Blocks.CARTOGRAPHY_TABLE)
+                .getBlock();
         for (ExpeditionSiteType type : ExpeditionSiteType.naturalSurfaceSites()) {
             ExpeditionSiteBlockPlan plan = structureOnlyPlan(
                     type,
@@ -137,7 +140,7 @@ public final class ExpeditionWorldgenGameTests {
             helper.assertTrue(plan.roomCenters().size() == 3,
                     type.id() + " did not create the normal-quality three-room mine");
             assertRoomReachability(helper, plan);
-            helper.assertTrue(plan.blocks().values().stream().anyMatch(state -> state.is(Blocks.CARTOGRAPHY_TABLE)),
+            helper.assertTrue(plan.blocks().values().stream().anyMatch(state -> state.is(expectedSurveyDesk)),
                     type.id() + " did not create a survey room or village supply desk");
             for (int depth = 1; depth <= origin.getY() - plan.connectorEnd().getY(); depth++) {
                 BlockPos shaftCell = origin.below(depth);
@@ -727,6 +730,47 @@ public final class ExpeditionWorldgenGameTests {
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void specialResourceProfilesPlanExactFormations(GameTestHelper helper) {
+        Map<String, ResourceLocation> expectedComponents = Map.of(
+                "certus", IoeWorldgenFeatureKeys.METEORITIC_AE2_GEODE,
+                "entroized_fluix", IoeWorldgenFeatureKeys.ENTROIZED_FLUIX_GEODE
+        );
+        for (Map.Entry<String, ResourceLocation> profile : expectedComponents.entrySet()) {
+            if (profile.getKey().equals("entroized_fluix")
+                    && !ModList.get().isLoaded(ExtendedAeGeodeIntegration.MOD_ID)) {
+                continue;
+            }
+            ExpeditionSiteFeature.ResourcePreparation preparation =
+                    ExpeditionSiteFeature.prepareEmbeddedResource(profile.getKey());
+            helper.assertTrue(preparation.resolved(),
+                    profile.getKey() + " resource bridge did not resolve in the pinned runtime");
+            ExpeditionSiteFeature.ResolvedSiteResource resource = preparation.resource();
+            ExpeditionSiteBlockPlan plan = ExpeditionSiteFeature.planWithEmbeddedResource(
+                    ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
+                    new BlockPos(4, 90, 6),
+                    SiteQuality.NORMAL,
+                    724_513L,
+                    resource
+            );
+
+            helper.assertTrue(plan.generatedComponents().contains(profile.getValue()),
+                    profile.getKey() + " plan omitted its special formation component");
+            helper.assertTrue(plan.oreBlockId() == null
+                            && plan.oreNodeHeartBlockId() == null
+                            && plan.oreNodeCount() == 0,
+                    profile.getKey() + " special formation was mixed with a GeOre node");
+            helper.assertTrue(plan.blocks().values().stream()
+                            .filter(state -> state.is(resource.specialBuddingState().getBlock()))
+                            .count() == 1L,
+                    profile.getKey() + " plan did not contain exactly one budding resource");
+            helper.assertTrue(plan.blocks().values().stream()
+                            .anyMatch(state -> state.is(resource.specialShellState().getBlock())),
+                    profile.getKey() + " plan omitted its formation shell");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void fullRuntimeBiomeInventoryAndProfileExclusivity(GameTestHelper helper) {
         if (!List.of("biomesoplenty", "regions_unexplored", "biomeswevegone").stream()
                 .allMatch(modId -> ModList.get().isLoaded(modId))) {
@@ -1047,7 +1091,7 @@ public final class ExpeditionWorldgenGameTests {
 
         helper.assertTrue(confirmation.confirmedSites() == 1, "The Dry fallback was not confirmed");
         helper.assertTrue(confirmation.rejectedSites() == 0, "The Dry fallback was rejected");
-        helper.assertTrue(confirmation.rejectedResourcePositions().isEmpty(),
+        helper.assertTrue(confirmation.rejectedResources().isEmpty(),
                 "The resource-free Dry fallback reported resource cleanup");
         helper.assertTrue(ExpeditionLocatorService.index(level).sites().stream()
                         .anyMatch(site -> site.pos().equals(origin)
@@ -1102,6 +1146,62 @@ public final class ExpeditionWorldgenGameTests {
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void rejectedSpecialFormationCleanupMatchesExactBlocks(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
+        BlockPos origin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
+        fillTestChunk(level, testChunk);
+        ExpeditionSiteFeature.ResourcePreparation preparation =
+                ExpeditionSiteFeature.prepareEmbeddedResource("certus");
+        helper.assertTrue(preparation.resolved(), "Certus resource bridge did not resolve");
+        ExpeditionSiteBlockPlan plan = ExpeditionSiteFeature.planWithEmbeddedResource(
+                ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
+                origin,
+                SiteQuality.NORMAL,
+                401L,
+                preparation.resource()
+        );
+        IoePendingExpeditionSites.stage(level, plan, testIronProfile(level));
+
+        Set<ResourceLocation> expectedResourceIds = Set.of(
+                BuiltInRegistries.BLOCK.getKey(preparation.resource().specialBuddingState().getBlock()),
+                BuiltInRegistries.BLOCK.getKey(preparation.resource().specialShellState().getBlock())
+        );
+        BlockPos blockedPos = plan.blocks().entrySet().stream()
+                .filter(entry -> !entry.getValue().isAir())
+                .filter(entry -> !expectedResourceIds.contains(
+                        BuiltInRegistries.BLOCK.getKey(entry.getValue().getBlock())
+                ))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElseThrow();
+        level.setBlock(blockedPos, Blocks.CHEST.defaultBlockState(), 2);
+
+        IoePendingExpeditionSites.Confirmation confirmation =
+                IoePendingExpeditionSites.confirmLoadedChunk(level, testChunk);
+        helper.assertTrue(confirmation.rejectedSites() == 1,
+                "The obstructed Certus plan was not rejected");
+        helper.assertTrue(confirmation.rejectedResources().size() >= 2,
+                "The rejected Certus signature omitted expected formation blocks");
+
+        IoePendingExpeditionSites.RejectedResource exact = confirmation.rejectedResources().get(0);
+        IoePendingExpeditionSites.RejectedResource mismatch = confirmation.rejectedResources().get(1);
+        Block exactBlock = BuiltInRegistries.BLOCK.getOptional(exact.expectedBlockId()).orElseThrow();
+        level.setBlock(exact.pos(), exactBlock.defaultBlockState(), 2);
+        level.setBlock(mismatch.pos(), Blocks.GOLD_BLOCK.defaultBlockState(), 2);
+
+        IoeNewChunkOreGuard.CleanupResult cleanup =
+                IoeNewChunkOreGuard.cleanupRejectedResources(level, confirmation.rejectedResources());
+        helper.assertTrue(cleanup.removedOres() == 0 && cleanup.removedGrowthBlocks() == 1,
+                "Rejected special cleanup did not remove exactly the matching formation block");
+        helper.assertTrue(level.getBlockState(exact.pos()).is(Blocks.STONE),
+                "Matching rejected formation block was not replaced");
+        helper.assertTrue(level.getBlockState(mismatch.pos()).is(Blocks.GOLD_BLOCK),
+                "Rejected cleanup overwrote a mismatched block");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void ieCommitFailuresRunFullChainBeforeLocator(GameTestHelper helper) {
         if (!ModList.get().isLoaded("immersiveengineering")) {
             helper.succeed();
@@ -1112,29 +1212,35 @@ public final class ExpeditionWorldgenGameTests {
         BlockPos origin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
         BiomeMineResourceProfile profile = testIronProfile(level);
-        ExpeditionSiteBlockPlan motherPlan = structureOnlyPlan(
+        GeOreNodeIntegration.NodeMaterial ironNode = GeOreNodeIntegration.resolve("iron").orElseThrow();
+        long planSeed = 83L;
+        ExpeditionSiteBlockPlan motherPlan = geOrePlan(
                 ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
                 origin,
                 SiteQuality.MOTHERLODE,
-                83L
+                planSeed,
+                ironNode
         );
-        ExpeditionSiteBlockPlan richPlan = structureOnlyPlan(
+        ExpeditionSiteBlockPlan richPlan = geOrePlan(
                 ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
                 origin,
                 SiteQuality.RICH,
-                89L
+                planSeed,
+                ironNode
         );
-        ExpeditionSiteBlockPlan normalPlan = structureOnlyPlan(
+        ExpeditionSiteBlockPlan normalPlan = geOrePlan(
                 ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
                 origin,
                 SiteQuality.NORMAL,
-                97L
+                planSeed,
+                ironNode
         );
-        ExpeditionSiteBlockPlan poorPlan = structureOnlyPlan(
+        ExpeditionSiteBlockPlan poorPlan = geOrePlan(
                 ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
                 origin,
                 SiteQuality.POOR,
-                101L
+                planSeed,
+                ironNode
         );
         AtomicInteger commits = new AtomicInteger();
         AtomicInteger rollbacks = new AtomicInteger();
@@ -1212,11 +1318,17 @@ public final class ExpeditionWorldgenGameTests {
                 "The fallback did not commit-attempt every lower reserve tier");
         helper.assertTrue(fallbackRollbacks.get() == 2,
                 "The two failed lower-tier reservations were not compensated exactly once");
+        helper.assertTrue(poorPlan.oreBlockCount() == ExpeditionSiteBlueprints.oreCount(SiteQuality.POOR)
+                        && poorPlan.oreNodeCount() == ExpeditionSiteBlueprints.oreNodeCount(SiteQuality.POOR),
+                "The Direct fallback did not retain its quality-bounded GeOre formation");
         helper.assertTrue(poorPlan.blocks().entrySet().stream()
                         .filter(entry -> !entry.getValue().isAir())
                         .allMatch(entry -> level.getBlockState(entry.getKey()).getBlock()
                                 == entry.getValue().getBlock()),
                 "The final world blocks do not match the Direct pipeline");
+        helper.assertTrue(containsBlock(level, testChunk, ironNode.nodeBlock())
+                        && containsBlock(level, testChunk, ironNode.buddingBlock()),
+                "The Direct fallback lost its GeOre material block or budding heart");
         helper.assertTrue(ExpeditionLocatorService.index(level).sites().stream()
                         .anyMatch(site -> site.pos().equals(origin)
                                 && site.quality().filter(quality -> quality == SiteQuality.POOR).isPresent()),
@@ -1305,6 +1417,27 @@ public final class ExpeditionWorldgenGameTests {
         );
     }
 
+    private static ExpeditionSiteBlockPlan geOrePlan(
+            ExpeditionSiteType type,
+            BlockPos origin,
+            SiteQuality quality,
+            long seed,
+            GeOreNodeIntegration.NodeMaterial material
+    ) {
+        return ExpeditionSiteBlueprints.plan(
+                type,
+                origin,
+                quality,
+                material.nodeResource().id(),
+                material.nodeBlock().defaultBlockState(),
+                material.buddingResource().id(),
+                material.buddingBlock().defaultBlockState(),
+                ExpeditionSiteBlueprints.oreCount(quality),
+                ExpeditionSiteBlueprints.oreNodeCount(quality),
+                RandomSource.create(seed)
+        );
+    }
+
     private static void proveFeaturePlacement(GameTestHelper helper, ExpeditionSiteType type) {
         ServerLevel level = helper.getLevel();
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
@@ -1320,6 +1453,7 @@ public final class ExpeditionWorldgenGameTests {
                 NoneFeatureConfiguration.INSTANCE
         );
         boolean placed = new ExpeditionSiteFeature(type).place(context);
+        Optional<Set<Block>> expectedProductiveResources = Optional.empty();
 
         if (type.naturalSurfaceSite()) {
             RandomSource expectationRandom = RandomSource.create(PRODUCTIVE_SEED);
@@ -1334,14 +1468,20 @@ public final class ExpeditionWorldgenGameTests {
                     level,
                     preview.chamberCenter()
             ).failure() == BiomeMineResourceProfile.Failure.NONE;
+            expectedProductiveResources = expectedProductiveResourceBlocks(
+                    level,
+                    preview.chamberCenter(),
+                    type
+            );
             boolean shouldPlace = ModList.get().isLoaded("immersiveengineering")
-                    && hasSpecializedChamberProfile;
+                    && hasSpecializedChamberProfile
+                    && expectedProductiveResources.isPresent();
             if (shouldPlace) {
                 helper.assertTrue(placed,
-                        type.id() + " rejected a specialized chamber with its IE backend loaded");
+                        type.id() + " rejected a specialized chamber with its IE and node backends loaded");
             } else {
                 helper.assertFalse(placed,
-                        type.id() + " created a natural site without both a specialized chamber and IE backend");
+                        type.id() + " created a natural site without its profile, IE deposit, and node backends");
             }
         }
 
@@ -1359,7 +1499,9 @@ public final class ExpeditionWorldgenGameTests {
         if (type.naturalSurfaceSite()) {
             helper.assertFalse(containsBlock(level, testChunk, Blocks.LADDER),
                     type.id() + " wrote provisional mine blocks before final server-thread confirmation");
-            helper.assertFalse(containsAnyProductiveResourceBlock(level, testChunk, origin, type),
+            helper.assertTrue(expectedProductiveResources
+                            .map(blocks -> blocks.stream().noneMatch(block -> containsBlock(level, testChunk, block)))
+                            .orElse(true),
                     type.id() + " wrote provisional resources before final server-thread confirmation");
             helper.assertFalse(ExpeditionLocatorService.index(level).sites().stream()
                             .anyMatch(site -> site.pos().equals(origin)),
@@ -1376,8 +1518,10 @@ public final class ExpeditionWorldgenGameTests {
         if (type.naturalSurfaceSite()) {
             helper.assertTrue(containsBlock(level, testChunk, Blocks.LADDER),
                     type.id() + " did not place a connected mineshaft ladder");
-            helper.assertFalse(containsAnyProductiveResourceBlock(level, testChunk, origin, type),
-                    type.id() + " placed a forbidden free ore node or artificial geode");
+            helper.assertTrue(expectedProductiveResources
+                            .map(blocks -> blocks.stream().allMatch(block -> containsBlock(level, testChunk, block)))
+                            .orElse(false),
+                    type.id() + " did not place every block in its biome-profile node or geode");
             if (type == ExpeditionSiteType.MINER_CAMP || type == ExpeditionSiteType.BURIED_SURVEY_MARKER) {
                 assertSealedSurfaceHatch(helper, level, origin, type);
             }

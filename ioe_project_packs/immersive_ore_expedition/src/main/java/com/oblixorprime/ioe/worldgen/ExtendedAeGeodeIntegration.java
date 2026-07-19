@@ -2,6 +2,7 @@ package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.core.ResourceRef;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.fml.ModList;
 
@@ -39,6 +40,10 @@ public final class ExtendedAeGeodeIntegration {
                 FLUIX_BLOCK,
                 fluix.orElseThrow()
         ));
+    }
+
+    static boolean expeditionFormationBlock(ResourceLocation id) {
+        return BUDDING_ENTROIZED_FLUIX.id().equals(id) || FLUIX_BLOCK.id().equals(id);
     }
 
     public record GeodeMaterial(

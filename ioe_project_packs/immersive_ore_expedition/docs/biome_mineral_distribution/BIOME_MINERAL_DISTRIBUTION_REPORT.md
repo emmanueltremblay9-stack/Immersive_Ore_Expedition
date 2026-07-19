@@ -20,9 +20,9 @@ Generated deterministically by `scripts/generate_biome_mineral_distribution.py`.
 - Active biomes: 252
 - Regions Unexplored: 78 registered, 14 removed, 64 active
 - Oh The Biomes We've Gone: 55 active
-- Specialized IOE profiles: 140 biomes
+- Specialized IOE profiles: 146 biomes
 - Aquatic-only IE deposits: 30 biomes
-- Generic IE outcome: 82 biomes
+- Generic IE outcome: 76 biomes
 
 ## Runtime model
 
@@ -32,7 +32,7 @@ Generated deterministically by `scripts/generate_biome_mineral_distribution.py`.
 - Aquatic biomes allow exactly one preserved native IE aquatic mix under an exact overridden biome predicate.
 - Alluvial Sift preserves its official 20% diamond output and reports it as a secondary resource, never as the biome's principal IOE profile.
 - Unassigned active biomes retain generic Immersive Engineering recipe selection.
-- Expedition structures contain no GeOre node, loose ore, budding crystal or artificial geode.
+- Productive expedition chambers contain one bounded biome-profile formation: a GeOre node, a Certus budding chamber, or an Entroized Fluix geode. The finite IE mineral deposit remains the bulk extraction path.
 - Immersive Petroleum oil, lava and aquifer tags are disjoint and evaluated independently.
 
 ## Reserve capacities
