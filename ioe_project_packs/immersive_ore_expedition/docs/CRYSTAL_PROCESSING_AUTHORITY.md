@@ -1,25 +1,28 @@
 # Crystal processing authority
 
+> **Status: `FINAL_DESIGN`, implementation and runtime acceptance pending.** Current source and hosted evidence remain authoritative for what is actually implemented.
+
 ## Authority split
 
-IOE does not place crystal hearts or implement a crystal-processing machine. Rare Certus and Entroized Fluix resources are outputs of real Immersive Engineering mineral mixes backed by finite abstract deposits.
+The final design assigns IOE responsibility for site-quality selection, Budding placement, the four IOE GeOre rank variants, neutral Resonating Seed acquisition recipes, and Motherlode-only Flawless enforcement. IOE must not add a competing crystal-processing machine.
 
 | Responsibility | Authority | IOE integration |
 | --- | --- | --- |
-| Mineral discovery, extraction and depletion | Immersive Engineering | Core Sample and Excavator operate on the exact IOE mineral-mix ID and finite reserve. |
-| Certus item, meteorites, growth, repair and automation | AE2 | IOE references `ae2:certus_quartz_crystal` only as a rare mix output. |
-| Purified Certus and factory progression | AE2 Crystal Science | No IOE duplicate machine, seed, purified item, or recipe family. |
+| Site quality, node count, initial rank and site metadata | IOE | The target uses the final `10/25/45/17/3` quality weights and `0/3/4/5/7` node matrix. |
+| Finite abstract deposit discovery and extraction | Immersive Engineering | Core Sample and Excavator continue to operate on their exact mineral-mix IDs and reserves. |
+| Native Certus blocks, growth, degradation, repair and acceleration | AE2 | IOE must place authorized native states without replacing their block behavior. |
+| Purified Resonating Crystal, Resonating Seed and Aggregator | AE2 Crystal Science | IOE must supply guarded acquisition/removal recipes without adding a duplicate machine or item family. |
 | Entroized Fluix item and progression | ExtendedAE | IOE references `extendedae:entro_crystal` only as a rare mix output. |
-| GeOre block growth | GeOre | No GeOre block is placed by the active IOE site path. |
+| IOE GeOre Budding variants | IOE, behavior aligned to loaded AE2 | Four ranks must be registered only for validated GeOre materials and use the corresponding storage block on final depletion. |
 
 ## Parallel-method invariant
 
-AE2 meteorites remain enabled: the IOE `ae2:has_meteorites` overlay merges with `replace: false`, and the new-chunk guard preserves AE2 meteorite materials. ExtendedAE's normal crafting, machine, budding, repair, and automation methods remain available. IOE does not add a fake geode or competing intermediate matrix for either resource.
+AE2 meteorites remain enabled unless a separate approved compatibility change says otherwise. The Motherlode-only Flawless rule still requires final implementation to prevent any non-Motherlode acquisition of `ae2:flawless_budding_quartz`. ExtendedAE's normal crafting, machine, budding, repair, and automation methods remain available.
 
 AE2 Crystal Science's physical normal and charged Certus ore placed features remain suppressed under the separate no-free-ore policy. This does not disable AE2 meteorites or the processing systems owned by AE2, AE2CS, or ExtendedAE.
 
 ## Compatibility-only data
 
-The `ae2:growth_acceleratable` overlay delegates compatible upstream budding blocks to AE2's existing accelerator. It contains no growth algorithm and creates no acquisition path. The GeOre: Additions capability restriction is likewise independent of the mineral distribution and creates no resource.
+The `ae2:growth_acceleratable` overlay delegates compatible Budding blocks to AE2's existing accelerator. IOE's GeOre variants must follow the loaded AE2 behavior rather than embed an approximation copied from an older guide.
 
-IOE must not register a growth accelerator, charged catalyst, geode extractor, budding harvester, crystal growth chamber, purified-crystal family, automated harvester, artificial geode, or physical crystal node.
+IOE must not register a growth accelerator, charged catalyst, geode extractor, budding harvester, crystal growth chamber, purified-crystal family, automated harvester, or artificial geode. The permitted physical crystal nodes are the validated Budding rank variants defined by the canonical final design.

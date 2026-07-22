@@ -13,9 +13,9 @@ Immersive Engineering 1.21.1 uses its custom `immersiveengineering:ie_ore` featu
 
 The final IOE biome-modifier phase removes those features from Overworld biomes. This prevents the corresponding stone and deepslate ore blocks from appearing outside IOE-controlled resource progression.
 
-## No embedded resource replacement
+## Coexistence with Budding nodes
 
-IOE expedition structures contain no loose ore, GeOre node, budding resource block, artificial geode, or intermediate crystal matrix. Productive sites are structural access points backed by one abstract Immersive Engineering `MineralVein`; the Excavator recipe is the sole IOE-controlled source of their mineral outputs.
+The final Budding design permits validated GeOre nodes and native Certus Budding blocks inside expedition sites. The abstract Immersive Engineering `MineralVein` remains a separate finite industrial reserve for Core Sample and Excavator progression; the Budding decision does not delete or redefine that reserve system. Artificial geodes and competing processing machines remain out of scope.
 
 ## Mineral deposits are not ore blocks
 

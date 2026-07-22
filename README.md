@@ -64,6 +64,8 @@ Biome-to-resource selection and connected-biome quantity scaling are loaded from
 
 Datapacks may replace the built-in selection and quantity rules. A new `geore` resource name is accepted only when IOE's GeOre and Immersive Engineering integration mappings support that material; the datapack registry does not invent blocks or IE mineral definitions. Crystal profiles only select authorized budding blocks, while AE2, AE2 Crystal Science, or Extended AE continue to own crystal growth and automation.
 
+The locked gameplay target for site-quality weights, Budding ranks, GeOre variants, the `DRY` Resonating Seed reward, and Motherlode-only Flawless blocks is documented in [`docs/BUDDING_FINAL_DECISIONS.md`](ioe_project_packs/immersive_ore_expedition/docs/BUDDING_FINAL_DECISIONS.md). It is a `FINAL_DESIGN` contract, not a claim that the current implementation or runtime already satisfies every acceptance check.
+
 The consolidated module CI verifies the release jar structure: the runtime jar must include compiled classes under `com/oblixorprime/ioe/` and `META-INF/neoforge.mods.toml`. Release and smoke guidance lives in:
 
 - `ioe_project_packs/immersive_ore_expedition/docs/RELEASE_CHECKLIST.md`
