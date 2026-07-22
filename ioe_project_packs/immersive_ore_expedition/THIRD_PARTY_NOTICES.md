@@ -10,7 +10,7 @@
 - Source revision inspected: `307174eaf237e82236b8534d59c554031000ba05`
 - License: MIT
 
-Immersive Ore Expedition uses GeOre as a required, separately distributed runtime dependency. GeOre owns and supplies its code, block behavior, models, textures, sounds, language resources, recipes, loot tables, and geode world generation. No GeOre source file or asset is copied into the IOE jar by this integration. The active biome-to-mineral path creates no GeOre block formation; it uses abstract Immersive Engineering deposits instead.
+Immersive Ore Expedition uses GeOre as a required, separately distributed runtime dependency. GeOre owns and supplies its code, registered resources, models, textures, sounds, language resources, recipes, loot tables, and geode world generation. No GeOre source file or asset is copied into the IOE jar by this integration. Any IOE Budding rank variant is an original IOE implementation for a validated GeOre material and must preserve this provenance boundary.
 
 The following MIT notice is preserved for attribution and for any future distribution that includes a copy or substantial portion of GeOre:
 
