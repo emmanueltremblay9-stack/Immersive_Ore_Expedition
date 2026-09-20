@@ -96,6 +96,67 @@ final class ExpeditionLocatorIndexTest {
     }
 
     @Test
+    void horizontalAnchorSpacingUsesStrictBoundaryAndIgnoresHeight() {
+        ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
+        index.record(anchor("collapsed_shaft", new BlockPos(0, -60, 0)));
+
+        assertTrue(index.hasPlayableAnchorWithinHorizontalDistance(
+                Level.OVERWORLD,
+                new BlockPos(47, 300, 0),
+                48
+        ));
+        assertFalse(index.hasPlayableAnchorWithinHorizontalDistance(
+                Level.OVERWORLD,
+                new BlockPos(48, 300, 0),
+                48
+        ));
+    }
+
+    @Test
+    void horizontalAnchorSpacingFiltersDimensionKindAndNonPlayableSites() {
+        ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
+        index.record(ExpeditionSite.anchor(
+                Level.NETHER,
+                BlockPos.ZERO,
+                id("nether_anchor"),
+                null,
+                SiteQuality.NORMAL,
+                "test"
+        ));
+        index.record(ExpeditionSite.province(
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                id("tiny_vertical_mine_entrance"),
+                id("granite_belt"),
+                SiteQuality.NORMAL,
+                "test",
+                ExpeditionSitePlacementState.PROVEN,
+                null
+        ));
+        index.record(ExpeditionSite.anchor(
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                id("planned_anchor"),
+                null,
+                SiteQuality.NORMAL,
+                "test",
+                ExpeditionSitePlacementState.PLANNED,
+                "not placed"
+        ));
+
+        assertFalse(index.hasPlayableAnchorWithinHorizontalDistance(
+                Level.OVERWORLD,
+                new BlockPos(1, 64, 1),
+                48
+        ));
+        assertThrows(IllegalArgumentException.class, () -> index.hasPlayableAnchorWithinHorizontalDistance(
+                Level.OVERWORLD,
+                BlockPos.ZERO,
+                0
+        ));
+    }
+
+    @Test
     void foundResultRejectsSentinelDistanceThroughPublicConstructor() {
         assertThrows(IllegalArgumentException.class, () -> new ExpeditionLocatorResult(
                 ExpeditionLocatorResult.Status.FOUND,

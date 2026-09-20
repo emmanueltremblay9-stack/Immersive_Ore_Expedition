@@ -1,8 +1,14 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.compat.domum.DomumOrnamentumCompat;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -46,11 +52,38 @@ final class IoeExpeditionPlanPlacement {
                 if (!changed && !level.getBlockState(pos).equals(target)) {
                     return abortPartialPlacement(level, plan, previousStates, null);
                 }
+                ExpeditionBlockEntityPayload payload = plan.blockEntityPayloads().get(pos);
+                if (payload != null && !applyPayload(level, pos, payload)) {
+                    return abortPartialPlacement(level, plan, previousStates, null);
+                }
             }
         } catch (RuntimeException | LinkageError failure) {
             return abortPartialPlacement(level, plan, previousStates, failure);
         }
         return Optional.of(new AppliedPlan(plan, previousStates, true));
+    }
+
+    private static boolean applyPayload(
+            WorldGenLevel level,
+            BlockPos pos,
+            ExpeditionBlockEntityPayload payload
+    ) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity == null) {
+            return false;
+        }
+        if (payload.hasLootTable()) {
+            if (!(blockEntity instanceof RandomizableContainerBlockEntity container)) {
+                return false;
+            }
+            ResourceKey<LootTable> lootTable = ResourceKey.create(Registries.LOOT_TABLE, payload.lootTable());
+            container.setLootTable(lootTable);
+            container.setLootTableSeed(payload.lootSeed());
+            container.setChanged();
+            return true;
+        }
+        return payload.hasMaterialBlocks()
+                && DomumOrnamentumCompat.applyMaterialPayload(blockEntity, payload.materialBlocks());
     }
 
     private static Optional<AppliedPlan> abortPartialPlacement(

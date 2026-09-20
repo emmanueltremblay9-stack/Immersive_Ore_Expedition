@@ -160,7 +160,7 @@ public final class ImmersiveOreExpeditionConfig {
             .define("worldgen.global.naturalExpeditionSiteGenerationEnabled",
                     DEFAULT_WORLDGEN_NATURAL_EXPEDITION_SITE_GENERATION_ENABLED);
     private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PLACEMENT_ENABLED = BUILDER
-            .comment("Enable IOE runtime placement proof hooks. Default false keeps worldgen placement no-op.")
+            .comment("Enable legacy IOE runtime placement proof hooks. Default false keeps only that proof/planning hook no-op; natural expedition-site generation uses its separate naturalExpeditionSiteGenerationEnabled gate.")
             .define("worldgen.runtimePlacementEnabled", DEFAULT_WORLDGEN_RUNTIME_PLACEMENT_ENABLED);
     private static final ModConfigSpec.BooleanValue WORLDGEN_RUNTIME_PLACEMENT_DIAGNOSTICS = BUILDER
             .comment("Emit opt-in diagnostics for runtime placement proof decisions.")

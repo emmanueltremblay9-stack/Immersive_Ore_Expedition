@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * become compass targets, or retain unbounded pending state.
  */
 final class IoePendingExpeditionSites {
+    static final int MINER_CAMP_MINIMUM_SPACING_BLOCKS = 48;
     private static final int MAX_PENDING_CHUNKS = 256;
     private static final int PRUNE_INTERVAL_TICKS = 1200;
     private static final long MAX_PENDING_AGE_NANOS = Duration.ofMinutes(10).toNanos();
@@ -166,6 +167,44 @@ final class IoePendingExpeditionSites {
         int confirmedSites = 0;
         int rejectedSites = 0;
         for (PendingSite pendingSite : pendingSites) {
+            if (pendingSite.plan().requestedFeatureId().equals(IoeWorldgenFeatureKeys.MINER_CAMP)) {
+                boolean spacingConflict;
+                try {
+                    spacingConflict = ExpeditionLocatorService.index(level)
+                            .hasPlayableAnchorWithinHorizontalDistance(
+                                    level.dimension(),
+                                    pendingSite.site().pos(),
+                                    MINER_CAMP_MINIMUM_SPACING_BLOCKS
+                            );
+                } catch (RuntimeException | LinkageError failure) {
+                    rejectedSites++;
+                    rollbackReservationBestEffort(pendingSite, "prospector-camp spacing lookup failed");
+                    pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
+                    IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
+                            IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE
+                    );
+                    IoeExpeditionWorldgenMod.LOGGER.error(
+                            "Could not verify IOE prospector-camp spacing at {}; rejected the unapplied plan",
+                            pendingSite.site().pos(),
+                            failure
+                    );
+                    continue;
+                }
+                if (spacingConflict) {
+                    rejectedSites++;
+                    rollbackReservationBestEffort(pendingSite, "prospector-camp minimum spacing conflict");
+                    pendingSite.signature().appendResourcePositions(rejectedResourcePositions);
+                    IoeWorldgenRuntimeDiagnostics.recordSiteSkip(
+                            IoeWorldgenRuntimeDiagnostics.SiteSkipReason.NEIGHBORING_SITE
+                    );
+                    IoeExpeditionWorldgenMod.LOGGER.info(
+                            "Rejected IOE prospector camp at {}: another playable expedition anchor is within {} blocks",
+                            pendingSite.site().pos(),
+                            MINER_CAMP_MINIMUM_SPACING_BLOCKS
+                    );
+                    continue;
+                }
+            }
             IoeExpeditionPlanPlacement.AppliedPlan effectivePlacement;
             try {
                 effectivePlacement = IoeExpeditionPlanPlacement.apply(
