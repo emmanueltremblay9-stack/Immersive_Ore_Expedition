@@ -386,7 +386,8 @@ class ProspectorCampOutcropComposerTest {
 
         long shelterSurfaceBlocks = composition.reservedSurfaceColumns().entrySet().stream()
                 .filter(entry -> entry.getValue() == ProspectorCampOutcropComposer.ComponentRole.SHELTER)
-                .filter(entry -> composition.blocks().containsKey(entry.getKey()))
+                .filter(entry -> composition.blocks().containsKey(entry.getKey())
+                        && !composition.blocks().get(entry.getKey()).isAir())
                 .count();
         boolean raisedShelter = composition.visualFamily() == ProspectorCampVisualFamily.WETLAND
                 || composition.visualFamily() == ProspectorCampVisualFamily.TROPICAL;

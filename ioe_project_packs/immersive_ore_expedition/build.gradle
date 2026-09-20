@@ -127,6 +127,7 @@ sourceSets.named('test').configure {
 
 tasks.named('test', Test).configure {
     useJUnitPlatform()
+    workingDir = projectDir
 }
 
 tasks.withType(JavaCompile).configureEach {
