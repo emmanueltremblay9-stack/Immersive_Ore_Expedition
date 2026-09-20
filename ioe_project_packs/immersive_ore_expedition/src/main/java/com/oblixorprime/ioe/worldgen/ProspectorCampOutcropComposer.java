@@ -1239,7 +1239,8 @@ public final class ProspectorCampOutcropComposer {
     ) {
         int hatchCenterX = shaftOrigin.getX();
         int hatchCenterZ = shaftOrigin.getZ();
-        if (archetype == ProspectorCampArchetype.ABANDONED) {
+        if (archetype == ProspectorCampArchetype.ACTIVE
+                || archetype == ProspectorCampArchetype.ABANDONED) {
             hatchCenterX = clamp(
                     hatchCenterX,
                     campCenter.getX() - placedRadius + 1,

@@ -197,7 +197,9 @@ class ProspectorCampOutcropComposerTest {
 
     @Test
     void staticDimensionReportMatchesTheAuditedComposerSeed() throws IOException {
-        Path report = Path.of("docs/worldgen/prospector_camp/STRUCTURE_DIMENSION_REPORT.csv");
+        Path report = moduleProjectDir().resolve(
+                "docs/worldgen/prospector_camp/STRUCTURE_DIMENSION_REPORT.csv"
+        );
         Map<String, String[]> rowsByKey = new HashMap<>();
         List<String> reportLines = Files.readAllLines(report);
         for (String line : reportLines.subList(1, reportLines.size())) {
@@ -424,9 +426,17 @@ class ProspectorCampOutcropComposerTest {
         } else {
             assertTrue(composition.openRaisedShelterHeadroomBay().isEmpty(),
                     "Ground-set shelter unexpectedly exposes a raised headroom bay marker");
-            assertTrue(shelterSurfaceBlocks < composition.reservedColumnCount(
-                    ProspectorCampOutcropComposer.ComponentRole.SHELTER
-            ), "Grounded shelter unexpectedly became a raised deck");
+            long groundedFloorBlocks = composition.reservedSurfaceColumns().entrySet().stream()
+                    .filter(entry -> entry.getValue() == ProspectorCampOutcropComposer.ComponentRole.SHELTER)
+                    .map(Map.Entry::getKey)
+                    .filter(pos -> composition.blocks().containsKey(pos.below())
+                            && !composition.blocks().get(pos.below()).isAir())
+                    .count();
+            assertEquals(
+                    composition.reservedColumnCount(ProspectorCampOutcropComposer.ComponentRole.SHELTER),
+                    groundedFloorBlocks,
+                    "Ground-set shelter lost floor cells below standing level"
+            );
         }
 
         for (int dx = -1; dx <= 1; dx++) {
@@ -487,6 +497,11 @@ class ProspectorCampOutcropComposerTest {
             case ARID, ROCKY -> 1;
             case VOLCANIC, AQUATIC -> 0;
         };
+    }
+
+    private static Path moduleProjectDir() {
+        String configured = System.getProperty("ioe.moduleProjectDir");
+        return configured == null ? Path.of("") : Path.of(configured);
     }
 
     private static EnumSet<ProspectorCampContext.ProspectorCampState> allowedStates(SiteQuality quality) {

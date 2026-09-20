@@ -97,6 +97,10 @@ final class ExpeditionCompassDedicatedServerSafetyTest {
     }
 
     private static Path classesRoot() {
+        String configured = System.getProperty("ioe.moduleProjectDir");
+        if (configured != null) {
+            return Path.of(configured, "build", "classes", "java", "main");
+        }
         Path moduleRoot = Path.of("build", "classes", "java", "main");
         if (Files.isDirectory(moduleRoot)) {
             return moduleRoot;
@@ -112,6 +116,10 @@ final class ExpeditionCompassDedicatedServerSafetyTest {
     }
 
     private static Path sourcesRoot() {
+        String configured = System.getProperty("ioe.moduleProjectDir");
+        if (configured != null) {
+            return Path.of(configured, "src", "main", "java");
+        }
         Path moduleRoot = Path.of("src", "main", "java");
         if (Files.isDirectory(moduleRoot)) {
             return moduleRoot;

@@ -127,7 +127,7 @@ sourceSets.named('test').configure {
 
 tasks.named('test', Test).configure {
     useJUnitPlatform()
-    workingDir = projectDir
+    systemProperty 'ioe.moduleProjectDir', project.projectDir.absolutePath
 }
 
 tasks.withType(JavaCompile).configureEach {
