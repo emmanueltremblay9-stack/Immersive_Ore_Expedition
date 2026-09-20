@@ -2,7 +2,7 @@
 
 ## Current rule
 
-IOE does not create an Entroized Fluix geode, budding-heart chamber, artificial anomaly, or intermediate matrix. Productive expedition structures are structural clues only and contain no resource blocks.
+The final Budding decisions do not authorize an Entroized Fluix rank family. Under the current ExtendedAE-specific contract, IOE does not create an Entroized Fluix geode, budding-heart chamber, artificial anomaly, or intermediate matrix. This restriction is scoped to ExtendedAE and does not prohibit the separately specified GeOre and Certus Budding nodes.
 
 Entroized Fluix is integrated through the extremely rare `immersive_ore_expedition:mineral/entroized_fluix` Immersive Engineering mineral mix. Its verified rare output is `extendedae:entro_crystal`; the remaining outputs are compatible host materials. The mix uses the exact six-biome allowlist, low selection weight, high sterile-extraction chance, and limited reserve tiers documented in the biome distribution report.
 

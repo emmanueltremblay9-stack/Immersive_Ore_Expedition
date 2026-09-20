@@ -4,7 +4,7 @@
 
 `ACTIVE STATIC RESTRICTION - RUNTIME UNVERIFIED`
 
-The official GeOre: Additions page describes a Budding Harvester that drops budding blocks and a Geode Extractor that produces shards below compatible budding blocks. IOE retains a defensive restriction for those capabilities, but the active biome-to-mineral system no longer places budding hearts in expedition mines.
+The official GeOre: Additions page describes a Budding Harvester that drops budding blocks and a Geode Extractor that produces shards below compatible budding blocks. IOE retains a defensive restriction so those capabilities cannot bypass the final expedition-only Budding acquisition rules.
 
 ## Enforced contract
 
@@ -13,7 +13,7 @@ When the separately distributed `geore_additions` mod is loaded, IOE:
 1. cancels breaking any recognized budding block only when the held `geore_additions` tool id contains `budding_harvester`, blocking that tool from recovering GeOre, AE2, ExtendedAE, or vanilla amethyst budding blocks;
 2. cancels NeoForge entity-placement events only when the add-on block id contains `geode_extractor`, covering the current extractor and later extractor tiers without blocking unrelated add-on blocks;
 3. scans each loaded server chunk for that same extractor family and removes matching legacy machines without scanning or changing ordinary ore blocks;
-4. leaves upstream-owned GeOre, AE2, and ExtendedAE block behavior to their owning mods and creates no IOE budding-heart mine mode;
+4. leaves upstream-owned GeOre, AE2, and ExtendedAE block behavior to their owning mods while permitting the separately specified IOE GeOre Budding rank variants;
 5. gives the add-on no authority to add ore veins, geodes, meteorites, extractors, or alternate resource-production paths.
 
 The event rule is deliberately capability-specific. It does not cancel every block or tool in the `geore_additions` namespace.

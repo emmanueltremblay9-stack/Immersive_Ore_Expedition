@@ -10,7 +10,7 @@
 - Source revision inspected: `307174eaf237e82236b8534d59c554031000ba05`
 - License: MIT
 
-Immersive Ore Expedition uses GeOre as a required, separately distributed runtime dependency. GeOre owns and supplies its code, block behavior, models, textures, sounds, language resources, recipes, loot tables, and geode world generation. No GeOre source file or asset is copied into the IOE jar by this integration. The active biome-to-mineral path creates no GeOre block formation; it uses abstract Immersive Engineering deposits instead.
+Immersive Ore Expedition uses GeOre as a required, separately distributed runtime dependency. GeOre owns and supplies its code, registered resources, models, textures, sounds, language resources, recipes, loot tables, and geode world generation. No GeOre source file or asset is copied into the IOE jar by this integration. Any IOE Budding rank variant is an original IOE implementation for a validated GeOre material and must preserve this provenance boundary.
 
 The following MIT notice is preserved for attribution and for any future distribution that includes a copy or substantial portion of GeOre:
 
@@ -112,10 +112,10 @@ IOE references public registry and placed-feature identifiers to prevent free or
 - Author: TwistedGate and contributors
 - Source: https://github.com/TwistedGate/ImmersivePetroleum
 - Distribution: https://modrinth.com/mod/immersivepetroleum
-- Integrated line: Minecraft 1.21.1, Immersive Petroleum 4.4.1-37
+- Integrated line: Minecraft 1.21.1, Immersive Petroleum 4.4.1-37 through 4.5.0-39
 - Source branch inspected: `1.21.1`
 - Source revision inspected: `09dfa613627d2f0114dc06de37f208aa1684bb89`
-- Modrinth project/version inspected: `MOw5TN6u` / `CV6UXQBi`
+- Modrinth project/versions inspected: `MOw5TN6u` / `CV6UXQBi` (4.4.1-37), `1nu6ZI52` (4.5.0-39)
 - License: All Rights Reserved
 
 IOE compiles against the separately distributed Immersive Petroleum artifact and uses its native reservoir API objects and persistence entrypoint. IOE only controls spatial admission: free reservoir scans and unauthorized registrations are blocked, while admitted desert coal sites register oil reservoirs, volcanic sites register lava reservoirs, and beach, shore, river or ocean sites register aquifers transactionally. Immersive Petroleum remains the owner of reservoir recipes, fluids, SavedData format, surveying, pressure, depletion, wells, Pumpjack extraction, code and assets. No Immersive Petroleum source file, recipe, model, texture, sound, language file or other asset is copied into the IOE jar.

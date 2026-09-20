@@ -535,7 +535,7 @@ def generate_reports() -> None:
             "regions_unexplored": "0.6.2",
             "biomeswevegone": "2.6.0",
             "immersiveengineering": "12.4.2-194",
-            "immersivepetroleum": "4.4.1-37",
+            "immersivepetroleum": "4.5.0-39",
             "ae2": "19.2.17",
             "extendedae": "1.21-2.2.33-neoforge",
         },
@@ -610,7 +610,7 @@ Generated deterministically by `scripts/generate_biome_mineral_distribution.py`.
 - Aquatic biomes allow exactly one preserved native IE aquatic mix under an exact overridden biome predicate.
 - Alluvial Sift preserves its official 20% diamond output and reports it as a secondary resource, never as the biome's principal IOE profile.
 - Unassigned active biomes retain generic Immersive Engineering recipe selection.
-- Expedition structures contain no GeOre node, loose ore, budding crystal or artificial geode.
+- The final design permits validated GeOre and Certus Budding nodes in expedition structures; implementation and runtime acceptance are tracked separately in `docs/BUDDING_FINAL_DECISIONS.md`.
 - Immersive Petroleum oil, lava and aquifer tags are disjoint and evaluated independently.
 
 ## Reserve capacities
