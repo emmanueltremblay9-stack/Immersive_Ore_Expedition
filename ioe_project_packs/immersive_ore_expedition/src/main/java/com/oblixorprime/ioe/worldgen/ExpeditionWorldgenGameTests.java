@@ -1229,7 +1229,7 @@ public final class ExpeditionWorldgenGameTests {
     public static void minerCampDryProductionPath(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         ExpeditionLocatorService.index(level).clear();
-        ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
+        ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(64, 24, 64)));
         BlockPos requestedOrigin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
 

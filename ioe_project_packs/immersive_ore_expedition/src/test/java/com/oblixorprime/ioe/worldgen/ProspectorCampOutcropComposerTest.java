@@ -469,10 +469,16 @@ class ProspectorCampOutcropComposerTest {
         assertEquals(1L, hatch.stream()
                 .filter(pos -> composition.blocks().get(pos).is(Blocks.OAK_TRAPDOOR))
                 .count(), "The shaft hatch must contain exactly one oak trapdoor");
-        BlockPos preferredTrapdoor = shaftOrigin.offset(0, 0, 1);
-        BlockPos expectedTrapdoor = hatch.contains(preferredTrapdoor) ? preferredTrapdoor : shaftOrigin;
-        assertTrue(composition.blocks().get(expectedTrapdoor).is(Blocks.OAK_TRAPDOOR),
-                "The shaft hatch trapdoor is not at the expected position " + expectedTrapdoor);
+        BlockPos preferred = shaftOrigin.offset(0, 0, 1);
+        BlockPos trapdoorPos = hatch.contains(preferred) ? preferred : shaftOrigin;
+        assertTrue(composition.blocks().get(trapdoorPos).is(Blocks.OAK_TRAPDOOR),
+                "The shaft hatch trapdoor is not at the expected position " + trapdoorPos);
+        assertTrue(!composition.blocks().containsKey(shaftOrigin.below())
+                        || composition.blocks().get(shaftOrigin.below()).isAir(),
+                "The shaft hatch blocks the open connector at " + shaftOrigin.below());
+        assertTrue(!composition.blocks().containsKey(trapdoorPos.below())
+                        || composition.blocks().get(trapdoorPos.below()).isAir(),
+                "The shaft trapdoor blocks the ladder connector at " + trapdoorPos.below());
         assertEquals(1L, composition.blocks().values().stream().filter(state -> state.is(Blocks.CAMPFIRE)).count());
         composition.blocks().entrySet().stream()
                 .filter(entry -> entry.getValue().is(Blocks.CAMPFIRE))

@@ -122,29 +122,41 @@ public final class ProspectorCampOutcropComposer {
         int radius = spec.placedRadius();
         for (int coordinate = -radius; coordinate <= radius; coordinate++) {
             if (Math.floorMod(coordinate + (int) context.siteSeed(), 2) == 0) {
-                builder.putLocal(coordinate, -1, -radius, palette.ground().defaultBlockState());
-                builder.putLocal(coordinate, -1, radius, palette.ground().defaultBlockState());
-                builder.putLocal(-radius, -1, coordinate, palette.ground().defaultBlockState());
-                builder.putLocal(radius, -1, coordinate, palette.ground().defaultBlockState());
+                putGroundOutsideShaftHatch(builder, coordinate, -radius, palette.ground().defaultBlockState());
+                putGroundOutsideShaftHatch(builder, coordinate, radius, palette.ground().defaultBlockState());
+                putGroundOutsideShaftHatch(builder, -radius, coordinate, palette.ground().defaultBlockState());
+                putGroundOutsideShaftHatch(builder, radius, coordinate, palette.ground().defaultBlockState());
             }
         }
-        builder.putLocal(-radius, -1, -radius, palette.ground().defaultBlockState());
-        builder.putLocal(radius, -1, radius, palette.ground().defaultBlockState());
+        putGroundOutsideShaftHatch(builder, -radius, -radius, palette.ground().defaultBlockState());
+        putGroundOutsideShaftHatch(builder, radius, radius, palette.ground().defaultBlockState());
 
         BlockPos cursor = shaftOrigin.below();
         BlockPos destination = new BlockPos(builder.campCenter().getX(), shaftOrigin.getY() - 1, builder.campCenter().getZ());
         while (cursor.getX() != destination.getX()) {
-            builder.reserveOpenWorldColumn(cursor, ComponentRole.PATH);
-            builder.putWorld(cursor, palette.path().defaultBlockState());
+            if (!builder.isShaftHatchColumn(cursor)) {
+                builder.reserveOpenWorldColumn(cursor, ComponentRole.PATH);
+                builder.putWorld(cursor, palette.path().defaultBlockState());
+            }
             cursor = cursor.offset(Integer.signum(destination.getX() - cursor.getX()), 0, 0);
         }
         while (cursor.getZ() != destination.getZ()) {
-            builder.reserveOpenWorldColumn(cursor, ComponentRole.PATH);
-            builder.putWorld(cursor, palette.path().defaultBlockState());
+            if (!builder.isShaftHatchColumn(cursor)) {
+                builder.reserveOpenWorldColumn(cursor, ComponentRole.PATH);
+                builder.putWorld(cursor, palette.path().defaultBlockState());
+            }
             cursor = cursor.offset(0, 0, Integer.signum(destination.getZ() - cursor.getZ()));
         }
-        builder.reserveOpenWorldColumn(destination, ComponentRole.PATH);
-        builder.putWorld(destination, palette.path().defaultBlockState());
+        if (!builder.isShaftHatchColumn(destination)) {
+            builder.reserveOpenWorldColumn(destination, ComponentRole.PATH);
+            builder.putWorld(destination, palette.path().defaultBlockState());
+        }
+    }
+
+    private static void putGroundOutsideShaftHatch(Builder builder, int x, int z, BlockState state) {
+        if (!builder.isShaftHatchColumn(builder.localPos(x, -1, z))) {
+            builder.putLocal(x, -1, z, state);
+        }
     }
 
     private static void addHostRockOutcrop(
