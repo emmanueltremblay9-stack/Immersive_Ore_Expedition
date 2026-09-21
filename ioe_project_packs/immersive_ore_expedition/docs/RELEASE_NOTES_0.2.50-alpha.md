@@ -11,7 +11,7 @@
 - NeoForge: `21.1.230`
 - Java: 21
 
-This document records source, hosted-CI, and artifact qualification evidence for a release candidate. Overall release qualification remains `BLOCKED_DOMUM_OWNER_LEGAL_DECISION`. This is not a publication record and does not imply that a tag, GitHub Release, CurseForge file, Modrinth version, or other distribution exists.
+This document records source, hosted-CI, and artifact qualification evidence for a release candidate. Overall release qualification is `RELEASE_QUALIFIED: PASS_WITH_GAPS` after the owner distribution disposition recorded for Domum Ornamentum. Manual client, dedicated-server, and visual worldgen smoke remain `NOT_PERFORMED`, so `PUBLICATION_READY: BLOCKED_MANUAL_SMOKE`. This is not a publication record and does not imply that a tag, GitHub Release, CurseForge file, Modrinth version, or other distribution exists.
 
 ## Non-Exhaustive Major Changes Since 0.2.0-alpha
 
@@ -84,16 +84,27 @@ Hosted tests and artifact inspection do not prove a manual launch, server lifecy
 
 The qualified IOE JAR contains zero embedded JARs, and no Domum Ornamentum source or assets are copied into IOE. Domum Ornamentum is an optional compile/runtime integration used by the prospector-camp materialized architecture.
 
-Domum Ornamentum `1.0.231` has conflicting license metadata: the inspected source tag and runtime metadata identify GPL-3.0, while the published Maven POM identifies LGPL-3.0. Status: `AMBIGUOUS / UNRESOLVED`. Project-owner or qualified legal disposition: `NOT_PERFORMED`. CI compatibility testing is not a legal conclusion or redistribution authorization.
+Domum Ornamentum `1.0.231` has conflicting license metadata: the inspected source tag and runtime metadata identify GPL-3.0, while the published Maven POM identifies LGPL-3.0. `DOMUM_FACTUAL_METADATA_STATUS: CONFIRMED_MIXED_METADATA`. `DOMUM_OWNER_DISTRIBUTION_DISPOSITION: PROCEED_WITH_SEPARATE_OPTIONAL_DOMUM_INTEGRATION`. `DOMUM_LEGAL_COMPATIBILITY: UNDETERMINED`. The owner disposition is recorded in `docs/DOMUM_OWNER_DISTRIBUTION_DISPOSITION_0.2.50-alpha.md` and is not legal approval. CI compatibility testing is not a legal conclusion or redistribution authorization.
 
-## Publication Blockers
+## Release Readiness and Publication Blockers
 
-- Domum Ornamentum license-metadata discrepancy: `BLOCKED_DOMUM_OWNER_LEGAL_DECISION`.
-- Manual client, dedicated-server, and visual worldgen smoke: `NOT_PERFORMED`.
-- Release publication: `NOT_PUBLISHED`.
-- Release qualification: `RELEASE_QUALIFIED: BLOCKED_DOMUM_OWNER_LEGAL_DECISION`.
+- `SOURCE_READY: PASS`
+- `RUNTIME_READY: PASS_CI_SCOPE_ONLY`
+- `ARTIFACT_READY: PASS`
+- `RELEASE_NOTES_READY: PASS`
+- `DOCUMENTATION_READY: PASS`
+- `DOMUM_FACTUAL_METADATA_STATUS: CONFIRMED_MIXED_METADATA`
+- `DOMUM_OWNER_DECISION_GATE: PASS`
+- `DOMUM_OWNER_DISTRIBUTION_DISPOSITION: PROCEED_WITH_SEPARATE_OPTIONAL_DOMUM_INTEGRATION`
+- `DOMUM_LEGAL_COMPATIBILITY: UNDETERMINED`
+- Manual client world-entry smoke: `NOT_PERFORMED`
+- Manual dedicated-server smoke: `NOT_PERFORMED`
+- Manual visual worldgen smoke: `NOT_PERFORMED`
+- `RELEASE_QUALIFIED: PASS_WITH_GAPS`
+- `PUBLICATION_READY: BLOCKED_MANUAL_SMOKE`
+- Release publication: `NOT_PUBLISHED`
 
-No tag, GitHub Release, or third-party distribution should be created from this qualification record until the required owner/legal disposition and remaining release gates are recorded.
+No tag, GitHub Release, or third-party distribution should be created from this qualification record until the required manual smoke evidence is recorded and publication is separately authorized.
 
 ## Compatibility and Rollback
 
