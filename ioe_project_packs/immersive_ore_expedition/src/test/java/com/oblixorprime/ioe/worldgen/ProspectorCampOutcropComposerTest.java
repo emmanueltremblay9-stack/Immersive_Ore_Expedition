@@ -329,9 +329,24 @@ class ProspectorCampOutcropComposerTest {
                     ));
         }
         assertTrue(composition.reservedColumnCount(ProspectorCampOutcropComposer.ComponentRole.PATH) > 0L);
-        assertTrue(composition.reservedSurfaceColumns().keySet().stream().noneMatch(pos ->
-                        Math.abs(pos.getX() - shaftOrigin.getX()) <= 1
-                                && Math.abs(pos.getZ() - shaftOrigin.getZ()) <= 1),
+        Set<BlockPos> hatch = composition.shaftHatchColumns();
+        assertEquals(9, hatch.size(), "The shaft hatch must reserve exactly nine columns");
+        assertTrue(hatch.contains(shaftOrigin), "The shaft hatch must retain the shaft origin");
+        assertTrue(hatch.stream().allMatch(pos -> pos.getY() == shaftOrigin.getY()),
+                "Every shaft-hatch column must use the shaft-origin Y level");
+        int minimumHatchX = hatch.stream().mapToInt(BlockPos::getX).min().orElseThrow();
+        int maximumHatchX = hatch.stream().mapToInt(BlockPos::getX).max().orElseThrow();
+        int minimumHatchZ = hatch.stream().mapToInt(BlockPos::getZ).min().orElseThrow();
+        int maximumHatchZ = hatch.stream().mapToInt(BlockPos::getZ).max().orElseThrow();
+        assertEquals(3, maximumHatchX - minimumHatchX + 1, "The shaft hatch must span three X columns");
+        assertEquals(3, maximumHatchZ - minimumHatchZ + 1, "The shaft hatch must span three Z columns");
+        for (int x = minimumHatchX; x <= maximumHatchX; x++) {
+            for (int z = minimumHatchZ; z <= maximumHatchZ; z++) {
+                assertTrue(hatch.contains(new BlockPos(x, shaftOrigin.getY(), z)),
+                        "The shaft hatch must contain the complete 3x3 square at " + x + "," + z);
+            }
+        }
+        assertTrue(composition.reservedSurfaceColumns().keySet().stream().noneMatch(hatch::contains),
                 "A semantic camp detail intersects the reserved shaft hatch");
 
         composition.reservedSurfaceColumns().forEach((pos, role) -> {
@@ -439,13 +454,25 @@ class ProspectorCampOutcropComposerTest {
             );
         }
 
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
-                assertTrue(composition.blocks().containsKey(shaftOrigin.offset(dx, 0, dz)),
-                        "Missing shaft-hatch surface cell at " + dx + "," + dz);
-            }
-        }
-        assertTrue(composition.blocks().get(shaftOrigin.offset(0, 0, 1)).is(Blocks.OAK_TRAPDOOR));
+        hatch.forEach(pos -> {
+            assertTrue(composition.blocks().containsKey(pos), "Missing shaft-hatch surface cell at " + pos);
+            assertFalse(composition.blocks().get(pos).isAir(), "Shaft-hatch surface cell is air at " + pos);
+            assertTrue(composition.blocks().containsKey(pos.above()),
+                    "Missing explicit shaft-hatch foot space at " + pos.above());
+            assertTrue(composition.blocks().get(pos.above()).isAir(),
+                    "Shaft-hatch foot space is blocked at " + pos.above());
+            assertTrue(composition.blocks().containsKey(pos.above(2)),
+                    "Missing explicit shaft-hatch head space at " + pos.above(2));
+            assertTrue(composition.blocks().get(pos.above(2)).isAir(),
+                    "Shaft-hatch head space is blocked at " + pos.above(2));
+        });
+        assertEquals(1L, hatch.stream()
+                .filter(pos -> composition.blocks().get(pos).is(Blocks.OAK_TRAPDOOR))
+                .count(), "The shaft hatch must contain exactly one oak trapdoor");
+        BlockPos preferredTrapdoor = shaftOrigin.offset(0, 0, 1);
+        BlockPos expectedTrapdoor = hatch.contains(preferredTrapdoor) ? preferredTrapdoor : shaftOrigin;
+        assertTrue(composition.blocks().get(expectedTrapdoor).is(Blocks.OAK_TRAPDOOR),
+                "The shaft hatch trapdoor is not at the expected position " + expectedTrapdoor);
         assertEquals(1L, composition.blocks().values().stream().filter(state -> state.is(Blocks.CAMPFIRE)).count());
         composition.blocks().entrySet().stream()
                 .filter(entry -> entry.getValue().is(Blocks.CAMPFIRE))
