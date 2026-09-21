@@ -133,9 +133,12 @@ IOE compiles against the separately distributed Immersive Petroleum artifact and
 - Runtime artifact SHA-512: `483061574a8452ce6b5b25779431540fc4e444123a987633546b290e9beb03ce094d0bdb80f28fb1dbc2317fd91d1dfbde1c4c0619dbf124768744cb8bc6ea35`
 - Tagged source and runtime metadata: GPL-3.0
 - Published Maven POM metadata: LGPL-3.0
-- License-metadata status: `AMBIGUOUS / UNRESOLVED`
-- Project-owner or qualified legal disposition: `NOT_PERFORMED`
+- `DOMUM_FACTUAL_METADATA_STATUS: CONFIRMED_MIXED_METADATA`
+- `DOMUM_OWNER_DISTRIBUTION_DISPOSITION: PROCEED_WITH_SEPARATE_OPTIONAL_DOMUM_INTEGRATION`
+- `DOMUM_LEGAL_COMPATIBILITY: UNDETERMINED`
+- Legal review: `NOT_PERFORMED`
+- Owner disposition record: `docs/DOMUM_OWNER_DISTRIBUTION_DISPOSITION_0.2.50-alpha.md`
 
 IOE uses Domum Ornamentum through optional compile/runtime integration for prospector-camp materialized architectural blocks when present. Domum Ornamentum remains separately distributed. No Domum Ornamentum Java source, model, texture, sound, recipe, loot table, language file, or other asset is copied into IOE. The qualified IOE release JAR contains zero embedded JARs.
 
-The tagged source and runtime metadata identify GPL-3.0, while the published Maven POM identifies LGPL-3.0. Status remains `AMBIGUOUS / UNRESOLVED`; this notice does not select either declaration as authoritative. CI retrieval or testing is not redistribution approval. This notice does not resolve license compatibility or authorize distribution, replace project-owner or qualified legal review, or alter the release blocker.
+The tagged source and runtime metadata identify GPL-3.0, while the published Maven POM identifies LGPL-3.0. This is recorded as `CONFIRMED_MIXED_METADATA`. For IOE `0.2.50-alpha`, the owner elected `PROCEED_WITH_SEPARATE_OPTIONAL_DOMUM_INTEGRATION` as a release-risk and distribution decision. The decision does not select GPL or LGPL as legally controlling and is not legal approval; `DOMUM_LEGAL_COMPATIBILITY: UNDETERMINED`. The optional, separately distributed integration, zero embedded Domum JARs, and no copied Domum source or assets remain conditions of the disposition. Any change to those boundaries reopens the owner/legal gate. CI retrieval or testing is not redistribution approval.
