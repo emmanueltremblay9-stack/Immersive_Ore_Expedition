@@ -1241,7 +1241,14 @@ public final class ExpeditionWorldgenGameTests {
                 requestedOrigin,
                 NoneFeatureConfiguration.INSTANCE
         );
-        boolean staged = new ExpeditionSiteFeature(ExpeditionSiteType.MINER_CAMP).place(context);
+        BiomeMineResourceProfile testProfile = testIronProfile(level);
+        boolean staged = new ExpeditionSiteFeature(
+                ExpeditionSiteType.MINER_CAMP,
+                (ignoredLevel, ignoredChamberOrigin) -> new BiomeMineResourceProfile.Resolution(
+                        Optional.of(testProfile),
+                        BiomeMineResourceProfile.Failure.NONE
+                )
+        ).place(context);
 
         helper.assertTrue(staged, "The Dry miner camp did not traverse Feature.place into pending staging");
         helper.assertFalse(containsBlock(level, testChunk, Blocks.LADDER),

@@ -35,10 +35,31 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
     private static final SiteQualityRoll PRODUCTIVE_SITE_QUALITY = new SiteQualityRoll(0, 25, 45, 17, 3);
     private static final int SURFACE_HAZARD_MARGIN = 2;
     private final ExpeditionSiteType siteType;
+    private final ResourceProfileResolver resourceProfileResolver;
+
+    @FunctionalInterface
+    interface ResourceProfileResolver {
+        BiomeMineResourceProfile.Resolution resolve(WorldGenLevel level, BlockPos chamberOrigin);
+    }
 
     public ExpeditionSiteFeature(ExpeditionSiteType siteType) {
+        this(siteType, ExpeditionSiteFeature::resolveProductionResourceProfile);
+    }
+
+    ExpeditionSiteFeature(
+            ExpeditionSiteType siteType,
+            ResourceProfileResolver resourceProfileResolver
+    ) {
         super(NoneFeatureConfiguration.CODEC);
         this.siteType = Objects.requireNonNull(siteType, "siteType");
+        this.resourceProfileResolver = Objects.requireNonNull(resourceProfileResolver, "resourceProfileResolver");
+    }
+
+    private static BiomeMineResourceProfile.Resolution resolveProductionResourceProfile(
+            WorldGenLevel level,
+            BlockPos chamberOrigin
+    ) {
+        return BiomeMineResourceProfile.resolve(level, chamberOrigin);
     }
 
     @Override
@@ -97,9 +118,9 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         );
         BiomeMineResourceProfile resourceProfile = null;
         if (siteType.naturalSurfaceSite()) {
-            BiomeMineResourceProfile.Resolution resolution = BiomeMineResourceProfile.resolve(
+            BiomeMineResourceProfile.Resolution resolution = resourceProfileResolver.resolve(
                     context.level(),
-                    siteType.naturalSurfaceSite() ? previewPlan.chamberCenter() : origin
+                    previewPlan.chamberCenter()
             );
             if (resolution.failure() != BiomeMineResourceProfile.Failure.NONE) {
                 IoeWorldgenRuntimeDiagnostics.SiteSkipReason skipReason =

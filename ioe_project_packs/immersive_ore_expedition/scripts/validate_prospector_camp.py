@@ -197,6 +197,41 @@ def java_method_body(source: str, name: str, signature: str) -> str:
     return structural_source[opening_brace + 1:cursor - 1]
 
 
+def java_direct_member_surface(source: str, type_name: str) -> str:
+    structural_source = neutralize_java(source)
+    declarations = list(re.finditer(rf"\bclass\s+{re.escape(type_name)}\b", structural_source))
+    if len(declarations) != 1:
+        raise AssertionError(
+            f"Java type {type_name} must have exactly one class declaration: {len(declarations)} matches"
+        )
+    opening_brace = structural_source.find("{", declarations[0].end())
+    if opening_brace < 0:
+        raise AssertionError(f"missing Java type body {type_name}")
+
+    surface: list[str] = []
+    depth = 0
+    cursor = opening_brace + 1
+    while cursor < len(structural_source):
+        character = structural_source[cursor]
+        if character == "{" and depth == 0:
+            surface.append("{")
+            depth = 1
+        elif character == "{" and depth > 0:
+            surface.append(" ")
+            depth += 1
+        elif character == "}" and depth > 0:
+            depth -= 1
+            surface.append("}" if depth == 0 else " ")
+        elif character == "}" and depth == 0:
+            return "".join(surface)
+        elif depth == 0 or character in "\r\n":
+            surface.append(character)
+        else:
+            surface.append(" ")
+        cursor += 1
+    raise AssertionError(f"unterminated Java type body {type_name}")
+
+
 def java_test_method_body(source: str, name: str) -> str:
     matches = list(re.finditer(rf"@Test\s+void\s+{re.escape(name)}\s*\(\s*\)\s*\{{", neutralize_java(source)))
     if len(matches) != 1:
@@ -542,18 +577,104 @@ def validate() -> None:
     require(all(offset >= 0 for offset in offsets) and offsets == sorted(offsets), "visual-family priority changed")
     require("return TEMPERATE;" in family_source, "temperate fallback is missing")
 
-    require(feature_source.count("qualityRoll.roll(context.random())") == 1,
+    feature_structural = neutralize_java(feature_source)
+    feature_compact = re.sub(r"\s+", "", feature_structural)
+    feature_members = java_direct_member_surface(feature_source, "ExpeditionSiteFeature")
+    public_constructor_body = re.sub(
+        r"\s+",
+        "",
+        java_method_body(feature_source, "ExpeditionSiteFeature", "ExpeditionSiteType siteType"),
+    )
+    injected_constructor_body = re.sub(
+        r"\s+",
+        "",
+        java_method_body(
+            feature_source,
+            "ExpeditionSiteFeature",
+            "ExpeditionSiteType siteType, ResourceProfileResolver resourceProfileResolver",
+        ),
+    )
+    production_resolver_body = re.sub(
+        r"\s+",
+        "",
+        java_method_body(
+            feature_source,
+            "resolveProductionResourceProfile",
+            "WorldGenLevel level, BlockPos chamberOrigin",
+        ),
+    )
+    profile_place_body = re.sub(
+        r"\s+",
+        "",
+        java_method_body(
+            feature_source,
+            "place",
+            "FeaturePlaceContext<NoneFeatureConfiguration> context",
+        ),
+    )
+
+    require(feature_compact.count("qualityRoll.roll(context.random())") == 1,
             "natural sites must perform exactly one quality roll")
-    require("siteType == ExpeditionSiteType.MINER_CAMP" in feature_source
-            and "? SiteQualityRoll.DEFAULT" in feature_source
-            and "new SiteQualityRoll(0, 25, 45, 17, 3)" in feature_source,
+    require("siteType==ExpeditionSiteType.MINER_CAMP" in feature_compact
+            and "?SiteQualityRoll.DEFAULT" in feature_compact
+            and "newSiteQualityRoll(0,25,45,17,3)" in feature_compact,
             "miner camp must expose DRY through DEFAULT while other active surface ids preserve their weights")
-    require(feature_source.count("BiomeMineResourceProfile.resolve(") == 1,
+    require(len(re.findall(
+        r"\bBiomeMineResourceProfile\s*\.\s*resolve\s*\(",
+        feature_structural,
+    )) == 1,
             "feature must retain exactly one mineral-profile resolution path")
-    require("if (!quality.isProductive())" in feature_source
-            and "IoeSiteQualityFallbackResolver.DepositAttempt.NOT_REQUIRED" in feature_source,
+    public_constructors = re.findall(
+        r"^[ \t]{4}public[ \t]+ExpeditionSiteFeature\s*\(\s*ExpeditionSiteType\s+siteType\s*\)",
+        feature_members,
+        re.MULTILINE,
+    )
+    require(len(public_constructors) == 1
+            and public_constructor_body ==
+                "this(siteType,ExpeditionSiteFeature::resolveProductionResourceProfile);",
+            "public feature constructor no longer delegates to the production profile resolver")
+    injected_constructor = re.search(
+        r"^[ \t]{4}(?:(public|protected|private)[ \t]+)?ExpeditionSiteFeature\s*"
+        r"\(\s*ExpeditionSiteType\s+siteType\s*,\s*"
+        r"ResourceProfileResolver\s+resourceProfileResolver\s*\)",
+        feature_members,
+        re.DOTALL | re.MULTILINE,
+    )
+    require(injected_constructor is not None and injected_constructor.group(1) is None
+            and "this.siteType=Objects.requireNonNull(siteType,"
+                in injected_constructor_body
+            and "this.resourceProfileResolver=Objects.requireNonNull(resourceProfileResolver,"
+                in injected_constructor_body,
+            "profile-resolver constructor must exist and remain package-private")
+    resolver_interface = re.search(
+        r"^[ \t]{4}(?:(public|protected|private)[ \t]+)?interface[ \t]+ResourceProfileResolver\b",
+        feature_members,
+        re.MULTILINE,
+    )
+    require(resolver_interface is not None and resolver_interface.group(1) is None,
+            "profile resolver interface must exist and remain package-private")
+    require(len(re.findall(
+        r"\bprivate\s+final\s+ResourceProfileResolver\s+resourceProfileResolver\s*;",
+        feature_members,
+    )) == 1
+            and profile_place_body.count(
+                "resourceProfileResolver.resolve(context.level(),previewPlan.chamberCenter())"
+            ) == 1,
+            "Feature.place must resolve profiles through one final injected dependency")
+    production_resolver = re.findall(
+        r"^[ \t]{4}private\s+static\s+BiomeMineResourceProfile\s*\.\s*Resolution\s+"
+        r"resolveProductionResourceProfile\s*\(",
+        feature_members,
+        re.MULTILINE,
+    )
+    require(len(production_resolver) == 1
+            and production_resolver_body ==
+                "returnBiomeMineResourceProfile.resolve(level,chamberOrigin);",
+            "production profile adapter no longer invokes BiomeMineResourceProfile.resolve")
+    require("if(!quality.isProductive())" in feature_compact
+            and "IoeSiteQualityFallbackResolver.DepositAttempt.NOT_REQUIRED" in feature_structural,
             "DRY must bypass the IE deposit reservation path")
-    require("|| !quality.isProductive()" in feature_source,
+    require("||!quality.isProductive()" in feature_compact,
             "DRY must bypass the optional petroleum reservation path")
     require(blueprint_source.count("ProspectorCampOutcropComposer.compose(") == 1,
             "prospector camp must have one canonical blueprint insertion")
@@ -610,11 +731,38 @@ def validate() -> None:
             and "Block.getDrops" in game_test_source
             and "applied.rollback(level)" in game_test_source,
             "hosted Domum test source does not apply, read back, serialize, recover, and rotate the actual plan")
-    require("void minerCampDryProductionPath" in game_test_source
-            and "RandomSource.create(DRY_SEED)" in game_test_source
-            and "new ExpeditionSiteFeature(ExpeditionSiteType.MINER_CAMP).place(context)" in game_test_source
-            and "IoePendingExpeditionSites.confirmLoadedChunk(level, testChunk)" in game_test_source,
+    dry_feature_path = re.sub(
+        r"\s+",
+        "",
+        java_method_body(game_test_source, "minerCampDryProductionPath", "GameTestHelper helper"),
+    )
+    default_feature_path = re.sub(
+        r"\s+",
+        "",
+        java_method_body(
+            game_test_source,
+            "proveFeaturePlacement",
+            "GameTestHelper helper, ExpeditionSiteType type",
+        ),
+    )
+    injected_dry_place = (
+        "booleanstaged=newExpeditionSiteFeature(ExpeditionSiteType.MINER_CAMP,"
+        "(ignoredLevel,ignoredChamberOrigin)->newBiomeMineResourceProfile.Resolution("
+        "Optional.of(testProfile),BiomeMineResourceProfile.Failure.NONE)).place(context);"
+    )
+    require("RandomSource.create(DRY_SEED)" in dry_feature_path
+            and "BiomeMineResourceProfiletestProfile=testIronProfile(level);" in dry_feature_path
+            and dry_feature_path.count(injected_dry_place) == 1
+            and dry_feature_path.count("newExpeditionSiteFeature(") == 1
+            and dry_feature_path.count(".place(context)") == 1
+            and "IoePendingExpeditionSites.confirmLoadedChunk(level,testChunk)" in dry_feature_path,
             "DRY GameTest source no longer covers Feature.place through final confirmation")
+    require(default_feature_path.count(
+                "booleanplaced=newExpeditionSiteFeature(type).place(context);"
+            ) == 1
+            and default_feature_path.count("newExpeditionSiteFeature(") == 1
+            and default_feature_path.count(".place(context)") == 1,
+            "default-constructor GameTest coverage no longer exercises production profile resolution")
     require("confirmation.rejectedResourcePositions().isEmpty()" in game_test_source
             and "quality == SiteQuality.DRY" in game_test_source,
             "DRY GameTest source no longer checks resource-free locator confirmation")
