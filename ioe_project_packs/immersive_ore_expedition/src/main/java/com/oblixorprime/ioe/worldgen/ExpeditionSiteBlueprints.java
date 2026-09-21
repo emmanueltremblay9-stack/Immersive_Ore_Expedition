@@ -149,10 +149,47 @@ public final class ExpeditionSiteBlueprints {
             int requestedSpecialBuddingCount,
             RandomSource random
     ) {
+        return plan(
+                requestedType,
+                origin,
+                quality,
+                oreBlockId,
+                oreState,
+                oreNodeHeartBlockId,
+                oreNodeHeartState,
+                specialGeodeComponentId,
+                specialBuddingState,
+                specialShellState,
+                oreBudget,
+                requestedOreNodeCount,
+                requestedSpecialBuddingCount,
+                random,
+                ProspectorCampContext.vanillaFallback(origin, quality)
+        );
+    }
+
+    public static ExpeditionSiteBlockPlan plan(
+            ExpeditionSiteType requestedType,
+            BlockPos origin,
+            SiteQuality quality,
+            ResourceLocation oreBlockId,
+            BlockState oreState,
+            ResourceLocation oreNodeHeartBlockId,
+            BlockState oreNodeHeartState,
+            ResourceLocation specialGeodeComponentId,
+            BlockState specialBuddingState,
+            BlockState specialShellState,
+            int oreBudget,
+            int requestedOreNodeCount,
+            int requestedSpecialBuddingCount,
+            RandomSource random,
+            ProspectorCampContext prospectorCampContext
+    ) {
         Objects.requireNonNull(requestedType, "requestedType");
         Objects.requireNonNull(origin, "origin");
         Objects.requireNonNull(quality, "quality");
         Objects.requireNonNull(random, "random");
+        Objects.requireNonNull(prospectorCampContext, "prospectorCampContext");
         boolean hasAnyOreNodeInput = oreBlockId != null
                 || oreState != null
                 || oreNodeHeartBlockId != null
@@ -235,7 +272,7 @@ public final class ExpeditionSiteBlueprints {
                     quality
             ));
             restoreConnectorLadder(builder, origin, depth);
-            addSurfaceClue(builder, requestedType, origin, direction, quality);
+            addSurfaceClue(builder, requestedType, origin, direction, quality, prospectorCampContext);
             components.add(requestedType.id());
             components.add(IoeWorldgenFeatureKeys.BASIC_MINESHAFT_CONNECTOR);
             components.add(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER);
@@ -284,7 +321,8 @@ public final class ExpeditionSiteBlueprints {
                         : null,
                 roomCenters,
                 List.copyOf(components),
-                builder.blocks()
+                builder.blocks(),
+                builder.blockEntityPayloads()
         );
     }
 
@@ -1131,18 +1169,35 @@ public final class ExpeditionSiteBlueprints {
             ExpeditionSiteType type,
             BlockPos origin,
             int horizontalDirection,
-            SiteQuality quality
+            SiteQuality quality,
+            ProspectorCampContext prospectorCampContext
     ) {
         switch (type) {
             case TINY_VERTICAL_MINE_ENTRANCE -> addMineEntrance(builder, origin);
             case COLLAPSED_SHAFT -> addCollapsedShaft(builder, origin);
-            case MINER_CAMP -> addMinerCamp(builder, origin);
+            case MINER_CAMP -> {
+                if (prospectorCampContext.archetype() == ProspectorCampArchetype.ABANDONED) {
+                    builder.putAll(AbandonedProspectorCampComposer.compose(
+                            origin,
+                            quality,
+                            prospectorCampContext
+                    ));
+                } else {
+                    builder.putAll(ProspectorCampOutcropComposer.compose(
+                            origin,
+                            quality,
+                            prospectorCampContext
+                    ));
+                }
+            }
             case BURIED_SURVEY_MARKER -> addSurveyMarker(builder, origin);
             case BASIC_MINESHAFT_CONNECTOR, ORE_LOAD_CHAMBER -> throw new IllegalArgumentException(
                     "Underground components do not have surface clues"
             );
         }
-        addVillageSupplyOutpost(builder, origin, horizontalDirection, quality);
+        if (type != ExpeditionSiteType.MINER_CAMP) {
+            addVillageSupplyOutpost(builder, origin, horizontalDirection, quality);
+        }
     }
 
     private static void addVillageSupplyOutpost(
@@ -1254,36 +1309,6 @@ public final class ExpeditionSiteBlueprints {
         builder.put(origin.offset(-2, 1, 3), Blocks.GRAVEL.defaultBlockState());
     }
 
-    private static void addMinerCamp(Builder builder, BlockPos origin) {
-        for (int dx = -4; dx <= 4; dx++) {
-            for (int dz = -4; dz <= 4; dz++) {
-                if (Math.abs(dx) == 4 || Math.abs(dz) == 4) {
-                    builder.put(origin.offset(dx, -1, dz), Blocks.COARSE_DIRT.defaultBlockState());
-                }
-            }
-        }
-        for (int dx = -4; dx <= -1; dx++) {
-            for (int dz = -2; dz <= 2; dz++) {
-                builder.put(origin.offset(dx, -1, dz), Blocks.OAK_PLANKS.defaultBlockState());
-            }
-        }
-        for (int dx : new int[]{-4, -1}) {
-            for (int dz : new int[]{-2, 2}) {
-                for (int dy = 0; dy <= 3; dy++) {
-                    builder.put(origin.offset(dx, dy, dz), Blocks.OAK_LOG.defaultBlockState());
-                }
-            }
-        }
-        for (int dx = -4; dx <= -1; dx++) {
-            builder.put(origin.offset(dx, 3, -2), Blocks.WHITE_WOOL.defaultBlockState());
-            builder.put(origin.offset(dx, 3, 2), Blocks.WHITE_WOOL.defaultBlockState());
-            builder.put(origin.offset(dx, 4, 0), Blocks.WHITE_WOOL.defaultBlockState());
-        }
-        builder.put(origin.offset(3, -1, 3), Blocks.COBBLESTONE.defaultBlockState());
-        builder.put(origin.offset(3, 0, 3), Blocks.CAMPFIRE.defaultBlockState());
-        sealShaftWithHatch(builder, origin, Blocks.OAK_PLANKS.defaultBlockState());
-    }
-
     private static void addSurveyMarker(Builder builder, BlockPos origin) {
         for (int dx = -2; dx <= 2; dx++) {
             for (int dz = -2; dz <= 2; dz++) {
@@ -1325,9 +1350,35 @@ public final class ExpeditionSiteBlueprints {
 
     private static final class Builder {
         private final LinkedHashMap<BlockPos, BlockState> blocks = new LinkedHashMap<>();
+        private final LinkedHashMap<BlockPos, ExpeditionBlockEntityPayload> blockEntityPayloads =
+                new LinkedHashMap<>();
 
         void put(BlockPos pos, BlockState state) {
-            blocks.put(pos.immutable(), Objects.requireNonNull(state, "state"));
+            BlockPos key = pos.immutable();
+            blocks.put(key, Objects.requireNonNull(state, "state"));
+            blockEntityPayloads.remove(key);
+        }
+
+        void putAll(ProspectorCampOutcropComposer.Composition composition) {
+            putAll(composition.blocks(), composition.blockEntityPayloads());
+        }
+
+        void putAll(AbandonedProspectorCampComposer.Composition composition) {
+            putAll(composition.blocks(), composition.blockEntityPayloads());
+        }
+
+        private void putAll(
+                Map<BlockPos, BlockState> plannedBlocks,
+                Map<BlockPos, ExpeditionBlockEntityPayload> plannedPayloads
+        ) {
+            for (Map.Entry<BlockPos, BlockState> placement : plannedBlocks.entrySet()) {
+                BlockPos pos = placement.getKey();
+                ExpeditionBlockEntityPayload payload = plannedPayloads.get(pos);
+                put(pos, placement.getValue());
+                if (payload != null) {
+                    blockEntityPayloads.put(pos.immutable(), payload);
+                }
+            }
         }
 
         boolean contains(BlockPos pos) {
@@ -1341,6 +1392,10 @@ public final class ExpeditionSiteBlueprints {
 
         Map<BlockPos, BlockState> blocks() {
             return blocks;
+        }
+
+        Map<BlockPos, ExpeditionBlockEntityPayload> blockEntityPayloads() {
+            return blockEntityPayloads;
         }
     }
 

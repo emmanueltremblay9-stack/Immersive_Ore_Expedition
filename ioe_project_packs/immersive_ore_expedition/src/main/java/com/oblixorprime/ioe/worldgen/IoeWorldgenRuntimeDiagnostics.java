@@ -172,6 +172,7 @@ public final class IoeWorldgenRuntimeDiagnostics {
         RESOURCE_POLICY_DENIED("resource_policy_denied"),
         IE_DEPOSIT_MISSING("ie_deposit_missing"),
         DISCONNECTED_PLAN("disconnected_plan"),
+        NEIGHBORING_SITE("neighboring_site"),
         UNSAFE_WRITE("unsafe_write");
 
         private final String id;

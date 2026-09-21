@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
 import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
+import com.oblixorprime.ioe.compat.domum.DomumOrnamentumCompat;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.core.SiteQualityRoll;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
@@ -17,6 +18,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -33,6 +35,8 @@ import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterList;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
@@ -51,6 +55,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -66,6 +71,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class ExpeditionWorldgenGameTests {
     private static final String TEMPLATE = "expedition_worldgen_empty";
     private static final long PRODUCTIVE_SEED = findProductiveSeed();
+    private static final long DRY_SEED = findDrySeed();
     private static final long[] BIOME_FREQUENCY_SEEDS = {
             104729L, 130363L, 155921L, 181081L, 206369L,
             232003L, 257591L, 283009L, 308411L, 334021L
@@ -217,6 +223,200 @@ public final class ExpeditionWorldgenGameTests {
         helper.assertTrue(Set.copyOf(ExpeditionSiteType.registeredFeatureIds())
                         .equals(Set.copyOf(ExpeditionStructureRegistry.enabledStructureIds())),
                 "The registered Feature ids diverge from the configured expedition-site catalog");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void prospectorCampQualityBiomeMatrix(GameTestHelper helper) {
+        BlockPos origin = new BlockPos(4, 90, 6);
+        boolean domumLoaded = ModList.get().isLoaded("domum_ornamentum");
+        for (SiteQuality quality : SiteQuality.values()) {
+            for (ProspectorCampVisualFamily family : ProspectorCampVisualFamily.values()) {
+                if (family == ProspectorCampVisualFamily.AQUATIC) {
+                    continue;
+                }
+                ProspectorCampContext campContext = new ProspectorCampContext(family, 0x51A7E5EEDL, domumLoaded);
+                ExpeditionSiteBlockPlan first = ExpeditionSiteBlueprints.plan(
+                        ExpeditionSiteType.MINER_CAMP,
+                        origin,
+                        quality,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        0,
+                        0,
+                        0,
+                        RandomSource.create(211L),
+                        campContext
+                );
+                ExpeditionSiteBlockPlan second = ExpeditionSiteBlueprints.plan(
+                        ExpeditionSiteType.MINER_CAMP,
+                        origin,
+                        quality,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        0,
+                        0,
+                        0,
+                        RandomSource.create(211L),
+                        campContext
+                );
+                helper.assertTrue(first.blocks().equals(second.blocks())
+                                && first.blockEntityPayloads().equals(second.blockEntityPayloads()),
+                        quality + " / " + family + " was not deterministic");
+                helper.assertTrue(first.oreBlockCount() == 0L && first.oreNodeCount() == 0,
+                        quality + " / " + family + " embedded a free resource");
+                ProspectorCampQualitySpec qualitySpec = ProspectorCampQualitySpec.forQuality(quality);
+                ProspectorCampOutcropComposer.Composition visualComposition =
+                        ProspectorCampOutcropComposer.compose(origin, quality, campContext);
+                helper.assertTrue(visualComposition.blocks().entrySet().stream()
+                                .filter(entry -> visualComposition.biomeGeometryBlocks().contains(entry.getKey()))
+                                .noneMatch(entry -> entry.getValue().isAir())
+                                && visualComposition.biomeGeometryBlocks().size()
+                                == qualitySpec.biomeShelterDetailBlockCount(family),
+                        quality + " / " + family + " lost its biome-specific shelter geometry");
+                long lootPayloads = first.blockEntityPayloads().values().stream()
+                        .filter(ExpeditionBlockEntityPayload::hasLootTable)
+                        .count();
+                helper.assertTrue(lootPayloads == qualitySpec.containerCount(),
+                        quality + " / " + family + " lost a planned utility container");
+                long materialPayloads = first.blockEntityPayloads().values().stream()
+                        .filter(ExpeditionBlockEntityPayload::hasMaterialBlocks)
+                        .count();
+                if (domumLoaded && quality != SiteQuality.DRY) {
+                    helper.assertTrue(materialPayloads == qualitySpec.maxDomumAccents(),
+                            quality + " / " + family + " did not preserve its bounded Domum accent plan");
+                } else {
+                    helper.assertTrue(materialPayloads == 0,
+                            quality + " / " + family + " leaked Domum into the vanilla fallback");
+                }
+            }
+        }
+
+        EnumSet<Rotation> rotations = EnumSet.noneOf(Rotation.class);
+        for (long seed = 0L; seed < 256L && rotations.size() < Rotation.values().length; seed++) {
+            ProspectorCampContext campContext = new ProspectorCampContext(
+                    ProspectorCampVisualFamily.TEMPERATE,
+                    seed,
+                    domumLoaded
+            );
+            if (!rotations.add(campContext.rotation())) {
+                continue;
+            }
+            ProspectorCampOutcropComposer.Composition composition = ProspectorCampOutcropComposer.compose(
+                    origin,
+                    SiteQuality.MOTHERLODE,
+                    campContext
+            );
+            helper.assertTrue(composition.lootContainerCount() == 2L,
+                    "Motherlode lost utility storage under rotation " + campContext.rotation());
+            helper.assertTrue(composition.domumBlockEntityCount()
+                            == (domumLoaded ? ProspectorCampQualitySpec.forQuality(SiteQuality.MOTHERLODE)
+                                    .maxDomumAccents() : 0L),
+                    "Motherlode Domum plan changed under rotation " + campContext.rotation());
+        }
+        helper.assertTrue(rotations.equals(EnumSet.allOf(Rotation.class)),
+                "The planning matrix did not cover all four rotations");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public static void prospectorCampDomumPayloadPlacement(GameTestHelper helper) {
+        boolean expectDomumRuntime = Boolean.getBoolean("ioe.expectDomumRuntime");
+        boolean domumLoaded = ModList.get().isLoaded(DomumOrnamentumCompat.MOD_ID);
+        if (!domumLoaded) {
+            helper.assertFalse(expectDomumRuntime,
+                    "The full-runtime profile required Domum Ornamentum, but the pinned mod was not loaded");
+            helper.succeed();
+            return;
+        }
+
+        ServerLevel level = helper.getLevel();
+        ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
+        BlockPos origin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
+        fillTestChunk(level, testChunk);
+
+        Map<Rotation, Long> seedByRotation = new LinkedHashMap<>();
+        for (long seed = 0L; seed < 256L && seedByRotation.size() < Rotation.values().length; seed++) {
+            ProspectorCampContext context = new ProspectorCampContext(
+                    ProspectorCampVisualFamily.TEMPERATE,
+                    seed,
+                    true
+            );
+            seedByRotation.putIfAbsent(context.rotation(), seed);
+        }
+        helper.assertTrue(seedByRotation.keySet().equals(EnumSet.allOf(Rotation.class)),
+                "Could not derive one deterministic seed for every camp rotation");
+
+        for (Map.Entry<Rotation, Long> rotationSeed : seedByRotation.entrySet()) {
+            ProspectorCampContext context = new ProspectorCampContext(
+                    ProspectorCampVisualFamily.TEMPERATE,
+                    rotationSeed.getValue(),
+                    true
+            );
+            ExpeditionSiteBlockPlan plan = prospectorCampPlan(
+                    origin,
+                    SiteQuality.MOTHERLODE,
+                    211L,
+                    context
+            );
+            List<Map.Entry<BlockPos, ExpeditionBlockEntityPayload>> materialPayloads = plan.blockEntityPayloads()
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue().hasMaterialBlocks())
+                    .toList();
+            helper.assertTrue(materialPayloads.size()
+                            == ProspectorCampQualitySpec.forQuality(SiteQuality.MOTHERLODE).maxDomumAccents(),
+                    "The applied plan did not retain the exact Motherlode Domum budget for "
+                            + rotationSeed.getKey());
+
+            Optional<IoeExpeditionPlanPlacement.AppliedPlan> appliedOptional =
+                    IoeExpeditionPlanPlacement.apply(level, plan);
+            helper.assertTrue(appliedOptional.isPresent(),
+                    "The canonical compensated placement rejected rotation " + rotationSeed.getKey());
+            IoeExpeditionPlanPlacement.AppliedPlan applied = appliedOptional.orElseThrow();
+            for (Map.Entry<BlockPos, ExpeditionBlockEntityPayload> materialEntry : materialPayloads) {
+                BlockPos pos = materialEntry.getKey();
+                Map<ResourceLocation, ResourceLocation> materials = materialEntry.getValue().materialBlocks();
+                BlockEntity placedBlockEntity = level.getBlockEntity(pos);
+                helper.assertTrue(placedBlockEntity != null,
+                        "Domum placement did not create a block entity at " + pos);
+                helper.assertTrue(DomumOrnamentumCompat.matchesMaterialPayload(placedBlockEntity, materials),
+                        "Domum material readback changed after placement at " + pos);
+
+                CompoundTag saved = placedBlockEntity.saveWithFullMetadata(level.registryAccess());
+                BlockEntity reloaded = BlockEntity.loadStatic(
+                        pos,
+                        level.getBlockState(pos),
+                        saved,
+                        level.registryAccess()
+                );
+                helper.assertTrue(reloaded != null
+                                && DomumOrnamentumCompat.matchesMaterialPayload(reloaded, materials),
+                        "Domum material payload did not survive an NBT serialization round trip at " + pos);
+
+                List<ItemStack> drops = Block.getDrops(
+                        level.getBlockState(pos),
+                        level,
+                        pos,
+                        placedBlockEntity
+                );
+                helper.assertTrue(drops.stream()
+                                .anyMatch(stack -> DomumOrnamentumCompat.matchesMaterialPayload(stack, materials)),
+                        "Domum material payload was not retained by the recovered block item at " + pos);
+            }
+            helper.assertTrue(applied.rollback(level),
+                    "Could not restore the GameTest volume after rotation " + rotationSeed.getKey());
+        }
         helper.succeed();
     }
 
@@ -1026,6 +1226,110 @@ public final class ExpeditionWorldgenGameTests {
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void minerCampDryProductionPath(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        ExpeditionLocatorService.index(level).clear();
+        ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(64, 24, 64)));
+        BlockPos requestedOrigin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
+        fillTestChunk(level, testChunk);
+
+        FeaturePlaceContext<NoneFeatureConfiguration> context = new FeaturePlaceContext<>(
+                Optional.empty(),
+                level,
+                level.getChunkSource().getGenerator(),
+                RandomSource.create(DRY_SEED),
+                requestedOrigin,
+                NoneFeatureConfiguration.INSTANCE
+        );
+        BiomeMineResourceProfile testProfile = testIronProfile(level);
+        boolean staged = new ExpeditionSiteFeature(
+                ExpeditionSiteType.MINER_CAMP,
+                (ignoredLevel, ignoredChamberOrigin) -> new BiomeMineResourceProfile.Resolution(
+                        Optional.of(testProfile),
+                        BiomeMineResourceProfile.Failure.NONE
+                )
+        ).place(context);
+
+        helper.assertTrue(staged, "The Dry miner camp did not traverse Feature.place into pending staging");
+        helper.assertFalse(containsBlock(level, testChunk, Blocks.LADDER),
+                "The Dry miner camp wrote provisional blocks before final confirmation");
+        helper.assertFalse(ExpeditionLocatorService.index(level).sites().stream()
+                        .anyMatch(site -> site.pos().equals(requestedOrigin)),
+                "The Dry miner camp wrote a provisional locator entry");
+
+        IoePendingExpeditionSites.Confirmation confirmation =
+                IoePendingExpeditionSites.confirmLoadedChunk(level, testChunk);
+        helper.assertTrue(confirmation.confirmedSites() == 1,
+                "The Dry miner camp was not confirmed through the pending transaction");
+        helper.assertTrue(confirmation.rejectedSites() == 0, "The Dry miner camp was rejected");
+        helper.assertTrue(confirmation.rejectedResourcePositions().isEmpty(),
+                "The Dry production path reported a productive resource position");
+        helper.assertTrue(ExpeditionLocatorService.index(level).sites().stream()
+                        .anyMatch(site -> site.pos().equals(requestedOrigin)
+                                && site.quality().filter(quality -> quality == SiteQuality.DRY).isPresent()),
+                "The locator did not retain the final Dry quality");
+        helper.assertFalse(containsAnyProductiveResourceBlock(
+                        level,
+                        testChunk,
+                        requestedOrigin,
+                        ExpeditionSiteType.MINER_CAMP
+                ),
+                "The Dry production path placed a productive resource block");
+        assertSealedSurfaceHatch(helper, level, requestedOrigin, ExpeditionSiteType.MINER_CAMP);
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 300)
+    public static void prospectorCampRejectsNearbyConfirmedAnchor(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        ExpeditionLocatorService.index(level).clear();
+        ChunkPos firstChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
+        ChunkPos secondChunk = new ChunkPos(firstChunk.x + 1, firstChunk.z);
+        BlockPos firstOrigin = new BlockPos(firstChunk.getMinBlockX() + 4, 41, firstChunk.getMinBlockZ() + 6);
+        BlockPos secondOrigin = new BlockPos(secondChunk.getMinBlockX() + 4, 41, secondChunk.getMinBlockZ() + 6);
+        fillTestChunk(level, firstChunk);
+        fillTestChunk(level, secondChunk);
+        BiomeMineResourceProfile profile = testIronProfile(level);
+        ExpeditionSiteBlockPlan firstPlan = prospectorCampPlan(
+                firstOrigin,
+                SiteQuality.DRY,
+                41L,
+                ProspectorCampContext.vanillaFallback(firstOrigin, SiteQuality.DRY)
+        );
+        ExpeditionSiteBlockPlan secondPlan = prospectorCampPlan(
+                secondOrigin,
+                SiteQuality.DRY,
+                43L,
+                ProspectorCampContext.vanillaFallback(secondOrigin, SiteQuality.DRY)
+        );
+
+        helper.assertTrue(IoePendingExpeditionSites.stage(level, firstPlan, profile),
+                "Could not stage the first spacing-test camp");
+        IoePendingExpeditionSites.Confirmation firstConfirmation =
+                IoePendingExpeditionSites.confirmLoadedChunk(level, firstChunk);
+        helper.assertTrue(firstConfirmation.confirmedSites() == 1 && firstConfirmation.rejectedSites() == 0,
+                "The first spacing-test camp was not confirmed");
+
+        BlockPos rejectedCampfire = secondPlan.blocks().entrySet().stream()
+                .filter(entry -> entry.getValue().is(Blocks.CAMPFIRE))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElseThrow();
+        var beforeRejection = level.getBlockState(rejectedCampfire);
+        helper.assertTrue(IoePendingExpeditionSites.stage(level, secondPlan, profile),
+                "Could not stage the second spacing-test camp");
+        IoePendingExpeditionSites.Confirmation secondConfirmation =
+                IoePendingExpeditionSites.confirmLoadedChunk(level, secondChunk);
+        helper.assertTrue(secondConfirmation.confirmedSites() == 0 && secondConfirmation.rejectedSites() == 1,
+                "A camp inside the 48-block anchor radius was not rejected");
+        helper.assertTrue(level.getBlockState(rejectedCampfire).equals(beforeRejection),
+                "The rejected nearby camp wrote blocks before the spacing decision");
+        helper.assertTrue(ExpeditionLocatorService.index(level).sites().size() == 1,
+                "The rejected nearby camp leaked into the persistent locator");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void dryFallbackConfirmsWithoutDeposit(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
@@ -1305,8 +1609,36 @@ public final class ExpeditionWorldgenGameTests {
         );
     }
 
+    private static ExpeditionSiteBlockPlan prospectorCampPlan(
+            BlockPos origin,
+            SiteQuality quality,
+            long layoutSeed,
+            ProspectorCampContext context
+    ) {
+        return ExpeditionSiteBlueprints.plan(
+                ExpeditionSiteType.MINER_CAMP,
+                origin,
+                quality,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                0,
+                0,
+                0,
+                RandomSource.create(layoutSeed),
+                context
+        );
+    }
+
     private static void proveFeaturePlacement(GameTestHelper helper, ExpeditionSiteType type) {
         ServerLevel level = helper.getLevel();
+        if (type == ExpeditionSiteType.MINER_CAMP) {
+            ExpeditionLocatorService.index(level).clear();
+        }
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
         BlockPos origin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
@@ -1323,7 +1655,9 @@ public final class ExpeditionWorldgenGameTests {
 
         if (type.naturalSurfaceSite()) {
             RandomSource expectationRandom = RandomSource.create(PRODUCTIVE_SEED);
-            SiteQuality expectedQuality = new SiteQualityRoll(0, 25, 45, 17, 3).roll(expectationRandom);
+            SiteQuality expectedQuality = (type == ExpeditionSiteType.MINER_CAMP
+                    ? SiteQualityRoll.DEFAULT
+                    : new SiteQualityRoll(0, 25, 45, 17, 3)).roll(expectationRandom);
             ExpeditionSiteBlockPlan preview = structureOnlyPlan(
                     type,
                     origin,
@@ -1513,5 +1847,14 @@ public final class ExpeditionWorldgenGameTests {
             }
         }
         throw new IllegalStateException("Could not find a deterministic productive site-quality seed");
+    }
+
+    private static long findDrySeed() {
+        for (long seed = 1L; seed < 10_000L; seed++) {
+            if (SiteQualityRoll.DEFAULT.roll(RandomSource.create(seed)) == SiteQuality.DRY) {
+                return seed;
+            }
+        }
+        throw new IllegalStateException("Could not find a deterministic Dry site-quality seed");
     }
 }

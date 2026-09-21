@@ -603,6 +603,12 @@ def validate() -> None:
 
     if failures:
         raise SystemExit("Worldgen asset validation failed:\n- " + "\n- ".join(failures))
+    from validate_prospector_camp import validate as validate_prospector_camp
+
+    validate_prospector_camp()
+    from validate_abandoned_prospector_camp import validate as validate_abandoned_prospector_camp
+
+    validate_abandoned_prospector_camp()
     print(
         "Worldgen asset validation passed: "
         f"{len(FEATURE_IDS)} feature pairs, {len(NATURAL_FEATURE_TAGS)} biome modifiers, "

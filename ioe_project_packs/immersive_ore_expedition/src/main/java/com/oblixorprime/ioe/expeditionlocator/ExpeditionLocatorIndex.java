@@ -86,6 +86,30 @@ public final class ExpeditionLocatorIndex {
         return nearestFrom(dimension, origin, candidates);
     }
 
+    public synchronized boolean hasPlayableAnchorWithinHorizontalDistance(
+            ResourceKey<Level> dimension,
+            BlockPos origin,
+            int minimumDistanceBlocks
+    ) {
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(origin, "origin");
+        if (minimumDistanceBlocks <= 0) {
+            throw new IllegalArgumentException("Minimum anchor distance must be positive");
+        }
+        long minimumDistanceSquared = (long) minimumDistanceBlocks * minimumDistanceBlocks;
+        return sites.values().stream()
+                .filter(ExpeditionSite::playable)
+                .filter(site -> site.kind() == ExpeditionSiteKind.ANCHOR)
+                .filter(site -> site.dimension().equals(dimension))
+                .anyMatch(site -> {
+                    long dx = (long) origin.getX() - site.pos().getX();
+                    long dz = (long) origin.getZ() - site.pos().getZ();
+                    return Math.abs(dx) < minimumDistanceBlocks
+                            && Math.abs(dz) < minimumDistanceBlocks
+                            && dx * dx + dz * dz < minimumDistanceSquared;
+                });
+    }
+
     public synchronized List<ExpeditionSite> sites() {
         return gameplaySites();
     }

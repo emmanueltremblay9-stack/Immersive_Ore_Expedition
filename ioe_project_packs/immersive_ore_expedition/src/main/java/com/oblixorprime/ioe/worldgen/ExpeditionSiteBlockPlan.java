@@ -23,7 +23,8 @@ public record ExpeditionSiteBlockPlan(
         ResourceLocation oreNodeHeartBlockId,
         List<BlockPos> roomCenters,
         List<ResourceLocation> generatedComponents,
-        Map<BlockPos, BlockState> blocks
+        Map<BlockPos, BlockState> blocks,
+        Map<BlockPos, ExpeditionBlockEntityPayload> blockEntityPayloads
 ) {
     public ExpeditionSiteBlockPlan {
         Objects.requireNonNull(requestedFeatureId, "requestedFeatureId");
@@ -34,8 +35,19 @@ public record ExpeditionSiteBlockPlan(
         roomCenters = List.copyOf(Objects.requireNonNull(roomCenters, "roomCenters"));
         generatedComponents = List.copyOf(Objects.requireNonNull(generatedComponents, "generatedComponents"));
         blocks = Collections.unmodifiableMap(new LinkedHashMap<>(Objects.requireNonNull(blocks, "blocks")));
+        blockEntityPayloads = Collections.unmodifiableMap(new LinkedHashMap<>(
+                Objects.requireNonNull(blockEntityPayloads, "blockEntityPayloads")
+        ));
         if (blocks.isEmpty()) {
             throw new IllegalArgumentException("Expedition site block plans must contain at least one block");
+        }
+        if (!blocks.keySet().containsAll(blockEntityPayloads.keySet())) {
+            throw new IllegalArgumentException("Every expedition block-entity payload requires a planned block");
+        }
+        for (BlockPos payloadPos : blockEntityPayloads.keySet()) {
+            if (!blocks.get(payloadPos).hasBlockEntity()) {
+                throw new IllegalArgumentException("Payload target is not a block-entity block: " + payloadPos);
+            }
         }
         if (oreNodeCount < 0) {
             throw new IllegalArgumentException("Ore node count must not be negative");
@@ -68,6 +80,35 @@ public record ExpeditionSiteBlockPlan(
         if (!quality.isProductive() && oreNodeCount != 0) {
             throw new IllegalArgumentException("Dry chamber plans cannot contain ore nodes");
         }
+    }
+
+    public ExpeditionSiteBlockPlan(
+            ResourceLocation requestedFeatureId,
+            BlockPos anchorPos,
+            BlockPos connectorEnd,
+            BlockPos chamberCenter,
+            SiteQuality quality,
+            int oreNodeCount,
+            ResourceLocation oreBlockId,
+            ResourceLocation oreNodeHeartBlockId,
+            List<BlockPos> roomCenters,
+            List<ResourceLocation> generatedComponents,
+            Map<BlockPos, BlockState> blocks
+    ) {
+        this(
+                requestedFeatureId,
+                anchorPos,
+                connectorEnd,
+                chamberCenter,
+                quality,
+                oreNodeCount,
+                oreBlockId,
+                oreNodeHeartBlockId,
+                roomCenters,
+                generatedComponents,
+                blocks,
+                Map.of()
+        );
     }
 
     public long oreBlockCount() {

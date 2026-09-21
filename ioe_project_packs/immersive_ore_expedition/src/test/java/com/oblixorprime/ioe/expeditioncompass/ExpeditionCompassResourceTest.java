@@ -194,6 +194,10 @@ final class ExpeditionCompassResourceTest {
     }
 
     private static Path resourcesRoot() {
+        String configured = System.getProperty("ioe.moduleProjectDir");
+        if (configured != null) {
+            return Path.of(configured, "src", "main", "resources");
+        }
         Path moduleRoot = Path.of("src", "main", "resources");
         if (Files.isDirectory(moduleRoot)) {
             return moduleRoot;

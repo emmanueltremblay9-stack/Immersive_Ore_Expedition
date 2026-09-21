@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "minecraft:item", "name": "minecraft:torch", "weight": 3 },
+        { "type": "minecraft:item", "name": "minecraft:paper", "weight": 3 },
+        { "type": "minecraft:item", "name": "minecraft:string", "weight": 2 },
+        { "type": "minecraft:item", "name": "minecraft:wooden_pickaxe", "weight": 1,
+          "functions": [{ "function": "minecraft:set_damage", "damage": { "type": "minecraft:uniform", "min": 0.03, "max": 0.10 } }] }
+      ]
+    }
+  ],
+  "random_sequence": "immersive_ore_expedition:chests/abandoned_prospector_camp_supplies_sparse"
+}

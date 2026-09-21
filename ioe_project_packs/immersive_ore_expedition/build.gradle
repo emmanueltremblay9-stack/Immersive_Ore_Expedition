@@ -27,6 +27,7 @@ neoForge {
             type = "gameTestServer"
             gameDirectory = project.file("run/gametest-full")
             systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+            systemProperty "ioe.expectDomumRuntime", "true"
             systemProperty "ioe.multiSeedReport", layout.buildDirectory.file(
                     "reports/ioe/multi-seed-biome-frequency.json"
             ).get().asFile.absolutePath
@@ -38,10 +39,19 @@ neoForge {
             sourceSet sourceSets.main
         }
     }
+
+    unitTest {
+        testedMod = mods.immersive_ore_expedition
+        enable()
+    }
 }
 
 repositories {
     mavenCentral()
+    maven {
+        name = 'LDTTeam'
+        url = uri('https://ldtteam.jfrog.io/ldtteam/modding/')
+    }
     maven {
         name = 'New JourneyMap Maven'
         url = uri('https://maven.blamejared.com')
@@ -74,7 +84,8 @@ def replacementProperties = [
         extendedae_version_range: extendedae_version_range,
         geore_version_range : geore_version_range,
         ie_version_range    : ie_version_range,
-        ip_version_range    : ip_version_range
+        ip_version_range    : ip_version_range,
+        domum_version_range : domum_version_range
 ]
 
 tasks.named('processResources', ProcessResources).configure {
@@ -93,8 +104,12 @@ dependencies {
     compileOnly group: 'info.journeymap', name: 'journeymap-api-neoforge', version: journeymap_api_version, changing: true
     compileOnly "blusunrize.immersiveengineering:ImmersiveEngineering:${ie_compile_version}"
     compileOnly "maven.modrinth:${ip_modrinth_project}:${ip_compile_version}"
+    compileOnly "com.ldtteam:domum-ornamentum:${domum_version}:api"
     if (providers.gradleProperty('ioeIncludeIeRuntime').map { it.toBoolean() }.getOrElse(false)) {
         runtimeOnly "blusunrize.immersiveengineering:ImmersiveEngineering:${ie_compile_version}"
+    }
+    if (providers.gradleProperty('ioeIncludeDomumRuntime').map { it.toBoolean() }.getOrElse(false)) {
+        runtimeOnly "com.ldtteam:domum-ornamentum:${domum_version}:main"
     }
     runtimeOnly "org.appliedenergistics:appliedenergistics2:${ae2_runtime_version}"
     runtimeOnly "maven.modrinth:${ae2cs_modrinth_project}:${ae2cs_modrinth_version}"
@@ -112,6 +127,7 @@ sourceSets.named('test').configure {
 
 tasks.named('test', Test).configure {
     useJUnitPlatform()
+    systemProperty 'ioe.moduleProjectDir', project.projectDir.absolutePath
 }
 
 tasks.withType(JavaCompile).configureEach {
