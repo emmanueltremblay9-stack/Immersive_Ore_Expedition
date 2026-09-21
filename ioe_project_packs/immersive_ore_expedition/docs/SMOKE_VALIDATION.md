@@ -4,6 +4,14 @@ This document describes manual smoke validation for Immersive Ore Expedition. Do
 
 Local smoke validation is disabled by default for the Codex workflow. GitHub Actions remains the automated validation source of truth.
 
+## Current Production Runtime
+
+Natural expedition-site worldgen is active when `worldgen.global.naturalExpeditionSiteGenerationEnabled` is enabled; its current default is `true`. Production configured features, placed features, biome modifiers, and `ExpeditionSiteFeature` form the active placement path. Production wrapper tags currently include `#c:is_overworld` and remain subject to IOE eligibility, spacing, terrain, exclusion, and resource-policy checks.
+
+The four legacy proof controls remain separate and default `false`: `worldgen.runtimePlacementEnabled`, `worldgen.runtimePlacementDiagnostics`, `worldgen.runtimeProofFeatureEnabled`, and `worldgen.runtimeProofFeatureDiagnostics`. Historical controlled-smoke tags and proof procedures do not replace the current production path.
+
+Hosted GameTests validate automated scenarios in CI. They are not a manual client launch, dedicated-server smoke, newly generated world observation, or visual worldgen proof. Record each manual activity independently as `NOT_PERFORMED`, `PASS`, or `FAIL` and preserve a fresh `latest.log` plus observation details when it is run.
+
 ## Evidence To Record
 
 - Smoke date and time.
@@ -28,7 +36,11 @@ Local smoke validation is disabled by default for the Codex workflow. GitHub Act
 7. If admin commands are available in the profile, confirm they respond safely and do not mutate the world unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: no visible IOE worldgen placement is expected from v7-v37 with default config. Current systems are scaffold, planning, policy, validation layers, a default-off placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature data, a biome modifier smoke-tag bridge whose shipped tag binds zero real biomes by default, docs-only controlled smoke, evidence, readiness, implementation packet, active resource inventory, runtime PR preflight, traceability matrix, runtime evidence packet, runtime evidence review checklist, runtime evidence decision record, runtime evidence remediation tracker, runtime evidence remediation closure record, runtime evidence final sign-off handoff documentation, source-only ore-load chamber block candidate planning, and a default-off/manual ore-load chamber block placement applier proof layer.
+Current expectation: eligible new overworld chunks may invoke natural expedition-site placement when the current gate is enabled. A source or hosted-CI qualification does not establish that a visible site was observed manually; record the actual outcome without converting absence or presence into a claim beyond the captured evidence.
+
+## Historical Controlled-Smoke Record (v18-v35)
+
+The v18-v35 sections below preserve the procedures and limits of their historical implementation slices. Statements about default-off proof gates, empty smoke tags, or unavailable automatic placement describe those slices and must not be read as the current production activation state.
 
 ## v18 Runtime Placement Proof Smoke
 
@@ -131,7 +143,7 @@ The v23 result template may record `not run`, `startup failed`, `world load fail
 
 ## v24 Post-Smoke Evidence Gate
 
-v24 adds a docs-only maintainer decision gate at `docs/smoke_profiles/v24_worldgen_smoke_evidence_gate/`. Use it only after a v23 smoke result has been filled from an actual run. The gate separates raw smoke execution from maintainer acceptance, keeps runtime worldgen disabled by default, and blocks any promotion to runtime integration unless the required client/server/datapack/log/coordinate evidence is present.
+v24 adds a docs-only maintainer decision gate at `docs/smoke_profiles/v24_worldgen_smoke_evidence_gate/`. Use it only after a v23 smoke result has been filled from an actual run. In that historical controlled-proof slice, the gate separated raw smoke execution from maintainer acceptance, kept the proof path disabled by default, and blocked promotion unless the required client/server/datapack/log/coordinate evidence was present.
 
 The v24 gate does not activate runtime worldgen, does not change shipped resources or config defaults, and does not replace the v23 runbook. If no completed v23 result exists, the correct v24 decision is `no-go`.
 
@@ -205,13 +217,13 @@ v35 does not execute smoke, does not activate runtime worldgen, does not authori
 
 v36 adds source-only block candidate planning for already allowed ore-load chamber plans. It prepares deterministic concrete block targets and conservative replacement checks for a future writer, but it does not write blocks, activate runtime worldgen, change active `src/main/resources`, change active JSON, change config defaults, bind real biomes by default, or add new resources.
 
-Smoke expectations remain unchanged: with default config, no visible IOE placement is expected. Any later branch that connects these candidates to a real world writer must capture fresh client/server/world smoke evidence from that changed commit before claiming live placement or gameplay proof.
+At the v36 historical slice, default config did not make these block candidates visible. The current production natural-worldgen path is newer and separate. Any candidate release still needs fresh client/server/world smoke evidence from its exact commit before claiming observed live placement or gameplay proof.
 
 ## v37 Default-Off Ore-Load Chamber Block Placement Applier Proof
 
 v37 adds a manual/default-off applier proof layer for precomputed ore-load chamber block placement plans. It can count safe placements, unsafe replacements, outside-write-region candidates, missing runtime placement resources, and write failures when an explicit caller supplies a target.
 
-This does not add an automatic worldgen invocation path. With default config and shipped resources, no visible IOE placement is expected. No active `src/main/resources` JSON, biome modifier, configured feature, placed feature, config default, block/item/entity/resource registration, mixin, access transformer, dependency, Minecraft/Prism runtime state, or legacy split-module tree changes are part of v37.
+The v37 applier itself did not add an automatic worldgen invocation path, and no visible IOE placement was expected from that historical slice alone. The current production natural-worldgen path is newer and separate. No active `src/main/resources` JSON, biome modifier, configured feature, placed feature, config default, block/item/entity/resource registration, mixin, access transformer, dependency, Minecraft/Prism runtime state, or legacy split-module tree changes were part of v37.
 
 Manual client/server/world smoke was not run for v37. A future branch that wires this applier into a controlled runtime path must capture fresh smoke evidence from that exact changed commit before claiming live placement or gameplay proof.
 
@@ -226,7 +238,7 @@ Manual client/server/world smoke was not run for v37. A future branch that wires
 7. If admin commands are available, confirm they respond safely and do not mutate chunks unexpectedly.
 8. Record the evidence listed above.
 
-Expected current limitation: server smoke should validate load, config, and safe command behavior. It should not expect live ore-load chambers, anchors, clues, crystal sites, AE2 geodes, Nether geodes, Ancient Debris hearts, or retrogen resources to appear.
+Current expectation: server smoke must validate load, config, and safe command behavior and must record the active natural-worldgen gate. If the procedure includes eligible newly generated chunks, record whether expedition sites are observed; do not claim presence or absence before the run. Legacy proof features and retrogen remain separately gated and must not be inferred from natural-site behavior.
 
 ## Log Review Hints
 

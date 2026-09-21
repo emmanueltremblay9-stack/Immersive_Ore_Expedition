@@ -1,6 +1,6 @@
 # IOE Release Checklist
 
-Use this checklist before publishing an Immersive Ore Expedition release from the consolidated NeoForge module.
+Use this checklist before publishing an Immersive Ore Expedition release from the consolidated NeoForge module. Every status must describe the exact candidate being qualified; do not promote a historical result or an unrun check to a pass.
 
 ## Release Inputs
 
@@ -11,42 +11,59 @@ Use this checklist before publishing an Immersive Ore Expedition release from th
 - Java target: 21
 - Automated validation source of truth: GitHub Actions
 
-## Pre-Release Checks
+## Source and CI Identity
 
-- Update from `main` and confirm the release branch is based on the intended merge commit.
-- Confirm GitHub Actions passed for `CI / Consolidated NeoForge module`.
-- Confirm the CI jar artifact inspection passed.
-- Confirm the release jar contains compiled classes under `com/oblixorprime/ioe/`.
-- Confirm the release jar contains `META-INF/neoforge.mods.toml`.
-- Confirm no config defaults changed unexpectedly.
-- Confirm no legacy six-module source trees were edited.
-- Confirm `.codegraph/` was not staged or committed.
-- Confirm release notes or changelog text is updated.
-- Confirm Java 21 and NeoForge 1.21.1 compatibility notes are present.
+- Record the exact source commit and Git tree for the candidate.
+- Confirm the release branch is based on the intended `main` commit.
+- Confirm the required GitHub Actions run passed for that exact candidate HEAD.
+- Record the workflow run, run attempt, event, artifact ID, artifact digest, runtime JAR filename, JAR size, and JAR SHA-256.
+- Confirm the runtime JAR contains compiled classes under `com/oblixorprime/ioe/` and `META-INF/neoforge.mods.toml`.
+- Confirm the inspected runtime JAR has no unexpected embedded JARs or duplicate entries.
+- Confirm the candidate version is synchronized in authoritative metadata.
+- Confirm release notes describe the exact candidate and remain marked `NOT_PUBLISHED` until publication actually occurs.
 
-## Smoke Status
+## Automated Validation
 
-- Record manual client world-entry smoke status: not run, pass, or fail.
-- Record manual dedicated server smoke status: not run, pass, or fail.
-- Do not mark smoke as passed unless it was actually run and evidence was captured.
-- Attach or link the relevant fresh `latest.log` files when smoke is run.
+- Record JUnit status as `NOT_RUN`, `PASS`, or `FAIL`.
+- Record static validator status as `NOT_RUN`, `PASS`, or `FAIL`.
+- Record baseline hosted GameTest status as `NOT_RUN`, `PASS`, or `FAIL`.
+- Record the complete pinned-runtime hosted GameTest status as `NOT_RUN`, `PASS`, or `FAIL`.
+- Record build and JAR inspection status as `NOT_RUN`, `PASS`, or `FAIL`.
+- Do not treat a successful hosted check as manual client, server, or visual worldgen proof.
 
-## Safety Gates
+## Current Worldgen and Config Gates
 
-- Confirm strict exclusions and the no-fake-resources policy remain enforced.
-- Confirm runtime worldgen placement remains gated and default-off unless a later explicit release changes that policy.
-- Confirm `worldgen.runtimePlacementEnabled` and `worldgen.runtimePlacementDiagnostics` remain default `false`.
-- Confirm `worldgen.runtimeProofFeatureEnabled` and `worldgen.runtimeProofFeatureDiagnostics` remain default `false`.
-- Confirm any configured/placed feature declarations remain unbound from real biome generation by default unless a later explicit release changes that policy.
-- Confirm v20 declaration-only configured/placed feature resources do not claim live placement or smoke proof.
-- Confirm the v21 biome modifier smoke bridge targets only the IOE smoke biome tag and that the shipped tag binds zero real biomes by default.
-- Confirm any v22 controlled smoke profile remains docs-only and does not modify active shipped `src/main/resources` biome bindings.
-- Confirm any v23 controlled smoke runbook or result template remains docs-only and does not claim a manual smoke pass without captured evidence.
-- Confirm no broad biome tags such as `#minecraft:is_overworld` or `#c:is_overworld` are used by default.
-- Confirm retrogen mutation remains default-off and admin-controlled.
-- Confirm no configured features, placed features, or biome modifiers were enabled unexpectedly.
-- Confirm no new blocks, items, entities, ores, gems, fluids, recipes, loot tables, creative tabs, mixins, access transformers, embedded jars, or dependencies were added unexpectedly.
+- Confirm `worldgen.global.naturalExpeditionSiteGenerationEnabled` is still default `true`; natural expedition-site worldgen is active when this current gate is enabled.
+- Confirm the four legacy proof controls remain separate and default `false`: `worldgen.runtimePlacementEnabled`, `worldgen.runtimePlacementDiagnostics`, `worldgen.runtimeProofFeatureEnabled`, and `worldgen.runtimeProofFeatureDiagnostics`.
+- Confirm the active configured features, placed features, and production biome modifiers expected by this release are present and resolve to the intended expedition-site placement path.
+- Confirm broad `#c:is_overworld` biome membership is used only by the validated production wrapper tags. Historical controlled-smoke tags and procedures must remain narrowly scoped and must not be presented as the current production binding.
+- Confirm retrogen mutation remains default-off and administrator-controlled.
+- Confirm strict exclusions, unsupported-material skipping, and the no-fake-resources policy remain enforced.
+- Confirm no new blocks, items, entities, ores, gems, fluids, recipes, loot tables, creative tabs, mixins, access transformers, embedded JARs, or dependencies were added unexpectedly.
+- Confirm no legacy six-module source tree was edited and `.codegraph/` or other generated analysis output was not staged.
+
+## Manual Smoke Status
+
+- Record manual client world-entry smoke status as `NOT_PERFORMED`, `PASS`, or `FAIL`.
+- Record manual dedicated-server smoke status as `NOT_PERFORMED`, `PASS`, or `FAIL`.
+- Record manual visual worldgen smoke status as `NOT_PERFORMED`, `PASS`, or `FAIL`.
+- Do not mark smoke as passed unless that exact candidate was run and evidence was captured.
+- Attach or link the relevant fresh `latest.log` files and observation notes when smoke is run.
+
+## Dependency and Notice Gates
+
+- Confirm every required or optional integration changed by the candidate is represented accurately in dependency metadata and `THIRD_PARTY_NOTICES.md`.
+- Confirm no third-party source or asset is described as copied when the integration only compiles or runs against a separately distributed dependency.
+- Record any discrepancy between source metadata, published Maven metadata, and runtime metadata as `AMBIGUOUS / UNRESOLVED`.
+- Keep release publication blocked until the project owner or qualified legal reviewer explicitly resolves every licensing ambiguity. A CI pass is not redistribution authorization or a legal conclusion.
+
+## Release Decision
+
+- Record compatibility, migration, rollback, and known limitations.
+- Record publication status separately from source and CI qualification.
+- Confirm no tag, GitHub Release, or third-party publication is created before all release gates are satisfied.
+- If manual smoke is not performed or a third-party licensing discrepancy remains unresolved, preserve those blockers in the release notes and do not call the release ready for publication.
 
 ## Known Limitation
 
-Most IOE worldgen systems are currently scaffold or planning layers. A release may validate loading, config generation, command safety, and artifact structure without claiming the full gameplay loop or visible live worldgen placement is complete.
+The production natural-worldgen path is implemented and currently enabled by default, but source inspection and hosted CI do not prove a manual client, dedicated-server, or visual worldgen smoke result. Those runtime observations remain separate release evidence.

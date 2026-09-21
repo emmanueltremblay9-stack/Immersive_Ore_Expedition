@@ -119,3 +119,23 @@ IOE references public registry and placed-feature identifiers to prevent free or
 - License: All Rights Reserved
 
 IOE compiles against the separately distributed Immersive Petroleum artifact and uses its native reservoir API objects and persistence entrypoint. IOE only controls spatial admission: free reservoir scans and unauthorized registrations are blocked, while admitted desert coal sites register oil reservoirs, volcanic sites register lava reservoirs, and beach, shore, river or ocean sites register aquifers transactionally. Immersive Petroleum remains the owner of reservoir recipes, fluids, SavedData format, surveying, pressure, depletion, wells, Pumpjack extraction, code and assets. No Immersive Petroleum source file, recipe, model, texture, sound, language file or other asset is copied into the IOE jar.
+
+## Domum Ornamentum
+
+- Project: Domum Ornamentum
+- Mod id: `domum_ornamentum`
+- Version inspected: `1.0.231`
+- Source tag inspected: `v1.21.1-1.0.231`
+- Source revision inspected: `af1106ab66fafea7427ed23dec73776a4c8d7748`
+- Maven coordinate: `com.ldtteam:domum-ornamentum:1.0.231`
+- API artifact SHA-256: `e5845bb264cbe03f3914c98e514056183fef564bd9f4c683b20602cf74766d92`
+- Runtime artifact SHA-256: `04c0c902bdbcbd48e38bee5a323907ae0b7b7db4ff4a3e4da7c45334b65610a1`
+- Runtime artifact SHA-512: `483061574a8452ce6b5b25779431540fc4e444123a987633546b290e9beb03ce094d0bdb80f28fb1dbc2317fd91d1dfbde1c4c0619dbf124768744cb8bc6ea35`
+- Tagged source and runtime metadata: GPL-3.0
+- Published Maven POM metadata: LGPL-3.0
+- License-metadata status: `AMBIGUOUS / UNRESOLVED`
+- Project-owner or qualified legal disposition: `NOT_PERFORMED`
+
+IOE uses Domum Ornamentum through optional compile/runtime integration for prospector-camp materialized architectural blocks when present. Domum Ornamentum remains separately distributed. No Domum Ornamentum Java source, model, texture, sound, recipe, loot table, language file, or other asset is copied into IOE. The qualified IOE release JAR contains zero embedded JARs.
+
+The tagged source and runtime metadata identify GPL-3.0, while the published Maven POM identifies LGPL-3.0. Status remains `AMBIGUOUS / UNRESOLVED`; this notice does not select either declaration as authoritative. CI retrieval or testing is not redistribution approval. This notice does not resolve license compatibility or authorize distribution, replace project-owner or qualified legal review, or alter the release blocker.
