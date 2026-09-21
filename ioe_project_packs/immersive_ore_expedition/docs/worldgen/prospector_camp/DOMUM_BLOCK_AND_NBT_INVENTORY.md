@@ -16,9 +16,13 @@
 The source evidence is the tagged [LDTTeam Domum-Ornamentum repository](https://github.com/ldtteam/Domum-Ornamentum/tree/v1.21.1-1.0.231)
 and its [official Maven repository](https://ldtteam.jfrog.io/ldtteam/modding/com/ldtteam/domum-ornamentum/1.0.231/).
 IOE copies no Domum source or assets in this pass. The exact release's tagged source and embedded mod metadata say
-GPL-3.0, while its published Maven POM says LGPL-3.0. That discrepancy is unresolved. The integration is optional
-compile/runtime linkage; an owner or legal review is still required before distributing Domum together with the All
-Rights Reserved IOE package. CI retrieval for validation is not treated here as redistribution approval.
+GPL-3.0, while its published Maven POM says LGPL-3.0. The discrepancy is `AMBIGUOUS / UNRESOLVED`, with
+`DOMUM_FACTUAL_METADATA_STATUS: CONFIRMED_MIXED_METADATA`; neither GPL nor LGPL is claimed as legally controlling.
+The owner distribution decision `DOMUM_OWNER_DISTRIBUTION_DISPOSITION: PROCEED_WITH_SEPARATE_OPTIONAL_DOMUM_INTEGRATION`
+is recorded in `../../DOMUM_OWNER_DISTRIBUTION_DISPOSITION_0.2.50-alpha.md`. Legal review remains `NOT_PERFORMED`,
+and `DOMUM_LEGAL_COMPATIBILITY: UNDETERMINED`. This permits only optional, separately distributed, unembedded
+compile/runtime linkage with no copied Domum source or assets; any boundary change reopens review. CI retrieval for
+validation is not treated here as redistribution approval.
 
 ## Retained components
 
@@ -123,7 +127,8 @@ both the shell denominator and percentage for every quality/family row.
 - Registry IDs, component IDs, API methods, codec path, save key, rotation methods, mirror method for `framed`, and
   generated loot component-copy rules: `CONFIRMED` by exact tagged source inspection.
 - Maven API/runtime artifacts and hashes: `CONFIRMED` by official repository readback.
-- Conflicting GPL-3.0/LGPL-3.0 upstream license declarations: `AMBIGUOUS`; owner/legal resolution: `NOT_PERFORMED`.
+- Conflicting GPL-3.0/LGPL-3.0 upstream license declarations: `AMBIGUOUS / UNRESOLVED`; factual status: `DOMUM_FACTUAL_METADATA_STATUS: CONFIRMED_MIXED_METADATA`.
+- Owner distribution disposition: `DOMUM_OWNER_DISTRIBUTION_DISPOSITION: PROCEED_WITH_SEPARATE_OPTIONAL_DOMUM_INTEGRATION`, recorded in `../../DOMUM_OWNER_DISTRIBUTION_DISPOSITION_0.2.50-alpha.md`; legal review: `NOT_PERFORMED`; `DOMUM_LEGAL_COMPATIBILITY: UNDETERMINED`; neither GPL nor LGPL is claimed as legally controlling.
 - IOE typed payload and immediate material readback path: `CONFIRMED` by source inspection and static validator.
 - Compilation against the API artifact: `NOT_PERFORMED` locally by repository policy.
 - Four applied rotations, immediate material readback, NBT round trip, and recovered-item material checks: test source

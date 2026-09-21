@@ -54,15 +54,17 @@ Use this checklist before publishing an Immersive Ore Expedition release from th
 
 - Confirm every required or optional integration changed by the candidate is represented accurately in dependency metadata and `THIRD_PARTY_NOTICES.md`.
 - Confirm no third-party source or asset is described as copied when the integration only compiles or runs against a separately distributed dependency.
-- Record any discrepancy between source metadata, published Maven metadata, and runtime metadata as `AMBIGUOUS / UNRESOLVED`.
-- Keep release publication blocked until the project owner or qualified legal reviewer explicitly resolves every licensing ambiguity. A CI pass is not redistribution authorization or a legal conclusion.
+- Record any discrepancy between source metadata, published Maven metadata, and runtime metadata as `AMBIGUOUS / UNRESOLVED`; when that mismatch is confirmed, also record `DOMUM_FACTUAL_METADATA_STATUS: CONFIRMED_MIXED_METADATA`.
+- Link the exact owner distribution disposition for any candidate that proceeds with disclosed mixed metadata.
+- Require `DOMUM_OWNER_DISTRIBUTION_DISPOSITION: PROCEED_WITH_SEPARATE_OPTIONAL_DOMUM_INTEGRATION` and verify that Domum remains optional, separately distributed, unembedded, and without copied source or assets before recording `DOMUM_OWNER_DECISION_GATE: PASS`.
+- Keep legal review and compatibility separate from owner distribution authority. For this candidate, legal review remains `NOT_PERFORMED` and `DOMUM_LEGAL_COMPATIBILITY: UNDETERMINED`; the owner decision is not legal clearance.
 
 ## Release Decision
 
 - Record compatibility, migration, rollback, and known limitations.
 - Record publication status separately from source and CI qualification.
 - Confirm no tag, GitHub Release, or third-party publication is created before all release gates are satisfied.
-- If manual smoke is not performed or a third-party licensing discrepancy remains unresolved, preserve those blockers in the release notes and do not call the release ready for publication.
+- If any manual smoke is `NOT_PERFORMED`, preserve `PUBLICATION_READY: BLOCKED_MANUAL_SMOKE` even when the owner-decision gate passes. Keep unresolved legal compatibility explicit without converting owner authority into legal clearance.
 
 ## Known Limitation
 
