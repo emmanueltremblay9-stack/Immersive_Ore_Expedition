@@ -1,0 +1,1486 @@
+name: Publish qualified IOE candidate to CurseForge
+
+run-name: CurseForge ${{ inputs.version }} ${{ inputs.jar_sha256 }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact qualified repository commit SHA
+        required: true
+        type: string
+      candidate_tree:
+        description: Exact qualified Git tree SHA
+        required: true
+        type: string
+      ci_run_id:
+        description: Successful exact-head CI run ID
+        required: true
+        type: string
+      ci_attempt:
+        description: Exact CI run attempt
+        required: true
+        type: string
+      artifact_id:
+        description: Exact retained GitHub Actions artifact ID
+        required: true
+        type: string
+      artifact_digest:
+        description: Exact artifact digest including sha256 prefix
+        required: true
+        type: string
+      version:
+        description: Exact authoritative IOE version
+        required: true
+        type: string
+      jar_filename:
+        description: Exact production JAR filename
+        required: true
+        type: string
+      jar_sha256:
+        description: Exact production JAR SHA-256
+        required: true
+        type: string
+      jar_size:
+        description: Exact production JAR size in bytes
+        required: true
+        type: string
+      qualification_comment_id:
+        description: Owner comment containing the immutable qualification receipt
+        required: true
+        type: string
+      qualification_receipt_sha256:
+        description: SHA-256 of the exact owner qualification comment body
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ioe-curseforge-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  publish-qualified-candidate:
+    name: Verify and publish one qualified candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out the exact candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify, check duplicates, upload once, and read back
+        working-directory: ${{ runner.temp }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          CANDIDATE_TREE: ${{ inputs.candidate_tree }}
+          CI_RUN_ID: ${{ inputs.ci_run_id }}
+          CI_ATTEMPT: ${{ inputs.ci_attempt }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_DIGEST: ${{ inputs.artifact_digest }}
+          VERSION: ${{ inputs.version }}
+          JAR_FILENAME: ${{ inputs.jar_filename }}
+          JAR_SHA256: ${{ inputs.jar_sha256 }}
+          JAR_SIZE: ${{ inputs.jar_size }}
+          QUALIFICATION_COMMENT_ID: ${{ inputs.qualification_comment_id }}
+          QUALIFICATION_RECEIPT_SHA256: ${{ inputs.qualification_receipt_sha256 }}
+          CURSEFORGE_PROJECT_ID: "1599274"
+          MINECRAFT_VERSION: "1.21.1"
+          MOD_LOADER: NeoForge
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -S <<'PY'
+          from __future__ import annotations
+
+          import datetime
+          import hashlib
+          import json
+          import os
+          import re
+          import shutil
+          import subprocess
+          import sys
+          import time
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+          import uuid
+          import zipfile
+          from pathlib import Path, PurePosixPath
+
+
+          REPOSITORY = os.environ["GITHUB_REPOSITORY"]
+          REPOSITORY_OWNER = os.environ["GITHUB_REPOSITORY_OWNER"]
+          CURRENT_RUN_ID = int(os.environ["GITHUB_RUN_ID"])
+          CURRENT_RUN_ATTEMPT = int(os.environ["GITHUB_RUN_ATTEMPT"])
+          TRIGGER_REF = os.environ["GITHUB_REF"]
+          TRIGGER_SHA = os.environ["GITHUB_SHA"]
+          WORKFLOW_REF = os.environ["GITHUB_WORKFLOW_REF"]
+          CANDIDATE_SHA = os.environ["CANDIDATE_SHA"]
+          CANDIDATE_TREE = os.environ["CANDIDATE_TREE"]
+          CI_RUN_ID = os.environ["CI_RUN_ID"]
+          CI_ATTEMPT = os.environ["CI_ATTEMPT"]
+          ARTIFACT_ID = os.environ["ARTIFACT_ID"]
+          ARTIFACT_DIGEST = os.environ["ARTIFACT_DIGEST"]
+          VERSION = os.environ["VERSION"]
+          JAR_FILENAME = os.environ["JAR_FILENAME"]
+          JAR_SHA256 = os.environ["JAR_SHA256"]
+          JAR_SIZE = os.environ["JAR_SIZE"]
+          QUALIFICATION_COMMENT_ID = os.environ["QUALIFICATION_COMMENT_ID"]
+          QUALIFICATION_RECEIPT_SHA256 = os.environ["QUALIFICATION_RECEIPT_SHA256"]
+          PROJECT_ID = os.environ["CURSEFORGE_PROJECT_ID"]
+          MINECRAFT_VERSION = os.environ["MINECRAFT_VERSION"]
+          MOD_LOADER = os.environ["MOD_LOADER"]
+          CURSEFORGE_TOKEN = os.environ.get("CURSEFORGE_TOKEN", "")
+          WORKSPACE = Path(os.environ["GITHUB_WORKSPACE"]).resolve()
+          RUNNER_TEMP = Path(os.environ["RUNNER_TEMP"]).resolve()
+          SUMMARY = Path(os.environ["GITHUB_STEP_SUMMARY"])
+          MODULE_RELATIVE = Path("ioe_project_packs/immersive_ore_expedition")
+          AUTHOR_API_BASE = "https://minecraft.curseforge.com/api"
+          FILES_API_URL = f"{AUTHOR_API_BASE}/projects/{PROJECT_ID}/files"
+          UPLOAD_URL = f"{AUTHOR_API_BASE}/projects/{PROJECT_ID}/upload-file"
+          PUBLIC_API_BASE = f"https://www.curseforge.com/api/v1/mods/{PROJECT_ID}/files"
+          KNOWN_FILE_ID = 8378986
+          KNOWN_FILENAME = "immersive_ore_expedition-0.2.0-alpha-neoforge-1.21.1.jar"
+          USER_AGENT = "IOE-CurseForge-Publisher/1.0 (+GitHub Actions)"
+          RUN_TITLE = f"CurseForge {VERSION} {JAR_SHA256}"
+
+          RELATIONS = [
+              ("applied-energistics-2", "223794", "requiredDependency", "ae2"),
+              ("ae2-crystal-science", "1435174", "requiredDependency", "ae2cs"),
+              ("geore", "530544", "requiredDependency", "geore"),
+              ("journeymap", "32274", "optionalDependency", "journeymap"),
+              ("geore-additions", "1297257", "optionalDependency", "geore_additions"),
+              ("ex-pattern-provider", "892005", "optionalDependency", "extendedae"),
+              ("immersive-engineering", "231951", "optionalDependency", "immersiveengineering"),
+              ("immersive-petroleum", "268250", "optionalDependency", "immersivepetroleum"),
+          ]
+          EXPECTED_DEPENDENCY_TYPES = {
+              "neoforge": "required",
+              "minecraft": "required",
+              "journeymap": "optional",
+              "ae2": "required",
+              "ae2cs": "required",
+              "geore": "required",
+              "geore_additions": "optional",
+              "extendedae": "optional",
+              "immersiveengineering": "optional",
+              "immersivepetroleum": "optional",
+              "domum_ornamentum": "optional",
+          }
+          PUBLIC_FILE_STATUSES = {4, 10}
+          FAILED_FILE_STATUSES = {2, 5, 6, 7, 8, 12, 15}
+
+          upload_attempted = False
+          uploaded_file_id: int | None = None
+
+
+          def append_summary(text: str) -> None:
+              with SUMMARY.open("a", encoding="utf-8") as stream:
+                  stream.write(text)
+
+
+          def fail(message: str, reason_code: str = "BLOCKED") -> None:
+              if upload_attempted and uploaded_file_id is None:
+                  outcome = "UPLOAD_STATE_UNCERTAIN"
+              elif uploaded_file_id is not None:
+                  outcome = "UPLOAD_ACCEPTED_READBACK_FAILED"
+              else:
+                  outcome = "BLOCKED"
+              print(f"{outcome}: {reason_code}: {message}", file=sys.stderr)
+              lines = [
+                  "\n## CurseForge publication\n",
+                  f"- Outcome: `{outcome}`\n",
+                  f"- Reason code: `{reason_code}`\n",
+                  f"- Reason: {message}\n",
+                  f"- Candidate SHA-256: `{JAR_SHA256}`\n",
+                  f"- Upload attempt started: `{'yes' if upload_attempted else 'no'}`\n",
+              ]
+              if uploaded_file_id is not None:
+                  lines.append(f"- CurseForge file ID: `{uploaded_file_id}`\n")
+              append_summary("".join(lines))
+              raise SystemExit(1)
+
+
+          def require(condition: bool, message: str, reason_code: str = "BLOCKED") -> None:
+              if not condition:
+                  fail(message, reason_code)
+
+
+          GIT = shutil.which("git")
+          GH = shutil.which("gh")
+          require(GIT is not None, "git executable is unavailable")
+          require(GH is not None, "gh executable is unavailable")
+          os.chdir(WORKSPACE)
+
+
+          def repo_file(relative: Path | str) -> Path:
+              candidate = WORKSPACE / Path(relative)
+              require(not candidate.is_symlink(), f"repository path is a symlink: {relative}")
+              try:
+                  resolved = candidate.resolve(strict=True)
+              except OSError:
+                  fail(f"repository file is absent: {relative}")
+              require(resolved.is_relative_to(WORKSPACE), f"repository path escapes checkout: {relative}")
+              require(resolved.is_file(), f"repository path is not a file: {relative}")
+              return resolved
+
+
+          def run_text(*args: str) -> str:
+              completed = subprocess.run(
+                  args,
+                  check=False,
+                  stdout=subprocess.PIPE,
+                  stderr=subprocess.PIPE,
+                  text=True,
+                  encoding="utf-8",
+              )
+              if completed.returncode != 0:
+                  detail = completed.stderr.strip() or completed.stdout.strip()
+                  fail(f"command failed ({completed.returncode}): {Path(args[0]).name}: {detail}")
+              return completed.stdout.strip()
+
+
+          def run_binary_to_file(destination: Path, *args: str) -> bool:
+              with destination.open("wb") as output:
+                  completed = subprocess.run(
+                      args,
+                      check=False,
+                      stdout=output,
+                      stderr=subprocess.PIPE,
+                  )
+              return completed.returncode == 0
+
+
+          def github_json(endpoint: str) -> object:
+              raw = run_text(GH, "api", endpoint)
+              try:
+                  return json.loads(raw)
+              except json.JSONDecodeError as exc:
+                  fail(f"GitHub API returned invalid JSON for {endpoint}: {exc}")
+
+
+          def try_http_bytes(
+              url: str,
+              *,
+              headers: dict[str, str] | None = None,
+              timeout: int = 60,
+          ) -> tuple[int | None, bytes | None]:
+              request_headers = {"User-Agent": USER_AGENT, "Accept": "*/*"}
+              if headers:
+                  request_headers.update(headers)
+              request = urllib.request.Request(url, headers=request_headers, method="GET")
+              try:
+                  with urllib.request.urlopen(request, timeout=timeout) as response:
+                      return response.status, response.read()
+              except urllib.error.HTTPError as exc:
+                  return exc.code, None
+              except (urllib.error.URLError, TimeoutError):
+                  return None, None
+
+
+          def try_http_json(
+              url: str,
+              *,
+              headers: dict[str, str] | None = None,
+              timeout: int = 60,
+          ) -> tuple[int | None, object | None]:
+              status, raw = try_http_bytes(url, headers=headers, timeout=timeout)
+              if status != 200 or raw is None:
+                  return status, None
+              try:
+                  return status, json.loads(raw.decode("utf-8"))
+              except (UnicodeDecodeError, json.JSONDecodeError):
+                  return status, None
+
+
+          def http_bytes(
+              url: str,
+              *,
+              headers: dict[str, str] | None = None,
+              timeout: int = 60,
+          ) -> bytes:
+              status, raw = try_http_bytes(url, headers=headers, timeout=timeout)
+              require(status == 200 and raw is not None, f"GET {url} did not return HTTP 200")
+              return raw
+
+
+          def http_json(
+              url: str,
+              *,
+              headers: dict[str, str] | None = None,
+              timeout: int = 60,
+          ) -> object:
+              status, payload = try_http_json(url, headers=headers, timeout=timeout)
+              require(status == 200 and payload is not None, f"GET {url} did not return valid JSON")
+              return payload
+
+
+          def parse_positive_integer(name: str, value: str) -> int:
+              require(bool(re.fullmatch(r"[1-9][0-9]*", value)), f"{name} is not a positive integer")
+              return int(value)
+
+
+          def parse_instant(value: object, label: str) -> datetime.datetime:
+              require(isinstance(value, str), f"{label} timestamp is absent")
+              try:
+                  parsed = datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
+              except ValueError:
+                  fail(f"{label} timestamp is invalid")
+              require(parsed.tzinfo is not None, f"{label} timestamp lacks a timezone")
+              return parsed
+
+
+          def parse_dependencies(metadata: str, label: str) -> dict[str, str]:
+              blocks = re.findall(
+                  r"(?ms)^\s*\[\[dependencies\.[^]]+\]\]\s*(.*?)(?=^\s*\[\[|\Z)",
+                  metadata,
+              )
+              require(bool(blocks), f"{label} has no dependency blocks")
+              parsed: dict[str, str] = {}
+              for block in blocks:
+                  mod_match = re.search(r'(?m)^\s*modId\s*=\s*"([^"]+)"', block)
+                  type_match = re.search(r'(?m)^\s*type\s*=\s*"([^"]+)"', block)
+                  require(bool(mod_match and type_match), f"{label} has an incomplete dependency block")
+                  mod_id = mod_match.group(1)
+                  require(mod_id not in parsed, f"{label} has duplicate dependency {mod_id}")
+                  parsed[mod_id] = type_match.group(1)
+              return parsed
+
+
+          def release_type(version: str) -> str:
+              if version.endswith("-alpha"):
+                  return "alpha"
+              if version.endswith("-beta"):
+                  return "beta"
+              if re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+", version):
+                  return "release"
+              fail(f"unmapped release type for version {version}", "BLOCKED_UNMAPPED_RELEASE_TYPE")
+
+
+          def value(record: dict[str, object], *names: str) -> object | None:
+              for name in names:
+                  if name in record:
+                      return record[name]
+              return None
+
+
+          def positive_id(raw: object) -> int | None:
+              if isinstance(raw, int) and raw > 0:
+                  return raw
+              if isinstance(raw, str) and re.fullmatch(r"[1-9][0-9]*", raw):
+                  return int(raw)
+              return None
+
+
+          def normalized_release_type(raw: object) -> str | None:
+              if isinstance(raw, int):
+                  return {1: "release", 2: "beta", 3: "alpha"}.get(raw)
+              if isinstance(raw, str):
+                  lowered = raw.strip().lower()
+                  return {"1": "release", "2": "beta", "3": "alpha"}.get(lowered, lowered)
+              return None
+
+
+          def normalized_status(raw: object) -> int | str | None:
+              if isinstance(raw, int):
+                  return raw
+              if isinstance(raw, str):
+                  stripped = raw.strip()
+                  if stripped.isdigit():
+                      return int(stripped)
+                  compact = re.sub(r"[^a-z]", "", stripped.lower())
+                  return {
+                      "processing": 1,
+                      "changesrequired": 2,
+                      "underreview": 3,
+                      "approved": 4,
+                      "rejected": 5,
+                      "malwaredetected": 6,
+                      "deleted": 7,
+                      "archived": 8,
+                      "testing": 9,
+                      "released": 10,
+                      "readyforreview": 11,
+                      "deprecated": 12,
+                      "baking": 13,
+                      "awaitingpublishing": 14,
+                      "failedpublishing": 15,
+                      "cooking": 16,
+                      "cooked": 17,
+                      "undermanualreview": 18,
+                      "scanningformalware": 19,
+                      "processingfile": 20,
+                      "pendingrelease": 21,
+                      "readyforcooking": 22,
+                      "postprocessing": 23,
+                  }.get(compact, compact)
+              return None
+
+
+          def game_version_names(record: dict[str, object]) -> set[str]:
+              raw = value(record, "gameVersions", "game_versions", "gameVersionNames")
+              if not isinstance(raw, list):
+                  return set()
+              names: set[str] = set()
+              for item in raw:
+                  if isinstance(item, str):
+                      names.add(item)
+                  elif isinstance(item, dict):
+                      name = value(item, "name", "gameVersionName", "version")
+                      if isinstance(name, str):
+                          names.add(name)
+              return names
+
+
+          def normalized_relation_type(raw: object) -> str | None:
+              if isinstance(raw, int):
+                  return {2: "optionalDependency", 3: "requiredDependency"}.get(raw)
+              if not isinstance(raw, str):
+                  return None
+              compact = re.sub(r"[^a-z]", "", raw.lower())
+              return {
+                  "optionaldependency": "optionalDependency",
+                  "requireddependency": "requiredDependency",
+              }.get(compact)
+
+
+          def relation_rows(record: dict[str, object]) -> list[dict[str, object]] | None:
+              raw = value(record, "relations", "dependencies")
+              if raw is None:
+                  return None
+              if isinstance(raw, dict):
+                  raw = value(raw, "projects", "dependencies", "data")
+              if not isinstance(raw, list) or not all(isinstance(item, dict) for item in raw):
+                  fail("remote relation field has an unexpected schema", "BLOCKED_DUPLICATE_STATE_UNVERIFIED")
+              return raw
+
+
+          def normalized_relations(rows: list[dict[str, object]]) -> set[tuple[str, str, str]]:
+              normalized: set[tuple[str, str, str]] = set()
+              for row in rows:
+                  project_id = positive_id(value(row, "projectID", "projectId", "addonId", "id"))
+                  relation_type = normalized_relation_type(value(row, "type", "relationType"))
+                  slug = value(row, "slug")
+                  require(project_id is not None, "remote relation project ID is absent")
+                  require(relation_type is not None, "remote relation type is absent")
+                  require(isinstance(slug, str) and bool(slug), "remote relation slug is absent")
+                  normalized.add((str(project_id), relation_type, slug.lower()))
+              require(len(normalized) == len(rows), "remote relation list contains duplicates")
+              return normalized
+
+
+          def expected_relation_set() -> set[tuple[str, str, str]]:
+              return {(project_id, relation_type, slug) for slug, project_id, relation_type, _ in RELATIONS}
+
+
+          def public_download_url(file_id: int, filename: str) -> str:
+              first = file_id // 1000
+              last = file_id % 1000
+              encoded_name = urllib.parse.quote(filename)
+              return f"https://mediafilez.forgecdn.net/files/{first}/{last:03d}/{encoded_name}"
+
+
+          def verify_basic_file_record(record: dict[str, object], file_id: int) -> int | str | None:
+              actual_id = positive_id(value(record, "id", "fileId", "fileID"))
+              require(actual_id == file_id, "remote file ID differs")
+              project_id = positive_id(value(record, "projectId", "projectID", "modId"))
+              if project_id is not None:
+                  require(project_id == int(PROJECT_ID), "remote project ID differs")
+              filename = value(record, "fileName", "filename", "file_name")
+              require(filename == JAR_FILENAME, "remote filename differs")
+              display_name = value(record, "displayName", "display_name")
+              require(
+                  isinstance(display_name, str)
+                  and (display_name == JAR_FILENAME or VERSION in display_name),
+                  "remote display name/version differs",
+              )
+              require(
+                  normalized_release_type(value(record, "releaseType", "release_type")) == RELEASE_TYPE,
+                  "remote release type differs",
+              )
+              names = game_version_names(record)
+              require(MINECRAFT_VERSION in names, "remote Minecraft version differs")
+              require(MOD_LOADER in names, "remote loader differs")
+              remote_size = value(record, "fileLength", "fileSize", "file_size", "size")
+              if remote_size is not None:
+                  require(positive_id(remote_size) == EXPECTED_JAR_SIZE, "remote JAR size differs")
+              return normalized_status(value(record, "status", "fileStatus", "file_status"))
+
+
+          def verify_remote_bytes(file_id: int) -> None:
+              status, remote_bytes = try_http_bytes(
+                  public_download_url(file_id, JAR_FILENAME), timeout=120
+              )
+              require(status == 200 and remote_bytes is not None, "remote JAR download is unavailable")
+              require(len(remote_bytes) == EXPECTED_JAR_SIZE, "remote JAR size differs")
+              require(
+                  hashlib.sha256(remote_bytes).hexdigest() == JAR_SHA256,
+                  "remote JAR SHA-256 differs",
+              )
+
+
+          def try_verify_remote_bytes(file_id: int) -> bool:
+              status, remote_bytes = try_http_bytes(
+                  public_download_url(file_id, JAR_FILENAME), timeout=120
+              )
+              if status != 200 or remote_bytes is None:
+                  return False
+              require(len(remote_bytes) == EXPECTED_JAR_SIZE, "remote JAR size differs")
+              require(
+                  hashlib.sha256(remote_bytes).hexdigest() == JAR_SHA256,
+                  "remote JAR SHA-256 differs",
+              )
+              return True
+
+
+          def public_file_readback(file_id: int) -> tuple[dict[str, object], list[dict[str, object]]] | None:
+              status, payload = try_http_json(f"{PUBLIC_API_BASE}/{file_id}")
+              if status != 200 or not isinstance(payload, dict):
+                  return None
+              record = payload.get("data")
+              if not isinstance(record, dict):
+                  return None
+              dep_status, dependencies = try_http_json(f"{PUBLIC_API_BASE}/{file_id}/dependencies")
+              if dep_status != 200 or not isinstance(dependencies, dict):
+                  return None
+              rows = dependencies.get("data")
+              if not isinstance(rows, list) or not all(isinstance(item, dict) for item in rows):
+                  return None
+              return record, rows
+
+
+          def verify_public_candidate(file_id: int) -> int | str | None:
+              readback = public_file_readback(file_id)
+              require(readback is not None, "public structured file readback is unavailable")
+              record, dependencies = readback
+              status = verify_basic_file_record(record, file_id)
+              require(
+                  normalized_relations(dependencies) == expected_relation_set(),
+                  "remote relation set or relation types differ",
+              )
+              verify_remote_bytes(file_id)
+              return status
+
+
+          def inventory_page(
+              url: str,
+          ) -> tuple[list[dict[str, object]], tuple[int, int, int] | None, bool] | None:
+              status, payload = try_http_json(url, headers=CURSEFORGE_HEADERS)
+              if status != 200:
+                  return None
+              if isinstance(payload, list):
+                  rows = payload
+                  pagination = None
+                  bare_list = True
+              elif isinstance(payload, dict):
+                  rows = None
+                  for key in ("data", "files", "items"):
+                      if isinstance(payload.get(key), list):
+                          rows = payload[key]
+                          break
+                  require(rows is not None, "author file inventory has no record list", "BLOCKED_DUPLICATE_STATE_UNVERIFIED")
+                  raw_pagination = payload.get("pagination")
+                  if raw_pagination is None:
+                      pagination = None
+                  else:
+                      require(isinstance(raw_pagination, dict), "author inventory pagination is invalid")
+                      index = value(raw_pagination, "index", "offset")
+                      page_size = value(raw_pagination, "pageSize", "page_size", "limit")
+                      total = value(raw_pagination, "totalCount", "total_count", "total")
+                      require(
+                          all(isinstance(item, int) and item >= 0 for item in (index, page_size, total)),
+                          "author inventory pagination fields are invalid",
+                      )
+                      require(page_size > 0, "author inventory page size is zero")
+                      pagination = (index, page_size, total)
+                  bare_list = False
+              else:
+                  fail("author file inventory has an unexpected schema", "BLOCKED_DUPLICATE_STATE_UNVERIFIED")
+              require(all(isinstance(item, dict) for item in rows), "author inventory contains a non-object record")
+              return rows, pagination, bare_list
+
+
+          def record_ids(records: list[dict[str, object]]) -> set[int]:
+              ids = {positive_id(value(item, "id", "fileId", "fileID")) for item in records}
+              require(None not in ids, "author inventory has an invalid file ID")
+              return {item for item in ids if item is not None}
+
+
+          def prove_unpaginated_inventory(
+              records: list[dict[str, object]],
+          ) -> list[dict[str, object]]:
+              expected_ids = record_ids(records)
+
+              def follow_authoritative_pagination(
+                  first_records: list[dict[str, object]],
+                  pagination: tuple[int, int, int],
+              ) -> list[dict[str, object]] | None:
+                  index, page_size, total = pagination
+                  if index != 0 or total < len(first_records) or len(first_records) > page_size:
+                      return None
+                  collected = list(first_records)
+                  seen_ids = record_ids(collected)
+                  while len(collected) < total:
+                      require(len(collected) < 10000, "author inventory exceeds the safety limit")
+                      next_index = len(collected)
+                      query = urllib.parse.urlencode(
+                          {"index": next_index, "pageSize": page_size}
+                      )
+                      next_page = inventory_page(f"{FILES_API_URL}?{query}")
+                      if next_page is None:
+                          return None
+                      next_records, next_pagination, _ = next_page
+                      if next_pagination is None:
+                          return None
+                      page_index, returned_size, returned_total = next_pagination
+                      if (
+                          page_index != next_index
+                          or returned_size != page_size
+                          or returned_total != total
+                          or not next_records
+                      ):
+                          return None
+                      next_ids = record_ids(next_records)
+                      if seen_ids.intersection(next_ids):
+                          return None
+                      require(
+                          len(collected) + len(next_records) <= total,
+                          "author inventory returned more records than totalCount",
+                      )
+                      collected.extend(next_records)
+                      seen_ids.update(next_ids)
+                  if len(collected) != total:
+                      return None
+                  return collected
+
+              def follow_bare_pages(
+                  parameter: str,
+                  first_cursor: int,
+              ) -> list[dict[str, object]] | None:
+                  collected: list[dict[str, object]] = []
+                  seen_ids: set[int] = set()
+                  cursor = first_cursor
+                  while True:
+                      require(len(collected) <= 10000, "author inventory exceeds the safety limit")
+                      query = urllib.parse.urlencode(
+                          {parameter: cursor, "pageSize": 10000}
+                      )
+                      page = inventory_page(f"{FILES_API_URL}?{query}")
+                      if page is None:
+                          return None
+                      page_records, pagination, _ = page
+                      if not collected and record_ids(page_records) != expected_ids:
+                          return None
+                      if pagination is not None:
+                          if collected:
+                              return None
+                          return follow_authoritative_pagination(page_records, pagination)
+                      if not page_records:
+                          return collected
+                      page_ids = record_ids(page_records)
+                      if seen_ids.intersection(page_ids):
+                          return None
+                      require(
+                          len(collected) + len(page_records) <= 10000,
+                          "author inventory exceeds the safety limit",
+                      )
+                      collected.extend(page_records)
+                      seen_ids.update(page_ids)
+                      cursor = cursor + 1 if parameter == "page" else len(collected)
+
+              for parameter, first_cursor in (("page", 1), ("index", 0)):
+                  complete = follow_bare_pages(parameter, first_cursor)
+                  if complete is not None:
+                      return complete
+              fail(
+                  "author inventory supplied no provably complete pagination boundary",
+                  "BLOCKED_DUPLICATE_STATE_UNVERIFIED",
+              )
+
+
+          def author_inventory() -> list[dict[str, object]] | None:
+              first = inventory_page(FILES_API_URL)
+              if first is None:
+                  return None
+              records, pagination, _bare_list = first
+              if pagination is not None:
+                  index, page_size, total = pagination
+                  require(index == 0, "author inventory did not start at index zero")
+                  while len(records) < total:
+                      require(len(records) <= 10000, "author inventory exceeds the safety limit")
+                      next_index = len(records)
+                      query = urllib.parse.urlencode({"index": next_index, "pageSize": page_size})
+                      next_page = inventory_page(f"{FILES_API_URL}?{query}")
+                      if next_page is None:
+                          return None
+                      next_records, next_pagination, _next_bare_list = next_page
+                      require(next_pagination is not None, "author inventory pagination disappeared")
+                      page_index, returned_size, returned_total = next_pagination
+                      require(page_index == next_index, "author inventory repeated or skipped a page")
+                      require(returned_size == page_size, "author inventory page size changed")
+                      require(returned_total == total, "author inventory total changed during readback")
+                      require(bool(next_records), "author inventory ended before totalCount")
+                      records.extend(next_records)
+                  require(len(records) == total, "author inventory count differs from totalCount")
+              else:
+                  records = prove_unpaginated_inventory(records)
+              require(len(records) <= 10000, "author inventory exceeds the safety limit")
+              ids = [positive_id(value(item, "id", "fileId", "fileID")) for item in records]
+              require(all(item is not None for item in ids), "author inventory has an invalid file ID")
+              require(len(ids) == len(set(ids)), "author inventory has duplicate file IDs")
+              return records
+
+
+          def record_mentions_candidate(record: dict[str, object]) -> bool:
+              filename = value(record, "fileName", "filename", "file_name")
+              display_name = value(record, "displayName", "display_name")
+              text = " ".join(item for item in (filename, display_name) if isinstance(item, str))
+              return filename == JAR_FILENAME or VERSION in text
+
+
+          def verify_author_duplicate(record: dict[str, object], file_id: int) -> int | str | None:
+              status = verify_basic_file_record(record, file_id)
+              rows = relation_rows(record)
+              require(rows is not None, "author duplicate readback does not expose relations")
+              require(
+                  normalized_relations(rows) == expected_relation_set(),
+                  "author duplicate relation set or relation types differ",
+              )
+              verify_remote_bytes(file_id)
+              return status
+
+
+          def multipart_body(metadata: dict[str, object], jar_path: Path) -> tuple[bytes, str]:
+              boundary = f"----ioe-curseforge-{uuid.uuid4().hex}"
+              metadata_bytes = json.dumps(metadata, separators=(",", ":")).encode("utf-8")
+              jar_bytes = jar_path.read_bytes()
+              chunks = [
+                  f"--{boundary}\r\n".encode(),
+                  b'Content-Disposition: form-data; name="metadata"\r\n',
+                  b"Content-Type: application/json\r\n\r\n",
+                  metadata_bytes,
+                  b"\r\n",
+                  f"--{boundary}\r\n".encode(),
+                  (
+                      f'Content-Disposition: form-data; name="file"; filename="{JAR_FILENAME}"\r\n'
+                  ).encode(),
+                  b"Content-Type: application/java-archive\r\n\r\n",
+                  jar_bytes,
+                  b"\r\n",
+                  f"--{boundary}--\r\n".encode(),
+              ]
+              return b"".join(chunks), boundary
+
+
+          def upload_once(metadata: dict[str, object], jar_path: Path) -> int:
+              global upload_attempted, uploaded_file_id
+              require(not upload_attempted, "a second upload attempt was requested")
+              upload_attempted = True
+              marker = f"CF_UPLOAD_ATTEMPT_STARTED jar_sha256={JAR_SHA256}"
+              print(marker, flush=True)
+              append_summary(
+                  "\n## CurseForge upload attempt\n\n"
+                  "- State: `ATTEMPT_STARTED_REMOTE_STATE_UNCERTAIN`\n"
+                  f"- Candidate SHA-256: `{JAR_SHA256}`\n"
+              )
+              body, boundary = multipart_body(metadata, jar_path)
+              request = urllib.request.Request(
+                  UPLOAD_URL,
+                  data=body,
+                  headers={
+                      "User-Agent": USER_AGENT,
+                      "Accept": "application/json",
+                      "Content-Type": f"multipart/form-data; boundary={boundary}",
+                      "X-Api-Token": CURSEFORGE_TOKEN,
+                  },
+                  method="POST",
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=180) as response:
+                      raw = response.read()
+              except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError):
+                  fail("upload request did not return a verifiable response", "UPLOAD_RESPONSE_UNVERIFIED")
+              try:
+                  result = json.loads(raw.decode("utf-8"))
+              except (UnicodeDecodeError, json.JSONDecodeError):
+                  fail("upload response was not valid JSON", "UPLOAD_RESPONSE_UNVERIFIED")
+              file_id = positive_id(result.get("id") if isinstance(result, dict) else None)
+              require(file_id is not None, "upload response lacks a valid file ID", "UPLOAD_RESPONSE_UNVERIFIED")
+              uploaded_file_id = file_id
+              print(f"CF_UPLOAD_ACCEPTED file_id={file_id} jar_sha256={JAR_SHA256}", flush=True)
+              append_summary(
+                  "\n## CurseForge upload accepted\n\n"
+                  "- State: `UPLOAD_ACCEPTED_READBACK_PENDING`\n"
+                  f"- Project ID: `{PROJECT_ID}`\n"
+                  f"- File ID: `{file_id}`\n"
+                  f"- Candidate SHA-256: `{JAR_SHA256}`\n"
+              )
+              return file_id
+
+
+          def post_upload_readback(file_id: int) -> tuple[str, int]:
+              pending_record_seen = False
+              pending_status: int | None = None
+              public_metadata_seen = False
+              for attempt in range(1, 7):
+                  public = public_file_readback(file_id)
+                  if public is not None:
+                      record, dependencies = public
+                      status = verify_basic_file_record(record, file_id)
+                      remote_relations = normalized_relations(dependencies)
+                      if remote_relations != expected_relation_set():
+                          if attempt == 6:
+                              fail("published relation set or relation types differ")
+                          public = None
+                      require(
+                          status in PUBLIC_FILE_STATUSES,
+                          f"public file has non-public status {status!r}",
+                      )
+                      if public is not None:
+                          public_metadata_seen = True
+                          if try_verify_remote_bytes(file_id):
+                              require(isinstance(status, int), "public readback lacks a numeric status")
+                              return "PUBLISHED_VERIFIED", status
+
+                  inventory = author_inventory()
+                  if inventory is not None:
+                      matches = [
+                          item
+                          for item in inventory
+                          if positive_id(value(item, "id", "fileId", "fileID")) == file_id
+                      ]
+                      require(len(matches) <= 1, "uploaded file ID is duplicated in author inventory")
+                      if matches:
+                          pending_record_seen = True
+                          status = verify_basic_file_record(matches[0], file_id)
+                          require(
+                              isinstance(status, int) and 1 <= status <= 23,
+                              "authenticated readback lacks a recognized moderation status",
+                          )
+                          pending_status = status
+                          require(
+                              status not in FAILED_FILE_STATUSES,
+                              f"uploaded file entered terminal failure status {status!r}",
+                          )
+                          rows = relation_rows(matches[0])
+                          if rows is not None:
+                              remote_relations = normalized_relations(rows)
+                              if remote_relations != expected_relation_set():
+                                  if attempt == 6:
+                                      fail("pending relation set or relation types differ")
+                                  pending_record_seen = False
+                  if attempt < 6:
+                      time.sleep(10)
+              require(
+                  not public_metadata_seen,
+                  "public metadata was visible but candidate bytes could not be verified",
+                  "READBACK_GUARD_FAILED",
+              )
+              require(
+                  pending_record_seen,
+                  "uploaded file ID was not returned by authenticated or public readback",
+                  "READBACK_GUARD_FAILED",
+              )
+              require(pending_status is not None, "pending readback lacks a moderation status")
+              return "UPLOADED_PENDING_MODERATION", pending_status
+
+
+          def prior_upload_file_ids() -> set[int]:
+              all_runs: list[dict[str, object]] = []
+              page = 1
+              total = None
+              while total is None or len(all_runs) < total:
+                  response = github_json(
+                      f"/repos/{REPOSITORY}/actions/workflows/curseforge-release.yml/runs"
+                      f"?event=workflow_dispatch&per_page=100&page={page}"
+                  )
+                  require(isinstance(response, dict), "workflow-run list response is not an object")
+                  raw_runs = response.get("workflow_runs")
+                  require(isinstance(raw_runs, list), "workflow-run list is absent")
+                  total_value = response.get("total_count")
+                  require(isinstance(total_value, int) and total_value >= 0, "workflow-run total is invalid")
+                  if total is None:
+                      total = total_value
+                      require(total <= 1000, "too many prior publication runs to audit safely")
+                  require(total == total_value, "workflow-run total changed during audit")
+                  if not raw_runs:
+                      break
+                  require(all(isinstance(item, dict) for item in raw_runs), "workflow-run entry is invalid")
+                  all_runs.extend(raw_runs)
+                  page += 1
+              require(total is not None and len(all_runs) >= total, "workflow-run pagination is incomplete")
+
+              accepted_ids: set[int] = set()
+              attempt_marker = f"CF_UPLOAD_ATTEMPT_STARTED jar_sha256={JAR_SHA256}".encode()
+              accepted_pattern = re.compile(
+                  rb"CF_UPLOAD_ACCEPTED file_id=([1-9][0-9]*) jar_sha256="
+                  + re.escape(JAR_SHA256.encode())
+              )
+              for run in all_runs:
+                  run_id = positive_id(run.get("id"))
+                  if run_id is None or run_id == CURRENT_RUN_ID or run.get("display_title") != RUN_TITLE:
+                      continue
+                  require(run.get("status") == "completed", "matching prior publication run is still active")
+                  run_attempt = run.get("run_attempt")
+                  require(
+                      isinstance(run_attempt, int) and run_attempt >= 1,
+                      f"prior publication run {run_id} has an invalid attempt count",
+                  )
+                  for attempt_number in range(1, run_attempt + 1):
+                      logs_zip = (
+                          RUNNER_TEMP
+                          / f"prior-publication-{run_id}-attempt-{attempt_number}.zip"
+                      )
+                      downloaded = run_binary_to_file(
+                          logs_zip,
+                          GH,
+                          "api",
+                          "-H",
+                          "Accept: application/vnd.github+json",
+                          f"/repos/{REPOSITORY}/actions/runs/{run_id}"
+                          f"/attempts/{attempt_number}/logs",
+                      )
+                      require(
+                          downloaded,
+                          f"logs for prior publication run {run_id} attempt {attempt_number} are unavailable",
+                      )
+                      try:
+                          with zipfile.ZipFile(logs_zip) as archive:
+                              log_bytes = b"\n".join(
+                                  archive.read(name)
+                                  for name in archive.namelist()
+                                  if not name.endswith("/")
+                              )
+                      except (OSError, zipfile.BadZipFile, KeyError):
+                          fail(
+                              f"logs for prior publication run {run_id} attempt "
+                              f"{attempt_number} cannot be inspected"
+                          )
+                      ids = {int(match) for match in accepted_pattern.findall(log_bytes)}
+                      if attempt_marker not in log_bytes:
+                          require(
+                              not ids,
+                              f"prior publication run {run_id} attempt {attempt_number} "
+                              "retained a file ID without an upload-attempt marker",
+                              "BLOCKED_PRIOR_UPLOAD_STATE_UNCERTAIN",
+                          )
+                          continue
+                      require(
+                          len(ids) == 1,
+                          f"prior publication run {run_id} attempt {attempt_number} "
+                          "attempted upload without one retained file ID",
+                          "BLOCKED_PRIOR_UPLOAD_STATE_UNCERTAIN",
+                      )
+                      accepted_ids.update(ids)
+              return accepted_ids
+
+
+          def write_noop(file_id: int) -> None:
+              append_summary(
+                  "\n## CurseForge publication\n\n"
+                  "- Outcome: `NOOP_ALREADY_PUBLISHED`\n"
+                  f"- Project ID: `{PROJECT_ID}`\n"
+                  f"- File ID: `{file_id}`\n"
+                  f"- Candidate SHA-256: `{JAR_SHA256}`\n"
+                  "- Upload attempt started: `no`\n"
+              )
+              print("NOOP_ALREADY_PUBLISHED")
+              raise SystemExit(0)
+
+
+          # Validate every free-form dispatch input before it influences a path or request.
+          require(bool(re.fullmatch(r"[0-9a-f]{40}", CANDIDATE_SHA)), "candidate_sha is invalid")
+          require(bool(re.fullmatch(r"[0-9a-f]{40}", CANDIDATE_TREE)), "candidate_tree is invalid")
+          require(bool(re.fullmatch(r"sha256:[0-9a-f]{64}", ARTIFACT_DIGEST)), "artifact_digest is invalid")
+          require(bool(re.fullmatch(r"[0-9a-f]{64}", JAR_SHA256)), "jar_sha256 is invalid")
+          require(
+              bool(re.fullmatch(r"[0-9a-f]{64}", QUALIFICATION_RECEIPT_SHA256)),
+              "qualification_receipt_sha256 is invalid",
+          )
+          EXPECTED_RUN_ID = parse_positive_integer("ci_run_id", CI_RUN_ID)
+          EXPECTED_ATTEMPT = parse_positive_integer("ci_attempt", CI_ATTEMPT)
+          EXPECTED_ARTIFACT_ID = parse_positive_integer("artifact_id", ARTIFACT_ID)
+          EXPECTED_JAR_SIZE = parse_positive_integer("jar_size", JAR_SIZE)
+          EXPECTED_COMMENT_ID = parse_positive_integer(
+              "qualification_comment_id", QUALIFICATION_COMMENT_ID
+          )
+          require(
+              bool(re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+(?:-(?:alpha|beta))?", VERSION)),
+              "version is invalid",
+          )
+          expected_filename = (
+              f"immersive_ore_expedition-{VERSION}-neoforge-{MINECRAFT_VERSION}.jar"
+          )
+          require(JAR_FILENAME == expected_filename, "jar_filename is not the deterministic production name")
+          RELEASE_TYPE = release_type(VERSION)
+          CURSEFORGE_HEADERS = {"X-Api-Token": CURSEFORGE_TOKEN, "Accept": "application/json"}
+
+          require(
+              CURRENT_RUN_ATTEMPT == 1,
+              "GitHub reruns are prohibited for a publication attempt; use a fresh dispatch",
+              "BLOCKED_PRIOR_UPLOAD_STATE_UNCERTAIN",
+          )
+          require(TRIGGER_REF == "refs/heads/main", "workflow definition was not dispatched from main")
+          require(TRIGGER_SHA == CANDIDATE_SHA, "workflow definition SHA differs from candidate")
+          require(
+              WORKFLOW_REF
+              == f"{REPOSITORY}/.github/workflows/curseforge-release.yml@refs/heads/main",
+              "workflow definition ref is not the main-branch release workflow",
+          )
+
+          # Bind the checkout to the current main tip so a historical green artifact cannot publish.
+          ref_data = github_json(f"/repos/{REPOSITORY}/git/ref/heads/main")
+          require(isinstance(ref_data, dict), "main ref response is not an object")
+          ref_object = ref_data.get("object")
+          require(isinstance(ref_object, dict), "main ref object is absent")
+          require(ref_object.get("sha") == CANDIDATE_SHA, "candidate is not the current main tip")
+          commit_data = github_json(f"/repos/{REPOSITORY}/git/commits/{CANDIDATE_SHA}")
+          require(isinstance(commit_data, dict), "candidate commit response is not an object")
+          commit_tree = commit_data.get("tree")
+          require(isinstance(commit_tree, dict), "candidate commit tree is absent")
+          require(commit_tree.get("sha") == CANDIDATE_TREE, "remote candidate tree differs")
+          commit_committer = commit_data.get("committer")
+          require(isinstance(commit_committer, dict), "candidate committer metadata is absent")
+          candidate_committed_at = parse_instant(commit_committer.get("date"), "candidate commit")
+
+          require(run_text(GIT, "rev-parse", "HEAD") == CANDIDATE_SHA, "checkout SHA differs")
+          require(
+              run_text(GIT, "show", "-s", "--format=%T", "HEAD") == CANDIDATE_TREE,
+              "checkout tree differs",
+          )
+          repo_file(".github/workflows/curseforge-release.yml")
+
+          properties_path = repo_file(MODULE_RELATIVE / "gradle.properties")
+          properties = properties_path.read_text(encoding="utf-8")
+          version_match = re.search(r"(?m)^mod_version\s*=\s*(\S+)\s*$", properties)
+          require(bool(version_match), "authoritative mod_version is absent")
+          require(version_match.group(1) == VERSION, "authoritative version differs from input")
+          release_notes_path = repo_file(MODULE_RELATIVE / "docs" / f"RELEASE_NOTES_{VERSION}.md")
+          release_notes = release_notes_path.read_text(encoding="utf-8")
+          require("NOT_PUBLISHED" in release_notes, "release notes no longer retain NOT_PUBLISHED")
+          require(VERSION in release_notes, "release notes do not match the candidate version")
+          release_checklist = repo_file(MODULE_RELATIVE / "docs" / "RELEASE_CHECKLIST.md").read_text(
+              encoding="utf-8"
+          )
+          for marker in (
+              "Automated validation source of truth: GitHub Actions",
+              "PUBLICATION_READY: BLOCKED_MANUAL_SMOKE",
+              "DOMUM_LEGAL_COMPATIBILITY: UNDETERMINED",
+          ):
+              require(marker in release_checklist, f"release checklist marker is absent: {marker}")
+
+          # Bind the successful main CI run and exact retained artifact.
+          run_data = github_json(
+              f"/repos/{REPOSITORY}/actions/runs/{EXPECTED_RUN_ID}/attempts/{EXPECTED_ATTEMPT}"
+          )
+          require(isinstance(run_data, dict), "CI run response is not an object")
+          require(run_data.get("id") == EXPECTED_RUN_ID, "CI run ID differs")
+          require(run_data.get("run_attempt") == EXPECTED_ATTEMPT, "CI attempt differs")
+          require(run_data.get("event") == "push", "CI event is not push")
+          require(run_data.get("head_branch") == "main", "CI run is not for main")
+          require(run_data.get("head_sha") == CANDIDATE_SHA, "CI head SHA differs")
+          require(run_data.get("status") == "completed", "CI run is not completed")
+          require(run_data.get("conclusion") == "success", "CI run did not succeed")
+          require(run_data.get("path") == ".github/workflows/ci.yml", "unexpected CI workflow path")
+          run_completed_at = parse_instant(run_data.get("updated_at"), "CI completion")
+
+          artifacts_data = github_json(
+              f"/repos/{REPOSITORY}/actions/runs/{EXPECTED_RUN_ID}/artifacts?per_page=100"
+          )
+          require(isinstance(artifacts_data, dict), "artifact list response is not an object")
+          matches = [
+              item
+              for item in artifacts_data.get("artifacts", [])
+              if isinstance(item, dict) and item.get("id") == EXPECTED_ARTIFACT_ID
+          ]
+          require(len(matches) == 1, "artifact ID is not unique in the CI run")
+          artifact = matches[0]
+          require(artifact.get("name") == "immersive-ore-expedition-neoforge-1.21.1", "artifact name differs")
+          require(artifact.get("expired") is False, "artifact is expired")
+          require(artifact.get("digest") == ARTIFACT_DIGEST, "artifact digest differs")
+          workflow_run = artifact.get("workflow_run") or {}
+          require(isinstance(workflow_run, dict), "artifact workflow identity is absent")
+          require(workflow_run.get("id") == EXPECTED_RUN_ID, "artifact belongs to another run")
+          require(workflow_run.get("head_sha") == CANDIDATE_SHA, "artifact head SHA differs")
+
+          # Require an unedited owner comment containing a digest-bound qualification receipt.
+          comment = http_json(
+              f"https://api.github.com/repos/{REPOSITORY}/issues/comments/{EXPECTED_COMMENT_ID}",
+              headers={
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+              },
+          )
+          require(isinstance(comment, dict), "qualification comment response is not an object")
+          author = comment.get("user")
+          require(isinstance(author, dict), "qualification comment author is absent")
+          require(
+              str(author.get("login", "")).lower() == REPOSITORY_OWNER.lower(),
+              "qualification comment was not authored by the repository owner",
+          )
+          require(comment.get("author_association") == "OWNER", "qualification author is not OWNER")
+          require(comment.get("created_at") == comment.get("updated_at"), "qualification comment was edited")
+          issue_url = comment.get("issue_url")
+          require(
+              isinstance(issue_url, str) and issue_url.startswith(f"https://api.github.com/repos/{REPOSITORY}/issues/"),
+              "qualification comment belongs to another repository",
+          )
+          comment_body = comment.get("body")
+          require(isinstance(comment_body, str), "qualification comment body is absent")
+          require(
+              hashlib.sha256(comment_body.encode("utf-8")).hexdigest()
+              == QUALIFICATION_RECEIPT_SHA256,
+              "qualification comment digest differs",
+          )
+          receipt_match = re.fullmatch(
+              r"\s*(?:\\)?:release to curse\s*\r?\n```json\r?\n(?P<receipt>\{.*\})\r?\n```\s*",
+              comment_body,
+              flags=re.DOTALL,
+          )
+          require(bool(receipt_match), "qualification comment format is invalid")
+          try:
+              receipt = json.loads(receipt_match.group("receipt"))
+          except json.JSONDecodeError:
+              fail("qualification receipt JSON is invalid")
+          require(isinstance(receipt, dict), "qualification receipt is not an object")
+          required_receipt_keys = {
+              "schema",
+              "decision",
+              "candidate_sha",
+              "candidate_tree",
+              "ci_run_id",
+              "ci_attempt",
+              "artifact_id",
+              "artifact_digest",
+              "version",
+              "jar_filename",
+              "jar_sha256",
+              "jar_size",
+              "junit_status",
+              "static_validator_status",
+              "baseline_hosted_gametest_status",
+              "complete_pinned_runtime_gametest_status",
+              "build_and_jar_inspection_status",
+              "manual_client_smoke",
+              "manual_dedicated_server_smoke",
+              "manual_visual_worldgen_smoke",
+              "runtime_ready",
+              "release_qualified",
+              "known_limitations_acknowledged",
+              "domum_owner_decision_gate",
+              "domum_owner_distribution_disposition",
+              "domum_legal_compatibility",
+          }
+          require(set(receipt) == required_receipt_keys, "qualification receipt keys differ")
+          expected_receipt_values = {
+              "schema": "ioe-curseforge-qualification-v1",
+              "decision": "PUBLICATION_READY",
+              "candidate_sha": CANDIDATE_SHA,
+              "candidate_tree": CANDIDATE_TREE,
+              "ci_run_id": EXPECTED_RUN_ID,
+              "ci_attempt": EXPECTED_ATTEMPT,
+              "artifact_id": EXPECTED_ARTIFACT_ID,
+              "artifact_digest": ARTIFACT_DIGEST,
+              "version": VERSION,
+              "jar_filename": JAR_FILENAME,
+              "jar_sha256": JAR_SHA256,
+              "jar_size": EXPECTED_JAR_SIZE,
+              "junit_status": "PASS",
+              "static_validator_status": "PASS",
+              "baseline_hosted_gametest_status": "PASS",
+              "complete_pinned_runtime_gametest_status": "PASS",
+              "build_and_jar_inspection_status": "PASS",
+              "manual_client_smoke": "PASS",
+              "manual_dedicated_server_smoke": "PASS",
+              "manual_visual_worldgen_smoke": "PASS",
+              "runtime_ready": True,
+              "release_qualified": True,
+              "known_limitations_acknowledged": True,
+              "domum_owner_decision_gate": "PASS",
+              "domum_owner_distribution_disposition": (
+                  "PROCEED_WITH_SEPARATE_OPTIONAL_DOMUM_INTEGRATION"
+              ),
+              "domum_legal_compatibility": "UNDETERMINED",
+          }
+          require(receipt == expected_receipt_values, "qualification receipt values differ")
+          comment_created_at = parse_instant(comment.get("created_at"), "qualification comment")
+          require(comment_created_at > candidate_committed_at, "qualification predates candidate commit")
+          require(comment_created_at > run_completed_at, "qualification predates successful CI completion")
+
+          artifact_zip = RUNNER_TEMP / f"artifact-{EXPECTED_ARTIFACT_ID}.zip"
+          downloaded = run_binary_to_file(
+              artifact_zip,
+              GH,
+              "api",
+              "-H",
+              "Accept: application/vnd.github+json",
+              f"/repos/{REPOSITORY}/actions/artifacts/{EXPECTED_ARTIFACT_ID}/zip",
+          )
+          require(downloaded, "artifact download failed")
+
+          excluded_jar_markers = ("sources", "javadoc", "dev", "plain", "test", "tests", "api")
+          try:
+              with zipfile.ZipFile(artifact_zip) as archive:
+                  archive_names = archive.namelist()
+                  require(len(archive_names) == len(set(archive_names)), "artifact ZIP has duplicate entries")
+                  production_entries = []
+                  for name in archive_names:
+                      path = PurePosixPath(name)
+                      if path.name.lower().endswith(".jar") and not any(
+                          marker in path.stem.lower() for marker in excluded_jar_markers
+                      ):
+                          production_entries.append(name)
+                  require(len(production_entries) == 1, "artifact does not contain exactly one production JAR")
+                  require(
+                      PurePosixPath(production_entries[0]).name == JAR_FILENAME,
+                      "artifact production JAR filename differs",
+                  )
+                  jar_bytes = archive.read(production_entries[0])
+          except zipfile.BadZipFile:
+              fail("downloaded artifact is not a valid ZIP")
+          require(len(jar_bytes) == EXPECTED_JAR_SIZE, "candidate JAR size differs")
+          require(hashlib.sha256(jar_bytes).hexdigest() == JAR_SHA256, "candidate JAR SHA-256 differs")
+          candidate_jar = RUNNER_TEMP / JAR_FILENAME
+          candidate_jar.write_bytes(jar_bytes)
+
+          try:
+              with zipfile.ZipFile(candidate_jar) as jar:
+                  jar_names = jar.namelist()
+                  require(len(jar_names) == len(set(jar_names)), "candidate JAR has duplicate entries")
+                  require(
+                      "META-INF/neoforge.mods.toml" in jar_names,
+                      "candidate JAR lacks META-INF/neoforge.mods.toml",
+                  )
+                  ioe_classes = [
+                      name
+                      for name in jar_names
+                      if name.startswith("com/oblixorprime/ioe/") and name.endswith(".class")
+                  ]
+                  require(bool(ioe_classes), "candidate JAR contains no compiled IOE classes")
+                  embedded_jars = [name for name in jar_names if name.lower().endswith(".jar")]
+                  require(not embedded_jars, "candidate JAR contains unexpected embedded JARs")
+                  built_metadata = jar.read("META-INF/neoforge.mods.toml").decode("utf-8")
+          except (zipfile.BadZipFile, UnicodeDecodeError):
+              fail("candidate JAR or metadata is invalid")
+          mod_id_match = re.search(r'(?m)^\s*modId\s*=\s*"([^"]+)"', built_metadata)
+          mod_version_match = re.search(r'(?m)^\s*version\s*=\s*"([^"]+)"', built_metadata)
+          require(
+              bool(mod_id_match) and mod_id_match.group(1) == "immersive_ore_expedition",
+              "candidate mod ID differs",
+          )
+          require(
+              bool(mod_version_match) and mod_version_match.group(1) == VERSION,
+              "candidate metadata version differs",
+          )
+
+          source_metadata = repo_file(
+              MODULE_RELATIVE / "src/main/resources/META-INF/neoforge.mods.toml"
+          ).read_text(encoding="utf-8")
+          source_dependencies = parse_dependencies(source_metadata, "source manifest")
+          built_dependencies = parse_dependencies(built_metadata, "built manifest")
+          require(
+              source_dependencies == EXPECTED_DEPENDENCY_TYPES,
+              "source manifest dependency set or types differ",
+          )
+          require(
+              built_dependencies == EXPECTED_DEPENDENCY_TYPES,
+              "built manifest dependency set or types differ",
+          )
+          require(
+              source_dependencies["domum_ornamentum"] == "optional"
+              and built_dependencies["domum_ornamentum"] == "optional",
+              "Domum manifest status unexpectedly changed",
+          )
+          build_script = repo_file(MODULE_RELATIVE / "build.gradle").read_text(encoding="utf-8")
+          required_build_declarations = (
+              "compileOnly group: 'info.journeymap', name: 'journeymap-api-neoforge'",
+              'compileOnly "blusunrize.immersiveengineering:ImmersiveEngineering:',
+              'compileOnly "maven.modrinth:${ip_modrinth_project}:',
+              'compileOnly "com.ldtteam:domum-ornamentum:${domum_version}:api"',
+              'runtimeOnly "org.appliedenergistics:appliedenergistics2:',
+              'runtimeOnly "maven.modrinth:${ae2cs_modrinth_project}:',
+              'runtimeOnly "maven.modrinth:${geore_modrinth_project}:',
+          )
+          for declaration in required_build_declarations:
+              require(
+                  build_script.count(declaration) == 1,
+                  f"build dependency declaration count differs: {declaration}",
+              )
+
+          # Verify the immutable project/file identity and live metadata vocabulary.
+          known_payload = http_json(f"{PUBLIC_API_BASE}/{KNOWN_FILE_ID}")
+          require(isinstance(known_payload, dict), "known CurseForge file response is invalid")
+          known_record = known_payload.get("data")
+          require(isinstance(known_record, dict), "known CurseForge file record is absent")
+          require(positive_id(known_record.get("id")) == KNOWN_FILE_ID, "known file ID differs")
+          require(positive_id(known_record.get("projectId")) == int(PROJECT_ID), "CurseForge project ID differs")
+          require(known_record.get("fileName") == KNOWN_FILENAME, "CurseForge IOE file identity differs")
+          known_versions = game_version_names(known_record)
+          require(MINECRAFT_VERSION in known_versions and MOD_LOADER in known_versions, "CurseForge IOE platform identity differs")
+
+          require(bool(CURSEFORGE_TOKEN), "CURSEFORGE_TOKEN is unavailable")
+          versions = http_json(f"{AUTHOR_API_BASE}/game/versions", headers=CURSEFORGE_HEADERS)
+          require(isinstance(versions, list), "game-version API response is not a list")
+          version_names = {str(item.get("name")) for item in versions if isinstance(item, dict)}
+          require(MINECRAFT_VERSION in version_names, "Minecraft game-version name is unresolved")
+          require(MOD_LOADER in version_names, "NeoForge metadata name is unresolved")
+
+          relation_metadata = [
+              {"slug": slug, "projectID": project_id, "type": relation_type}
+              for slug, project_id, relation_type, _mod_id in RELATIONS
+          ]
+          require(len(relation_metadata) == 8, "authorized CurseForge relation count differs")
+          require(
+              all(item["slug"] != "domum-ornamentum" for item in relation_metadata),
+              "Domum relation was added without authority",
+          )
+
+          # Authenticated author inventory includes pending files and is the duplicate authority.
+          inventory = author_inventory()
+          require(
+              inventory is not None,
+              "authenticated author file inventory is unavailable",
+              "BLOCKED_DUPLICATE_STATE_UNVERIFIED",
+          )
+          known_inventory_matches = [
+              item
+              for item in inventory
+              if positive_id(value(item, "id", "fileId", "fileID")) == KNOWN_FILE_ID
+              and value(item, "fileName", "filename", "file_name") == KNOWN_FILENAME
+          ]
+          require(
+              len(known_inventory_matches) == 1,
+              "author inventory does not prove the expected IOE project/file identity",
+              "BLOCKED_DUPLICATE_STATE_UNVERIFIED",
+          )
+
+          prior_ids = prior_upload_file_ids()
+          require(
+              len(prior_ids) <= 1,
+              "multiple prior upload attempts returned different file IDs",
+              "BLOCKED_REMOTE_VERSION_CONFLICT",
+          )
+          candidate_records = [item for item in inventory if record_mentions_candidate(item)]
+          require(
+              len(candidate_records) <= 1,
+              "multiple remote records mention the candidate version",
+              "BLOCKED_REMOTE_VERSION_CONFLICT",
+          )
+          if candidate_records:
+              record = candidate_records[0]
+              file_id = positive_id(value(record, "id", "fileId", "fileID"))
+              require(file_id is not None, "remote candidate file ID is absent")
+              require(
+                  not prior_ids or prior_ids == {file_id},
+                  "candidate record file ID differs from the prior accepted upload ID",
+                  "BLOCKED_PRIOR_UPLOAD_STATE_UNCERTAIN",
+              )
+              filename = value(record, "fileName", "filename", "file_name")
+              require(
+                  filename == JAR_FILENAME,
+                  "same version exists under a different filename",
+                  "BLOCKED_REMOTE_VERSION_CONFLICT",
+              )
+              public = public_file_readback(file_id)
+              if public is not None:
+                  status = verify_public_candidate(file_id)
+                  require(status in PUBLIC_FILE_STATUSES, "remote candidate is not publicly approved")
+                  write_noop(file_id)
+              status = verify_author_duplicate(record, file_id)
+              require(
+                  status in PUBLIC_FILE_STATUSES,
+                  f"exact candidate exists but is not public (status {status!r})",
+                  "BLOCKED_REMOTE_CANDIDATE_PENDING",
+              )
+              fail("author inventory says candidate is public but public readback is absent")
+
+          if prior_ids:
+              for prior_file_id in sorted(prior_ids):
+                  public = public_file_readback(prior_file_id)
+                  if public is not None:
+                      status = verify_public_candidate(prior_file_id)
+                      require(status in PUBLIC_FILE_STATUSES, "prior candidate is not publicly approved")
+                      write_noop(prior_file_id)
+                  matching_author = [
+                      item
+                      for item in inventory
+                      if positive_id(value(item, "id", "fileId", "fileID")) == prior_file_id
+                  ]
+                  require(
+                      len(matching_author) == 1,
+                      f"prior accepted file ID {prior_file_id} is absent from all readback",
+                      "BLOCKED_PRIOR_UPLOAD_STATE_UNCERTAIN",
+                  )
+                  verify_author_duplicate(matching_author[0], prior_file_id)
+                  fail(
+                      f"prior accepted file ID {prior_file_id} is not publicly verified",
+                      "BLOCKED_REMOTE_CANDIDATE_PENDING",
+                  )
+
+          # Repeat mutable remote gates immediately before the only POST call.
+          final_inventory = author_inventory()
+          require(
+              final_inventory is not None,
+              "final authenticated duplicate readback is unavailable",
+              "BLOCKED_DUPLICATE_STATE_UNVERIFIED",
+          )
+          final_known_identity = [
+              item
+              for item in final_inventory
+              if positive_id(value(item, "id", "fileId", "fileID")) == KNOWN_FILE_ID
+              and value(item, "fileName", "filename", "file_name") == KNOWN_FILENAME
+          ]
+          require(
+              len(final_known_identity) == 1,
+              "final author inventory lost the expected IOE identity anchor",
+              "BLOCKED_DUPLICATE_STATE_UNVERIFIED",
+          )
+          require(
+              not any(record_mentions_candidate(item) for item in final_inventory),
+              "candidate version appeared after the initial duplicate check",
+              "BLOCKED_REMOTE_VERSION_CONFLICT",
+          )
+          final_ref = github_json(f"/repos/{REPOSITORY}/git/ref/heads/main")
+          require(isinstance(final_ref, dict), "final main ref response is not an object")
+          final_ref_object = final_ref.get("object")
+          require(isinstance(final_ref_object, dict), "final main ref object is absent")
+          require(
+              final_ref_object.get("sha") == CANDIDATE_SHA,
+              "main advanced after qualification; a new candidate is required",
+          )
+
+          upload_metadata = {
+              "changelog": release_notes,
+              "changelogType": "markdown",
+              "displayName": JAR_FILENAME,
+              "gameVersionNames": [MINECRAFT_VERSION, MOD_LOADER],
+              "releaseType": RELEASE_TYPE,
+              "isMarkedForManualRelease": False,
+              "relations": {"projects": relation_metadata},
+          }
+          uploaded_file_id = upload_once(upload_metadata, candidate_jar)
+          final_outcome, final_status = post_upload_readback(uploaded_file_id)
+          append_summary(
+              "\n## CurseForge publication\n\n"
+              f"- Outcome: `{final_outcome}`\n"
+              f"- Project ID: `{PROJECT_ID}`\n"
+              f"- File ID: `{uploaded_file_id}`\n"
+              f"- Version: `{VERSION}`\n"
+              f"- Release type: `{RELEASE_TYPE}`\n"
+              f"- Minecraft / loader: `{MINECRAFT_VERSION}` / `{MOD_LOADER}`\n"
+              f"- Candidate SHA-256: `{JAR_SHA256}`\n"
+              f"- Moderation status code: `{final_status}`\n"
+          )
+          print(final_outcome)
+          PY
