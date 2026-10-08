@@ -150,6 +150,15 @@ final class IoeExpeditionPlanPlacement {
                     if (current.equals(previous.getValue()) || !current.equals(target)) {
                         continue;
                     }
+                    ExpeditionBlockEntityPayload payload = plan.blockEntityPayloads().get(pos);
+                    if (payload != null && payload.hasLootTable()
+                            && level.getBlockEntity(pos) instanceof RandomizableContainerBlockEntity container) {
+                        // Removing a chest normally unpacks and drops its loot. This container belongs to
+                        // the uncommitted plan (pre-existing block entities are rejected by canWrite).
+                        container.setLootTable(null);
+                        container.clearContent();
+                        container.setChanged();
+                    }
                     boolean changed = level.setBlock(pos, previous.getValue(), BLOCK_UPDATE_FLAGS);
                     if (!changed && !level.getBlockState(pos).equals(previous.getValue())) {
                         restored = false;

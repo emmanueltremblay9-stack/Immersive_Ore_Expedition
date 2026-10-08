@@ -21,7 +21,7 @@ import java.util.List;
 
 /** Loaded by the GameTest only when the optional Jade runtime is present. */
 public final class JadeRuntimeChecks {
-    public static void run(GameTestHelper helper) throws ReflectiveOperationException {
+    public static void run(GameTestHelper helper) throws ReflectiveOperationException, java.io.IOException {
         var level = helper.getLevel();
         BlockPos pos = helper.absolutePos(new BlockPos(4, 4, 4));
         level.setBlockAndUpdate(pos, IoeIronBuddingBlocks.block(BuddingRank.FLAWED).defaultBlockState());
@@ -34,6 +34,7 @@ public final class JadeRuntimeChecks {
         var site = ExpeditionSite.anchor(level.dimension(), pos.above(24), ResourceLocation.parse("immersive_ore_expedition:miner_camp"),
                 null, SiteQuality.MOTHERLODE, "test").withBuddingNodes(List.of(node));
         ExpeditionLocatorService.record(level, site);
+        com.oblixorprime.ioe.expeditionlocator.BuddingPersistenceRuntimeChecks.reloadFromDisk(level);
         CompoundTag serverData = new CompoundTag();
         BlockAccessor accessor = (BlockAccessor) Proxy.newProxyInstance(BlockAccessor.class.getClassLoader(),
                 new Class<?>[]{BlockAccessor.class}, (proxy, method, args) -> switch (method.getName()) {
@@ -68,6 +69,7 @@ public final class JadeRuntimeChecks {
             helper.assertTrue(lines.size() == (rank == BuddingRank.FLAWLESS ? 6 : 5), "Wrong Flawless site indicator");
         }
         ExpeditionLocatorService.removeBuddingNode(level, pos);
+        com.oblixorprime.ioe.expeditionlocator.BuddingPersistenceRuntimeChecks.reloadFromDisk(level);
         serverData.remove("immersive_ore_expedition:budding");
         IoeBuddingProvider.INSTANCE.appendServerData(serverData, accessor);
         lines.clear();

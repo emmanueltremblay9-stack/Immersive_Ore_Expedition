@@ -35,8 +35,9 @@ reopening/reconfirmation does not reroll it. Residual ore placement remains pend
 the planner keeps an explicit 0–5 count without selecting its distribution.
 Other resource families remain on their existing structure/deposit path.
 
-Models reference the installed GeOre Iron model, without copying third-party assets.
-All four ranks currently share that model; distinct rank artwork and client visual
-verification remain outstanding. Optional Jade 15.10.6 now displays the live rank and
+Models retain the installed GeOre Iron texture and add original, cumulative fracture
+geometry to distinguish all four ranks without copying third-party images. Static
+resource validation is automated; actual client visual acceptance remains outstanding.
+See `PR63_REGRESSION_VALIDATION.md` for the specification and proof boundaries. Optional Jade 15.10.6 now displays the live rank and
 committed site/node metadata. The other supported families, full progression testing
 and release smoke evidence remain outstanding.
