@@ -732,7 +732,7 @@ def validate() -> None:
     dry_feature_path = re.sub(
         r"\s+",
         "",
-        java_method_body(game_test_source, "minerCampDryProductionPath", "GameTestHelper helper"),
+        java_method_body(game_test_source, "proveDryProductionPath", "GameTestHelper helper, long seed, boolean assertReward"),
     )
     default_feature_path = re.sub(
         r"\s+",
@@ -748,7 +748,9 @@ def validate() -> None:
         "(ignoredLevel,ignoredChamberOrigin)->newBiomeMineResourceProfile.Resolution("
         "Optional.of(testProfile),BiomeMineResourceProfile.Failure.NONE)).place(context);"
     )
-    require("RandomSource.create(DRY_SEED)" in dry_feature_path
+    require("RandomSource.create(seed)" in dry_feature_path
+            and "proveDryProductionPath(helper, DRY_SEED, false);" in game_test_source
+            and "proveDryProductionPath(helper, seed, true);" in game_test_source
             and "BiomeMineResourceProfiletestProfile=testIronProfile(level);" in dry_feature_path
             and dry_feature_path.count(injected_dry_place) == 1
             and dry_feature_path.count("newExpeditionSiteFeature(") == 1

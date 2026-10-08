@@ -5,6 +5,7 @@ import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
 import com.oblixorprime.ioe.compat.ip.IoePetroleumReservoirBridge;
 import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.budding.BuddingSitePlan;
+import com.oblixorprime.ioe.budding.DrySiteReward;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.core.SiteQualityRoll;
 import net.minecraft.core.BlockPos;
@@ -100,6 +101,8 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         }
 
         long planSeed = context.random().nextLong();
+        boolean drySeedReward = siteType.naturalSurfaceSite() && ModList.get().isLoaded("ae2cs")
+                && DrySiteReward.roll(quality, RandomSource.create(planSeed ^ 0x53454544L));
         ProspectorCampContext prospectorCampContext = new ProspectorCampContext(
                 visualFamily,
                 planSeed,
@@ -167,6 +170,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     && prospectorCampContext.archetype() == ProspectorCampArchetype.ACTIVE
                     ? previewPlan
                     : structureOnlyPlan(siteType, origin, quality, planSeed, prospectorCampContext);
+            plan = DrySiteRewards.attach(plan, drySeedReward, planSeed);
             if (ironBudget != null) {
                 if (quality != ironBudget.quality()) {
                     ironBudget = ironBudget.downgradeTo(quality, 0);

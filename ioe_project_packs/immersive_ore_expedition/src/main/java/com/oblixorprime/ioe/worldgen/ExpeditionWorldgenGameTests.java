@@ -1230,6 +1230,23 @@ public final class ExpeditionWorldgenGameTests {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void minerCampDryProductionPath(GameTestHelper helper) {
+        proveDryProductionPath(helper, DRY_SEED, false);
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void drySeedRewardCommitsOnceThroughProduction(GameTestHelper helper) {
+        long seed = 0;
+        while (true) {
+            RandomSource random = RandomSource.create(seed);
+            SiteQuality quality = SiteQualityRoll.DEFAULT.roll(random);
+            long planSeed = random.nextLong();
+            if (com.oblixorprime.ioe.budding.DrySiteReward.roll(quality, RandomSource.create(planSeed ^ 0x53454544L))) break;
+            seed++;
+        }
+        proveDryProductionPath(helper, seed, true);
+    }
+
+    private static void proveDryProductionPath(GameTestHelper helper, long seed, boolean assertReward) {
         ServerLevel level = helper.getLevel();
         ExpeditionLocatorService.index(level).clear();
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(64, 24, 64)));
@@ -1240,7 +1257,7 @@ public final class ExpeditionWorldgenGameTests {
                 Optional.empty(),
                 level,
                 level.getChunkSource().getGenerator(),
-                RandomSource.create(DRY_SEED),
+                RandomSource.create(seed),
                 requestedOrigin,
                 NoneFeatureConfiguration.INSTANCE
         );
@@ -1279,6 +1296,26 @@ public final class ExpeditionWorldgenGameTests {
                 ),
                 "The Dry production path placed a productive resource block");
         assertSealedSurfaceHatch(helper, level, requestedOrigin, ExpeditionSiteType.MINER_CAMP);
+        if (assertReward) {
+            var neutralSeed = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse("ae2cs:resonating_seed")).orElseThrow();
+            java.util.function.IntSupplier count = () -> {
+                int total = 0;
+                for (BlockPos pos : BlockPos.betweenClosed(testChunk.getMinBlockX(), 0, testChunk.getMinBlockZ(),
+                        testChunk.getMaxBlockX(), 47, testChunk.getMaxBlockZ())) {
+                    if (level.getBlockEntity(pos) instanceof net.minecraft.world.Container container) {
+                        for (int slot = 0; slot < container.getContainerSize(); slot++) {
+                            var item = container.getItem(slot);
+                            if (item.is(neutralSeed)) total += item.getCount();
+                        }
+                    }
+                }
+                return total;
+            };
+            helper.assertTrue(count.getAsInt() == 1, "Winning DRY site must contain exactly one neutral seed");
+            helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level, testChunk).confirmedSites() == 0,
+                    "A confirmed DRY site must not commit twice");
+            helper.assertTrue(count.getAsInt() == 1, "Reconfirmation or reopening duplicated the neutral seed");
+        }
         helper.succeed();
     }
 

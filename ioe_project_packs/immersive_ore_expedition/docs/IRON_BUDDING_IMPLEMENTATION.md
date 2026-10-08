@@ -29,8 +29,10 @@ GeOre 6.2.2 and AE2 Crystal Science 1.1.12 runtime. It is not a 1.0.0 release ap
 
 ## Remaining work
 
-DRY pockets and the 10% neutral-seed reward are not wired to placement yet. The planner
-keeps an explicit 0–5 residual count; this change does not select its distribution.
+The 10% DRY neutral-seed reward is now planned once and placed in an underground cache
+through the same compensated transaction. Winning loot yields exactly one neutral seed;
+reopening/reconfirmation does not reroll it. Residual ore placement remains pending:
+the planner keeps an explicit 0–5 count without selecting its distribution.
 Other resource families remain on their existing structure/deposit path.
 
 Models reference the installed GeOre Iron model, without copying third-party assets.
