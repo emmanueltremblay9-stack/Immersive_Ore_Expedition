@@ -109,6 +109,74 @@ public final class IronBuddingGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void ironRegistersFourDistinctBlocksAndItems(GameTestHelper helper) {
+        var blocks = new java.util.HashSet<Block>();
+        var items = new java.util.HashSet<net.minecraft.world.item.Item>();
+        for (BuddingRank rank : BuddingRank.values()) {
+            Block block = IoeIronBuddingBlocks.block(rank);
+            ResourceLocation expected = id("immersive_ore_expedition:" + rank.path() + "_budding_iron");
+            helper.assertTrue(BuiltInRegistries.BLOCK.getKey(block).equals(expected), "Wrong registered Iron block id");
+            helper.assertTrue(block instanceof IronBuddingBlock iron && iron.rank() == rank, "Wrong functional Iron rank");
+            helper.assertTrue(block.asItem() instanceof net.minecraft.world.item.BlockItem item && item.getBlock() == block,
+                    "Each rank needs its own usable BlockItem");
+            helper.assertTrue(BuiltInRegistries.ITEM.getKey(block.asItem()).equals(expected), "Wrong Iron item id");
+            blocks.add(block);
+            items.add(block.asItem());
+        }
+        helper.assertTrue(blocks.size() == 4 && items.size() == 4, "Ranks must not alias one registered block/item");
+        helper.succeed();
+    }
+
+    /** Exercise AE2's loaded transform engine, including input consumption and the restoration ceiling. */
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void ironRestorationConsumesInputsAndStopsAtFlawed(GameTestHelper helper) throws ReflectiveOperationException {
+        Class<?> logic = Class.forName("appeng.recipes.transform.TransformLogic");
+        var transform = logic.getMethod("tryTransform", net.minecraft.world.entity.item.ItemEntity.class,
+                java.util.function.Predicate.class);
+        var fluid = Class.forName("appeng.recipes.transform.TransformCircumstance")
+                .getMethod("isFluid", net.minecraft.world.level.material.Fluid.class);
+        java.util.function.Predicate<Object> water = circumstance -> {
+            try {
+                return (boolean) fluid.invoke(circumstance, net.minecraft.world.level.material.Fluids.WATER);
+            } catch (ReflectiveOperationException failure) {
+                throw new AssertionError("Loaded AE2 transform API changed", failure);
+            }
+        };
+        BlockPos pos = helper.absolutePos(new BlockPos(3, 3, 3));
+        helper.getLevel().setBlockAndUpdate(pos, Blocks.WATER.defaultBlockState());
+        var area = new net.minecraft.world.phys.AABB(pos).inflate(1);
+        var charged = BuiltInRegistries.ITEM.getOptional(id("ae2:charged_certus_quartz_crystal")).orElseThrow();
+        for (BuddingRank rank : BuddingRank.values()) {
+            var catalyst = new net.minecraft.world.entity.item.ItemEntity(helper.getLevel(), pos.getX() + 0.5,
+                    pos.getY() + 0.5, pos.getZ() + 0.5, new net.minecraft.world.item.ItemStack(charged, 2));
+            var source = new net.minecraft.world.entity.item.ItemEntity(helper.getLevel(), pos.getX() + 0.5,
+                    pos.getY() + 0.5, pos.getZ() + 0.5,
+                    new net.minecraft.world.item.ItemStack(IoeIronBuddingBlocks.block(rank), 2));
+            helper.getLevel().addFreshEntity(catalyst);
+            helper.getLevel().addFreshEntity(source);
+            boolean restored = (boolean) transform.invoke(null, catalyst, water);
+            boolean allowed = rank == BuddingRank.DAMAGED || rank == BuddingRank.CHIPPED;
+            helper.assertTrue(restored == allowed, "Native restoration ceiling violated for " + rank);
+            helper.assertTrue(catalyst.getItem().getCount() == (allowed ? 1 : 2)
+                            && source.getItem().getCount() == (allowed ? 1 : 2),
+                    "Restoration must consume exactly one of each input, and nothing when refused");
+            var outputs = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, area,
+                    entity -> entity != catalyst && entity != source);
+            if (allowed) {
+                Block expected = IoeIronBuddingBlocks.block(rank == BuddingRank.DAMAGED ? BuddingRank.CHIPPED : BuddingRank.FLAWED);
+                helper.assertTrue(outputs.size() == 1 && outputs.getFirst().getItem().is(expected.asItem())
+                        && outputs.getFirst().getItem().getCount() == 1, "Wrong restored block or duplicated output");
+            } else {
+                helper.assertTrue(outputs.isEmpty(), "Flawed/Flawless inputs must produce no upgraded item");
+            }
+            catalyst.discard();
+            source.discard();
+            outputs.forEach(net.minecraft.world.entity.Entity::discard);
+        }
+        helper.succeed();
+    }
+
     private static BlockState neighbor(boolean iron, int stage, Direction direction) {
         if (stage == -3) return Blocks.STONE.defaultBlockState();
         if (stage == -2) return Blocks.WATER.defaultBlockState();
