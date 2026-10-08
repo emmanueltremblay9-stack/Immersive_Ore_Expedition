@@ -1,5 +1,7 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.budding.IronBuddingBlock;
+import net.minecraft.world.level.block.Block;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -116,8 +118,8 @@ public record ExpeditionSiteBlockPlan(
             return 0L;
         }
         return blocks.values().stream()
-                .map(state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()))
-                .filter(id -> id.equals(oreBlockId) || id.equals(oreNodeHeartBlockId))
+                .filter(state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(oreBlockId)
+                        || isOreNodeHeart(state))
                 .count();
     }
 
@@ -129,8 +131,17 @@ public record ExpeditionSiteBlockPlan(
             return oreNodeCount;
         }
         return blocks.values().stream()
-                .filter(state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(oreNodeHeartBlockId))
+                .filter(this::isOreNodeHeart)
                 .count();
+    }
+
+    private boolean isOreNodeHeart(BlockState state) {
+        BlockState primary = BuiltInRegistries.BLOCK.getOptional(oreNodeHeartBlockId)
+                .map(Block::defaultBlockState).orElse(null);
+        if (primary != null && primary.getBlock() instanceof IronBuddingBlock) {
+            return state.getBlock() instanceof IronBuddingBlock;
+        }
+        return BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(oreNodeHeartBlockId);
     }
 
     public boolean isConnectedExpeditionSite() {

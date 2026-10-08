@@ -613,12 +613,10 @@ def validate() -> None:
         ),
     )
 
-    require(feature_compact.count("qualityRoll.roll(context.random())") == 1,
-            "natural sites must perform exactly one quality roll")
-    require("siteType==ExpeditionSiteType.MINER_CAMP" in feature_compact
-            and "?SiteQualityRoll.DEFAULT" in feature_compact
-            and "newSiteQualityRoll(0,25,45,17,3)" in feature_compact,
-            "miner camp must expose DRY through DEFAULT while other active surface ids preserve their weights")
+    require(feature_compact.count("SiteQualityRoll.DEFAULT.roll(context.random())") == 1,
+            "natural sites must perform exactly one canonical quality roll")
+    require("newSiteQualityRoll(0,25,45,17,3)" not in feature_compact,
+            "all natural sites must preserve the canonical 10/25/45/17/3 quality weights")
     require(len(re.findall(
         r"\bBiomeMineResourceProfile\s*\.\s*resolve\s*\(",
         feature_structural,

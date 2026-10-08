@@ -32,5 +32,9 @@
   "screen.immersive_ore_expedition.expedition_compass.journeymap_not_ready": "JourneyMap is installed but its waypoint API is not ready",
   "screen.immersive_ore_expedition.expedition_compass.journeymap_failed": "JourneyMap waypoint could not be saved",
   "screen.immersive_ore_expedition.expedition_compass.refresh": "Refresh",
-  "screen.immersive_ore_expedition.expedition_compass.clear": "Clear"
+  "screen.immersive_ore_expedition.expedition_compass.clear": "Clear",
+  "block.immersive_ore_expedition.damaged_budding_iron": "Damaged Budding Iron",
+  "block.immersive_ore_expedition.chipped_budding_iron": "Chipped Budding Iron",
+  "block.immersive_ore_expedition.flawed_budding_iron": "Flawed Budding Iron",
+  "block.immersive_ore_expedition.flawless_budding_iron": "Flawless Budding Iron"
 }

@@ -49,7 +49,7 @@ public enum BuddingResourceFamily {
 
     public ResourceLocation storageBlockId() {
         return switch (kind) {
-            case GEORE -> id("geore", key + "_block");
+            case GEORE -> this == GEORE_IRON ? id("minecraft", "iron_block") : id("geore", key + "_block");
             case CERTUS, EXTENDED_AE -> id("ae2", "quartz_block");
         };
     }

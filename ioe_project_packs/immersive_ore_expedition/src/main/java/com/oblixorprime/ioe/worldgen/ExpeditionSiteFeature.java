@@ -4,6 +4,7 @@ import com.oblixorprime.ioe.compat.domum.DomumOrnamentumCompat;
 import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
 import com.oblixorprime.ioe.compat.ip.IoePetroleumReservoirBridge;
 import com.oblixorprime.ioe.core.ProvinceId;
+import com.oblixorprime.ioe.budding.BuddingSitePlan;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.core.SiteQualityRoll;
 import net.minecraft.core.BlockPos;
@@ -32,7 +33,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguration> {
-    private static final SiteQualityRoll PRODUCTIVE_SITE_QUALITY = new SiteQualityRoll(0, 25, 45, 17, 3);
     private static final int SURFACE_HAZARD_MARGIN = 2;
     private final ExpeditionSiteType siteType;
     private final ResourceProfileResolver resourceProfileResolver;
@@ -80,10 +80,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             return false;
         }
 
-        SiteQualityRoll qualityRoll = siteType == ExpeditionSiteType.MINER_CAMP
-                ? SiteQualityRoll.DEFAULT
-                : PRODUCTIVE_SITE_QUALITY;
-        SiteQuality quality = qualityRoll.roll(context.random());
+        SiteQuality quality = SiteQualityRoll.DEFAULT.roll(context.random());
         BlockPos origin = siteType.naturalSurfaceSite()
                 ? resolveSurfaceOrigin(context.level(), context.origin(), siteType, quality)
                 : context.origin();
@@ -133,6 +130,11 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             resourceProfile = resolution.profile().orElseThrow();
         }
 
+        BuddingSitePlan ironBudget = resourceProfile != null && resourceProfile.profileName().equals("iron")
+                && quality.isProductive() && ModList.get().isLoaded("geore") && ModList.get().isLoaded("ae2")
+                ? BuddingSitePlan.forQuality(quality, RandomSource.create(planSeed ^ 0x49524f4eL), 0)
+                : null;
+
         DepositPreparation depositPreparation = prepareExcavatorDeposit(
                 context.level().getLevel(),
                 origin,
@@ -165,17 +167,20 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     && prospectorCampContext.archetype() == ProspectorCampArchetype.ACTIVE
                     ? previewPlan
                     : structureOnlyPlan(siteType, origin, quality, planSeed, prospectorCampContext);
+            if (ironBudget != null) {
+                if (quality != ironBudget.quality()) {
+                    ironBudget = ironBudget.downgradeTo(quality, 0);
+                }
+                plan = IronBuddingSitePlans.plan(siteType, origin, ironBudget, planSeed, prospectorCampContext);
+            }
             ArrayList<ExpeditionSiteBlockPlan> fallbackPlans = new ArrayList<>();
             if (depositReservation != null && depositReservation.requiredForSiteQuality()) {
                 SiteQuality lowerQuality = quality.directLower().orElse(null);
                 while (lowerQuality != null && lowerQuality.isProductive()) {
-                    fallbackPlans.add(structureOnlyPlan(
-                            siteType,
-                            origin,
-                            lowerQuality,
-                            planSeed,
-                            prospectorCampContext
-                    ));
+                    fallbackPlans.add(ironBudget == null
+                            ? structureOnlyPlan(siteType, origin, lowerQuality, planSeed, prospectorCampContext)
+                            : IronBuddingSitePlans.plan(siteType, origin, ironBudget.downgradeTo(lowerQuality, 0),
+                                    planSeed, prospectorCampContext));
                     lowerQuality = lowerQuality.directLower().orElse(null);
                 }
             }

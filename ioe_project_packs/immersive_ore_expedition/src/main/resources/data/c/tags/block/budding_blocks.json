@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "immersive_ore_expedition:damaged_budding_iron",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_iron",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_iron",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_iron",
+      "required": false
+    }
+  ]
+}

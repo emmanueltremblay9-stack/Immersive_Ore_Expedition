@@ -1,0 +1,39 @@
+# Iron Budding implementation scope
+
+This implementation targets the pinned Minecraft 1.21.1, NeoForge 21.1.230, AE2 19.2.17,
+GeOre 6.2.2 and AE2 Crystal Science 1.1.12 runtime. It is not a 1.0.0 release approval.
+
+## Behavior
+
+- Four IOE Iron blocks/items register when AE2 and GeOre are loaded. Growth resolves the
+  real GeOre Iron buds through the registry and stops if required properties are absent.
+- The AE2 19.2.17 JAR's `BuddingCertusQuartzBlock` was inspected directly: 1/5 growth gate,
+  uniform six-face selection, air/source-water start, matching-facing bud progression,
+  preserved waterlogging, then 1/12 degradation after growth. Flawless skips degradation.
+  A differential GameTest compares actual loaded AE2 and Iron blocks across all ranks,
+  faces, growth stages, obstructions, facing mismatches, water and random gate outcomes.
+- Exhausted Damaged becomes `minecraft:iron_block`. Silk Touch retains non-Flawless ranks;
+  otherwise they drop the next lower rank/storage. Flawless always drops Flawed.
+- AE2 transform recipes restore Damaged to Chipped and Chipped to Flawed with charged
+  Certus. Acquiring Damaged uses the canonical neutral-seed Aggregator recipe (16000 energy).
+  There is no Iron Flawless recipe; the AE2CS Certus Flawless recipe is disabled.
+- The `c:budding_blocks` tag exposes Iron to AE2's existing acceleration tag.
+- Natural quality selection uses 10/25/45/17/3 for every site type. Productive sites with
+  an explicit Iron profile resolve the canonical planner into actual Iron blocks.
+  The Motherlode draw happens once before deposit resolution. Lower plans derive from
+  that plan without another lottery. Existing staging, compensation and locator sequencing
+  are retained; GameTests cover placement and a full failed IE commit/fallback chain.
+- Iron nodes receive equal connected ore budgets and one open growth face. Nodes compose
+  after galleries so later structural work cannot erase them. Poor Iron chambers need
+  a two-block vertical half-height to fit three complete nodes.
+
+## Remaining work
+
+DRY pockets and the 10% neutral-seed reward are not wired to placement yet. The planner
+keeps an explicit 0–5 residual count; this change does not select its distribution.
+Other resource families remain on their existing structure/deposit path.
+
+Models reference the installed GeOre Iron model, without copying third-party assets.
+All four ranks currently share that model; distinct rank artwork and client visual
+verification remain outstanding. Jade metadata, the other supported families, full
+progression testing and release smoke evidence also remain outstanding.

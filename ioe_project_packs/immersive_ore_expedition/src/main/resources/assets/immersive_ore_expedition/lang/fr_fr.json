@@ -32,5 +32,9 @@
   "screen.immersive_ore_expedition.expedition_compass.journeymap_not_ready": "JourneyMap est installé, mais son API de points n’est pas prête",
   "screen.immersive_ore_expedition.expedition_compass.journeymap_failed": "Impossible d’enregistrer le point JourneyMap",
   "screen.immersive_ore_expedition.expedition_compass.refresh": "Actualiser",
-  "screen.immersive_ore_expedition.expedition_compass.clear": "Effacer"
+  "screen.immersive_ore_expedition.expedition_compass.clear": "Effacer",
+  "block.immersive_ore_expedition.damaged_budding_iron": "Fer bourgeonnant endommagé",
+  "block.immersive_ore_expedition.chipped_budding_iron": "Fer bourgeonnant ébréché",
+  "block.immersive_ore_expedition.flawed_budding_iron": "Fer bourgeonnant imparfait",
+  "block.immersive_ore_expedition.flawless_budding_iron": "Fer bourgeonnant sans défaut"
 }
