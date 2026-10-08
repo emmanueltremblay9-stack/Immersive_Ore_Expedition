@@ -1347,6 +1347,11 @@ public final class ExpeditionWorldgenGameTests {
         BuddingSitePlan expected = BuddingSitePlan.forQuality(quality, RandomSource.create(0), 0);
         helper.assertTrue(countIronHearts(level, chunk) == expected.nodeRanks().size(),
                 "Confirmed Iron production nodes differ from the final locator quality");
+        var committed = ExpeditionLocatorService.index(level).sites().stream()
+                .filter(site -> site.pos().equals(origin)).findFirst().orElseThrow();
+        helper.assertTrue(committed.buddingNodes().size() == expected.nodeRanks().size()
+                        && committed.buddingNodes().stream().allMatch(node -> node.initialOre() == expected.oreBlocksPerNode()),
+                "Production commit did not retain the actual node metadata");
         helper.succeed();
     }
 
@@ -1613,6 +1618,13 @@ public final class ExpeditionWorldgenGameTests {
                             level.getBlockState(pos).getBlock() instanceof IronBuddingBlock block
                                     && block.rank() == BuddingRank.FLAWLESS),
                     "Failed Motherlode left a Flawless block after transactional fallback");
+        }
+        if (iron) {
+            var indexed = ExpeditionLocatorService.index(level).sites().stream()
+                    .filter(site -> site.pos().equals(origin)).findFirst().orElseThrow();
+            helper.assertTrue(indexed.buddingNodes().size() == 3
+                    && indexed.buddingNodes().stream().allMatch(node -> node.count() == 3 && node.initialOre() == 4),
+                    "Fallback published stale Motherlode node metadata");
         }
         helper.assertTrue(ExpeditionLocatorService.index(level).sites().stream()
                         .anyMatch(site -> site.pos().equals(origin)

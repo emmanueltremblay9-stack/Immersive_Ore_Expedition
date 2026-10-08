@@ -59,6 +59,9 @@ final class ExpeditionLocatorSavedData extends SavedData {
             site.source().ifPresent(value -> entry.putString("source", value));
             entry.putString("placement_state", site.placementState().getSerializedName());
             site.placementReason().ifPresent(value -> entry.putString("placement_reason", value));
+            ListTag nodes = new ListTag();
+            site.buddingNodes().forEach(node -> nodes.add(node.save()));
+            entry.put("budding_nodes", nodes);
             sites.add(entry);
         }
         tag.put(SITES, sites);
@@ -126,7 +129,18 @@ final class ExpeditionLocatorSavedData extends SavedData {
                 optionalString(tag, "source"),
                 placementState,
                 optionalString(tag, "placement_reason")
-        ));
+        ).withBuddingNodes(readNodes(tag)));
+    }
+
+    private static java.util.List<com.oblixorprime.ioe.budding.BuddingNodeInfo> readNodes(CompoundTag tag) {
+        ListTag entries = tag.getList("budding_nodes", Tag.TAG_COMPOUND);
+        if (entries.size() > 7) return java.util.List.of();
+        var nodes = new java.util.LinkedHashMap<BlockPos, com.oblixorprime.ioe.budding.BuddingNodeInfo>();
+        for (int i = 0; i < entries.size(); i++) {
+            com.oblixorprime.ioe.budding.BuddingNodeInfo.load(entries.getCompound(i))
+                    .ifPresent(node -> nodes.putIfAbsent(node.pos(), node));
+        }
+        return java.util.List.copyOf(nodes.values());
     }
 
     private static Optional<ResourceLocation> optionalLocation(CompoundTag tag, String key) {

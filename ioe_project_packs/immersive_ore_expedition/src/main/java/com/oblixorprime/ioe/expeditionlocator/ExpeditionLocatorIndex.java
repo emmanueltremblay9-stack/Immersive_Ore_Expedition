@@ -18,10 +18,30 @@ public final class ExpeditionLocatorIndex {
     public static final String RUNTIME_PLACEMENT_PROOF_SOURCE = "runtime_worldgen_placement_proof";
 
     private final LinkedHashMap<SiteKey, ExpeditionSite> sites = new LinkedHashMap<>();
+    private final java.util.Map<NodeKey, NodeContext> nodes = new java.util.HashMap<>();
+
+    public record NodeContext(ExpeditionSite site, com.oblixorprime.ioe.budding.BuddingNodeInfo node) { }
+    private record NodeKey(ResourceKey<Level> dimension, BlockPos pos) { }
+
+    public synchronized Optional<NodeContext> buddingNodeAt(ResourceKey<Level> dimension, BlockPos pos) {
+        return Optional.ofNullable(nodes.get(new NodeKey(dimension, pos)));
+    }
+
+    public synchronized boolean removeBuddingNode(ResourceKey<Level> dimension, BlockPos pos) {
+        NodeContext previous = nodes.get(new NodeKey(dimension, pos));
+        if (previous == null) return false;
+        record(previous.site().withBuddingNodes(previous.site().buddingNodes().stream()
+                .filter(node -> !node.pos().equals(pos)).toList()));
+        return true;
+    }
 
     public synchronized void record(ExpeditionSite site) {
         Objects.requireNonNull(site, "site");
-        sites.put(SiteKey.from(site), site);
+        ExpeditionSite previous = sites.put(SiteKey.from(site), site);
+        if (previous != null) previous.buddingNodes().forEach(node -> nodes.remove(new NodeKey(previous.dimension(), node.pos()), new NodeContext(previous, node)));
+        if (site.playable() && site.quality().isPresent()) {
+            site.buddingNodes().forEach(node -> nodes.put(new NodeKey(site.dimension(), node.pos()), new NodeContext(site, node)));
+        }
     }
 
     public synchronized void recordPlacedProof(
@@ -124,6 +144,7 @@ public final class ExpeditionLocatorIndex {
 
     public synchronized void clear() {
         sites.clear();
+        nodes.clear();
     }
 
     public static long distanceSquared(BlockPos first, BlockPos second) {

@@ -101,6 +101,10 @@ tasks.named('jar', Jar).configure {
 }
 
 dependencies {
+    compileOnly "maven.modrinth:nvQzSEkH:eYz2YBGT" // Jade 15.10.6, optional runtime integration
+    if (providers.gradleProperty('ioeIncludeJadeRuntime').map { it.toBoolean() }.getOrElse(false)) {
+        runtimeOnly "maven.modrinth:nvQzSEkH:eYz2YBGT"
+    }
     compileOnly group: 'info.journeymap', name: 'journeymap-api-neoforge', version: journeymap_api_version, changing: true
     compileOnly "blusunrize.immersiveengineering:ImmersiveEngineering:${ie_compile_version}"
     compileOnly "maven.modrinth:${ip_modrinth_project}:${ip_compile_version}"

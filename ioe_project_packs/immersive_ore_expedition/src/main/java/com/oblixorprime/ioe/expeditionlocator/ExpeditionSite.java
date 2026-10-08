@@ -7,6 +7,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
 import java.util.Objects;
+import java.util.List;
+import com.oblixorprime.ioe.budding.BuddingNodeInfo;
 import java.util.Optional;
 
 public record ExpeditionSite(
@@ -18,12 +20,17 @@ public record ExpeditionSite(
         Optional<SiteQuality> quality,
         Optional<String> source,
         ExpeditionSitePlacementState placementState,
-        Optional<String> placementReason
+        Optional<String> placementReason,
+        List<BuddingNodeInfo> buddingNodes
 ) {
     public ExpeditionSite {
         Objects.requireNonNull(dimension, "dimension");
         Objects.requireNonNull(pos, "pos");
         Objects.requireNonNull(kind, "kind");
+        buddingNodes = List.copyOf(Objects.requireNonNull(buddingNodes, "buddingNodes"));
+        if (buddingNodes.size() > 7 || buddingNodes.stream().map(BuddingNodeInfo::pos).distinct().count() != buddingNodes.size()) {
+            throw new IllegalArgumentException("Invalid site node collection");
+        }
         anchorId = anchorId == null ? Optional.empty() : anchorId;
         provinceId = provinceId == null ? Optional.empty() : provinceId;
         quality = quality == null ? Optional.empty() : quality;
@@ -32,6 +39,18 @@ public record ExpeditionSite(
         placementReason = placementReason == null
                 ? Optional.empty()
                 : placementReason.map(String::trim).filter(value -> !value.isBlank());
+    }
+
+    public ExpeditionSite(ResourceKey<Level> dimension, BlockPos pos, ExpeditionSiteKind kind,
+                          Optional<ResourceLocation> anchorId, Optional<ResourceLocation> provinceId,
+                          Optional<SiteQuality> quality, Optional<String> source,
+                          ExpeditionSitePlacementState placementState, Optional<String> placementReason) {
+        this(dimension, pos, kind, anchorId, provinceId, quality, source, placementState, placementReason, List.of());
+    }
+
+    public ExpeditionSite withBuddingNodes(List<BuddingNodeInfo> nodes) {
+        return new ExpeditionSite(dimension, pos, kind, anchorId, provinceId, quality, source,
+                placementState, placementReason, nodes);
     }
 
     public ExpeditionSite(

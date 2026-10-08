@@ -37,5 +37,6 @@ Other resource families remain on their existing structure/deposit path.
 
 Models reference the installed GeOre Iron model, without copying third-party assets.
 All four ranks currently share that model; distinct rank artwork and client visual
-verification remain outstanding. Jade metadata, the other supported families, full
-progression testing and release smoke evidence also remain outstanding.
+verification remain outstanding. Optional Jade 15.10.6 now displays the live rank and
+committed site/node metadata. The other supported families, full progression testing
+and release smoke evidence remain outstanding.

@@ -36,5 +36,21 @@
   "block.immersive_ore_expedition.damaged_budding_iron": "Damaged Budding Iron",
   "block.immersive_ore_expedition.chipped_budding_iron": "Chipped Budding Iron",
   "block.immersive_ore_expedition.flawed_budding_iron": "Flawed Budding Iron",
-  "block.immersive_ore_expedition.flawless_budding_iron": "Flawless Budding Iron"
+  "block.immersive_ore_expedition.flawless_budding_iron": "Flawless Budding Iron",
+  "tooltip.ioe.budding.rank": "Rank: %s",
+  "tooltip.ioe.budding.family": "Family: %s",
+  "tooltip.ioe.budding.quality": "Site quality: %s",
+  "tooltip.ioe.budding.node": "Node: %s / %s",
+  "tooltip.ioe.budding.ore": "Initial ore: %s",
+  "tooltip.ioe.budding.flawless": "Site Flawless: %s / %s",
+  "budding.ioe.rank.damaged": "Damaged",
+  "budding.ioe.rank.chipped": "Chipped",
+  "budding.ioe.rank.flawed": "Flawed",
+  "budding.ioe.rank.flawless": "Flawless",
+  "budding.ioe.quality.dry": "Dry",
+  "budding.ioe.quality.poor": "Poor",
+  "budding.ioe.quality.normal": "Normal",
+  "budding.ioe.quality.rich": "Rich",
+  "budding.ioe.quality.motherlode": "Motherlode",
+  "config.jade.plugin_immersive_ore_expedition.budding": "Budding site details"
 }

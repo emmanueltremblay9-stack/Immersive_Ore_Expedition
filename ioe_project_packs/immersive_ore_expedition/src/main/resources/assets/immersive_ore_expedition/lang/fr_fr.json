@@ -36,5 +36,21 @@
   "block.immersive_ore_expedition.damaged_budding_iron": "Fer bourgeonnant endommagé",
   "block.immersive_ore_expedition.chipped_budding_iron": "Fer bourgeonnant ébréché",
   "block.immersive_ore_expedition.flawed_budding_iron": "Fer bourgeonnant imparfait",
-  "block.immersive_ore_expedition.flawless_budding_iron": "Fer bourgeonnant sans défaut"
+  "block.immersive_ore_expedition.flawless_budding_iron": "Fer bourgeonnant sans défaut",
+  "tooltip.ioe.budding.rank": "Rang : %s",
+  "tooltip.ioe.budding.family": "Famille : %s",
+  "tooltip.ioe.budding.quality": "Qualité du site : %s",
+  "tooltip.ioe.budding.node": "Node : %s / %s",
+  "tooltip.ioe.budding.ore": "Minerai initial : %s",
+  "tooltip.ioe.budding.flawless": "Flawless du site : %s / %s",
+  "budding.ioe.rank.damaged": "Endommagé",
+  "budding.ioe.rank.chipped": "Ébréché",
+  "budding.ioe.rank.flawed": "Imparfait",
+  "budding.ioe.rank.flawless": "Sans défaut",
+  "budding.ioe.quality.dry": "Sec",
+  "budding.ioe.quality.poor": "Pauvre",
+  "budding.ioe.quality.normal": "Normal",
+  "budding.ioe.quality.rich": "Riche",
+  "budding.ioe.quality.motherlode": "Gisement mère",
+  "config.jade.plugin_immersive_ore_expedition.budding": "Détails du site Budding"
 }
