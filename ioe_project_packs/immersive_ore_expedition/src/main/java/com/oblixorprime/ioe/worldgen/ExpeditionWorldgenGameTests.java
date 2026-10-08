@@ -1741,9 +1741,8 @@ public final class ExpeditionWorldgenGameTests {
 
     private static void proveFeaturePlacement(GameTestHelper helper, ExpeditionSiteType type) {
         ServerLevel level = helper.getLevel();
-        if (type == ExpeditionSiteType.MINER_CAMP) {
-            ExpeditionLocatorService.index(level).clear();
-        }
+        // Template origins can share a chunk: each feature assertion needs a clean locator as well as terrain.
+        ExpeditionLocatorService.index(level).clear();
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
         BlockPos origin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
@@ -1875,11 +1874,31 @@ public final class ExpeditionWorldgenGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public static void featureFixtureClearsPriorSurfaceAndUndergroundWrites(GameTestHelper helper) {
+        var level = helper.getLevel();
+        ChunkPos chunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
+        for (int y : new int[]{2, 41, 55}) {
+            level.setBlock(new BlockPos(chunk.getMinBlockX() + 4, y, chunk.getMinBlockZ() + 6),
+                    Blocks.LADDER.defaultBlockState(), 2);
+        }
+        fillTestChunk(level, chunk);
+        for (int y : new int[]{2, 41, 55}) {
+            helper.assertTrue(level.getBlockState(new BlockPos(chunk.getMinBlockX() + 4, y, chunk.getMinBlockZ() + 6)).isAir(),
+                    "Previous fixture write survived outside the platform");
+        }
+        helper.assertTrue(level.getBlockState(new BlockPos(chunk.getMinBlockX() + 4, 40, chunk.getMinBlockZ() + 6)).is(Blocks.STONE),
+                "Fixture did not retain its controlled platform");
+        helper.succeed();
+    }
+
     private static void fillTestChunk(ServerLevel level, ChunkPos chunk) {
         for (int x = chunk.getMinBlockX(); x <= chunk.getMaxBlockX(); x++) {
-            for (int y = 4; y <= 40; y++) {
+            for (int y = 0; y <= 63; y++) {
                 for (int z = chunk.getMinBlockZ(); z <= chunk.getMaxBlockZ(); z++) {
-                    level.setBlock(new BlockPos(x, y, z), Blocks.STONE.defaultBlockState(), 2);
+                    // Clear previous surface structures too; assertions inspect above the Y=40 platform.
+                    level.setBlock(new BlockPos(x, y, z),
+                            (y >= 4 && y <= 40 ? Blocks.STONE : Blocks.AIR).defaultBlockState(), 2);
                 }
             }
         }
