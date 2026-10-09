@@ -32,13 +32,20 @@ final class NetherSitePlanner {
     private static final class Reader {
         final Snapshot snapshot;
         int probes;
+        final Map<BlockPos, BlockState> states = new LinkedHashMap<>();
+        final Set<BlockPos> protectedCells = new HashSet<>();
         Reader(Snapshot snapshot) { this.snapshot = snapshot; }
         Cell read(BlockPos pos) {
             if (probes == MAX_PROBES) throw new Stop(Status.BUDGET);
             probes++;
             if (pos.getY() < snapshot.minY() || pos.getY() >= snapshot.maxY()) throw new Stop(Status.HEIGHT);
+            var cached = states.get(pos);
+            if (cached != null) return new Cell(cached, protectedCells.contains(pos));
             Cell cell = snapshot.at(pos);
             if (cell == null) throw new Stop(Status.UNKNOWN_TERRAIN);
+            var key = pos.immutable();
+            states.put(key, cell.state());
+            if (cell.protectedBlock()) protectedCells.add(key);
             return cell;
         }
     }
@@ -108,14 +115,12 @@ final class NetherSitePlanner {
                 floor = Math.min(floor, y);
             }
             BlockPos center = new BlockPos(candidate.x(), floor - 16, candidate.z());
-            var expected = new LinkedHashMap<BlockPos, BlockState>();
             var writes = new LinkedHashMap<BlockPos, BlockState>();
             var orePositions = new ArrayList<BlockPos>();
             // Solid cube enclosing radius-3 cavity gives >=3 intact solid cells in every direction.
             for (int z = -7; z <= 7; z++) for (int y = -7; y <= 7; y++) for (int x = -7; x <= 7; x++) {
                 BlockPos pos = center.offset(x, y, z); var cell = reader.read(pos);
                 if (!rock(cell)) throw new Stop(Status.CRUST_OR_PROTECTION);
-                expected.put(pos, cell.state());
                 int squared = x * x + y * y + z * z;
                 if (squared <= 9) writes.put(pos, Blocks.AIR.defaultBlockState());
                 else if (squared <= 25) orePositions.add(pos);
@@ -140,11 +145,11 @@ final class NetherSitePlanner {
                 shore = pos; closest = distance;
             }
             if (shore == null) throw new Stop(Status.NO_SHORE);
-            for (var pos : List.of(shore, shore.above(), shore.above(2))) expected.put(pos, reader.read(pos).state());
+            for (var pos : List.of(shore, shore.above(), shore.above(2))) reader.read(pos);
             writes.put(shore.above(), Blocks.BLACKSTONE.defaultBlockState());
             writes.put(shore.above(2), Blocks.BLACKSTONE.defaultBlockState());
             return new Outcome(Status.PLANNED, reader.probes, count,
-                    new NetherPlacementCoordinator.Plan(center, expected, writes));
+                    new NetherPlacementCoordinator.Plan(center, reader.states, writes, reader.protectedCells, reader.states.size()));
         } catch (Stop stop) { return new Outcome(stop.status, reader.probes, count, null); }
     }
 }

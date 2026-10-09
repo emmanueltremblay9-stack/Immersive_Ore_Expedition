@@ -17,7 +17,8 @@ final class NetherReadSetTest {
         final Map<Long, Object> chunks = new HashMap<>();
         final NetherAnalysisBudget budget = new NetherAnalysisBudget();
         final NetherPlacementCoordinator coordinator = new NetherPlacementCoordinator();
-        int reads, writes;
+        int reads, writes, acquisitionReads;
+        final Set<BlockPos> protectedCells = new HashSet<>(), sampled = new HashSet<>();
         World() {
             for (int x = -2; x <= 2; x++) for (int z = -2; z <= 2; z++)
                 chunks.put(ChunkPos.asLong(x, z), new Object());
@@ -30,11 +31,16 @@ final class NetherReadSetTest {
         public boolean nether() { return true; }
         public int minY() { return 0; }
         public int maxY() { return 128; }
-        public NetherSitePlanner.Cell at(BlockPos pos) { return new NetherSitePlanner.Cell(state(pos), false); }
+        public NetherSitePlanner.Cell at(BlockPos pos) {
+            assertTrue(sampled.add(pos.immutable()), "Repeated snapshot acquisition");
+            assertTrue(budget.acquire(tick(), 1)); acquisitionReads++;
+            return new NetherSitePlanner.Cell(state(pos), protectedCells.contains(pos));
+        }
         public void requireServerThread() { }
         public int tick() { return 1; }
         public Object loadedChunk(long key) { return chunks.get(key); }
         public BlockState read(BlockPos pos) { reads++; return state(pos); }
+        public boolean protectedAt(BlockPos pos, BlockState state) { return protectedCells.contains(pos); }
         public boolean safeToReplace(BlockPos pos, BlockState state) { return true; }
         public boolean write(BlockPos pos, BlockState state) { writes++; changes.put(pos, state); return true; }
         public boolean reserveReads(int count) { return budget.acquire(tick(), count); }
@@ -46,6 +52,55 @@ final class NetherReadSetTest {
                     coordinator.observe(chunk.toLong(), chunks.get(chunk.toLong()), true, 0));
             return plan;
         }
+    }
+    @Test void unchangedCompleteReadSetCommitsAndAccountsActualAndReservedReads() {
+        var world = new World(); var plan = world.plan();
+        assertEquals(world.sampled, plan.expected().keySet());
+        assertEquals(world.acquisitionReads, plan.acquisitionReads());
+        assertEquals(plan.expected().size(), plan.acquisitionReads());
+        assertTrue(plan.expected().containsKey(LAVA)); assertTrue(plan.expected().containsKey(FLOOR));
+        assertEquals(plan.expected().size() + plan.writes().size(), plan.retainedPositionEntries());
+        assertEquals(Result.COMMITTED, world.coordinator.commit(world, new NetherPlacementLedger(), plan));
+        assertEquals(plan.expected().size() + plan.writes().size(), world.reads);
+        assertEquals(plan.writes().size(), world.writes);
+        assertTrue(world.budget.acquire(1, (int) (NetherAnalysisBudget.READS_PER_TICK - plan.candidateReadReservation())));
+        assertFalse(world.budget.acquire(1));
+        assertThrows(UnsupportedOperationException.class, () -> plan.expected().clear());
+    }
+    @Test void changedProtectionOnUnwrittenFloorRejectsEvenWhenStateMatches() {
+        var world = new World(); var plan = world.plan();
+        world.protectedCells.add(FLOOR);
+        assertEquals(Result.TERRAIN_CHANGED, world.coordinator.commit(world, new NetherPlacementLedger(), plan));
+        assertEquals(0, world.writes);
+    }
+    @Test void protectedReadOnlyObservationIsRetainedAndItsChangeInvalidates() {
+        var world = new World(); world.protectedCells.add(LAVA); var plan = world.plan();
+        assertTrue(plan.protectedPositions().contains(LAVA));
+        assertEquals(plan.expected().size() + plan.writes().size() + 1, plan.retainedPositionEntries());
+        world.protectedCells.clear();
+        assertEquals(Result.TERRAIN_CHANGED, world.coordinator.commit(world, new NetherPlacementLedger(), plan));
+        assertEquals(0, world.writes);
+    }
+    @Test void unavailableReadOnlyChunkRejectsWithoutWriting() {
+        var world = new World(); var plan = world.plan();
+        world.chunks.remove(new ChunkPos(LAVA).toLong());
+        assertEquals(Result.TERRAIN_CHANGED, world.coordinator.commit(world, new NetherPlacementLedger(), plan));
+        assertEquals(0, world.writes);
+    }
+    @Test void insufficientSharedBudgetRejectsBeforeAnyValidationRead() {
+        var world = new World(); var plan = world.plan();
+        assertTrue(world.budget.acquire(1, NetherAnalysisBudget.READS_PER_TICK - plan.acquisitionReads()
+                - plan.validationReadReservation() + 1));
+        assertEquals(Result.BUDGET, world.coordinator.commit(world, new NetherPlacementLedger(), plan));
+        assertEquals(0, world.reads); assertEquals(0, world.writes);
+    }
+    @Test void candidateLifetimeIncludesAcquisitionValidationAndCompensationReservation() {
+        var world = new World(); var original = world.plan();
+        var plan = new Plan(original.origin(), original.expected(), original.writes(), original.protectedPositions(),
+                NetherSitePlanner.MAX_PROBES - original.validationReadReservation() + 1);
+        assertEquals(NetherSitePlanner.MAX_PROBES + 1L, plan.candidateReadReservation());
+        assertEquals(Result.BUDGET, world.coordinator.commit(world, new NetherPlacementLedger(), plan));
+        assertEquals(0, world.reads); assertEquals(0, world.writes);
     }
     @Test void changedLavaOutsideWritesRejectsBeforeMutation() { changedCellRejects(LAVA); }
     @Test void changedFloorOutsideWritesRejectsBeforeMutation() { changedCellRejects(FLOOR); }

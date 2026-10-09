@@ -78,7 +78,8 @@ player break/entity placement and server stop invalidate them. Expired entries a
 pruned; at most 256 live identities are retained, with overflow denied.
 
 An immediate commit on the Nether server thread supports at most four write chunks,
-4,096 writes and 16,384 expected-state checks. All writes require expected states;
+4,096 writes and at most 262,144 retained observations. Complete validation must
+fit the unchanged shared tick quota. All writes require expected states;
 fluid/block-entity targets are rejected. The adapter only replaces air, netherrack,
 basalt or blackstone without fluid or a block entity. This is not a substitute for
 future structure/protection and safe-crust planning. Expected read-only neighbors
@@ -160,8 +161,8 @@ carves only a radius-3 interior, and places the exact finite mineral budget with
 the radius-5 shell. This conservatively retains at least three solid cells around
 the cavity; existing voids, fluids, ores, block entities and protected cells reject
 the plan. The nearest admissible dry shore adjacent to the connected surface gets a
-two-block blackstone marker, with no tunnel. Original states for geometry and marker
-are supplied to the coordinator for revalidation. Region-spacing and freshness
+two-block blackstone marker, with no tunnel. All distinct planning observations, including lake/depth/floor states and protection
+bits outside the write set, are supplied to the coordinator for revalidation. Region-spacing and freshness
 remain the coordinator's responsibility, not inferred from a successful plan.
 
 Pure tests cover integer coverage boundaries, disconnected pools, flowing/covered
@@ -207,3 +208,9 @@ planner and capture diagnostic. The deprecated radius setting and scalar
 `LavaLakeAnchorSample` belong to the older synthetic metadata adapter; they cannot
 represent an even-width window and are not used to size the canonical capture.
 Their radius is not silently reinterpreted as 37 (which would suggest width 75).
+
+
+See [complete read-set validation](NETHER_READ_SET_VALIDATION.md) for acquisition,
+preflight/compensation read reservations, retained-entry memory bounds and the
+before/after regression evidence. Complete preflight does not establish publication
+atomicity; the production backend remains blocked.

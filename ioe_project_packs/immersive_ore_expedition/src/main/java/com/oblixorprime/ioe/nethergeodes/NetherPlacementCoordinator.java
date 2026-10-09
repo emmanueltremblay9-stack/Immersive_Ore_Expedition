@@ -9,7 +9,7 @@ import java.util.*;
 final class NetherPlacementCoordinator {
     static final int LEASE_TICKS = 20;
     static final int MAX_LEASES = 256;
-    static final int MAX_CHECKS = 16_384;
+    static final int MAX_CHECKS = NetherSitePlanner.MAX_PROBES;
     static final int MAX_WRITES = 4_096;
     static final int MAX_WRITE_CHUNKS = 4;
     enum Result { BACKEND_UNVERIFIED, COMMITTED, DUPLICATE, INVALID_PLAN, NOT_FRESH, SPACING, BUDGET,
@@ -19,6 +19,8 @@ final class NetherPlacementCoordinator {
         int tick();
         Object loadedChunk(long key);
         BlockState read(BlockPos pos);
+        /** Protection observation using the supplied state; must not hide extra unmetered block reads. */
+        boolean protectedAt(BlockPos pos, BlockState state);
         boolean safeToReplace(BlockPos pos, BlockState state);
         boolean write(BlockPos pos, BlockState state);
         boolean reserveReads(int count);
@@ -28,11 +30,26 @@ final class NetherPlacementCoordinator {
         boolean hasAcceptedWithin(BlockPos origin, int distance);
         void finish(BlockPos origin, Result result);
     }
-    record Plan(BlockPos origin, Map<BlockPos, BlockState> expected, Map<BlockPos, BlockState> writes) {
+    record Plan(BlockPos origin, Map<BlockPos, BlockState> expected, Map<BlockPos, BlockState> writes,
+                Set<BlockPos> protectedPositions, int acquisitionReads) {
+        // Small experimental fixtures already supply their complete observation set.
+        Plan(BlockPos origin, Map<BlockPos, BlockState> expected, Map<BlockPos, BlockState> writes) {
+            this(origin, expected, writes, Set.of(), expected.size());
+        }
+        int validationReadReservation() { return expected.size() + 2 * writes.size(); }
+        long candidateReadReservation() { return (long) acquisitionReads + validationReadReservation(); }
+        int retainedPositionEntries() { return expected.size() + protectedPositions.size() + writes.size(); }
         Plan {
+            if (expected.size() > MAX_CHECKS || writes.size() > MAX_WRITES
+                    || protectedPositions.size() > expected.size() || !expected.keySet().containsAll(protectedPositions)
+                    || acquisitionReads < expected.size() || acquisitionReads > NetherSitePlanner.MAX_PROBES)
+                throw new IllegalArgumentException("Unbounded or inconsistent observation set");
             origin = origin.immutable();
             expected = immutablePositions(expected);
             writes = immutablePositions(writes);
+            var protectionCopy = new HashSet<BlockPos>();
+            protectedPositions.forEach(pos -> protectionCopy.add(pos.immutable()));
+            protectedPositions = Collections.unmodifiableSet(protectionCopy);
         }
         private static Map<BlockPos, BlockState> immutablePositions(Map<BlockPos, BlockState> source) {
             var copy = new LinkedHashMap<BlockPos, BlockState>();
@@ -85,7 +102,8 @@ final class NetherPlacementCoordinator {
                 result = Result.NOT_FRESH;
             } else if (ledger.hasAcceptedWithin(plan.origin(), 256)) {
                 result = Result.SPACING;
-            } else if (!host.reserveReads(plan.expected().size() + 2 * plan.writes().size())) {
+            } else if (plan.candidateReadReservation() > NetherSitePlanner.MAX_PROBES
+                    || !host.reserveReads(plan.validationReadReservation())) {
                 result = Result.BUDGET;
             } else {
                 result = apply(host, ledger, plan, chunks);
@@ -101,7 +119,12 @@ final class NetherPlacementCoordinator {
     }
     private Result apply(Host host, Ledger ledger, Plan plan, Set<Long> chunks) {
         for (var entry : plan.expected().entrySet()) {
-            if (host.loadedChunk(chunk(entry.getKey())) == null || !host.read(entry.getKey()).equals(entry.getValue()))
+            var identity = host.loadedChunk(chunk(entry.getKey()));
+            if (identity == null) return Result.TERRAIN_CHANGED;
+            var state = host.read(entry.getKey());
+            if (!entry.getValue().equals(state)
+                    || host.protectedAt(entry.getKey(), state) != plan.protectedPositions().contains(entry.getKey())
+                    || host.loadedChunk(chunk(entry.getKey())) != identity)
                 return Result.TERRAIN_CHANGED;
             if (plan.writes().containsKey(entry.getKey()) && !host.safeToReplace(entry.getKey(), entry.getValue()))
                 return Result.TERRAIN_CHANGED;
@@ -109,9 +132,11 @@ final class NetherPlacementCoordinator {
         var journal = new LinkedHashMap<BlockPos, BlockState>();
         try {
             for (var entry : plan.writes().entrySet()) {
-                if (!chunks.stream().allMatch(key -> fresh(host, key))
-                        || !host.read(entry.getKey()).equals(plan.expected().get(entry.getKey())))
-                    return rollback(host, plan, journal);
+                if (!chunks.stream().allMatch(key -> fresh(host, key))) return rollback(host, plan, journal);
+                var current = host.read(entry.getKey());
+                if (!plan.expected().get(entry.getKey()).equals(current)
+                        || host.protectedAt(entry.getKey(), current)
+                        || !host.safeToReplace(entry.getKey(), current)) return rollback(host, plan, journal);
                 journal.put(entry.getKey(), plan.expected().get(entry.getKey()));
                 if (!host.write(entry.getKey(), entry.getValue())) return rollback(host, plan, journal);
             }
@@ -132,6 +157,7 @@ final class NetherPlacementCoordinator {
                 if (!fresh(host, chunk(entry.getKey()))) { restored = false; continue; }
                 var state = host.read(entry.getKey());
                 if (state.equals(entry.getValue())) continue;
+                if (host.protectedAt(entry.getKey(), state)) { restored = false; continue; }
                 if (!state.equals(plan.writes().get(entry.getKey()))) { restored = false; continue; }
                 restored &= host.write(entry.getKey(), entry.getValue());
             } catch (RuntimeException failure) { restored = false; }

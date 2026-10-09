@@ -58,4 +58,26 @@ public final class NetherCoordinatorGameTests {
             helper.succeed();
         });
     }
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 200)
+    public static void changedReadOnlyObservationRejectsBeforeRealChunkWrite(GameTestHelper helper) {
+        var level = helper.getLevel().getServer().getLevel(Level.NETHER);
+        var target = new BlockPos(-12280, 24, -12280);
+        var observed = target.above(16);
+        var chunk = level.getChunk(target); // Test fixture only.
+        var rock = Blocks.NETHERRACK.defaultBlockState();
+        var lava = Blocks.LAVA.defaultBlockState();
+        level.setBlock(target, rock, 2); level.setBlock(observed, lava, 2);
+        var coordinator = new NetherPlacementCoordinator();
+        coordinator.observe(chunk.getPos().toLong(), chunk, true, level.getServer().getTickCount());
+        var plan = new NetherPlacementCoordinator.Plan(target, Map.of(target, rock, observed, lava),
+                Map.of(target, Blocks.NETHER_QUARTZ_ORE.defaultBlockState()));
+        helper.runAfterDelay(1, () -> {
+            level.setBlock(observed, Blocks.AIR.defaultBlockState(), 2);
+            helper.assertTrue(coordinator.commit(NetherPlacementRuntime.host(level), new NetherPlacementLedger(), plan)
+                    == NetherPlacementCoordinator.Result.TERRAIN_CHANGED, "Read-only terrain change was ignored");
+            helper.assertTrue(level.getBlockState(target).is(Blocks.NETHERRACK), "Rejected plan wrote its target");
+            helper.succeed();
+        });
+    }
+
 }

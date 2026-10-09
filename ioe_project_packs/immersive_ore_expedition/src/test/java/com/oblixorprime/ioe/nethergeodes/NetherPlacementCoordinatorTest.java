@@ -36,6 +36,7 @@ final class NetherPlacementCoordinatorTest {
         public int tick() { return tick; }
         public Object loadedChunk(long key) { return chunks.get(key); }
         public BlockState read(BlockPos pos) { reads++; return blocks.get(pos); }
+        public boolean protectedAt(BlockPos pos, BlockState state) { return false; }
         public boolean safeToReplace(BlockPos pos, BlockState state) { return !unsafe; }
         public boolean write(BlockPos pos, BlockState state) {
             mutations++;
@@ -110,6 +111,7 @@ final class NetherPlacementCoordinatorTest {
             public int tick() { return f.tick; }
             public Object loadedChunk(long key) { return f.loadedChunk(key); }
             public BlockState read(BlockPos pos) { return f.read(pos); }
+            public boolean protectedAt(BlockPos pos, BlockState state) { return false; }
             public boolean safeToReplace(BlockPos pos, BlockState state) { return true; }
             public boolean reserveReads(int count) { return f.reserveReads(count); }
             public boolean write(BlockPos pos, BlockState state) {

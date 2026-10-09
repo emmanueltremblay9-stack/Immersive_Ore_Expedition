@@ -69,6 +69,8 @@ final class NetherPlacementRuntime {
                 if (chunk == null) throw new IllegalStateException("Chunk unavailable");
                 return chunk.getBlockState(pos);
             }
+            // External claim integration remains unqualified; production commit stays gated.
+            public boolean protectedAt(BlockPos pos, BlockState state) { return state.hasBlockEntity(); }
             public boolean safeToReplace(BlockPos pos, BlockState state) {
                 return !state.hasBlockEntity() && state.getFluidState().isEmpty()
                         && (state.isAir() || state.is(Blocks.NETHERRACK) || state.is(Blocks.BASALT) || state.is(Blocks.BLACKSTONE));

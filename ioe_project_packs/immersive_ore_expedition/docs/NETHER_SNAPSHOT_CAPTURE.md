@@ -56,3 +56,9 @@ invalidation, final validation, unload/reconnection and discarded capture reuse.
 The GameTest reads real Nether cells without changing them, exercises the actual
 command, refuses missing chunks without loading them, and rejects the Overworld.
 These are automated fixtures, not natural-generation or visual/client acceptance.
+
+
+The planner now retains every distinct observation in its internal Plan for complete
+state/protection revalidation; see [read-set accounting](NETHER_READ_SET_VALIDATION.md).
+This diagnostic still returns metrics only and discards the internal plan. It does
+not hand out a reusable snapshot or permission to place blocks.
