@@ -13,6 +13,36 @@ X and Z: offsets **-37..+36 inclusive**. The candidate is the positive-side one 
 the two central cells on each axis. This technical anchoring is deterministic,
 including negative coordinates; no rounding to 75 and no candidate/quality reroll.
 
+## Compensation amendment — approved 2026-10-09 19:14:50 UTC
+
+The owner explicitly chose option 2: continue implementation with best-effort
+compensation, without enabling generation. Only the all-or-nothing guarantee is
+relaxed. If a chunk becomes unavailable/invalid during writes, a partial chamber
+or clue may remain permanently. Persist `ROLLBACK_INCOMPLETE`; do not retry the
+region, restore first-generation authority, force a chunk or repair an old chunk.
+All other rules below, including exact 74x74, read-set validation, budgets, spacing
+and persistent deduplication, remain unchanged. The previous strict-atomicity audit
+is historical evidence, not a requirement to solve atomic publication before this
+explicitly limited backend can be developed.
+
+`NetherPlacementRuntime.commitPrepared` now connects prepared plans, the real
+server host, the server coordinator and the world's SavedData ledger. It is a
+package-scoped backend entry, with no command, automatic scheduling or generation
+caller. `commit` still returns `BACKEND_UNVERIFIED`; the direct generator still
+returns false. This backend does not certify candidate acquisition, external
+protection or automatic natural generation. No synthetic test receipt is used by
+production to create first-generation authority.
+
+Freshness is checked again after immediate state/protection reads and immediately
+before compensation; a compensation that invalidates its chunk cannot be reported
+as a complete rollback. The host refuses writes when its chunk is unavailable.
+The persisted outcome and spacing of partial sites survive a real SavedData file
+round trip; reloaded claims reject replay without repairing remaining blocks.
+GameTests inject faults and synthetic first-generation receipts around real chunks
+and the production storage entry. This is not a server restart or a natural-generation
+qualification. Persistence retains the existing ordinary-save boundary, without
+promising cross-file atomicity on OS crashes.
+
 ## Approved rules
 
 - New chunks only; no forced loads or retrogen.

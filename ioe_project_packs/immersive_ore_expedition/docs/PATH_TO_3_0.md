@@ -102,3 +102,13 @@ manuelle client/visuelle non prouvée, qualification serveur non réalisée dans
 cycle (installation refusée), puis autorisation explicite de merge/publication.
 Aucune de ces validations n'est remplacée par des tests automatiques. Ce cycle ne
 modifie ni le numéro de version ni les autorisations de release.
+
+## Nether implementation resumed, activation still deferred
+
+After the consolidation decision, the owner requested renewed Nether development
+and on 2026-10-09 at 19:14:50 UTC approved best-effort compensation with durable
+`ROLLBACK_INCOMPLETE` and no retry/old-chunk repair. Only atomic all-or-nothing
+placement is relaxed; the 74x74 gameplay and other guarantees remain. The prepared
+placement backend is now wired to real world SavedData, behind the unchanged
+automatic generation gate. Consolidated Overworld scope and version are preserved.
+See `NETHER_PLACEMENT_CONTRACT.md` for the exact amendment and test boundaries.

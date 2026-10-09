@@ -96,6 +96,14 @@ entries per plan; primary and fallback plans are checked before placement.
 Unavailable metadata or an exhausted budget conservatively refuses the camp.
 This protects against native structure metadata, not player builds or third-party claims.
 
+The owner subsequently resumed Nether implementation and approved best-effort
+compensation (2026-10-09 19:14:50 UTC), with permanent partial sites permitted only
+under the amended failure contract. An explicit prepared-placement backend now
+uses real world SavedData and consumes existing first-generation capabilities.
+Incomplete rollback is persisted, reserves spacing and cannot be retried after
+reload. Automatic generation remains disabled; this is not delivered natural
+Nether generation or a relaxation of size, budgets, protection or no-old-chunk rules.
+
 PR62 remains a separate, unmerged draft containing three restoration-rank tests.
 It is not included by this scope decision and requires its own disposition.
 

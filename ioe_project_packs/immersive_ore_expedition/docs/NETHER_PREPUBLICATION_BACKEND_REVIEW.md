@@ -1,5 +1,13 @@
 # Nether native pipeline feasibility decision
 
+## Scope of this historical strict-atomicity review
+
+The 2026-10-09 19:14:50 UTC owner decision permits best-effort compensation and
+permanent partial sites after invalidation. See `NETHER_PLACEMENT_CONTRACT.md`.
+The findings below still describe native ownership limits, but strict atomicity
+is no longer the only permitted backend contract. Automatic generation stays off;
+this review must not imply the new compensation backend is an atomic publisher.
+
 ## Decision
 
 Updated for the user's exact **74x74** choice at 2026-10-09 15:58 UTC. The earlier

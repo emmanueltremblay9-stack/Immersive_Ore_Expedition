@@ -37,6 +37,10 @@ final class NetherPlacementLedger extends SavedData implements NetherPlacementCo
         attempts.put(region(origin), new Attempt(origin.immutable(), result.name()));
         setDirty();
     }
+    Optional<String> resultAt(BlockPos origin) {
+        var attempt = attempts.get(region(origin));
+        return attempt == null ? Optional.empty() : Optional.of(attempt.result());
+    }
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         var list = new ListTag();
         attempts.values().forEach(attempt -> {

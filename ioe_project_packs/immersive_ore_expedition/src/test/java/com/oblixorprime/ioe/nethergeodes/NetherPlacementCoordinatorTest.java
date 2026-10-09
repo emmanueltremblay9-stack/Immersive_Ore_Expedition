@@ -26,6 +26,7 @@ final class NetherPlacementCoordinatorTest {
         final NetherAnalysisBudget budget = new NetherAnalysisBudget();
         int tick = 1, mutations, reads, failWrite = -1;
         boolean unsafe, replaceDuringWrite;
+        int invalidateOnRead = -1;
         Fixture(boolean reverse) {
             for (var pos : reverse ? List.of(B, A) : List.of(A, B)) {
                 var identity = new Object(); chunks.put(key(pos), identity);
@@ -35,7 +36,10 @@ final class NetherPlacementCoordinatorTest {
         public void requireServerThread() { }
         public int tick() { return tick; }
         public Object loadedChunk(long key) { return chunks.get(key); }
-        public BlockState read(BlockPos pos) { reads++; return blocks.get(pos); }
+        public BlockState read(BlockPos pos) {
+            if (++reads == invalidateOnRead) coordinator.invalidate(key(A));
+            return blocks.get(pos);
+        }
         public boolean protectedAt(BlockPos pos, BlockState state) { return false; }
         public boolean safeToReplace(BlockPos pos, BlockState state) { return !unsafe; }
         public boolean write(BlockPos pos, BlockState state) {
@@ -158,6 +162,15 @@ final class NetherPlacementCoordinatorTest {
         assertEquals(Result.INVALID_PLAN, f.coordinator.commit(f, new NetherPlacementLedger(),
                 new Plan(A, Map.of(A, ROCK), Map.of(A, Blocks.LAVA.defaultBlockState()))));
         assertEquals(0, f.mutations);
+    }
+
+    @Test void invalidationDuringImmediateReadCannotSpendRevokedWritePermission() {
+        var f = new Fixture(false); f.invalidateOnRead = 3;
+        var ledger = new NetherPlacementLedger();
+        assertEquals(Result.ROLLED_BACK, f.coordinator.commit(f, ledger, plan()));
+        assertEquals(0, f.mutations);
+        assertEquals(Map.of(A, ROCK, B, ROCK), f.blocks);
+        assertEquals(Result.DUPLICATE, f.coordinator.commit(f, ledger, plan()));
     }
 
 }

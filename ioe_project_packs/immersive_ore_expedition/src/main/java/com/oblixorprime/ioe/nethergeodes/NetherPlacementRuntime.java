@@ -53,6 +53,19 @@ final class NetherPlacementRuntime {
         return NetherPlacementCoordinator.Result.BACKEND_UNVERIFIED;
     }
 
+    /** Explicit prepared placement backend. No command, tick hook or generator calls this entry. */
+    static NetherPlacementCoordinator.Result commitPrepared(ServerLevel level, NetherPlacementCoordinator.Plan plan) {
+        return commitPrepared(level, plan, host(level));
+    }
+
+    // Package-scoped host seam for controlled fault injection against real server storage/chunks.
+    static NetherPlacementCoordinator.Result commitPrepared(ServerLevel level, NetherPlacementCoordinator.Plan plan,
+                                                            NetherPlacementCoordinator.Host host) {
+        host(level).requireServerThread();
+        var ledger = level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY, NetherPlacementLedger.NAME);
+        return coordinator(level).commit(host, ledger, plan);
+    }
+
     static NetherPlacementCoordinator.Host host(ServerLevel level) {
         return new NetherPlacementCoordinator.Host() {
             public void requireServerThread() {
@@ -75,7 +88,10 @@ final class NetherPlacementRuntime {
                 return !state.hasBlockEntity() && state.getFluidState().isEmpty()
                         && (state.isAir() || state.is(Blocks.NETHERRACK) || state.is(Blocks.BASALT) || state.is(Blocks.BLACKSTONE));
             }
-            public boolean write(BlockPos pos, BlockState state) { return level.setBlock(pos, state, 2); }
+            public boolean write(BlockPos pos, BlockState state) {
+                if (level.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) == null) return false;
+                return level.setBlock(pos, state, 2);
+            }
             public boolean reserveReads(int count) {
                 return NetherAnalysisBudget.forServer(level.getServer()).acquire(tick(), count);
             }

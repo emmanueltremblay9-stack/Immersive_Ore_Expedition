@@ -137,6 +137,8 @@ final class NetherPlacementCoordinator {
                 if (!plan.expected().get(entry.getKey()).equals(current)
                         || host.protectedAt(entry.getKey(), current)
                         || !host.safeToReplace(entry.getKey(), current)) return rollback(host, plan, journal);
+                // Reads/protection checks may reenter the host; never spend a revoked capability.
+                if (!chunks.stream().allMatch(key -> fresh(host, key))) return rollback(host, plan, journal);
                 journal.put(entry.getKey(), plan.expected().get(entry.getKey()));
                 if (!host.write(entry.getKey(), entry.getValue())) return rollback(host, plan, journal);
             }
@@ -159,7 +161,9 @@ final class NetherPlacementCoordinator {
                 if (state.equals(entry.getValue())) continue;
                 if (host.protectedAt(entry.getKey(), state)) { restored = false; continue; }
                 if (!state.equals(plan.writes().get(entry.getKey()))) { restored = false; continue; }
-                restored &= host.write(entry.getKey(), entry.getValue());
+                if (!fresh(host, chunk(entry.getKey()))) { restored = false; continue; }
+                boolean written = host.write(entry.getKey(), entry.getValue());
+                restored &= written && fresh(host, chunk(entry.getKey()));
             } catch (RuntimeException failure) { restored = false; }
         }
         return restored ? Result.ROLLED_BACK : Result.ROLLBACK_INCOMPLETE;
