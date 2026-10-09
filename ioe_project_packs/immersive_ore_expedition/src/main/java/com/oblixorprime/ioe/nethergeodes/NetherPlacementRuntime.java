@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/** Identity tracking only. No generator or automatic call to commit is registered. */
+/** First-generation tracking and an explicit prepared backend; no automatic placement caller. */
 final class NetherPlacementRuntime {
     private static final AtomicBoolean REGISTERED = new AtomicBoolean();
     private static final Map<MinecraftServer, NetherPlacementCoordinator> COORDINATORS = new WeakHashMap<>();
@@ -55,15 +55,16 @@ final class NetherPlacementRuntime {
 
     /** Explicit prepared placement backend. No command, tick hook or generator calls this entry. */
     static NetherPlacementCoordinator.Result commitPrepared(ServerLevel level, NetherPlacementCoordinator.Plan plan) {
-        return commitPrepared(level, plan, host(level));
+        return commitPrepared(level, plan, coordinator(level), host(level));
     }
 
-    // Package-scoped host seam for controlled fault injection against real server storage/chunks.
+    // Package-scoped capability/host seam for controlled faults against real storage/chunks.
     static NetherPlacementCoordinator.Result commitPrepared(ServerLevel level, NetherPlacementCoordinator.Plan plan,
+                                                            NetherPlacementCoordinator coordinator,
                                                             NetherPlacementCoordinator.Host host) {
         host(level).requireServerThread();
         var ledger = level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY, NetherPlacementLedger.NAME);
-        return coordinator(level).commit(host, ledger, plan);
+        return coordinator.commit(host, ledger, plan);
     }
 
     static NetherPlacementCoordinator.Host host(ServerLevel level) {

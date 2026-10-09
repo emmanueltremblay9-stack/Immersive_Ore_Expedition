@@ -22,7 +22,7 @@ public final class NetherCoordinatorGameTests {
         var second = first.east(16);
         var rock = Blocks.NETHERRACK.defaultBlockState();
         var ore = Blocks.NETHER_QUARTZ_ORE.defaultBlockState();
-        var coordinator = NetherPlacementRuntime.coordinator(level);
+        var coordinator = new NetherPlacementCoordinator();
         for (var pos : java.util.List.of(first, second)) {
             var chunk = level.getChunk(pos);
             level.setBlock(pos, rock, 2);
@@ -37,7 +37,7 @@ public final class NetherCoordinatorGameTests {
             helper.assertTrue(level.getBlockState(first).is(Blocks.NETHERRACK)
                     && level.getBlockState(second).is(Blocks.NETHERRACK), "Production safety gate mutated terrain");
             var ledger = storage.computeIfAbsent(NetherPlacementLedger.FACTORY, NetherPlacementLedger.NAME);
-            helper.assertTrue(NetherPlacementRuntime.commitPrepared(level, plan)
+            helper.assertTrue(NetherPlacementRuntime.commitPrepared(level, plan, coordinator, NetherPlacementRuntime.host(level))
                     == NetherPlacementCoordinator.Result.COMMITTED, "Fresh multi-chunk commit failed");
             helper.assertTrue(level.getBlockState(first).is(Blocks.NETHER_QUARTZ_ORE)
                     && level.getBlockState(second).is(Blocks.NETHER_QUARTZ_ORE), "Lost one side of transaction");
@@ -82,7 +82,7 @@ public final class NetherCoordinatorGameTests {
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 300)
     public static void preparedBackendPersistsPartialFailuresWithoutReplayOrRepair(GameTestHelper helper) {
         var level = helper.getLevel().getServer().getLevel(Level.NETHER);
-        var coordinator = NetherPlacementRuntime.coordinator(level);
+        var coordinator = new NetherPlacementCoordinator();
         var rock = Blocks.NETHERRACK.defaultBlockState();
         var ore = Blocks.NETHER_QUARTZ_ORE.defaultBlockState();
         var origins = new java.util.ArrayList<BlockPos>();
@@ -136,7 +136,7 @@ public final class NetherCoordinatorGameTests {
                     }
                 };
                 if (scenario == 0) coordinator.invalidate(new ChunkPos(second).toLong());
-                var result = NetherPlacementRuntime.commitPrepared(level, plan, host);
+                var result = NetherPlacementRuntime.commitPrepared(level, plan, coordinator, host);
                 var wanted = scenario == 0 ? NetherPlacementCoordinator.Result.NOT_FRESH
                         : scenario == 1 ? NetherPlacementCoordinator.Result.ROLLED_BACK
                         : NetherPlacementCoordinator.Result.ROLLBACK_INCOMPLETE;
@@ -156,7 +156,7 @@ public final class NetherCoordinatorGameTests {
                     helper.assertTrue(loaded.resultAt(plan.origin()).orElseThrow().equals(i == 0 ? "NOT_FRESH"
                             : i == 1 ? "ROLLED_BACK" : "ROLLBACK_INCOMPLETE"), "Lost durable result");
                     if (i >= 2) helper.assertTrue(loaded.hasAcceptedWithin(plan.origin().east(255), 256), "Lost partial-site spacing");
-                    helper.assertTrue(NetherPlacementRuntime.commitPrepared(level, plan)
+                    helper.assertTrue(NetherPlacementRuntime.commitPrepared(level, plan, coordinator, NetherPlacementRuntime.host(level))
                             == NetherPlacementCoordinator.Result.DUPLICATE, "Reload allowed retry");
                     helper.assertTrue(level.getBlockState(plan.origin()).equals(i < 2 ? rock : ore), "Reload repaired a partial site");
                 }
