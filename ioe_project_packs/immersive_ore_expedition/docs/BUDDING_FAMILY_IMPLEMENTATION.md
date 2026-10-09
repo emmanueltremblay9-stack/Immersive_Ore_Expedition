@@ -52,9 +52,14 @@ repeat an accepted placement. DRY metadata reports zero hearts/nodes and the rea
 The quantity policy is approved for DRY generally. The two special profiles Certus and
 Entroized Fluix currently define crystal item outputs and special geode shells, not a
 residual ore-block mapping. Their new residual placement remains pending an explicit
-answer about `ae2:quartz_block` / `ae2:fluix_block`; no guessed mapping is introduced.
+answer: 0–5 `ae2:quartz_block` for Certus, and an exception with no physical residues
+for Entroized Fluix. Both proposals remain unapproved. Ordinary AE2 Fluix
+(`ae2:fluix_block`) is not Entroized Fluix and is not an approved Entro residue.
 Their prior structure-only DRY path and independent 10% seed reward remain unchanged.
-The native AE2/ExtendedAE productive paths are not converted to GeOre blocks.
+Certus productive nodes are not yet wired into the runtime expedition planner.
+Entro remains exclusive to IE extraction; no Entro Budding family is authorized.
+See [Certus integration blockers](CERTUS_INTEGRATION_BLOCKERS.md) for the separate
+productive-node material and meteorite replacement decisions.
 
 ## Files and validation
 

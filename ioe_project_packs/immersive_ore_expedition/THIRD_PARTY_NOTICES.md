@@ -142,3 +142,17 @@ IOE compiles against the separately distributed Immersive Petroleum artifact and
 IOE uses Domum Ornamentum through optional compile/runtime integration for prospector-camp materialized architectural blocks when present. Domum Ornamentum remains separately distributed. No Domum Ornamentum Java source, model, texture, sound, recipe, loot table, language file, or other asset is copied into IOE. The qualified IOE release JAR contains zero embedded JARs.
 
 The tagged source and runtime metadata identify GPL-3.0, while the published Maven POM identifies LGPL-3.0. This is recorded as `CONFIRMED_MIXED_METADATA`. For IOE `0.2.50-alpha`, the owner elected `PROCEED_WITH_SEPARATE_OPTIONAL_DOMUM_INTEGRATION` as a release-risk and distribution decision. The decision does not select GPL or LGPL as legally controlling and is not legal approval; `DOMUM_LEGAL_COMPATIBILITY: UNDETERMINED`. The optional, separately distributed integration, zero embedded Domum JARs, and no copied Domum source or assets remain conditions of the disposition. Any change to those boundaries reopens the owner/legal gate. CI retrieval or testing is not redistribution approval.
+
+
+## Jade
+
+- Project: Jade
+- Mod id: `jade`
+- Integration target: NeoForge 1.21.1, Jade 15.10.6
+- Modrinth project/version used by the build: `nvQzSEkH` / `eYz2YBGT`
+
+Jade is an optional, separately distributed runtime dependency. IOE compiles
+against its public API and supplies its own Budding data and tooltip provider;
+Jade is not embedded in the IOE JAR. No Jade source or asset is copied by this
+integration. The current provider covers IOE GeOre Budding blocks, not native
+AE2 Certus site metadata. See `docs/BUDDING_INSPECTION.md` for the proof boundary.

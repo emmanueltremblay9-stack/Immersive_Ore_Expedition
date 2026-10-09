@@ -25,6 +25,20 @@ real production commit and IE fallback metadata. With Jade loaded, a GameTest ve
 provider discovery and the actual server-data and tooltip callbacks for Flawed, Chipped
 and Flawless. This is API/runtime coverage, not a client screenshot or visual acceptance.
 
+## Certus scope boundary
+
+The current IOE Jade provider registers only for `GeOreBuddingBlock`. Native AE2
+Certus blocks do not yet receive IOE site quality, node index/count or initial-ore
+metadata from this provider. `BuddingPlanMetadata` likewise discovers only GeOre
+hearts; the generic persistence format alone does not establish Certus support.
+AE2/Jade upstream tooltips must not be mistaken for IOE site provenance.
+
+Certus acceptance must cover the live native rank after degradation and repair,
+committed site metadata, fallback without Flawless, rollback, save/reload and
+hand-placed blocks without invented provenance. These checks remain pending the
+[Certus decisions](CERTUS_INTEGRATION_BLOCKERS.md). A graphical Minecraft client
+check remains separate and unproven.
+
 ## Other GeOre families
 
 The pinned GeOre 6.2.2 JAR contains the budding model/texture, growth-stage blockstates
