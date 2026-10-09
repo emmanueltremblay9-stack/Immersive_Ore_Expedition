@@ -17,13 +17,18 @@ final class NetherAnalysisBudget {
     }
 
     synchronized boolean acquire(int currentTick) {
+        return acquire(currentTick, 1);
+    }
+
+    synchronized boolean acquire(int currentTick, int count) {
+        if (count < 0 || count > READS_PER_TICK) return false;
         if (!initialized || currentTick != tick) {
             initialized = true;
             tick = currentTick;
             remaining = READS_PER_TICK;
         }
-        if (remaining == 0) return false;
-        remaining--;
+        if (remaining < count) return false;
+        remaining -= count;
         return true;
     }
 }

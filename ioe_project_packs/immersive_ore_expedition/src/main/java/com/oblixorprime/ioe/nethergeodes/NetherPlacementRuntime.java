@@ -1,0 +1,81 @@
+package com.oblixorprime.ioe.nethergeodes;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+/** Identity tracking only. No generator or automatic call to commit is registered. */
+final class NetherPlacementRuntime {
+    private static final AtomicBoolean REGISTERED = new AtomicBoolean();
+    private static final Map<MinecraftServer, NetherPlacementCoordinator> COORDINATORS = new WeakHashMap<>();
+    static synchronized NetherPlacementCoordinator coordinator(ServerLevel level) {
+        return COORDINATORS.computeIfAbsent(level.getServer(), ignored -> new NetherPlacementCoordinator());
+    }
+    static void register() {
+        if (!REGISTERED.compareAndSet(false, true)) return;
+        NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::load);
+        NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::unload);
+        NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::placed);
+        NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::broken);
+        NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::stopped);
+    }
+    private static void load(ChunkEvent.Load event) {
+        if (event.getLevel() instanceof ServerLevel level && level.dimension().equals(Level.NETHER))
+            coordinator(level).observe(event.getChunk().getPos().toLong(), event.getChunk(), event.isNewChunk(), level.getServer().getTickCount());
+    }
+    private static void unload(ChunkEvent.Unload event) {
+        if (event.getLevel() instanceof ServerLevel level && level.dimension().equals(Level.NETHER))
+            coordinator(level).invalidate(event.getChunk().getPos().toLong());
+    }
+    private static void invalidate(BlockEvent event) {
+        if (event.getLevel() instanceof ServerLevel level && level.dimension().equals(Level.NETHER))
+            coordinator(level).invalidate(new net.minecraft.world.level.ChunkPos(event.getPos()).toLong());
+    }
+    private static void placed(BlockEvent.EntityPlaceEvent event) { invalidate(event); }
+    private static void broken(BlockEvent.BreakEvent event) { invalidate(event); }
+    private static synchronized void stopped(ServerStoppedEvent event) { COORDINATORS.remove(event.getServer()); }
+
+    static NetherPlacementCoordinator.Result commit(ServerLevel level, NetherPlacementCoordinator.Plan plan) {
+        var host = host(level);
+        host.requireServerThread();
+        var ledger = level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY, NetherPlacementLedger.NAME);
+        return coordinator(level).commit(host, ledger, plan);
+    }
+
+    static NetherPlacementCoordinator.Host host(ServerLevel level) {
+        return new NetherPlacementCoordinator.Host() {
+            public void requireServerThread() {
+                if (!level.dimension().equals(Level.NETHER) || !level.getServer().isSameThread())
+                    throw new IllegalStateException("Nether server thread required");
+            }
+            public int tick() { return level.getServer().getTickCount(); }
+            public Object loadedChunk(long key) {
+                var pos = new net.minecraft.world.level.ChunkPos(key);
+                return level.getChunkSource().getChunkNow(pos.x, pos.z);
+            }
+            public BlockState read(BlockPos pos) {
+                var chunk = level.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4);
+                if (chunk == null) throw new IllegalStateException("Chunk unavailable");
+                return chunk.getBlockState(pos);
+            }
+            public boolean safeToReplace(BlockPos pos, BlockState state) {
+                return !state.hasBlockEntity() && state.getFluidState().isEmpty()
+                        && (state.isAir() || state.is(Blocks.NETHERRACK) || state.is(Blocks.BASALT) || state.is(Blocks.BLACKSTONE));
+            }
+            public boolean write(BlockPos pos, BlockState state) { return level.setBlock(pos, state, 2); }
+            public boolean reserveReads(int count) {
+                return NetherAnalysisBudget.forServer(level.getServer()).acquire(tick(), count);
+            }
+        };
+    }
+}
