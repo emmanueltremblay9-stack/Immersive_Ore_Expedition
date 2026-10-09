@@ -77,7 +77,7 @@ public final class IoeNewChunkOreGuard {
         INITIAL_SANITIZATION_QUEUE.add(chunkKey);
     }
 
-    private static void onServerTick(ServerTickEvent.Post event) {
+    static void onServerTick(ServerTickEvent.Post event) {
         advanceAdmissionTick();
         int currentTick = event.getServer().getTickCount();
         for (int pass = 0; pass < SANITIZATIONS_PER_TICK; pass++) {
@@ -278,6 +278,10 @@ public final class IoeNewChunkOreGuard {
 
     static int pendingAdmissionCount() {
         return PENDING_NEW_CHUNKS.size();
+    }
+
+    static int scheduledSanitizationCount() {
+        return SCHEDULED_SANITIZATIONS.size();
     }
 
     static int queuedSanitizationCount() {

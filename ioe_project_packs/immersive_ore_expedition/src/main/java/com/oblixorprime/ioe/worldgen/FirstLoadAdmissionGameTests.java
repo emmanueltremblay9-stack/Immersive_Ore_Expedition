@@ -23,9 +23,13 @@ public final class FirstLoadAdmissionGameTests {
             var absent = new ChunkPos(1_500_000, 1_500_000);
             helper.assertTrue(level.getChunkSource().getChunkNow(absent.x, absent.z) == null, "Fixture must be absent");
             IoeNewChunkOreGuard.scheduleChunk(level, absent, true);
-            helper.assertFalse(IoeNewChunkOreGuard.sanitizeLoadedChunk(level, absent, false), "Unavailable chunk scanned");
+            IoeNewChunkOreGuard.onServerTick(new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(level.getServer()));
+            helper.assertTrue(IoeNewChunkOreGuard.pendingAdmissionCount() == 1
+                    && IoeNewChunkOreGuard.queuedSanitizationCount() == 0, "Unavailable pass lost permission or retained queued work");
             IoeNewChunkOreGuard.scheduleChunk(level, absent, false);
             helper.assertTrue(IoeNewChunkOreGuard.pendingAdmissionCount() == 1, "Reload lost or duplicated admission");
+            helper.assertTrue(IoeNewChunkOreGuard.queuedSanitizationCount() == 1, "Pending disk load did not reschedule");
+            IoeNewChunkOreGuard.onServerTick(new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(level.getServer()));
             helper.assertTrue(level.getChunkSource().getChunkNow(absent.x, absent.z) == null, "Guard forced chunk loading");
 
             BlockPos pos = helper.absolutePos(new BlockPos(2, 2, 2));
@@ -33,7 +37,9 @@ public final class FirstLoadAdmissionGameTests {
             level.setBlock(pos, Blocks.DIAMOND_ORE.defaultBlockState(), 2);
             IoeNewChunkOreGuard.scheduleChunk(level, loaded, true);
             IoeNewChunkOreGuard.scheduleChunk(level, loaded, false);
-            helper.assertTrue(IoeNewChunkOreGuard.sanitizeLoadedChunk(level, loaded, false), "Valid reload did not resume");
+            IoeNewChunkOreGuard.onServerTick(new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(level.getServer()));
+            helper.assertTrue(IoeNewChunkOreGuard.queuedSanitizationCount() == 1
+                    && IoeNewChunkOreGuard.scheduledSanitizationCount() == 0, "Initial pass did not defer its final pass");
             helper.assertFalse(level.getBlockState(pos).is(Blocks.DIAMOND_ORE), "Valid admission did not sanitize");
             level.setBlock(pos, Blocks.DIAMOND_ORE.defaultBlockState(), 2);
             int[] expiredReservation = stageOwnedState(helper, pos);
@@ -41,7 +47,8 @@ public final class FirstLoadAdmissionGameTests {
                 IoeNewChunkOreGuard.advanceAdmissionTick();
             }
             helper.assertTrue(IoeNewChunkOreGuard.pendingAdmissionCount() == 0
-                    && IoeNewChunkOreGuard.queuedSanitizationCount() == 0, "Expiry retained admission or queued work");
+                    && IoeNewChunkOreGuard.queuedSanitizationCount() == 0
+                    && IoeNewChunkOreGuard.scheduledSanitizationCount() == 0, "Expiry retained admission or queued work");
             assertReleased(helper, pos, expiredReservation);
             IoeNewChunkOreGuard.scheduleChunk(level, loaded, false);
             helper.assertFalse(IoeNewChunkOreGuard.sanitizeLoadedChunk(level, loaded, true), "Expired chunk was rewritten");
@@ -53,7 +60,8 @@ public final class FirstLoadAdmissionGameTests {
                 IoeNewChunkOreGuard.scheduleChunk(level, new ChunkPos(absent.x + i, absent.z), true);
             }
             helper.assertTrue(IoeNewChunkOreGuard.pendingAdmissionCount() == IoeNewChunkOreGuard.MAX_PENDING_ADMISSIONS
-                    && IoeNewChunkOreGuard.queuedSanitizationCount() == IoeNewChunkOreGuard.MAX_PENDING_ADMISSIONS,
+                    && IoeNewChunkOreGuard.queuedSanitizationCount() == IoeNewChunkOreGuard.MAX_PENDING_ADMISSIONS
+                    && IoeNewChunkOreGuard.scheduledSanitizationCount() == IoeNewChunkOreGuard.MAX_PENDING_ADMISSIONS,
                     "Saturation left unbounded admissions or queue tombstones");
             assertReleased(helper, pos, evictedReservation);
             IoeNewChunkOreGuard.scheduleChunk(level, loaded, false);
@@ -68,7 +76,8 @@ public final class FirstLoadAdmissionGameTests {
             helper.assertFalse(IoeNewChunkOreGuard.sanitizeLoadedChunk(level, loaded, true), "Session end retained write permission");
             helper.assertTrue(level.getBlockState(pos).is(Blocks.DIAMOND_ORE), "Session end changed terrain");
             helper.assertTrue(IoeNewChunkOreGuard.pendingAdmissionCount() == 0
-                    && IoeNewChunkOreGuard.queuedSanitizationCount() == 0, "Session clear restored an old admission");
+                    && IoeNewChunkOreGuard.queuedSanitizationCount() == 0
+                    && IoeNewChunkOreGuard.scheduledSanitizationCount() == 0, "Session clear restored an old admission");
             helper.assertTrue(java.util.Set.copyOf(
                     com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService.index(level).sites()).equals(existingSites),
                     "Admission cleanup changed confirmed locator data");
