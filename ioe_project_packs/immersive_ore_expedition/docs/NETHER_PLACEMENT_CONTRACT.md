@@ -340,3 +340,45 @@ is deliberately injected in that protection fixture; it is not natural fortress
 worldgen proof. Nominal constructed terrain fixtures explicitly clear their native
 structure metadata, while production never does. Existing structure resolver tests
 cover remote bounds and unavailable origins. No client/manual qualification is claimed.
+
+## First-load sanitation integration
+
+Qualification found a real production gap: `IoeNewChunkOreGuard` removes unauthorized
+Nether quartz/ancient debris during its initial/final passes, while the prepared
+Nether backend had no mineral provenance visible to that guard. The ledger now
+retains exact attempted resource positions and block IDs, before mutation. Only
+vanilla Nether quartz and ancient debris are eligible. These entries are sanitation
+exemptions, NEVER new-chunk write capabilities, retrogen or recovery instructions.
+
+Successful compensation removes the entry; a fully rejected/rolled-back attempt
+clears its resource set. COMMITTED and ROLLBACK_INCOMPLETE retain remaining entries.
+INTERRUPTED conservatively retains its write-ahead entries because some writes may
+have happened. Under partial/interrupted failure an attempted position may not have
+been written, but exemption still requires the exact matching resource block there;
+no block is created by provenance. No second attempt or repair is permitted.
+
+Resources are saved within each attempt and survive ordinary save/reload. Old
+records without resources do not acquire invented exemptions. Readback accepts only
+same-region quartz/debris IDs, bounded to MAX_WRITES per attempt (canonical plans
+have at most 49). The canonical ore shell stays in the candidate chunk/region;
+nonresource shore writes outside that region do not create provenance. The existing
+OS-crash cross-file consistency limitation is unchanged.
+
+The existing first-load guard now also consults this provenance. Its new-chunk/pending
+admission gates and handling of unrelated ores remain unchanged. Tests run both
+sanitation passes on real new chunks, verify unrelated quartz is removed, save/reload
+the ledger and confirm IOE ore survives final sanitation. Unit tests cover exact IDs,
+positions, partial failures and revocation after successful compensation.
+
+A separate batch within the EXISTING hosted GameTest profile samples one unedited
+engine-generated 5x5 neighborhood per runtime run, with actual load events and explicit
+dispatch. It does not clear metadata or construct terrain. The harness requests those
+chunks; production still never requests them. The result is logged with seed/region,
+and is not required to be a successful geode. No search/reroll is performed. This
+checks a real terrain attempt under controlled availability, not player-driven loading
+or a natural placement frequency. Production generation remains disabled.
+
+Owner follow-up: native protections are retained for development; external claims
+choice is deferred until before publication. This is not a universal protection claim
+or permission to enable generation. Player-built structures remain without general
+protection coverage beyond the native checks described above.

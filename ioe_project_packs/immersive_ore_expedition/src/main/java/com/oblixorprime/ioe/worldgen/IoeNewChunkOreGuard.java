@@ -174,7 +174,7 @@ public final class IoeNewChunkOreGuard {
         }
     }
 
-    static boolean sanitizeLoadedChunk(ServerLevel level, ChunkPos chunkPos, boolean finalizeSite) {
+    public static boolean sanitizeLoadedChunk(ServerLevel level, ChunkPos chunkPos, boolean finalizeSite) {
         if (!PENDING_NEW_CHUNKS.contains(new PendingChunk(level.dimension(), chunkPos.toLong()))) return false;
         LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z);
         if (chunk == null) {
@@ -203,7 +203,8 @@ public final class IoeNewChunkOreGuard {
                                 minY + localY,
                                 chunkPos.getMinBlockZ() + localZ
                         );
-                        if (IoeOrePlacementAuthorization.matches(level.dimension(), pos, state)) {
+                        if (IoeOrePlacementAuthorization.matches(level.dimension(), pos, state)
+                                || com.oblixorprime.ioe.nethergeodes.NetherOreProvenance.preserves(level, pos, state)) {
                             continue;
                         }
                         targets.add(new Target(pos, kind));

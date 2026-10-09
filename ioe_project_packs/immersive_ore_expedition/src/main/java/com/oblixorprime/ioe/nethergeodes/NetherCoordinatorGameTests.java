@@ -42,18 +42,28 @@ public final class NetherCoordinatorGameTests {
                     == NetherPlacementCoordinator.Result.COMMITTED, "Fresh multi-chunk commit failed");
             helper.assertTrue(level.getBlockState(first).is(Blocks.NETHER_QUARTZ_ORE)
                     && level.getBlockState(second).is(Blocks.NETHER_QUARTZ_ORE), "Lost one side of transaction");
+            var unauthorized = first.above(3);
+            level.setBlock(unauthorized, ore, 2);
+            helper.assertTrue(com.oblixorprime.ioe.worldgen.IoeNewChunkOreGuard.sanitizeLoadedChunk(level, new ChunkPos(first), false),
+                    "Initial guard did not inspect the real new chunk");
+            helper.assertTrue(level.getBlockState(first).equals(ore), "Initial sanitation removed IOE quartz");
+            helper.assertTrue(level.getBlockState(unauthorized).equals(rock), "Sanitation exempted unrelated quartz");
             try {
                 storage.save();
                 net.neoforged.neoforge.common.IOUtilities.waitUntilIOWorkerComplete();
                 var disk = storage.readTagFromDisk(NetherPlacementLedger.NAME, null,
                         SharedConstants.getCurrentVersion().getDataVersion().getVersion());
                 var reloaded = NetherPlacementLedger.FACTORY.deserializer().apply(disk.getCompound("data"), level.registryAccess());
+                helper.assertTrue(reloaded.preserves(first, ore) && reloaded.preserves(second, ore), "Disk reload lost mineral provenance");
                 helper.assertFalse(reloaded.claim(first), "Disk reload allowed reroll");
                 helper.assertTrue(reloaded.hasAcceptedWithin(second, 256), "Accepted spacing disappeared");
                 var freshCoordinator = new NetherPlacementCoordinator();
                 helper.assertTrue(freshCoordinator.commit(NetherPlacementRuntime.host(level), new NetherPlacementLedger(), plan)
                         == NetherPlacementCoordinator.Result.NOT_FRESH, "Restart reconstructed write permission");
                 storage.set(NetherPlacementLedger.NAME, reloaded);
+                helper.assertTrue(com.oblixorprime.ioe.worldgen.IoeNewChunkOreGuard.sanitizeLoadedChunk(level, new ChunkPos(first), true),
+                        "Final guard did not inspect the real new chunk");
+                helper.assertTrue(level.getBlockState(first).equals(ore), "Final sanitation removed IOE quartz after ledger reload");
             } catch (java.io.IOException failure) { throw new RuntimeException(failure); }
             helper.succeed();
         });

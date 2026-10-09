@@ -171,3 +171,13 @@ native structure/block-entity protection checks; missing structure metadata fail
 closed. No external claim provider or player-build detection is supplied. Hosted
 fixtures exercise real load receipts and injected native structure metadata; automatic
 natural generation, manual acceptance and external protection remain unqualified.
+
+### Nether minerals survive first-load sanitation
+
+The prepared backend now records exact quartz/debris sanitation provenance in its
+existing attempt ledger. Successful compensation revokes it; completed and partial
+sites retain their remaining entries across normal reload. The first-load ore guard
+preserves matching IOE resources while still removing unrelated ores. These records
+never authorize writes, rerolls or repairs in old chunks. Interrupted attempts retain
+conservative write-ahead entries; no cross-file crash guarantee is added. Claims
+integration remains deferred before publication, as approved for development.

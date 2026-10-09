@@ -129,6 +129,8 @@ final class NetherPlacementCoordinatorTest {
         var loaded = NetherPlacementLedger.FACTORY.deserializer().apply(ledger.save(new CompoundTag(), null), null);
         assertFalse(loaded.claim(A));
         assertTrue(loaded.hasAcceptedWithin(A, 256));
+        assertTrue(loaded.preserves(A, ORE));
+        assertFalse(loaded.preserves(B, ORE));
     }
     @Test void interruptedClaimAndAcceptedSpacingSurviveSaveReload() {
         var ledger = new NetherPlacementLedger();
@@ -184,6 +186,20 @@ final class NetherPlacementCoordinatorTest {
         var restored = NetherPlacementLedger.FACTORY.deserializer().apply(ledger.save(new CompoundTag(), null), null);
         assertNull(restored.prepare(A));
         assertEquals("INTERRUPTED", restored.resultAt(A).orElseThrow());
+    }
+
+    @Test void sanitationProvenanceSurvivesReloadButCompleteRollbackRevokesIt() {
+        var committed = new Fixture(false); var ledger = new NetherPlacementLedger();
+        assertEquals(Result.COMMITTED, committed.coordinator.commit(committed, ledger, plan()));
+        var restored = NetherPlacementLedger.FACTORY.deserializer().apply(ledger.save(new CompoundTag(), null), null);
+        assertTrue(restored.preserves(A, ORE));
+        assertFalse(restored.preserves(A.above(), ORE));
+        assertFalse(restored.preserves(A, Blocks.ANCIENT_DEBRIS.defaultBlockState()));
+        assertFalse(restored.preserves(A, Blocks.NETHER_GOLD_ORE.defaultBlockState()));
+        var rolled = new Fixture(false); rolled.failWrite = 2;
+        var rolledLedger = new NetherPlacementLedger();
+        assertEquals(Result.ROLLED_BACK, rolled.coordinator.commit(rolled, rolledLedger, plan()));
+        assertFalse(rolledLedger.preserves(A, ORE)); assertFalse(rolledLedger.preserves(B, ORE));
     }
 
 }

@@ -29,6 +29,8 @@ final class NetherPlacementCoordinator {
         boolean claim(BlockPos origin);
         boolean hasAcceptedWithin(BlockPos origin, int distance);
         void finish(BlockPos origin, Result result);
+        default void recordResource(BlockPos origin, BlockPos pos, BlockState state) { }
+
     }
     record Plan(BlockPos origin, Map<BlockPos, BlockState> expected, Map<BlockPos, BlockState> writes,
                 Set<BlockPos> protectedPositions, int acquisitionReads) {
@@ -150,24 +152,25 @@ final class NetherPlacementCoordinator {
         var journal = new LinkedHashMap<BlockPos, BlockState>();
         try {
             for (var entry : plan.writes().entrySet()) {
-                if (!chunks.stream().allMatch(key -> fresh(host, key))) return rollback(host, plan, journal);
+                if (!chunks.stream().allMatch(key -> fresh(host, key))) return rollback(host, ledger, plan, journal);
                 var current = host.read(entry.getKey());
                 if (!plan.expected().get(entry.getKey()).equals(current)
                         || host.protectedAt(entry.getKey(), current)
-                        || !host.safeToReplace(entry.getKey(), current)) return rollback(host, plan, journal);
+                        || !host.safeToReplace(entry.getKey(), current)) return rollback(host, ledger, plan, journal);
                 // Reads/protection checks may reenter the host; never spend a revoked capability.
-                if (!chunks.stream().allMatch(key -> fresh(host, key))) return rollback(host, plan, journal);
+                if (!chunks.stream().allMatch(key -> fresh(host, key))) return rollback(host, ledger, plan, journal);
                 journal.put(entry.getKey(), plan.expected().get(entry.getKey()));
-                if (!host.write(entry.getKey(), entry.getValue())) return rollback(host, plan, journal);
+                ledger.recordResource(plan.origin(), entry.getKey(), entry.getValue());
+                if (!host.write(entry.getKey(), entry.getValue())) return rollback(host, ledger, plan, journal);
             }
-            if (!chunks.stream().allMatch(key -> fresh(host, key))) return rollback(host, plan, journal);
+            if (!chunks.stream().allMatch(key -> fresh(host, key))) return rollback(host, ledger, plan, journal);
             ledger.finish(plan.origin(), Result.COMMITTED);
             return Result.COMMITTED;
         } catch (RuntimeException failure) {
-            return rollback(host, plan, journal);
+            return rollback(host, ledger, plan, journal);
         }
     }
-    private Result rollback(Host host, Plan plan, Map<BlockPos, BlockState> journal) {
+    private Result rollback(Host host, Ledger ledger, Plan plan, Map<BlockPos, BlockState> journal) {
         boolean restored = true;
         var entries = new ArrayList<>(journal.entrySet());
         Collections.reverse(entries);
@@ -176,11 +179,15 @@ final class NetherPlacementCoordinator {
                 // Never load/rewrite a replacement or reloaded chunk merely to compensate.
                 if (!fresh(host, chunk(entry.getKey()))) { restored = false; continue; }
                 var state = host.read(entry.getKey());
-                if (state.equals(entry.getValue())) continue;
+                if (state.equals(entry.getValue())) {
+                    ledger.recordResource(plan.origin(), entry.getKey(), entry.getValue());
+                    continue;
+                }
                 if (host.protectedAt(entry.getKey(), state)) { restored = false; continue; }
                 if (!state.equals(plan.writes().get(entry.getKey()))) { restored = false; continue; }
                 if (!fresh(host, chunk(entry.getKey()))) { restored = false; continue; }
                 boolean written = host.write(entry.getKey(), entry.getValue());
+                if (written) ledger.recordResource(plan.origin(), entry.getKey(), entry.getValue());
                 restored &= written && fresh(host, chunk(entry.getKey()));
             } catch (RuntimeException failure) { restored = false; }
         }
