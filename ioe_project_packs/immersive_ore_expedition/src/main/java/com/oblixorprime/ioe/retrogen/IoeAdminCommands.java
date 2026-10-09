@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
+import com.oblixorprime.ioe.nethergeodes.LavaLakeDiagnostic;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorReindexer;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorResult;
@@ -47,6 +48,15 @@ public final class IoeAdminCommands {
 
         root.then(Commands.literal("status")
                 .executes(IoeAdminCommands::runtimeStatus));
+
+        root.then(Commands.literal("diagnose")
+                .requires(source -> source.hasPermission(2))
+                .then(Commands.literal("lava_lake")
+                        .then(Commands.argument("radius", IntegerArgumentType.integer(1,
+                                        LavaLakeDiagnostic.MAX_RADIUS))
+                                .then(Commands.argument("depth", IntegerArgumentType.integer(1,
+                                                LavaLakeDiagnostic.MAX_DEPTH))
+                                        .executes(context -> diagnoseLavaLake(context))))));
 
         if (settings.anyLocateCommandEnabled()) {
             LiteralArgumentBuilder<CommandSourceStack> locate = Commands.literal("locate");
@@ -165,6 +175,15 @@ public final class IoeAdminCommands {
                 origin,
                 ExpeditionLocatorService.index(source.getLevel())
         ));
+    }
+
+    private static int diagnoseLavaLake(CommandContext<CommandSourceStack> context) {
+        var source = context.getSource();
+        var report = LavaLakeDiagnostic.scan(source.getLevel(),
+                BlockPos.containing(source.getPosition()), IntegerArgumentType.getInteger(context, "radius"),
+                IntegerArgumentType.getInteger(context, "depth"));
+        source.sendSuccess(() -> Component.literal(report.message()), false);
+        return report.status() == LavaLakeDiagnostic.Status.COMPLETE ? 1 : 0;
     }
 
     private static int reindexLocator(CommandContext<CommandSourceStack> context, int radiusBlocks) {

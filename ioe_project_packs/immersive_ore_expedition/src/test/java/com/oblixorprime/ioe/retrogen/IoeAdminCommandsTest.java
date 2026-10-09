@@ -37,6 +37,7 @@ class IoeAdminCommandsTest {
                 new IoeAdminCommandSettings(true, true, true, true, true, true)
         ).build();
 
+        assertNotNull(root.getChild("diagnose").getChild("lava_lake").getChild("radius").getChild("depth"));
         assertNotNull(root.getChild("status"));
         assertNotNull(root.getChild("locate").getChild("province"));
         assertNotNull(root.getChild("locate").getChild("anchor"));
