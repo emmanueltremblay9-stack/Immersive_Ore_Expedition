@@ -608,7 +608,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         return structureBounds.stream().anyMatch(candidateBounds::intersects);
     }
 
-    private static boolean collidesWithStructure(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
+    static boolean collidesWithStructure(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
         return LoadedStructureCollision.blocksPlacement(level, expandedPlanBounds(plan.blocks().keySet()));
     }
 

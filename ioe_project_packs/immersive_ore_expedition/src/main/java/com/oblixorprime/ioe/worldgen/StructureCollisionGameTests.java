@@ -65,6 +65,57 @@ public final class StructureCollisionGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 200)
+    public static void campApplicationReadsFreshMetadataWithoutLoading(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var structure = level.registryAccess().registryOrThrow(Registries.STRUCTURE)
+                .get(ResourceLocation.withDefaultNamespace("desert_pyramid"));
+        var piece = new DesertPyramidPiece(RandomSource.create(73), -34000, -34000);
+        var pos = piece.getBoundingBox().getCenter();
+        var target = level.getChunk(pos);
+        var ownerPos = new ChunkPos(target.getPos().x + 3, target.getPos().z);
+        var owner = level.getChunk(ownerPos.x, ownerPos.z);
+        target.setAllStarts(new HashMap<>());
+        target.setAllReferences(new HashMap<>());
+        owner.setAllStarts(new HashMap<>());
+        level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+        var plan = new ExpeditionSiteBlockPlan(IoeWorldgenFeatureKeys.MINER_CAMP, pos, pos, pos,
+                com.oblixorprime.ioe.core.SiteQuality.DRY, 0, null, null,
+                List.of(), List.of(), Map.of(pos, Blocks.OAK_PLANKS.defaultBlockState()));
+        target.addReferenceForStructure(structure, ownerPos.toLong());
+        var farPiece = new DesertPyramidPiece(RandomSource.create(73), -35000, -35000);
+        owner.setStartForStructure(structure, new StructureStart(structure, ownerPos, 0, new PiecesContainer(List.of(farPiece))));
+        var initial = IoeExpeditionPlanPlacement.apply(level, plan);
+        helper.assertTrue(initial.isPresent() && initial.orElseThrow().rollback(level), "Known nonoverlapping metadata rejected");
+
+        owner.setStartForStructure(structure, new StructureStart(structure, ownerPos, 0, new PiecesContainer(List.of(piece))));
+        helper.assertTrue(IoeExpeditionPlanPlacement.apply(level, plan).isEmpty(), "Moved bounds were not re-read at application");
+        helper.assertTrue(level.getBlockState(pos).isAir(), "Changed bounds were overwritten");
+        owner.setStartForStructure(structure, StructureStart.INVALID_START);
+        helper.assertTrue(IoeExpeditionPlanPlacement.apply(level, plan).isEmpty(), "Invalid start was accepted at application");
+
+        target.setAllReferences(new HashMap<>());
+        var absent = new ChunkPos(1_375_200, 1_375_200);
+        helper.assertTrue(level.getChunkSource().getChunkNow(absent.x, absent.z) == null, "Unknown owner fixture already loaded");
+        target.addReferenceForStructure(structure, absent.toLong());
+        helper.assertTrue(IoeExpeditionPlanPlacement.apply(level, plan).isEmpty(), "Unknown referenced owner was accepted");
+        helper.assertTrue(level.getChunkSource().getChunkNow(absent.x, absent.z) == null, "Application force-loaded structure owner");
+        helper.assertTrue(level.getBlockState(pos).isAir(), "Unknown metadata caused terrain mutation");
+
+        target.setAllReferences(new HashMap<>());
+        var recovered = IoeExpeditionPlanPlacement.apply(level, plan);
+        helper.assertTrue(recovered.isPresent() && recovered.orElseThrow().rollback(level), "Application cached a stale rejection");
+        // Preserve the existing MINER_CAMP-only policy; this fix does not generalize protection to other site types.
+        target.addReferenceForStructure(structure, ownerPos.toLong());
+        owner.setStartForStructure(structure, new StructureStart(structure, ownerPos, 0, new PiecesContainer(List.of(piece))));
+        var otherType = new ExpeditionSiteBlockPlan(IoeWorldgenFeatureKeys.TINY_VERTICAL_MINE_ENTRANCE, pos, pos, pos,
+                com.oblixorprime.ioe.core.SiteQuality.DRY, 0, null, null,
+                List.of(), List.of(), Map.of(pos, Blocks.OAK_PLANKS.defaultBlockState()));
+        var unaffected = IoeExpeditionPlanPlacement.apply(level, otherType);
+        helper.assertTrue(unaffected.isPresent() && unaffected.orElseThrow().rollback(level), "Protection scope expanded beyond camps");
+        helper.succeed();
+    }
+
     private static BoundingBox point(BlockPos pos) {
         return new BoundingBox(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ());
     }

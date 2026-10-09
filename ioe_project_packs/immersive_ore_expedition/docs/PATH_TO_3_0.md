@@ -52,6 +52,23 @@ incomplètes peuvent désormais refuser un site auparavant admis/chargé implici
 Ce correctif ne généralise pas la protection à tous les types de sites, ne raccorde
 pas les collisions Nether et ne résout pas la publication atomique.
 
+### Revalidation à l'application différée
+
+Un GameTest ajouté sur `97ef53af5916f9eedda2ebc1366ee696de42cfb4` a reproduit
+l'acceptation d'un camp malgré une référence de structure ajoutée après staging
+(CI PR 38006487382 : seul échec, `Deferred camp accepted a structure added after staging`).
+Le bloc initial reste de l'air : les contrôles de matériau, fluide et block entity ne
+peuvent pas détecter cette modification de protection.
+
+`IoeExpeditionPlanPlacement.apply` réutilise désormais le même contrôle avant toute
+lecture/écriture de terrain, pour chaque plan MINER_CAMP, principal ou fallback.
+La marge d'un bloc, les limites 64 chunks/256 entrées, la lecture des seuls chunks
+disponibles et le refus en cas de métadonnées inconnues sont conservés. Les tests
+vérifient également un start déplacé, invalide ou devenu indisponible, la reprise
+du placement après retrait du conflit, l'absence de chargement forcé et le maintien
+de la portée limitée aux camps. Il s'agit d'une mutation de métadonnées injectée
+dans un ServerLevel réel, pas d'une mesure de fréquence en génération naturelle.
+
 ## Décision de périmètre approuvée et suites restantes
 
 Les anciennes roadmaps mentionnent dangers Nether, nouvelles variantes/branches de
