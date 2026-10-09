@@ -101,7 +101,7 @@ public final class NetherGeneratedTerrainGameTests {
                 helper.assertTrue(NetherNaturalAdmission.attempt(level, chunk) == NetherPlacementCoordinator.Result.DUPLICATE, "Region rerolled");
                 outcome = result + "/" + report.plannerStatus();
                 accepted = result == NetherPlacementCoordinator.Result.COMMITTED;
-                if (accepted) verifyAccepted(helper, level, candidate, filtered.floor(), filtered.soulSoilFloor(), origin);
+                if (accepted) verifyAccepted(helper, level, candidate, filtered.floor(), filtered.soulSoilFloor(), origin, "natural_generated");
             }
             counts.merge(outcome, 1, Integer::sum);
             com.mojang.logging.LogUtils.getLogger().info("IOE bounded64 sample: seed={} region={},{} candidate={},{} quality={} loadTick={} admissionTick={} actualReceipt=true loading=controlled_full_5x5 filter={} admission={} terrainEditsBeforeAdmission=0 injectedReceipts=0",
@@ -118,7 +118,7 @@ public final class NetherGeneratedTerrainGameTests {
     }
 
     static void verifyAccepted(GameTestHelper helper, ServerLevel level, NetherSitePlanner.Candidate candidate,
-                                       int floor, boolean soulSoilFloor, BlockPos origin) {
+                                       int floor, boolean soulSoilFloor, BlockPos origin, String terrainKind) {
         var center = new BlockPos(candidate.x(), floor - 16, candidate.z());
         var resources = new LinkedHashMap<BlockPos, net.minecraft.world.level.block.state.BlockState>();
         for (int z = -5; z <= 5; z++) for (int y = -5; y <= 5; y++) for (int x = -5; x <= 5; x++) {
@@ -150,7 +150,7 @@ public final class NetherGeneratedTerrainGameTests {
                     new ChunkPos(pos).z).getBlockState(pos).equals(state), "Sanitation removed natural IOE ore at " + pos));
             helper.assertTrue(NetherNaturalAdmission.attempt(level, new ChunkPos(origin)) == NetherPlacementCoordinator.Result.DUPLICATE,
                     "Reloaded world ledger allowed replay");
-            com.mojang.logging.LogUtils.getLogger().info("IOE bounded64 accepted verified: center={} resources={} cavity=true savedLedger=true sanitation=true replay=false clientVisual=UNPROVEN", center, resources.size());
+            com.mojang.logging.LogUtils.getLogger().info("IOE placement verified: terrain={} center={} resources={} cavity=true savedLedger=true sanitation=true replay=false clientVisual=UNPROVEN", terrainKind, center, resources.size());
         } catch (java.io.IOException failure) { throw new RuntimeException(failure); }
     }
 }

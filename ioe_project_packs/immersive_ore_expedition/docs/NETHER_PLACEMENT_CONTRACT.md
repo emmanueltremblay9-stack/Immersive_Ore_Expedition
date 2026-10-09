@@ -175,7 +175,8 @@ atomicity is claimed.
 ## Connected planning over snapshots
 
 `NetherSitePlanner` now composes deterministic per-region candidate selection,
-10/25/45/17/3 quality, a stable terrain-conditioned Motherlode-only debris draw, connected lake
+ordinary 10/25/45/17/3 quality and the confirmed soul-soil profile, a stable
+terrain-conditioned Motherlode-only debris draw, connected lake
 analysis and geometry into the existing coordinator Plan type. It performs no world
 access: its Snapshot must be immutable and return unknown for unavailable terrain.
 A hard 262,144 snapshot-probe bound covers all phases together. This bound does not

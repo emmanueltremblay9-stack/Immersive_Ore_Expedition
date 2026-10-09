@@ -53,7 +53,7 @@ public final class NetherAdmissionGameTests {
             helper.assertTrue(level.getBlockState(shore).is(Blocks.BLACKSTONE)
                     && level.getBlockState(shore.above()).is(Blocks.BLACKSTONE), "Remote shore marker missing");
             NetherGeneratedTerrainGameTests.verifyAccepted(helper, level, c, 36, true,
-                    new BlockPos(c.x(), level.getMinBuildHeight(), c.z()));
+                    new BlockPos(c.x(), level.getMinBuildHeight(), c.z()), "constructed_soil_floor");
             helper.assertTrue(NetherNaturalAdmission.attempt(level, trigger) == NetherPlacementCoordinator.Result.DUPLICATE,
                     "Repeated admission allowed a reroll");
             helper.assertTrue(NetherPlacementRuntime.commit(level, new NetherPlacementCoordinator.Plan(center,
