@@ -1,6 +1,6 @@
 package com.oblixorprime.ioe.worldgen;
 
-import com.oblixorprime.ioe.budding.IronBuddingBlock;
+import com.oblixorprime.ioe.budding.GeOreBuddingBlock;
 import net.minecraft.world.level.block.Block;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
@@ -70,7 +70,8 @@ public record ExpeditionSiteBlockPlan(
         if (hasAe2Geode && hasEntroizedFluixGeode) {
             throw new IllegalArgumentException("A mine cannot contain more than one special geode mode");
         }
-        if ((oreBlockId == null) != (oreNodeHeartBlockId == null)) {
+        boolean residualPocket = quality == SiteQuality.DRY && oreBlockId != null && oreNodeHeartBlockId == null;
+        if (!residualPocket && (oreBlockId == null) != (oreNodeHeartBlockId == null)) {
             throw new IllegalArgumentException("Embedded ore nodes require both material and budding-heart ids");
         }
         if (oreNodeCount > 0 && oreBlockId == null) {
@@ -136,10 +137,11 @@ public record ExpeditionSiteBlockPlan(
     }
 
     private boolean isOreNodeHeart(BlockState state) {
+        if (oreNodeHeartBlockId == null) return false;
         BlockState primary = BuiltInRegistries.BLOCK.getOptional(oreNodeHeartBlockId)
                 .map(Block::defaultBlockState).orElse(null);
-        if (primary != null && primary.getBlock() instanceof IronBuddingBlock) {
-            return state.getBlock() instanceof IronBuddingBlock;
+        if (primary != null && primary.getBlock() instanceof GeOreBuddingBlock) {
+            return state.getBlock() instanceof GeOreBuddingBlock;
         }
         return BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(oreNodeHeartBlockId);
     }

@@ -1,7 +1,7 @@
 package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.budding.BuddingNodeInfo;
-import com.oblixorprime.ioe.budding.IronBuddingBlock;
+import com.oblixorprime.ioe.budding.GeOreBuddingBlock;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -12,13 +12,13 @@ final class BuddingPlanMetadata {
 
     static List<BuddingNodeInfo> nodes(ExpeditionSiteBlockPlan plan) {
         var hearts = plan.blocks().entrySet().stream()
-                .filter(entry -> entry.getValue().getBlock() instanceof IronBuddingBlock).toList();
+                .filter(entry -> entry.getValue().getBlock() instanceof GeOreBuddingBlock).toList();
         if (hearts.isEmpty()) return List.of();
         int orePerNode = Math.toIntExact(plan.oreBlockCount() - hearts.size()) / hearts.size();
         List<BuddingNodeInfo> nodes = new ArrayList<>();
         for (int i = 0; i < hearts.size(); i++) {
             nodes.add(new BuddingNodeInfo(hearts.get(i).getKey(), i + 1, hearts.size(), orePerNode,
-                    ResourceLocation.parse("geore:iron")));
+                    ((GeOreBuddingBlock) hearts.get(i).getValue().getBlock()).family().identity()));
         }
         return List.copyOf(nodes);
     }

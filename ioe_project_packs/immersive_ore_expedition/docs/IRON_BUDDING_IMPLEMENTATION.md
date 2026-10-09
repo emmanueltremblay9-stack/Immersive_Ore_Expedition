@@ -31,13 +31,13 @@ GeOre 6.2.2 and AE2 Crystal Science 1.1.12 runtime. It is not a 1.0.0 release ap
 
 The 10% DRY neutral-seed reward is now planned once and placed in an underground cache
 through the same compensated transaction. Winning loot yields exactly one neutral seed;
-reopening/reconfirmation does not reroll it. Residual ore placement remains pending:
-the planner keeps an explicit 0–5 count without selecting its distribution.
-Other resource families remain on their existing structure/deposit path.
+reopening/reconfirmation does not reroll it. Residual ore placement now uses the approved uniform 0–5 whole-pocket count for GeOre
+profiles. All thirteen GeOre families share the implementation with ordinary storage
+outputs; the five IE families are conditional. See `BUDDING_FAMILY_IMPLEMENTATION.md`
+for the exact activation rules and remaining special-profile limits.
 
 Models retain the installed GeOre Iron texture and add original, cumulative fracture
 geometry to distinguish all four ranks without copying third-party images. Static
 resource validation is automated; actual client visual acceptance remains outstanding.
 See `PR63_REGRESSION_VALIDATION.md` for the specification and proof boundaries. Optional Jade 15.10.6 now displays the live rank and
-committed site/node metadata. The other supported families, full progression testing
-and release smoke evidence remain outstanding.
+committed site/node metadata. Full client progression testing and release smoke evidence remain outstanding.

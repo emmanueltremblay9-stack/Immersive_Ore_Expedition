@@ -1,7 +1,7 @@
 package com.oblixorprime.ioe.compat.jade;
 
 import com.oblixorprime.ioe.budding.BuddingNodeInfo;
-import com.oblixorprime.ioe.budding.IronBuddingBlock;
+import com.oblixorprime.ioe.budding.GeOreBuddingBlock;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -27,10 +27,10 @@ public enum IoeBuddingProvider implements IBlockComponentProvider, IServerDataPr
 
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
-        if (!(accessor.getLevel() instanceof ServerLevel level) || !(accessor.getBlock() instanceof IronBuddingBlock)) return;
+        if (!(accessor.getLevel() instanceof ServerLevel level) || !(accessor.getBlock() instanceof GeOreBuddingBlock block)) return;
         data.remove(DATA_KEY);
         ExpeditionLocatorService.index(level).buddingNodeAt(level.dimension(), accessor.getPosition())
-                .filter(context -> context.node().family().equals(ResourceLocation.parse("geore:iron")))
+                .filter(context -> context.node().family().equals(block.family().identity()))
                 .ifPresent(context -> {
                     CompoundTag payload = context.node().save();
                     context.site().quality().ifPresent(quality -> payload.putString("quality", quality.name()));
@@ -40,13 +40,13 @@ public enum IoeBuddingProvider implements IBlockComponentProvider, IServerDataPr
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        if (!(accessor.getBlock() instanceof IronBuddingBlock block)) return;
+        if (!(accessor.getBlock() instanceof GeOreBuddingBlock block)) return;
         tooltip.add(Component.translatable("tooltip.ioe.budding.rank",
                 Component.translatable("budding.ioe.rank." + block.rank().path())));
         tooltip.add(Component.translatable("tooltip.ioe.budding.family", "GeOre"));
         CompoundTag payload = accessor.getServerData().getCompound(DATA_KEY);
         var info = BuddingNodeInfo.load(payload).filter(node -> node.pos().equals(accessor.getPosition())
-                && node.family().equals(ResourceLocation.parse("geore:iron")));
+                && node.family().equals(block.family().identity()));
         if (info.isEmpty()) return; // Hand-placed or legacy blocks have no proven generation metadata.
         String quality = payload.getString("quality");
         if (java.util.Arrays.stream(com.oblixorprime.ioe.core.SiteQuality.values()).noneMatch(q -> q.name().equals(quality))) return;

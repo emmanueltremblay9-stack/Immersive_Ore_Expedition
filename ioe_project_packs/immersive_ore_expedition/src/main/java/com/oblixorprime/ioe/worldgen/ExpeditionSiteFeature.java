@@ -133,10 +133,22 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             resourceProfile = resolution.profile().orElseThrow();
         }
 
-        BuddingSitePlan ironBudget = resourceProfile != null && resourceProfile.profileName().equals("iron")
-                && quality.isProductive() && ModList.get().isLoaded("geore") && ModList.get().isLoaded("ae2")
-                ? BuddingSitePlan.forQuality(quality, RandomSource.create(planSeed ^ 0x49524f4eL), 0)
-                : null;
+        var family = resourceProfile == null ? null : com.oblixorprime.ioe.budding.BuddingResourceFamily
+                .fromGeOreMaterial(resourceProfile.profileName()).orElse(null);
+        if (family != null && quality.isProductive() && !com.oblixorprime.ioe.budding.IoeGeOreBuddingBlocks.available(family)) {
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                    "Budding family dependencies, storage or growth blocks are unavailable: " + family.key());
+            return false;
+        }
+        int dryOreCount = quality == SiteQuality.DRY ? com.oblixorprime.ioe.budding.DryPocketRoll.forSite(planSeed) : 0;
+        if (quality == SiteQuality.DRY && family != null
+                && !net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(family.pocketBlockId())) {
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                    "Missing DRY pocket material: " + family.pocketBlockId());
+            return false;
+        }
+        BuddingSitePlan familyBudget = family != null && quality.isProductive()
+                ? BuddingSitePlan.forQuality(quality, RandomSource.create(planSeed ^ 0x49524f4eL), 0) : null;
 
         DepositPreparation depositPreparation = prepareExcavatorDeposit(
                 context.level().getLevel(),
@@ -170,20 +182,23 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     && prospectorCampContext.archetype() == ProspectorCampArchetype.ACTIVE
                     ? previewPlan
                     : structureOnlyPlan(siteType, origin, quality, planSeed, prospectorCampContext);
+            if (quality == SiteQuality.DRY && family != null) {
+                plan = DrySitePockets.attach(plan, family.pocketBlockId(), dryOreCount, planSeed);
+            }
             plan = DrySiteRewards.attach(plan, drySeedReward, planSeed);
-            if (ironBudget != null) {
-                if (quality != ironBudget.quality()) {
-                    ironBudget = ironBudget.downgradeTo(quality, 0);
+            if (familyBudget != null) {
+                if (quality != familyBudget.quality()) {
+                    familyBudget = familyBudget.downgradeTo(quality, 0);
                 }
-                plan = IronBuddingSitePlans.plan(siteType, origin, ironBudget, planSeed, prospectorCampContext);
+                plan = GeOreBuddingSitePlans.plan(family, siteType, origin, familyBudget, planSeed, prospectorCampContext);
             }
             ArrayList<ExpeditionSiteBlockPlan> fallbackPlans = new ArrayList<>();
             if (depositReservation != null && depositReservation.requiredForSiteQuality()) {
                 SiteQuality lowerQuality = quality.directLower().orElse(null);
                 while (lowerQuality != null && lowerQuality.isProductive()) {
-                    fallbackPlans.add(ironBudget == null
+                    fallbackPlans.add(familyBudget == null
                             ? structureOnlyPlan(siteType, origin, lowerQuality, planSeed, prospectorCampContext)
-                            : IronBuddingSitePlans.plan(siteType, origin, ironBudget.downgradeTo(lowerQuality, 0),
+                            : GeOreBuddingSitePlans.plan(family, siteType, origin, familyBudget.downgradeTo(lowerQuality, 0),
                                     planSeed, prospectorCampContext));
                     lowerQuality = lowerQuality.directLower().orElse(null);
                 }

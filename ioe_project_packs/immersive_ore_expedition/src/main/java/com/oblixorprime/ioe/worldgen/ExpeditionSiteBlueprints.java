@@ -1,6 +1,6 @@
 package com.oblixorprime.ioe.worldgen;
 
-import com.oblixorprime.ioe.budding.IronBuddingBlock;
+import com.oblixorprime.ioe.budding.GeOreBuddingBlock;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -304,7 +304,7 @@ public final class ExpeditionSiteBlueprints {
         }
 
         if (oreNodeHeartState != null
-                && oreNodeHeartState.getBlock() instanceof IronBuddingBlock
+                && oreNodeHeartState.getBlock() instanceof GeOreBuddingBlock
                 && quality.isProductive() && components.contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER)) {
             int radius = horizontalRadius(quality);
             int halfHeight = Math.max(2, verticalHalfSize(quality));
@@ -635,7 +635,7 @@ public final class ExpeditionSiteBlueprints {
     ) {
         int radius = horizontalRadius(quality);
         int halfHeight = oreNodeHeartState != null
-                && oreNodeHeartState.getBlock() instanceof IronBuddingBlock
+                && oreNodeHeartState.getBlock() instanceof GeOreBuddingBlock
                 ? Math.max(2, verticalHalfSize(quality)) : verticalHalfSize(quality);
         for (int dy = -halfHeight; dy <= halfHeight; dy++) {
             for (int dx = -radius; dx <= radius; dx++) {
@@ -655,7 +655,7 @@ public final class ExpeditionSiteBlueprints {
         }
 
         int placedNodeCount = 0;
-        if (oreState != null && !(oreNodeHeartState.getBlock() instanceof IronBuddingBlock)) {
+        if (oreState != null && !(oreNodeHeartState.getBlock() instanceof GeOreBuddingBlock)) {
             List<BlockPos> seedCandidates = chamberShell(center, radius, halfHeight);
             seedCandidates.removeIf(candidate -> !touchesOpenChamber(
                     candidate,
@@ -718,7 +718,7 @@ public final class ExpeditionSiteBlueprints {
             throw new IllegalStateException("Ore node candidate band cannot satisfy the requested node count");
         }
 
-        if (oreNodeHeartState.getBlock() instanceof IronBuddingBlock) {
+        if (oreNodeHeartState.getBlock() instanceof GeOreBuddingBlock) {
             return addCanonicalIronNodes(builder, candidatePositions, seedCandidates, oreState, oreNodeHeartState,
                     chamberCenter, chamberRadius, chamberHalfHeight, requestedOreBudget, requestedNodeCount);
         }

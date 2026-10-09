@@ -1,4 +1,4 @@
-# Budding inspection and remaining family decisions
+# Budding inspection and family activation
 
 ## Jade and persistence
 
@@ -33,13 +33,13 @@ aluminum, coal, copper, diamond, emerald, gold, iron, lapis, lead, nickel, redst
 silver and uranium. All thirteen corresponding IOE datapack profile files exist.
 This asset/profile inventory alone is not a claim of functional rank support.
 
-Iron's exhausted target is explicitly `minecraft:iron_block`. For the remaining twelve
-families the current family descriptor names `geore:<material>_block`; GeOre tags these
-as `geore:storage_blocks/geore_<material>`, separately from ordinary mineral storage tags.
-The canonical document names the corresponding mineral storage block but gives only the
-Iron concrete target. Choosing ordinary Minecraft/IE storage versus GeOre storage changes
-the actual output and the acquisition/depletion loop. That choice must be resolved before
-registering the remaining functional families and finalizing their recipes/loot.
+The approved exhausted targets are ordinary Minecraft storage for eight families and
+IE storage for aluminum, lead, nickel, silver and uranium. All thirteen GeOre families
+now share the rank implementation; the five IE families pre-register only with IE present.
+Before generation/growth, storage, pocket material and compatible growth blocks must all
+exist. No fallback to a different storage material is performed. Jade matches the actual
+block's family identity to the stored node, for every available family.
 
-DRY residual count likewise remains an explicit 0–5 planner parameter. Its distribution
-is unspecified; no worldgen distribution is introduced by the neutral-seed reward work.
+The approved DRY count is uniform 0–5 for the whole pocket. GeOre profiles use their
+existing `geore:<material>_block` pocket material, not their exhausted storage target.
+See `BUDDING_FAMILY_IMPLEMENTATION.md` for scope, tests and remaining special-profile limits.

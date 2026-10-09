@@ -16,6 +16,198 @@
     {
       "id": "immersive_ore_expedition:flawless_budding_iron",
       "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_coal",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_coal",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_coal",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_coal",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_copper",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_copper",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_copper",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_copper",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_diamond",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_diamond",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_diamond",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_diamond",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_emerald",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_emerald",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_emerald",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_emerald",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_gold",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_gold",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_gold",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_gold",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_lapis",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_lapis",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_lapis",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_lapis",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_redstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_redstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_redstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_redstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_aluminum",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_aluminum",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_aluminum",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_aluminum",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_lead",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_lead",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_lead",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_lead",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_nickel",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_nickel",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_nickel",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_nickel",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_silver",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_silver",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_silver",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_silver",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_uranium",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_uranium",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_uranium",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_uranium",
+      "required": false
     }
   ]
 }

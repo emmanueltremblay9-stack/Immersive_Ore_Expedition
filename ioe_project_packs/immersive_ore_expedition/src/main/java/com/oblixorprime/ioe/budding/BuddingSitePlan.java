@@ -35,8 +35,8 @@ public final class BuddingSitePlan {
     }
 
     /**
-     * Plans an already selected quality. The caller supplies the DRY pocket count (0..5):
-     * the contract does not prescribe a probability distribution for that count.
+     * Plans an already selected quality. The caller supplies the single approved uniform
+     * DRY pocket draw (0..5), independently derived with DryPocketRoll.
      * Only Motherlode draws a Flawless chance, once per site; a success then selects a node.
      */
     public static BuddingSitePlan forQuality(SiteQuality quality, RandomSource random, int dryOreBlocks) {

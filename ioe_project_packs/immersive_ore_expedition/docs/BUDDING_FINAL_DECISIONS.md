@@ -87,7 +87,7 @@ DAMAGED
 bloc minéral de stockage correspondant
 ```
 
-Lorsqu'un Budding non Flawless déclenche la condition native de dégradation pendant la croissance, il descend exactement d'un rang. Le Budding `DAMAGED` devient le bloc minéral de stockage de sa famille lorsqu'il est épuisé.
+Lorsqu'un Budding non Flawless déclenche la condition native de dégradation pendant la croissance, il descend exactement d'un rang. Le Budding `DAMAGED` devient le bloc minéral de stockage de sa famille lorsqu'il est épuisé. Décision utilisateur confirmée le 2026-10-09 : stockage ordinaire Minecraft pour coal, copper, diamond, emerald, gold, iron, lapis et redstone ; `immersiveengineering:storage_<matériau>` pour aluminum, lead, nickel, silver et uranium. IE reste optionnel : ses cinq familles nécessitent sa présence et leurs blocs exacts, sans remplacement silencieux.
 
 Exemple Iron :
 
@@ -123,6 +123,8 @@ Un site `DRY` contient :
 0 à 5 blocs de minerai résiduel
 10 % de chance de contenir 1 ae2cs:resonating_seed
 ```
+
+Décision utilisateur confirmée le 2026-10-09 : la quantité résiduelle est un entier uniforme de 0 à 5 inclus, tiré une seule fois de manière déterministe pour toute la poche. Ce tirage est indépendant de celui de la seed à 10 %. Il ne crée aucun node actif.
 
 La Resonating Seed reste neutre et ne contient aucune identité minérale. Avec un poids `DRY` de 10 %, la probabilité brute combinée est `10 % × 10 % = 1 %` avant les autres rejets du worldgen.
 

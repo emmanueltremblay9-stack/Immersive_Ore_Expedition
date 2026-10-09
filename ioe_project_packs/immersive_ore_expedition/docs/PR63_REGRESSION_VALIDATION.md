@@ -2,8 +2,9 @@
 
 This checkpoint extends `6d84b8401851c47f7f1f1e2aa4ece2401996b1a5`.
 It is development evidence, not approval of IOE 1.0.0 or a client playthrough.
-The exhausted storage blocks for other families and the DRY residual ore distribution
-remain pending gameplay decisions. Neither is selected by this change.
+Historical checkpoint: storage outputs and DRY count were pending when this regression
+fix was made. The user subsequently approved ordinary Minecraft/IE storage and uniform
+0–5 DRY counts on 2026-10-09; see `BUDDING_FAMILY_IMPLEMENTATION.md` for that implementation.
 
 ## Demonstrated rollback defect and correction
 
