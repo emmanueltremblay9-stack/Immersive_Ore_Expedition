@@ -95,7 +95,7 @@ final class NetherSitePlannerTest {
     @Test void unknownTerrainAndProbeCapAreFailClosed() {
         var c = candidate(SiteQuality.NORMAL, false);
         assertEquals(Status.UNKNOWN_TERRAIN, plan(c, Y, snapshot(pos -> null)).status());
-        var deep = plan(c, Y, snapshot(pos -> pos.getY() > Y ? AIR : LAVA));
+        var deep = plan(c, Y, snapshot(pos -> pos.getY() > Y ? AIR : pos.getY() > -2000 ? LAVA : ROCK));
         assertEquals(Status.BUDGET, deep.status()); assertEquals(MAX_PROBES, deep.probes());
         Snapshot wrong = new Snapshot() {
             public boolean nether() { return false; }
