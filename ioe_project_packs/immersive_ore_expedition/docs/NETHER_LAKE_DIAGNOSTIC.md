@@ -49,9 +49,8 @@ This does not prove manual server/client usability or natural lake placement qua
 
 Before a placement increment, decide the sampling plane/surface search and whether
 coverage/depth refer to this square or to a connected lake; then specify safe crust,
-access, generation frequency and physical resource budgets. Proposal only: begin field
-comparison with the existing planning defaults (radius 64, coverage 0.60, minimum depth
-4), not new approved gameplay values. Radius 64 exceeds this diagnostic's current cost
-scope and would require a separately bounded or incremental sampler. The direct
+access, generation frequency and physical resource budgets. The approved canonical analysis now uses exactly 74x74, coverage 60% and minimum
+depth four; see `NETHER_PLACEMENT_CONTRACT.md`. The older radius-based command is a
+separate measurement tool, not the canonical eligibility calculation. The direct
 `GiantLavaLakeDetector.isValidAnchor(WorldGenLevel, BlockPos)` remains fail-closed;
 this diagnostic supplies observations, not permission to place a geode.

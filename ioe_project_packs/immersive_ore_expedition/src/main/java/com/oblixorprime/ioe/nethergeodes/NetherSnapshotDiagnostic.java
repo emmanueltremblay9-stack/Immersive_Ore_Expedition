@@ -66,7 +66,8 @@ public final class NetherSnapshotDiagnostic {
                          int candidateX, int candidateZ, String quality, String plannerStatus,
                          int connectedColumns, int plannedWrites) {
         public String message() {
-            return "IOE Nether snapshot: capture=" + captureStatus + ", epoch=" + epoch
+            return "IOE Nether snapshot: window=" + NetherLakeWindow.WIDTH + "x" + NetherLakeWindow.WIDTH
+                    + " offsets=[" + NetherLakeWindow.MIN_OFFSET + ",+" + NetherLakeWindow.MAX_OFFSET + "], capture=" + captureStatus + ", epoch=" + epoch
                     + ", worldReads=" + worldReads + ", chunks=" + chunks
                     + ", candidate=" + candidateX + "," + candidateZ + ", quality=" + quality
                     + ", planner=" + plannerStatus + ", connectedDeepColumns=" + connectedColumns

@@ -11,7 +11,8 @@ import java.util.*;
 
 /** Pure planning over an immutable terrain snapshot. No level access, writes, tickets or retries. */
 final class NetherSitePlanner {
-    static final int RADIUS = 64, WIDTH = 129, COLUMNS = WIDTH * WIDTH;
+    static final int WIDTH = NetherLakeWindow.WIDTH, COLUMNS = NetherLakeWindow.COLUMNS;
+    static final int ANCHOR_INDEX = -NetherLakeWindow.MIN_OFFSET;
     static final int MAX_PROBES = 262_144;
     record Candidate(int x, int z, SiteQuality quality, long shapeSeed, boolean debrisSelected) { }
     record Cell(BlockState state, boolean protectedBlock) { }
@@ -64,7 +65,7 @@ final class NetherSitePlanner {
                 && (cell.state().is(Blocks.NETHERRACK) || cell.state().is(Blocks.BASALT) || cell.state().is(Blocks.BLACKSTONE));
     }
     private static BlockPos pos(Candidate candidate, int y, int index) {
-        return new BlockPos(candidate.x() + index % WIDTH - RADIUS, y, candidate.z() + index / WIDTH - RADIUS);
+        return new BlockPos(candidate.x() + index % WIDTH - ANCHOR_INDEX, y, candidate.z() + index / WIDTH - ANCHOR_INDEX);
     }
     static Outcome plan(Candidate candidate, int surfaceY, Snapshot snapshot) {
         var reader = new Reader(snapshot);
@@ -78,7 +79,7 @@ final class NetherSitePlanner {
                 surface[i] = true;
                 deep[i] = lava(reader.read(pos.below())) && lava(reader.read(pos.below(2))) && lava(reader.read(pos.below(3)));
             }
-            int middle = RADIUS * WIDTH + RADIUS;
+            int middle = ANCHOR_INDEX * WIDTH + ANCHOR_INDEX;
             if (!surface[middle]) return new Outcome(Status.SURFACE, reader.probes, 0, null);
             boolean[] connected = new boolean[COLUMNS];
             int[] queue = new int[COLUMNS]; int head = 0, tail = 0;
@@ -132,7 +133,7 @@ final class NetherSitePlanner {
                         || z > 0 && connected[i - WIDTH] || z + 1 < WIDTH && connected[i + WIDTH];
                 if (!adjacent) continue;
                 var pos = pos(candidate, surfaceY, i);
-                int distance = (x - RADIUS) * (x - RADIUS) + (z - RADIUS) * (z - RADIUS);
+                int distance = (x - ANCHOR_INDEX) * (x - ANCHOR_INDEX) + (z - ANCHOR_INDEX) * (z - ANCHOR_INDEX);
                 if (distance >= closest || !rock(reader.read(pos))) continue;
                 var above = reader.read(pos.above()); var top = reader.read(pos.above(2));
                 if (!above.state().isAir() || above.protectedBlock() || !top.state().isAir() || top.protectedBlock()) continue;

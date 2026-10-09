@@ -49,9 +49,22 @@
       "CARVERS": 1
     },
     "FEATURES_blockStateWriteRadius": 1,
-    "IOE_analysis_chunk_radius": 4,
-    "IOE_analysis_chunks": 81,
-    "largest_symmetric_square_at_local_8_within_radius_1": 47
+    "IOE_analysis_chunk_radius": 2,
+    "IOE_analysis_chunks": 25,
+    "largest_symmetric_square_at_local_8_within_radius_1": 47,
+    "IOE_analysis_width": 74,
+    "IOE_analysis_offsets": [
+      -37,
+      36
+    ],
+    "IOE_analysis_columns": 5476,
+    "IOE_minimum_connected_columns": 3286,
+    "IOE_arbitrary_alignment_chunk_counts": [
+      25,
+      30,
+      36
+    ],
+    "IOE_dense_initial_surface_reads": 27380
   },
   "checks": "Minecraft SHA-1 verified against official version manifest. NeoForge archive config and relevant patches inspected. javap -c -p and -v used without loading/executing Minecraft classes. NeoForm config confirms 1.21.1; no NeoForm patches for the nine audited classes."
 }

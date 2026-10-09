@@ -2,6 +2,10 @@
 
 ## Decision
 
+Updated for the user's exact **74x74** choice at 2026-10-09 15:58 UTC. The earlier
+47x47/same-chunk-shore proposal was not accepted. All other contract rules stand.
+
+
 **An ordinary native Feature, Structure/StructurePiece, or ChunkEvent.Load hook is
 not a conforming backend for the complete approved contract on the pinned pipeline.**
 This is now grounded in concrete terrain-access and publication boundaries below.
@@ -60,17 +64,19 @@ The exact call chain is:
   offsets with `ChunkStep.blockStateWriteRadius`; offsets beyond 1 return false.
   Additional generation-height restrictions can also reject writes.
 
-IOE's candidate uses chunk-local X/Z = 8. Its inclusive +/-64 analysis spans chunk
-offsets -4..+4 on each axis: **9x9 = 81 chunks**, not the guaranteed CARVERS 3x3.
-The radius-eight structure-start dependency is metadata availability, not permission
-to inspect carved lava/floors across a 17x17 terrain region. Requiring CARVERS at
-radius four via new dependencies would cause additional generation in cases where
-that terrain was not otherwise scheduled; that cannot be smuggled in as a read-only
-query under the no-forced-generation requirement.
+IOE's candidate uses chunk-local X/Z = 8. The exact 74-wide window uses offsets
+-37..+36, spanning chunk offsets -2..+2 on each axis: **5x5 = 25 chunks**, not the
+guaranteed CARVERS 3x3. Other alignments span five or six chunks per axis, hence
+25/30/36 total; canonical candidates remain aligned at 8. The radius-eight
+structure-start dependency is metadata availability, not carved lava/floor terrain.
+Requiring CARVERS at radius two via new dependencies would cause additional
+generation when that terrain was not otherwise scheduled. This cannot be presented
+as a no-forced-generation read-only query.
 
-The radius-seven chamber currently fits in the anchor chunk (local 1..15), but the
-shore marker can lie up to four chunks away. One Feature invocation cannot write
-that general marker through its radius-one WorldGenRegion.
+The radius-seven chamber fits in the anchor chunk (local 1..15). The required shore
+marker remains unrestricted within the analyzed window and can lie two chunks away.
+A normal Feature invocation cannot write that general marker through its radius-one
+WorldGenRegion. The 74 choice does not imply acceptance of a same-chunk shore.
 
 ## Ownership, completion and cancellation
 
@@ -101,7 +107,7 @@ requirement is added to the approved contract.
 
 | Integration | Actual benefit | Why it does not implement the full contract |
 | --- | --- | --- |
-| Native Feature in FEATURES | Pre-FULL execution, terrain through CARVERS within radius 1, writes within radius 1 | 129-square lacks guaranteed terrain; remote shore may exceed write radius; no group transaction/continuation |
+| Native Feature in FEATURES | Pre-FULL execution, terrain through CARVERS within radius 1, writes within radius 1 | 74-square lacks guaranteed terrain; remote shore may exceed write radius; no group transaction/continuation |
 | Structure + StructurePiece | Persistent geometry/start metadata; pieces can eventually cover multiple chunks | Start selection precedes NOISE/SURFACE/CARVERS; placement later remains per chunk, not an atomic group |
 | ChunkEvent.Load | `isNewChunk()` identifies first loading; server-side lifecycle notification | Non-cancellable; converted LevelChunk already registered; no private multi-chunk ownership or rollback |
 
@@ -132,17 +138,17 @@ backend needs server-owned monotonic epochs and debits for the tick in which rea
 actually occur, shared with diagnostics. Reserving a task's whole quota at start
 and spending it across later ticks is not equivalent.
 
-The current dense-surface algorithm needs 83,205 reads before geometry. This proves
-that this algorithm plus a one-turn capture cannot cover every such case within one
-quota; it does NOT prove that the approved numeric limits are mutually inconsistent.
-The contract does not require every terrain-valid candidate to survive budget or
-availability rejection. A proper budget refusal must occur before any mutation,
-remain terminal for production attempts, and never cause a reroll.
+The initial dense-surface scan now costs at most 27,380 reads (5,476 columns times
+five states), below a fresh 65,536 quota. Remaining floor/geometry/shore phases and
+other users still consume the same quota. The 262,144 candidate ceiling is unchanged.
+The exact integer 60% threshold is 3,286 columns; 3,285 is insufficient. This improves
+cost but supplies neither the missing radius-two terrain guarantee nor publication
+ownership. Production budget/availability refusal must remain terminal without reroll.
 
 ## Closed conclusions and proposed scope
 
 **Demonstrated:** the unchanged native FEATURES step does not guarantee CARVERS
-terrain across the required radius four, and disallows the general radius-four
+terrain across the required radius two, and disallows the general radius-two
 shore write. Native structure clipping distributes writes across chunk invocations.
 The load event cannot cancel group publication. Existing live compensation has a
 counterexample where invalidating an already-written chunk prevents restoration.
@@ -158,24 +164,16 @@ With the approved contract unchanged, the native Feature/Structure/event route i
 closed as an implementation shortcut. Generation stays off; no new diagnostic or
 nominal prototype is presented as progress on the missing ownership boundary.
 
-A concrete reduced-scope prototype that fits the native access geometry would use:
+The user's 74x74 choice is now applied in the canonical planner and diagnostic.
+No further size decision is requested. A 47x47 same-chunk-shore prototype is no longer
+the selected scope and must not be substituted for it.
 
-- a **47x47** analysis square (radius 23 around local coordinate 8), wholly inside
-  the 3x3 CARVERS dependency neighborhood;
-- chamber and required dry-shore marker **both within the anchor chunk**, rejecting
-  a candidate if no admissible local shore exists; never omitting the marker;
-- a bounded complete plan before any mutation, shared-budget refusal and unchanged
-  protection/new-chunk checks; a single-chunk pre-publication write backend would
-  still require failure-injection and protection qualification before activation.
-
-This is a realizable **prototype scope**, not a claimed finished atomic backend.
-Changing 129 to 47 and restricting shore eligibility changes gameplay and needs an
-explicit user decision. It is not implemented or recommended as an unnoticed fix.
-
-**Recommendation:** retain the approved contract and defer Nether activation. If
-near-term native implementation is prioritized, submit the above exact reduced
-scope for decision. If 129x129 and the general shore remain mandatory, budget a
-separate custom scheduler/ownership integration: it must operate only on already
-available/scheduled terrain, reject unavailable regions without forcing them,
-and establish a real pre-publication transaction. A different Feature, Structure
-or event registration cannot supply those missing capabilities.
+**Recommendation and feasible direction:** preserve the 74x74 contract and keep
+production gated. A conforming custom scheduler/ownership backend remains conceivable,
+not established: it would admit only regions whose required terrain is already
+available/scheduled without IOE forcing it, acquire stable views and exclusive
+pre-publication control of every write chunk, coordinate spacing/terminal attempts,
+and account reads against a monotonic server-tick quota. Unavailable regions must
+be rejected, never forced or rerolled. The ordinary Feature, Structure and load-event
+interfaces examined above do not provide this group ownership boundary. No conforming
+production prototype is claimed merely because the surface scan now fits the budget.

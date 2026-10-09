@@ -4,6 +4,7 @@
 command origin's 256-block region. It requires the existing diagnostic permissions
 and enabled locate-command configuration. It never generates terrain, claims a
 region, updates SavedData, places blocks, or enables the production backend.
+The window is exactly 74x74 with offsets -37..+36 on both axes.
 Surface Y is supplied by the operator; automatic surface selection remains pending.
 
 ## Acquisition boundary
@@ -30,10 +31,10 @@ snapshot probes to 262,144. Cache hits do not spend fresh-world-read quota. Thes
 are read bounds, not elapsed-time guarantees.
 
 If the shared quota is insufficient, `CAPTURE_BUDGET` discards the entire capture.
-Nothing resumes on a later tick. Dense valid lakes can exceed the single-turn
-quota: 16,641 source columns require 83,205 surface/depth reads before geometry.
-Supporting such cases requires a qualified stable multi-tick acquisition lifecycle;
-it is not silently approximated or declared ineligible terrain.
+Nothing resumes on a later tick. The initial dense 74x74 surface costs 27,380 reads, below a fresh tick quota.
+Deeper floor searches, later phases and other quota users can still exhaust it.
+Supporting such cases across ticks requires a qualified stable acquisition lifecycle;
+they are not silently approximated or declared ineligible terrain.
 
 ## Result and remaining limits
 

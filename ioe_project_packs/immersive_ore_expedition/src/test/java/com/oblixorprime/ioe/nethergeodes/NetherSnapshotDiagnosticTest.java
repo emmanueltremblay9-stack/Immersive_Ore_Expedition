@@ -27,9 +27,9 @@ final class NetherSnapshotDiagnosticTest {
             reads++;
             if (changeEpoch && reads == 10) tick++;
             if (replaceIdentity && reads == 10) identities.clear();
-            int index = (pos.getZ() - 8 + 64) * 129 + pos.getX() - 8 + 64;
+            int index = (pos.getZ() - 8 + 37) * 74 + Math.floorMod(pos.getX() - 8 + 37 - 23, 74);
             var state = pos.getY() > Y ? Blocks.AIR.defaultBlockState()
-                    : index >= 0 && index < 9985 && pos.getY() > Y - 4
+                    : index >= 0 && index < 3286 && pos.getY() > Y - 4
                     ? Blocks.LAVA.defaultBlockState() : Blocks.NETHERRACK.defaultBlockState();
             return new NetherSitePlanner.Cell(state, false);
         }
@@ -39,14 +39,15 @@ final class NetherSnapshotDiagnosticTest {
         var report = NetherSnapshotDiagnostic.inspect(world, () -> budget.acquire((int) world.tick), CANDIDATE, Y);
         assertEquals("COMPLETE", report.captureStatus());
         assertEquals("PLANNED", report.plannerStatus());
-        assertEquals(9985, report.connectedColumns());
+        assertEquals(3286, report.connectedColumns());
         assertTrue(report.plannedWrites() > 0);
         assertEquals(world.reads, report.worldReads());
         assertTrue(report.worldReads() < NetherAnalysisBudget.READS_PER_TICK);
+        assertTrue(budget.acquire((int) world.tick, NetherAnalysisBudget.READS_PER_TICK - report.worldReads() - 10));
         var second = NetherSnapshotDiagnostic.inspect(world, () -> budget.acquire((int) world.tick), CANDIDATE, Y);
         assertEquals("CAPTURE_BUDGET", second.captureStatus());
         assertEquals("NOT_EVALUATED", second.plannerStatus()); assertEquals(0, second.plannedWrites());
-        assertEquals(NetherAnalysisBudget.READS_PER_TICK, report.worldReads() + second.worldReads());
+        assertEquals(10, second.worldReads());
     }
     @Test void rejectedDimensionsAndMissingChunksCannotReadOrForceLoad() {
         var world = new World(); world.nether = false;

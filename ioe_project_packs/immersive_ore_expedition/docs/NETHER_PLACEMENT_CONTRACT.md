@@ -1,13 +1,22 @@
-# Nether placement contract — approved 2026-10-09 14:45 UTC
+# Nether placement contract — amended 2026-10-09 15:58 UTC
 
 The user approved this complete gameplay lot. These rules are not proposals and do
 not require another gameplay approval. Approval does not authorize a release,
 installation, retrogen, or an assertion of stable client/server qualification.
 
+The 15:58 UTC user decision changes only the lake analysis window to exactly
+**74x74**, superseding the previous 129x129 window. It does not accept the proposed
+47x47 alternative or restrict chamber and shore to the same chunk.
+
+The explicit even-width convention is `[candidate - 37, candidate + 37)` on both
+X and Z: offsets **-37..+36 inclusive**. The candidate is the positive-side one of
+the two central cells on each axis. This technical anchoring is deterministic,
+including negative coordinates; no rounding to 75 and no candidate/quality reroll.
+
 ## Approved rules
 
 - New chunks only; no forced loads or retrogen.
-- Inclusive 129 × 129 square around a candidate. One source-lava surface connected
+- Exact 74 × 74 square anchored as specified above. One source-lava surface connected
   horizontally to the candidate covers at least 60%. Separate pools and cascades
   cannot be added together. Counted columns have contiguous lava depth at least four.
 - Find the real bottom below the chamber footprint. Chamber center is 16 blocks
@@ -35,8 +44,9 @@ installation, retrogen, or an assertion of stable client/server qualification.
    reserves the shared read budget, validates expected states and compensates failed
    writes. A separate SavedData region ledger persists claimed/finished attempts.
    No automatic candidate or generation caller is registered.
-4. Connected-surface analysis, deterministic candidate selection, physical geometry,
-   complete terrain/protection checks and production activation remain unimplemented.
+4. Connected-surface analysis, deterministic selection and geometry are implemented
+   in the pure planner. Complete external protection, production scheduling and
+   a qualified transactional backend remain pending.
 
 ## Integration constraint verified in current source
 
@@ -137,10 +147,10 @@ access: its Snapshot must be immutable and return unknown for unavailable terrai
 A hard 262,144 snapshot-probe bound covers all phases together. This bound does not
 replace the shared server-tick budget needed when acquiring a real snapshot.
 
-Surface analysis visits the 129-square at a supplied surface Y, excludes flowing
+Surface analysis visits the 74-square at a supplied surface Y, excludes flowing
 surface lava and lava-covered source cells, and flood-fills four-neighbor source
 cells from the candidate. Only connected columns with four contiguous lava cells
-count toward the integer 60% threshold (9,985 of 16,641). Separate pools cannot sum.
+count toward the integer 60% threshold (3,286 of 5,476). Separate pools cannot sum.
 The whole footprint must be known. The floor search examines the complete 15-square
 chamber footprint, follows lava to the first solid rock and selects the lowest floor
 Y; the center is exactly 16 below it. Unknown, hollow or protected floors fail.
@@ -170,3 +180,30 @@ select/verify surface Y, apply external protection checks, and qualify the
 transactional backend. [Pre-publication review](NETHER_PREPUBLICATION_BACKEND_REVIEW.md)
 records the proof obligations and alternatives. No automatic region scheduling,
 natural generation or client acceptance is claimed here.
+
+
+## Geometry and cost after the 74x74 decision
+
+At the unchanged candidate alignment (chunk-local X/Z = 8), the window spans chunk
+offsets -2..+2: **25 chunks**. For arbitrary alignment, one axis spans five chunks
+at local coordinates 5..11 and six at 0..4 or 12..15; 2D totals are 25, 30 or 36.
+Floor division is required at negative coordinates. The radius-seven chamber stays
+in the anchor chunk, but the shore is still free to lie elsewhere in the window.
+
+The exact threshold is `ceil(5476 * 60 / 100) = 3286`; 3285 fails. A fully deep,
+uncovered source surface costs at most `5476 * 5 = 27380` initial snapshot probes
+(and fresh reads before cache reuse). That phase fits one otherwise unused 65,536
+read quota. Floor search, geometry, shore validation and concurrent diagnostic work
+still consume budget; 262,144 per candidate and the global limit remain unchanged.
+Budget availability is not placement authorization.
+
+The native FEATURES terrain guarantee/write radius remains one chunk. Radius two
+terrain and general shore placement are still outside that guarantee. The 74 choice
+reduces cost but does not establish ownership, group publication or cancellation.
+Generation remains blocked until a conforming backend is qualified.
+
+`NetherLakeWindow` is the canonical width/offset contract used by the connected
+planner and capture diagnostic. The deprecated radius setting and scalar
+`LavaLakeAnchorSample` belong to the older synthetic metadata adapter; they cannot
+represent an even-width window and are not used to size the canonical capture.
+Their radius is not silently reinterpreted as 37 (which would suggest width 75).

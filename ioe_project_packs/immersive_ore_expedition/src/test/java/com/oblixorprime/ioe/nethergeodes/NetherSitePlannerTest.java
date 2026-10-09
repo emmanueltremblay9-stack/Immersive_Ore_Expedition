@@ -17,7 +17,7 @@ final class NetherSitePlannerTest {
     private static Candidate candidate(SiteQuality quality, boolean debris) { return new Candidate(8, 8, quality, 73L, debris); }
     private static Cell terrain(BlockPos pos) {
         if (pos.getY() > Y) return AIR;
-        return pos.getX() - 8 <= 50 && pos.getY() > Y - 4 ? LAVA : ROCK;
+        return pos.getX() - 8 <= 20 && pos.getY() > Y - 4 ? LAVA : ROCK;
     }
     private static Snapshot snapshot(Function<BlockPos, Cell> cells) {
         return new Snapshot() {
@@ -26,6 +26,33 @@ final class NetherSitePlannerTest {
             public int maxY() { return 128; }
             public Cell at(BlockPos pos) { return cells.apply(pos); }
         };
+    }
+    @Test void exactEvenWindowAndChunkFootprintAcrossAlignments() {
+        assertEquals(74, WIDTH); assertEquals(5476, COLUMNS);
+        assertEquals(3286, NetherLakeWindow.MIN_CONNECTED_COLUMNS);
+        for (int anchor = -32; anchor < 32; anchor++) {
+            int local = Math.floorMod(anchor, 16);
+            int chunks = Math.floorDiv(anchor + 36, 16) - Math.floorDiv(anchor - 37, 16) + 1;
+            assertEquals(local >= 5 && local <= 11 ? 5 : 6, chunks);
+        }
+        for (int anchor : new int[]{8, -8}) {
+            var visited = new java.util.HashSet<BlockPos>();
+            var c = new Candidate(anchor, anchor, SiteQuality.NORMAL, 1, false);
+            var result = plan(c, Y, snapshot(pos -> { visited.add(pos); return ROCK; }));
+            assertEquals(Status.SURFACE, result.status());
+            assertEquals(5476, visited.size());
+            assertTrue(visited.contains(new BlockPos(anchor - 37, Y, anchor - 37)));
+            assertTrue(visited.contains(new BlockPos(anchor + 36, Y, anchor + 36)));
+            assertFalse(visited.contains(new BlockPos(anchor + 37, Y, anchor)));
+            assertEquals(25, visited.stream().map(net.minecraft.world.level.ChunkPos::new).distinct().count());
+        }
+    }
+    @Test void denseSurfaceFitsReadQuotaButStillRequiresShore() {
+        var result = plan(candidate(SiteQuality.NORMAL, false), Y, snapshot(pos ->
+                pos.getY() > Y ? AIR : pos.getY() > Y - 4 ? LAVA : ROCK));
+        assertEquals(Status.NO_SHORE, result.status());
+        assertEquals(5476, result.connectedDeepColumns());
+        assertTrue(result.probes() < NetherAnalysisBudget.READS_PER_TICK);
     }
     @Test void selectionIsStableWithinPositiveAndNegativeRegions() {
         for (int x = -3; x <= 3; x++) for (int z = -3; z <= 3; z++) {
@@ -55,16 +82,25 @@ final class NetherSitePlannerTest {
             assertEquals(quality == SiteQuality.MOTHERLODE ? 5 : 0, count);
         }
     }
+    @Test void requiredShoreCanStillBeTwoChunksFromAnchor() {
+        var result = plan(candidate(SiteQuality.NORMAL, false), Y, snapshot(pos ->
+                pos.getY() > Y ? AIR : pos.getX() - 8 <= 30 && pos.getY() > Y - 4 ? LAVA : ROCK));
+        assertEquals(Status.PLANNED, result.status());
+        var marker = result.plan().writes().entrySet().stream()
+                .filter(e -> e.getValue().is(Blocks.BLACKSTONE)).map(java.util.Map.Entry::getKey).toList();
+        assertEquals(2, marker.size());
+        assertTrue(marker.stream().allMatch(p -> Math.floorDiv(p.getX(), 16) == 2));
+    }
     @Test void exactlySixtyPercentUsesIntegerBoundary() {
-        assertFalse(enoughCoverage(9984)); assertTrue(enoughCoverage(9985));
-        for (int size : new int[]{9984, 9985}) {
+        assertFalse(enoughCoverage(3285)); assertTrue(enoughCoverage(3286));
+        for (int size : new int[]{3285, 3286}) {
             var result = plan(candidate(SiteQuality.NORMAL, false), Y, snapshot(pos -> {
                 if (pos.getY() > Y) return AIR;
-                int index = (pos.getZ() - 8 + 64) * 129 + pos.getX() - 8 + 64;
+                int index = (pos.getZ() - 8 + 37) * 74 + Math.floorMod(pos.getX() - 8 + 37 - 23, 74);
                 return index >= 0 && index < size && pos.getY() > Y - 4 ? LAVA : ROCK;
             }));
             assertEquals(size, result.connectedDeepColumns());
-            assertEquals(size == 9984 ? Status.COVERAGE : Status.PLANNED, result.status());
+            assertEquals(size == 3285 ? Status.COVERAGE : Status.PLANNED, result.status());
         }
     }
     @Test void separatedPoolsAndFlowingSurfaceDoNotCombine() {
