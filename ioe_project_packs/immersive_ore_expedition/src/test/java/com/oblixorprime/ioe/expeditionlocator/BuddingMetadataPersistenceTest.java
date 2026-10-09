@@ -72,4 +72,48 @@ final class BuddingMetadataPersistenceTest {
         assertTrue(loaded.index().sites().getFirst().playable());
         assertTrue(loaded.index().sites().getFirst().buddingNodes().isEmpty());
     }
+    @Test
+    void recoveredLegacyQualityIsUnknownButAnchorRemainsPlayable() {
+        var data = new ExpeditionLocatorSavedData();
+        data.record(site());
+        CompoundTag tag = data.save(new CompoundTag(), null);
+        var savedSite = tag.getList("sites", Tag.TAG_COMPOUND).getCompound(0);
+        savedSite.putString("source", "bounded_admin_reindex_mine_signature");
+        savedSite.putString("quality", "NORMAL");
+        savedSite.remove("budding_nodes");
+        var loaded = ExpeditionLocatorSavedData.FACTORY.deserializer().apply(tag, null);
+        var recovered = loaded.index().sites().getFirst();
+        assertTrue(recovered.playable());
+        assertEquals(site().pos(), recovered.pos());
+        assertTrue(recovered.quality().isEmpty(), "Mine signature cannot prove original quality");
+        assertTrue(recovered.buddingNodes().isEmpty());
+        assertTrue(loaded.isDirty(), "Corrected provenance must be saved");
+        assertFalse(loaded.save(new CompoundTag(), null).getList("sites", Tag.TAG_COMPOUND)
+                .getCompound(0).contains("quality"));
+        var target = com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassTarget.fromSite(recovered);
+        assertTrue(target.playable() && target.quality().isEmpty());
+        var roundTrip = ExpeditionLocatorSavedData.FACTORY.deserializer()
+                .apply(loaded.save(new CompoundTag(), null), null);
+        assertEquals(recovered, roundTrip.index().sites().getFirst());
+        assertFalse(roundTrip.isDirty());
+    }
+
+    @Test
+    void savedCompassRecoveryTargetCannotRetainInventedQuality() {
+        var original = com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassTarget.fromSite(site());
+        var encoded = com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassTarget.CODEC
+                .encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, original).getOrThrow();
+        var tag = (CompoundTag) encoded;
+        tag.putString("source", "bounded_admin_reindex_mine_signature");
+        tag.putString("quality", "NORMAL");
+        var decoded = com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassTarget.CODEC
+                .parse(net.minecraft.nbt.NbtOps.INSTANCE, tag).getOrThrow();
+        assertTrue(decoded.quality().isEmpty(), "Legacy item component retained fabricated quality");
+        assertEquals(original.pos(), decoded.pos());
+        assertTrue(decoded.playable());
+        assertEquals(original, com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassTarget.CODEC
+                .parse(net.minecraft.nbt.NbtOps.INSTANCE, com.oblixorprime.ioe.expeditioncompass.ExpeditionCompassTarget.CODEC
+                        .encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, original).getOrThrow()).getOrThrow());
+    }
+
 }

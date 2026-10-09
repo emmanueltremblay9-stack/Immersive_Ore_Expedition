@@ -42,7 +42,7 @@ public final class BuddingReindexGameTests {
             helper.assertTrue(recovered.recordedSites() == 1,
                     "Canonical heart not recovered: " + BuiltInRegistries.BLOCK.getKey(heart));
             var site = ExpeditionLocatorService.index(level).sites().getFirst();
-            helper.assertTrue(site.pos().equals(entrance) && site.buddingNodes().isEmpty()
+            helper.assertTrue(site.pos().equals(entrance) && site.quality().isEmpty() && site.buddingNodes().isEmpty()
                     && ExpeditionLocatorService.index(level).buddingNodeAt(level.dimension(), heartPos).isEmpty(),
                     "Recovery changed the entrance or invented original node provenance");
             helper.assertTrue(ExpeditionLocatorReindexer.scanLoadedChunks(level, heartPos, 0).recordedSites() == 0,
@@ -52,7 +52,8 @@ public final class BuddingReindexGameTests {
         }
         BuddingPersistenceRuntimeChecks.reloadFromDisk(level);
         helper.assertTrue(ExpeditionLocatorService.index(level).sites().size() == 1
-                && ExpeditionLocatorService.index(level).sites().getFirst().buddingNodes().isEmpty(),
+                && ExpeditionLocatorService.index(level).sites().getFirst().buddingNodes().isEmpty()
+                && ExpeditionLocatorService.index(level).sites().getFirst().quality().isEmpty(),
                 "Recovered anchor/provenance changed after disk reload");
         helper.succeed();
     }
