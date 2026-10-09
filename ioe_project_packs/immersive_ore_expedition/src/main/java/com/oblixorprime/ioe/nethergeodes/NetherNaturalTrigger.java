@@ -20,9 +20,15 @@ final class NetherNaturalTrigger {
     // Explicit integration-test entry. Uses only the same real lifecycle coordinator as production.
     static Map<Long, NetherPlacementCoordinator.Result> dispatch(ServerLevel level) {
         NetherPlacementRuntime.host(level).requireServerThread();
+        return dispatchCandidates(level, NetherPlacementRuntime.coordinator(level)
+                .takeNaturalCandidates(level.getSeed(), level.getServer().getTickCount()));
+    }
+
+    static Map<Long, NetherPlacementCoordinator.Result> dispatchCandidates(ServerLevel level,
+                                                                          java.util.List<net.minecraft.world.level.ChunkPos> candidates) {
+        NetherPlacementRuntime.host(level).requireServerThread();
         var results = new LinkedHashMap<Long, NetherPlacementCoordinator.Result>();
-        for (var chunk : NetherPlacementRuntime.coordinator(level)
-                .takeNaturalCandidates(level.getSeed(), level.getServer().getTickCount())) {
+        for (var chunk : candidates) {
             results.put(chunk.toLong(), NetherNaturalAdmission.attempt(level, chunk));
         }
         return Map.copyOf(results);

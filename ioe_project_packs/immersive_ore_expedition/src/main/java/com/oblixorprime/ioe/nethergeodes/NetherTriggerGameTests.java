@@ -32,11 +32,16 @@ public final class NetherTriggerGameTests {
         helper.runAfterDelay(1, () -> {
             var ledger = level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY, NetherPlacementLedger.NAME);
             helper.assertTrue(ledger.resultAt(origin).isEmpty(), "Disabled tick gate admitted a region");
-            var result = NetherNaturalTrigger.dispatch(level).get(chunk.toLong());
+            // Other GameTests share this server; dispatch only this fixture's genuine receipt.
+            var selected = NetherPlacementRuntime.coordinator(level)
+                    .takeNaturalCandidates(level.getSeed(), level.getServer().getTickCount())
+                    .stream().filter(chunk::equals).toList();
+            var result = NetherNaturalTrigger.dispatchCandidates(level, selected).get(chunk.toLong());
             helper.assertTrue(result != null && result != NetherPlacementCoordinator.Result.NOT_FRESH,
                     "Trigger did not use the actual receipt: " + result);
             helper.assertTrue(ledger.resultAt(origin).isPresent(), "Dispatch did not persist its refusal");
-            helper.assertFalse(NetherNaturalTrigger.dispatch(level).containsKey(chunk.toLong()), "Trigger dispatched twice");
+            helper.assertFalse(NetherPlacementRuntime.coordinator(level)
+                    .takeNaturalCandidates(level.getSeed(), level.getServer().getTickCount()).contains(chunk), "Trigger dispatched twice");
             helper.succeed();
         });
     }
