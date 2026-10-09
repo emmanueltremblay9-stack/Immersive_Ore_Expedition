@@ -20,6 +20,12 @@ node identity. Malformed node entries are ignored. Player break/replacement remo
 node identity; a hand-placed block shows its rank and family without claiming a generated
 site quality. Clearing/replacing a site also updates the node lookup.
 
+The bounded administrative locator reindex recognizes all registered IOE GeOre ranks
+and native Certus hearts, while preserving recognition of legacy growth blocks. It
+still requires the existing shaft/surface mine signature, scans only loaded chunks,
+and changes no blocks. Recovery restores an anchor, not original node provenance:
+it never reconstructs `budding_nodes` or Jade node indices/budgets from nearby hearts.
+
 Tests cover save/load, old saves, invalid data, dimension separation, replacement/removal,
 real production commit and IE fallback metadata. With Jade loaded, a GameTest verifies
 provider discovery and the actual server-data and tooltip callbacks for Flawed, Chipped
