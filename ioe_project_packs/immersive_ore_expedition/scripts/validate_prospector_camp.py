@@ -855,36 +855,41 @@ def validate() -> None:
     require("structureBounds.stream().anyMatch(candidateBounds::intersects)" in intersects_bounds,
             "intersectsStructureBounds no longer checks candidate intersection")
 
-    require("expandedPlanBounds(plan.blocks().keySet())" in collision,
-            "collidesWithStructure no longer derives chunk coverage from plan positions")
-    require(all(fragment in collision for fragment in (
-                "Math.floorDiv(candidateBounds.minX(),16)",
-                "chunkX<=Math.floorDiv(candidateBounds.maxX(),16)",
-                "Math.floorDiv(candidateBounds.minZ(),16)",
-                "chunkZ<=Math.floorDiv(candidateBounds.maxZ(),16)",
-            )), "collidesWithStructure no longer scans every floor-divided covered chunk")
-    starts_add = collision.find(
-        "starts.addAll(level.getLevel().structureManager().startsForStructure("
-    )
-    bounds_pipeline = collision.find(
-        "List<BoundingBox>structureBounds=starts.stream()"
-        ".filter(StructureStart::isValid)"
-        ".map(StructureStart::getBoundingBox)"
-        ".toList();"
-    )
-    collision_return = collision.find(
-        "returnintersectsStructureBounds(plan.blocks().keySet(),structureBounds);"
-    )
-    require(starts_add >= 0,
-            "collidesWithStructure no longer adds queried starts to the starts set")
-    require(bounds_pipeline >= 0,
-            "collidesWithStructure no longer derives structureBounds from valid global start bounds")
-    require(collision_return >= 0,
-            "collidesWithStructure no longer intersects plan positions with structureBounds")
-    require(0 <= starts_add < bounds_pipeline < collision_return,
-            "collidesWithStructure no longer preserves the starts-to-bounds-to-intersection data chain")
-    require(".getPieces(" not in collision,
-            "collidesWithStructure reverted from global structure bounds to structure pieces")
+    loaded_source = (JAVA / "worldgen/LoadedStructureCollision.java").read_text()
+    loaded = re.sub(r"\s+", "", java_method_body(
+        loaded_source, "blocksPlacement", "WorldGenLevel level, BoundingBox bounds"))
+    available = re.sub(r"\s+", "", java_method_body(
+        loaded_source, "available", "WorldGenLevel level, ChunkPos pos, ChunkStatus required"))
+    require("returnLoadedStructureCollision.blocksPlacement(level,expandedPlanBounds(plan.blocks().keySet()));" in collision,
+            "collidesWithStructure must pass the expanded complete plan to the bounded metadata guard")
+    require(all(fragment in loaded for fragment in (
+                "Math.floorDiv(bounds.minX(),16)", "Math.floorDiv(bounds.maxX(),16)",
+                "Math.floorDiv(bounds.minZ(),16)", "Math.floorDiv(bounds.maxZ(),16)",
+                "for(intx=minX;x<=maxX;x++)", "for(intz=minZ;z<=maxZ;z++)",
+                "((long)maxX-minX+1)*((long)maxZ-minZ+1)>MAX_FOOTPRINT_CHUNKS)returntrue;",
+                "available(level,newChunkPos(x,z),ChunkStatus.STRUCTURE_REFERENCES)",
+                "if(chunk==null)returntrue;", "chunk.getAllStarts().values()",
+                "chunk.getAllReferences().entrySet()",
+                "available(level,newChunkPos(origins.nextLong()),ChunkStatus.STRUCTURE_STARTS)",
+                "if(owner==null)returntrue;", "owner.getStartForStructure(reference.getKey())",
+                "if(start==null||!start.isValid())returntrue;",
+            )), "bounded structure collision guard must scan the full footprint and reject unavailable referenced metadata")
+    require(loaded.count("if(++entries>MAX_METADATA_ENTRIES)returntrue;") == 3,
+            "local starts, reference groups and origins must each consume the metadata budget")
+    require(loaded.count("checked.add(start)&&bounds.intersects(start.getBoundingBox())") == 2,
+            "local and referenced starts must use complete structure bounding boxes")
+    require(all(fragment in available for fragment in (
+                "levelinstanceofServerLevelserver", "server.getChunkSource().getChunkNow(pos.x,pos.z)",
+                "levelinstanceofWorldGenRegionregion", "if(!region.hasChunk(pos.x,pos.z))returnnull;",
+                "region.getChunk(pos.x,pos.z,required,false)",
+                "chunk==null||!chunk.getPersistedStatus().isOrAfter(required)",
+                "catch(net.minecraft.ReportedException|IllegalStateExceptionunavailable){returnnull;}",
+            )), "structure metadata access must remain load-free and respect required generation status")
+    live_collision_source = neutralize_java(loaded_source + feature_source)
+    require("structureManager(" not in live_collision_source and "startsForStructure(" not in live_collision_source,
+            "structure collision guard restored a potentially loading StructureManager query")
+    require(".getPieces(" not in neutralize_java(loaded_source),
+            "structure collision guard reverted from complete structure bounds to pieces")
 
     collision_guard_prefix = (
         "if(siteType==ExpeditionSiteType.MINER_CAMP&&"
