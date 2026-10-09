@@ -370,21 +370,37 @@ sanitation passes on real new chunks, verify unrelated quartz is removed, save/r
 the ledger and confirm IOE ore survives final sanitation. Unit tests cover exact IDs,
 positions, partial failures and revocation after successful compensation.
 
-A separate batch within the EXISTING hosted GameTest profile performs a bounded
-qualification search: at most 16 fixed regions (-1600-2*i, -1600), stopping at the
-first committed placement. Each region has exactly its one seed-derived candidate
-and LOWEST surface; rejection remains terminal and durable. This test-only search
-is not a production fallback or a change to placement frequency.
+A separate batch within the EXISTING hosted GameTest profile now performs the one
+approved bounded existence search: seed 0, at most 64 NEW fixed regions
+(-1800-2*i, -1800), stopping at the first verified committed placement, the cap or a
+technical failure. It replaces the former 16-region fixture; it adds no runtime
+profile, workflow inputs, permissions or production behavior.
 
-Each sample uses unedited engine-generated terrain and actual load events. The
-harness requests its 5x5 FULL neighborhood; production still never requests chunks.
-No metadata clearing, synthetic receipts, tickets or freshness extension are used.
-Samples are separated across server ticks and use the same shared quotas. The
-admission report records the planner refusal, actual capture reads, connected
-columns and planned writes without rescanning or retaining a mutable plan. Logs
-include the seed, region, candidate, quality and aggregate outcomes. An all-rejected
-run passes qualification of terminal handling, but is explicitly NOT proof of an
-accepted natural geode. Controlled FULL availability is not player-driven loading.
+A qualification-only cheap prefilter selects the same LOWEST surface, then checks
+its 225 footprint columns and rejects impossible floors, including F<minY+23 (the
+radius-seven cube at F-16 would extend below the world). It does NOT require depth
+four in every footprint column: the full connected-coverage predicate decides which
+columns count. No upper-surface fallback is used. A prefilter rejection is a test
+observation, not a persisted production attempt; the harness never revisits it.
+Survivors enter the unchanged real natural-admission path, which recaptures and
+revalidates the entire contract, including coverage, depth, crust, shore and receipts.
+All prefilter reads debit the SAME per-server tick budget as full admission; they
+are not refunded. No extra tick, budget reset, ticket or receipt extension is granted.
+A technical budget/availability failure stops the search instead of hiding it.
+
+The harness requests each unedited engine-generated 5x5 FULL neighborhood. Production
+never requests these chunks. Actual lifecycle receipts must be present on the next
+tick. Logs include seed, region, candidate, quality, load/admission ticks, surface,
+observed floor, precise prefilter failure position/state/protection, read counts and
+full-admission result. Controlled FULL availability is not player-driven exploration.
+
+On acceptance, the harness checks the actual carved cavity and exact mineral budget,
+ancient-debris replacement, real SavedData disk roundtrip, mineral provenance,
+conservation through pending-chunk sanitation and refusal of replay. It then stops.
+An all-rejected run may pass but is NOT proof of an accepted natural geode. This
+qualification is indispensable because constructed fixtures cannot show that the
+approved geometry fits generated terrain. It proves neither client appearance nor
+representative player loading, restart behavior or general site frequency.
 Production generation remains disabled.
 
 Owner follow-up: native protections are retained for development; external claims
