@@ -28,7 +28,7 @@ final class IoeNewChunkOreGuardSafetyTest {
         ));
         String chunkLoadCallback = source.substring(
                 source.indexOf("private static void onChunkLoad"),
-                source.indexOf("private static void onServerTick")
+                source.indexOf("static void onServerTick")
         );
 
         assertFalse(chunkLoadCallback.contains("getServer().execute"));
