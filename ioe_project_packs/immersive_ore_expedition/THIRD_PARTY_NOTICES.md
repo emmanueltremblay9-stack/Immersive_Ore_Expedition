@@ -154,5 +154,5 @@ The tagged source and runtime metadata identify GPL-3.0, while the published Mav
 Jade is an optional, separately distributed runtime dependency. IOE compiles
 against its public API and supplies its own Budding data and tooltip provider;
 Jade is not embedded in the IOE JAR. No Jade source or asset is copied by this
-integration. The current provider covers IOE GeOre Budding blocks, not native
-AE2 Certus site metadata. See `docs/BUDDING_INSPECTION.md` for the proof boundary.
+integration. The provider covers IOE GeOre Budding blocks and exact native AE2 Certus
+rank IDs, with IOE provenance only for committed expedition nodes. See `docs/BUDDING_INSPECTION.md` for the proof boundary.

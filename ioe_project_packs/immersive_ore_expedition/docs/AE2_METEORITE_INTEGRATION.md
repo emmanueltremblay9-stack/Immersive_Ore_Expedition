@@ -4,9 +4,9 @@
 
 AE2 19.2.17 keeps ownership of its normal meteorite and Certus-growth progression. IOE does not replace, relocate, or reproduce AE2 meteorites inside expedition structures.
 
-The IOE overlay at `data/ae2/tags/worldgen/biome/has_meteorites.json` is deliberately empty with `replace: false`. It therefore contributes no biome exclusion and preserves the upstream AE2 `has_meteorites` values. The new-chunk ore guard also leaves AE2 budding quartz, quartz buds and clusters, Sky Stone, and Fluix blocks untouched.
+The IOE overlay at `data/ae2/tags/worldgen/biome/has_meteorites.json` is deliberately empty with `replace: false`. It therefore contributes no biome exclusion and preserves the upstream AE2 `has_meteorites` values. The new-chunk ore guard preserves non-Flawless AE2 budding quartz, quartz buds and clusters, Sky Stone, quartz storage and ordinary Fluix blocks. Native Flawless outside authorized IOE Motherlode nodes is replaced with native Flawed during new-chunk admission only.
 
-Certus remains available through the rare `immersive_ore_expedition:mineral/certus` Immersive Engineering mineral mix. The final Budding design also permits authorized native AE2 Budding ranks in IOE sites and makes every Flawless block Motherlode-exclusive. Reconciling that exclusivity with preserved upstream meteorites requires explicit implementation and hosted/runtime verification; this document does not claim it is already enforced.
+Certus remains available through the rare `immersive_ore_expedition:mineral/certus` Immersive Engineering mineral mix. The final Budding design also permits authorized native AE2 Budding ranks in IOE sites and makes every Flawless block Motherlode-exclusive. The approved reconciliation preserves meteorite placement and replaces its newly generated Flawless with Flawed. This policy is explicitly non-retroactive: existing chunks and their Flawless blocks remain unchanged.
 
 AE2 Crystal Science's normal and charged Certus ore placed features remain part of IOE's physical free-ore suppression policy. This does not suppress AE2's meteorite structure or its normal processing, repair, growth, crafting, and automation methods.
 
@@ -19,12 +19,14 @@ AE2 Crystal Science's normal and charged Certus ore placed features remain part 
 
 Static evidence was inspected from AE2 `19.2.17` (`neoforge/v19.2.17`, source commit `79ee2c704ad62941a426c26b1cb1f76ef5b2ee5a`). Runtime proof belongs to the pinned full-runtime GitHub Actions GameTests.
 
-## Unresolved replacement policy
+## Approved replacement and site policy
 
-`BUDDING_FINAL_DECISIONS.md` specifies Motherlode-only Flawless but does not
-specify what replaces native meteorite Flawless or whether existing chunks must
-be migrated. This contract preserves meteorites and native progression, and
-does not itself authorize selecting a replacement rank. The productive Certus
-node's surrounding resource is also unspecified. See
-[the decision record](CERTUS_INTEGRATION_BLOCKERS.md) before implementing either
-policy. No replacement or retrogen is introduced by this documentation update.
+On 2026-10-09 at 04:26 UTC the user approved native Flawless → Flawed for new
+chunks only, without retrogen. IOE uses its new-chunk guard; it does not move or
+suppress meteorites or replace other native progression blocks. Exact IOE
+Motherlode placement authorization protects the site's one selected Flawless.
+
+Certus site hearts use native AE2 ranks and the canonical budgets. Surrounding
+blocks and DRY residues use `ae2:quartz_block`. Existing chunks are not scanned
+for this policy on reload. Consequently old Flawless may still exist outside
+Motherlodes. See [implementation and validation scope](CERTUS_INTEGRATION_BLOCKERS.md).

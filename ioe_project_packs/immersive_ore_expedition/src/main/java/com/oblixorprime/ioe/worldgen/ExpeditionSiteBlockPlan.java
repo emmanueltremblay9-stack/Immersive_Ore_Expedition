@@ -1,6 +1,6 @@
 package com.oblixorprime.ioe.worldgen;
 
-import com.oblixorprime.ioe.budding.GeOreBuddingBlock;
+import com.oblixorprime.ioe.budding.BuddingBlockIdentity;
 import net.minecraft.world.level.block.Block;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
@@ -140,8 +140,10 @@ public record ExpeditionSiteBlockPlan(
         if (oreNodeHeartBlockId == null) return false;
         BlockState primary = BuiltInRegistries.BLOCK.getOptional(oreNodeHeartBlockId)
                 .map(Block::defaultBlockState).orElse(null);
-        if (primary != null && primary.getBlock() instanceof GeOreBuddingBlock) {
-            return state.getBlock() instanceof GeOreBuddingBlock;
+        if (primary != null) {
+            var identity = BuddingBlockIdentity.of(primary.getBlock());
+            if (identity.isPresent()) return BuddingBlockIdentity.of(state.getBlock())
+                    .map(actual -> actual.family().equals(identity.orElseThrow().family())).orElse(false);
         }
         return BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(oreNodeHeartBlockId);
     }

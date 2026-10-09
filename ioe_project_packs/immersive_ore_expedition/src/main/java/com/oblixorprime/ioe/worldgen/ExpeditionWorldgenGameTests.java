@@ -1554,7 +1554,16 @@ public final class ExpeditionWorldgenGameTests {
         proveCommitFallbackChain(helper, true);
     }
 
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void certusCommitFailuresRemoveFlawlessBeforeLocator(GameTestHelper helper) {
+        proveCommitFallbackChain(helper, false, true);
+    }
+
     private static void proveCommitFallbackChain(GameTestHelper helper, boolean iron) {
+        proveCommitFallbackChain(helper, iron, false);
+    }
+
+    private static void proveCommitFallbackChain(GameTestHelper helper, boolean iron, boolean certus) {
         if (!ModList.get().isLoaded("immersiveengineering")) {
             helper.succeed();
             return;
@@ -1564,25 +1573,42 @@ public final class ExpeditionWorldgenGameTests {
         BlockPos origin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
         BiomeMineResourceProfile profile = testIronProfile(level);
+        if (certus) {
+            var id = ResourceLocation.parse("immersive_ore_expedition:certus");
+            var definition = level.registryAccess().registryOrThrow(BiomeMineResourceDefinition.REGISTRY_KEY).getOptional(id).orElseThrow();
+            profile = new BiomeMineResourceProfile(ResourceLocation.parse("minecraft:plains"), id, definition, 1);
+        }
         BuddingSitePlan motherBudget;
         long seed = 0;
         do {
             motherBudget = BuddingSitePlan.forQuality(
                     SiteQuality.MOTHERLODE, RandomSource.create(seed++), 0);
         } while (!motherBudget.nodeRanks().contains(BuddingRank.FLAWLESS));
-        ExpeditionSiteBlockPlan motherPlan = iron
+        ExpeditionSiteBlockPlan motherPlan = certus
+                ? CertusBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget, 83L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.MOTHERLODE))
+                : iron
                 ? IronBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
                         motherBudget, 83L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.MOTHERLODE))
                 : structureOnlyPlan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin, SiteQuality.MOTHERLODE, 83L);
-        ExpeditionSiteBlockPlan richPlan = iron
+        ExpeditionSiteBlockPlan richPlan = certus
+                ? CertusBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget.downgradeTo(SiteQuality.RICH, 0), 89L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.RICH))
+                : iron
                 ? IronBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
                         motherBudget.downgradeTo(SiteQuality.RICH, 0), 89L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.RICH))
                 : structureOnlyPlan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin, SiteQuality.RICH, 89L);
-        ExpeditionSiteBlockPlan normalPlan = iron
+        ExpeditionSiteBlockPlan normalPlan = certus
+                ? CertusBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget.downgradeTo(SiteQuality.NORMAL, 0), 97L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.NORMAL))
+                : iron
                 ? IronBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
                         motherBudget.downgradeTo(SiteQuality.NORMAL, 0), 97L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.NORMAL))
                 : structureOnlyPlan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin, SiteQuality.NORMAL, 97L);
-        ExpeditionSiteBlockPlan poorPlan = iron
+        ExpeditionSiteBlockPlan poorPlan = certus
+                ? CertusBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget.downgradeTo(SiteQuality.POOR, 0), 101L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.POOR))
+                : iron
                 ? IronBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
                         motherBudget.downgradeTo(SiteQuality.POOR, 0), 101L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.POOR))
                 : structureOnlyPlan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin, SiteQuality.POOR, 101L);
@@ -1667,13 +1693,13 @@ public final class ExpeditionWorldgenGameTests {
                         .allMatch(entry -> level.getBlockState(entry.getKey()).getBlock()
                                 == entry.getValue().getBlock()),
                 "The final world blocks do not match the Direct pipeline");
-        if (iron) {
+        if (iron || certus) {
             helper.assertTrue(motherPlan.blocks().keySet().stream().noneMatch(pos ->
-                            level.getBlockState(pos).getBlock() instanceof IronBuddingBlock block
-                                    && block.rank() == BuddingRank.FLAWLESS),
+                            com.oblixorprime.ioe.budding.BuddingBlockIdentity.of(level.getBlockState(pos).getBlock())
+                                    .map(block -> block.rank() == BuddingRank.FLAWLESS).orElse(false)),
                     "Failed Motherlode left a Flawless block after transactional fallback");
         }
-        if (iron) {
+        if (iron || certus) {
             var indexed = ExpeditionLocatorService.index(level).sites().stream()
                     .filter(site -> site.pos().equals(origin)).findFirst().orElseThrow();
             helper.assertTrue(indexed.buddingNodes().size() == 3
@@ -1947,7 +1973,7 @@ public final class ExpeditionWorldgenGameTests {
         helper.succeed();
     }
 
-    private static void fillTestChunk(ServerLevel level, ChunkPos chunk) {
+    static void fillTestChunk(ServerLevel level, ChunkPos chunk) {
         for (int x = chunk.getMinBlockX(); x <= chunk.getMaxBlockX(); x++) {
             for (int y = 0; y <= 63; y++) {
                 for (int z = chunk.getMinBlockZ(); z <= chunk.getMaxBlockZ(); z++) {

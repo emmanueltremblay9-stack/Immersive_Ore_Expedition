@@ -24,22 +24,26 @@ import java.util.List;
 public final class JadeRuntimeChecks {
     public static void run(GameTestHelper helper) throws ReflectiveOperationException, java.io.IOException {
         for (BuddingResourceFamily family : BuddingResourceFamily.values()) {
-            if (IoeGeOreBuddingBlocks.available(family)) checkFamily(helper, family);
+            if (IoeGeOreBuddingBlocks.available(family)) checkFamily(helper, family.identity(),
+                    rank -> IoeGeOreBuddingBlocks.block(family, rank), "GeOre");
         }
+        checkFamily(helper, com.oblixorprime.ioe.budding.NativeCertusBudding.FAMILY,
+                com.oblixorprime.ioe.budding.NativeCertusBudding::block, "AE2");
         helper.succeed();
     }
 
-    private static void checkFamily(GameTestHelper helper, BuddingResourceFamily family)
+    private static void checkFamily(GameTestHelper helper, ResourceLocation family,
+            java.util.function.Function<BuddingRank, net.minecraft.world.level.block.Block> blocks, String displayFamily)
             throws ReflectiveOperationException, java.io.IOException {
         var level = helper.getLevel();
         BlockPos pos = helper.absolutePos(new BlockPos(4, 4, 4));
-        level.setBlockAndUpdate(pos, IoeGeOreBuddingBlocks.block(family, BuddingRank.FLAWED).defaultBlockState());
+        level.setBlockAndUpdate(pos, blocks.apply(BuddingRank.FLAWED).defaultBlockState());
         var registration = Class.forName("snownee.jade.impl.WailaCommonRegistration");
         var providers = (List<?>) registration.getMethod("getBlockNBTProviders", net.minecraft.world.level.block.Block.class,
                 net.minecraft.world.level.block.entity.BlockEntity.class).invoke(registration.getMethod("instance").invoke(null),
-                IoeGeOreBuddingBlocks.block(family, BuddingRank.FLAWED), null);
+                blocks.apply(BuddingRank.FLAWED), null);
         helper.assertTrue(providers.contains(IoeBuddingProvider.INSTANCE), "Jade did not discover/register the IOE server provider");
-        var node = new BuddingNodeInfo(pos, 3, 7, 7, family.identity());
+        var node = new BuddingNodeInfo(pos, 3, 7, 7, family);
         var site = ExpeditionSite.anchor(level.dimension(), pos.above(24), ResourceLocation.parse("immersive_ore_expedition:miner_camp"),
                 null, SiteQuality.MOTHERLODE, "test").withBuddingNodes(List.of(node));
         ExpeditionLocatorService.record(level, site);
@@ -62,8 +66,8 @@ public final class JadeRuntimeChecks {
                     }
                     throw new AssertionError("Unexpected Jade tooltip call " + method.getName());
                 });
-        for (BuddingRank rank : List.of(BuddingRank.FLAWED, BuddingRank.CHIPPED, BuddingRank.FLAWLESS)) {
-            level.setBlockAndUpdate(pos, IoeGeOreBuddingBlocks.block(family, rank).defaultBlockState());
+        for (BuddingRank rank : List.of(BuddingRank.FLAWED, BuddingRank.CHIPPED, BuddingRank.DAMAGED, BuddingRank.FLAWLESS)) {
+            level.setBlockAndUpdate(pos, blocks.apply(rank).defaultBlockState());
             IoeBuddingProvider.INSTANCE.appendServerData(serverData, accessor);
             lines.clear();
             IoeBuddingProvider.INSTANCE.appendTooltip(tooltip, accessor, null);
@@ -74,7 +78,7 @@ public final class JadeRuntimeChecks {
                     "Jade lost the original site quality");
             helper.assertTrue(java.util.Arrays.equals(line(lines, "node").getArgs(), new Object[]{3, 7}), "Wrong node index/count");
             helper.assertTrue(line(lines, "ore").getArgs()[0].equals(7), "Wrong original ore count");
-            helper.assertTrue(line(lines, "family").getArgs()[0].equals("GeOre"), "Wrong family");
+            helper.assertTrue(line(lines, "family").getArgs()[0].equals(displayFamily), "Wrong family");
             helper.assertTrue(lines.size() == (rank == BuddingRank.FLAWLESS ? 6 : 5), "Wrong Flawless site indicator");
         }
         ExpeditionLocatorService.removeBuddingNode(level, pos);

@@ -1,7 +1,7 @@
 package com.oblixorprime.ioe.compat.jade;
 
 import com.oblixorprime.ioe.budding.BuddingNodeInfo;
-import com.oblixorprime.ioe.budding.GeOreBuddingBlock;
+import com.oblixorprime.ioe.budding.BuddingBlockIdentity;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -27,10 +27,13 @@ public enum IoeBuddingProvider implements IBlockComponentProvider, IServerDataPr
 
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
-        if (!(accessor.getLevel() instanceof ServerLevel level) || !(accessor.getBlock() instanceof GeOreBuddingBlock block)) return;
         data.remove(DATA_KEY);
+        if (!(accessor.getLevel() instanceof ServerLevel level)) return;
+        var identity = BuddingBlockIdentity.of(accessor.getBlock());
+        if (identity.isEmpty()) return;
+        var block = identity.orElseThrow();
         ExpeditionLocatorService.index(level).buddingNodeAt(level.dimension(), accessor.getPosition())
-                .filter(context -> context.node().family().equals(block.family().identity()))
+                .filter(context -> context.node().family().equals(block.family()))
                 .ifPresent(context -> {
                     CompoundTag payload = context.node().save();
                     context.site().quality().ifPresent(quality -> payload.putString("quality", quality.name()));
@@ -40,13 +43,15 @@ public enum IoeBuddingProvider implements IBlockComponentProvider, IServerDataPr
 
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        if (!(accessor.getBlock() instanceof GeOreBuddingBlock block)) return;
+        var identity = BuddingBlockIdentity.of(accessor.getBlock());
+        if (identity.isEmpty()) return;
+        var block = identity.orElseThrow();
         tooltip.add(Component.translatable("tooltip.ioe.budding.rank",
                 Component.translatable("budding.ioe.rank." + block.rank().path())));
-        tooltip.add(Component.translatable("tooltip.ioe.budding.family", "GeOre"));
+        tooltip.add(Component.translatable("tooltip.ioe.budding.family", block.displayFamily()));
         CompoundTag payload = accessor.getServerData().getCompound(DATA_KEY);
         var info = BuddingNodeInfo.load(payload).filter(node -> node.pos().equals(accessor.getPosition())
-                && node.family().equals(block.family().identity()));
+                && node.family().equals(block.family()));
         if (info.isEmpty()) return; // Hand-placed or legacy blocks have no proven generation metadata.
         String quality = payload.getString("quality");
         if (java.util.Arrays.stream(com.oblixorprime.ioe.core.SiteQuality.values()).noneMatch(q -> q.name().equals(quality))) return;

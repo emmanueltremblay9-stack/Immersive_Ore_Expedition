@@ -1,5 +1,7 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.budding.NativeCertusBudding;
+import com.oblixorprime.ioe.budding.BuddingRank;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -56,9 +58,13 @@ public final class IoeNewChunkOreGuard {
         if (!(event.getLevel() instanceof ServerLevel level)) {
             return;
         }
-        ChunkPos chunkPos = event.getChunk().getPos();
+        scheduleChunk(level, event.getChunk().getPos(), event.isNewChunk());
+    }
+
+    // Shared by the actual load listener and runtime tests; existing chunks cannot enter the queue.
+    static void scheduleChunk(ServerLevel level, ChunkPos chunkPos, boolean isNewChunk) {
         PendingChunk chunkKey = new PendingChunk(level.dimension(), chunkPos.toLong());
-        if (event.isNewChunk()) {
+        if (isNewChunk) {
             PENDING_NEW_CHUNKS.add(chunkKey);
         } else if (!PENDING_NEW_CHUNKS.contains(chunkKey)) {
             return;
@@ -168,7 +174,8 @@ public final class IoeNewChunkOreGuard {
         }
     }
 
-    private static boolean sanitizeLoadedChunk(ServerLevel level, ChunkPos chunkPos, boolean finalizeSite) {
+    static boolean sanitizeLoadedChunk(ServerLevel level, ChunkPos chunkPos, boolean finalizeSite) {
+        if (!PENDING_NEW_CHUNKS.contains(new PendingChunk(level.dimension(), chunkPos.toLong()))) return false;
         LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z);
         if (chunk == null) {
             return false;
@@ -237,6 +244,7 @@ public final class IoeNewChunkOreGuard {
                 }
             }
         }
+        if (finalizeSite) PENDING_NEW_CHUNKS.remove(new PendingChunk(level.dimension(), chunkPos.toLong()));
         IoeWorldgenRuntimeDiagnostics.recordGuardPass(removedOres, removedGrowthBlocks, finalizeSite);
         if (removedOres > 0 || removedGrowthBlocks > 0) {
             IoeExpeditionWorldgenMod.LOGGER.warn(
@@ -259,6 +267,9 @@ public final class IoeNewChunkOreGuard {
     }
 
     private static BlockState replacementState(ServerLevel level, BlockPos pos) {
+        if (NativeCertusBudding.rank(level.getBlockState(pos).getBlock()).orElse(null) == BuddingRank.FLAWLESS) {
+            return NativeCertusBudding.block(BuddingRank.FLAWED).defaultBlockState();
+        }
         if (Level.NETHER.equals(level.dimension())) {
             return Blocks.NETHERRACK.defaultBlockState();
         }
@@ -278,6 +289,10 @@ public final class IoeNewChunkOreGuard {
                 || Ae2MeteoriteIntegration.forbiddenCertusOre(id)
                 || forbiddenVanillaOre(id)) {
             return TargetKind.ORE;
+        }
+        if (id.equals(NativeCertusBudding.id(BuddingRank.FLAWLESS))
+                && BuiltInRegistries.BLOCK.containsKey(NativeCertusBudding.id(BuddingRank.FLAWED))) {
+            return TargetKind.GROWTH_RESOURCE;
         }
         String namespace = id.getNamespace();
         String path = id.getPath();

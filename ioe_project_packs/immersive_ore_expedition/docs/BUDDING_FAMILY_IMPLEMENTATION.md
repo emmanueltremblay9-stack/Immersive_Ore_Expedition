@@ -49,17 +49,14 @@ insufficient valid positions are not replaced with unrelated resources. The same
 journal compensates residues and the optional seed chest together. Reconfirmation cannot
 repeat an accepted placement. DRY metadata reports zero hearts/nodes and the real ore count.
 
-The quantity policy is approved for DRY generally. The two special profiles Certus and
-Entroized Fluix currently define crystal item outputs and special geode shells, not a
-residual ore-block mapping. Their new residual placement remains pending an explicit
-answer: 0–5 `ae2:quartz_block` for Certus, and an exception with no physical residues
-for Entroized Fluix. Both proposals remain unapproved. Ordinary AE2 Fluix
-(`ae2:fluix_block`) is not Entroized Fluix and is not an approved Entro residue.
-Their prior structure-only DRY path and independent 10% seed reward remain unchanged.
-Certus productive nodes are not yet wired into the runtime expedition planner.
-Entro remains exclusive to IE extraction; no Entro Budding family is authorized.
-See [Certus integration blockers](CERTUS_INTEGRATION_BLOCKERS.md) for the separate
-productive-node material and meteorite replacement decisions.
+The Certus/Entro extension was approved on 2026-10-09 at 04:26 UTC. Certus uses
+`ae2:quartz_block` for its uniform 0–5 DRY residues and its canonical productive
+node surrounds. Entro has no physical residues or Budding family and remains IE
+extraction only. Both retain the independent 10% DRY neutral seed reward. Ordinary
+AE2 Fluix (`ae2:fluix_block`) is not Entroized Fluix. Native Certus ranks now share
+the transactional planner and metadata path; they are not IOE GeOre blocks.
+See [Certus integration](CERTUS_INTEGRATION_BLOCKERS.md) for the approved
+non-retroactive meteorite policy and targeted validation scope.
 
 ## Files and validation
 

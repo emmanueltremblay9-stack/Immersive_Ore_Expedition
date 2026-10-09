@@ -25,19 +25,21 @@ real production commit and IE fallback metadata. With Jade loaded, a GameTest ve
 provider discovery and the actual server-data and tooltip callbacks for Flawed, Chipped
 and Flawless. This is API/runtime coverage, not a client screenshot or visual acceptance.
 
-## Certus scope boundary
+## Native Certus
 
-The current IOE Jade provider registers only for `GeOreBuddingBlock`. Native AE2
-Certus blocks do not yet receive IOE site quality, node index/count or initial-ore
-metadata from this provider. `BuddingPlanMetadata` likewise discovers only GeOre
-hearts; the generic persistence format alone does not establish Certus support.
-AE2/Jade upstream tooltips must not be mistaken for IOE site provenance.
+The IOE Jade provider handles both IOE GeOre and exact native AE2 Certus rank IDs.
+It registers against the common block API and ignores unrelated blocks, including
+Entro. `BuddingBlockIdentity` supplies the current rank and family; the native AE2
+blocks retain their own behavior. `BuddingPlanMetadata` captures committed Certus
+hearts using the same optional save field and exact-position lookup.
 
-Certus acceptance must cover the live native rank after degradation and repair,
-committed site metadata, fallback without Flawless, rollback, save/reload and
-hand-placed blocks without invented provenance. These checks remain pending the
-[Certus decisions](CERTUS_INTEGRATION_BLOCKERS.md). A graphical Minecraft client
-check remains separate and unproven.
+Certus displays family AE2, live rank, original site quality, node index/count and
+initial surrounding quartz quantity. The Flawless indicator appears only with
+proven Motherlode metadata. A native meteorite or manual heart has no invented IOE
+site quality. The runtime checks exercise all four native ranks, persisted
+metadata and removal of provenance after replacement. These callbacks do not
+prove client rendering; graphical Minecraft acceptance remains unproven.
+See [Certus decisions and validation scope](CERTUS_INTEGRATION_BLOCKERS.md).
 
 ## Other GeOre families
 

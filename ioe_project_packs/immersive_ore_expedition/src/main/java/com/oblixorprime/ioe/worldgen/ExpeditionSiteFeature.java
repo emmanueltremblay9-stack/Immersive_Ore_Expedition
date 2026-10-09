@@ -5,6 +5,7 @@ import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
 import com.oblixorprime.ioe.compat.ip.IoePetroleumReservoirBridge;
 import com.oblixorprime.ioe.core.ProvinceId;
 import com.oblixorprime.ioe.budding.BuddingSitePlan;
+import com.oblixorprime.ioe.budding.NativeCertusBudding;
 import com.oblixorprime.ioe.budding.DrySiteReward;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.core.SiteQualityRoll;
@@ -140,14 +141,21 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     "Budding family dependencies, storage or growth blocks are unavailable: " + family.key());
             return false;
         }
-        int dryOreCount = quality == SiteQuality.DRY ? com.oblixorprime.ioe.budding.DryPocketRoll.forSite(planSeed) : 0;
-        if (quality == SiteQuality.DRY && family != null
-                && !net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(family.pocketBlockId())) {
+        boolean certus = resourceProfile != null && "certus".equals(resourceProfile.profileName());
+        if (certus && quality.isProductive() && !NativeCertusBudding.available()) {
             skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
-                    "Missing DRY pocket material: " + family.pocketBlockId());
+                    "Native Certus ranks, growth blocks or quartz material are unavailable");
             return false;
         }
-        BuddingSitePlan familyBudget = family != null && quality.isProductive()
+        var dryMaterial = certus ? NativeCertusBudding.QUARTZ : family == null ? null : family.pocketBlockId();
+        int dryOreCount = quality == SiteQuality.DRY ? com.oblixorprime.ioe.budding.DryPocketRoll.forSite(planSeed) : 0;
+        if (quality == SiteQuality.DRY && dryMaterial != null
+                && !net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(dryMaterial)) {
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                    "Missing DRY pocket material: " + dryMaterial);
+            return false;
+        }
+        BuddingSitePlan familyBudget = (family != null || certus) && quality.isProductive()
                 ? BuddingSitePlan.forQuality(quality, RandomSource.create(planSeed ^ 0x49524f4eL), 0) : null;
 
         DepositPreparation depositPreparation = prepareExcavatorDeposit(
@@ -182,15 +190,16 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     && prospectorCampContext.archetype() == ProspectorCampArchetype.ACTIVE
                     ? previewPlan
                     : structureOnlyPlan(siteType, origin, quality, planSeed, prospectorCampContext);
-            if (quality == SiteQuality.DRY && family != null) {
-                plan = DrySitePockets.attach(plan, family.pocketBlockId(), dryOreCount, planSeed);
+            if (quality == SiteQuality.DRY && dryMaterial != null) {
+                plan = DrySitePockets.attach(plan, dryMaterial, dryOreCount, planSeed);
             }
             plan = DrySiteRewards.attach(plan, drySeedReward, planSeed);
             if (familyBudget != null) {
                 if (quality != familyBudget.quality()) {
                     familyBudget = familyBudget.downgradeTo(quality, 0);
                 }
-                plan = GeOreBuddingSitePlans.plan(family, siteType, origin, familyBudget, planSeed, prospectorCampContext);
+                plan = certus ? CertusBuddingSitePlans.plan(siteType, origin, familyBudget, planSeed, prospectorCampContext)
+                        : GeOreBuddingSitePlans.plan(family, siteType, origin, familyBudget, planSeed, prospectorCampContext);
             }
             ArrayList<ExpeditionSiteBlockPlan> fallbackPlans = new ArrayList<>();
             if (depositReservation != null && depositReservation.requiredForSiteQuality()) {
@@ -198,6 +207,8 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 while (lowerQuality != null && lowerQuality.isProductive()) {
                     fallbackPlans.add(familyBudget == null
                             ? structureOnlyPlan(siteType, origin, lowerQuality, planSeed, prospectorCampContext)
+                            : certus ? CertusBuddingSitePlans.plan(siteType, origin, familyBudget.downgradeTo(lowerQuality, 0),
+                                    planSeed, prospectorCampContext)
                             : GeOreBuddingSitePlans.plan(family, siteType, origin, familyBudget.downgradeTo(lowerQuality, 0),
                                     planSeed, prospectorCampContext));
                     lowerQuality = lowerQuality.directLower().orElse(null);

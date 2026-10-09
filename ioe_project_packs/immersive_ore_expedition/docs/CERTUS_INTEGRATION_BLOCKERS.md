@@ -1,58 +1,58 @@
-# Certus cycle: decisions required before runtime wiring
+# Certus integration: approved decisions and implementation
 
-Audit baseline: PR 63, branch `codex/canonical-budding-site-planner`, remote head
-`4e1f861d76111489c367757dc858363a17818289`, checked 2026-10-09.
-This checkpoint changes documentation only; it does not implement Certus nodes
-or claim stable 1.0.0 acceptance.
+The documentation-only checkpoint was `c76fe8b858fdb09b4884c242962366ba32b0c2a0`.
+On 2026-10-09 at 04:26 UTC the user approved all four previously pending rules.
+This record supersedes the earlier blocker status; historical CI at that checkpoint
+is not evidence for the following implementation.
 
-## Confirmed contract
+## Approved gameplay
 
-[Budding final decisions](BUDDING_FINAL_DECISIONS.md) require productive budgets
-of 3/4/5/7 nodes, 4/5/6/7 surrounding blocks per node, and initial ranks
-Damaged/Chipped/Flawed/Flawed. Motherlode has one 7.77% draw for at most one
-Flawless replacing a Flawed. Lower-tier fallback removes that selection.
-[AE2 integration](AE2_METEORITE_INTEGRATION.md) preserves native meteorites,
-growth, repair and normal processing. AE2CS Flawless crafting must stay disabled.
+| Profile / case | Rule |
+| --- | --- |
+| DRY Certus | One independent uniform 0–5 draw of `ae2:quartz_block` for the whole pocket; no active heart. |
+| DRY Entro | No physical Entro residue. The independent 10% neutral seed reward remains. |
+| Productive Certus | Native AE2 hearts with 4/5/6/7 surrounding `ae2:quartz_block` per node for Poor/Normal/Rich/Motherlode. |
+| Meteorite Flawless | Replace native `ae2:flawless_budding_quartz` with native `ae2:flawed_budding_quartz` only during new-chunk admission. No retrogen or edits to existing chunks. |
 
-## Decision register
+Canonical counts remain 3/4/5/7 hearts and 12/20/30/49 surrounding blocks. Initial
+ranks are Damaged/Chipped/Flawed/Flawed. A single Motherlode draw at 7.77% replaces
+one of its seven Flawed hearts with Flawless. Lower-quality fallback drops that
+selection without rerolling it. Entro remains IE extraction only; ordinary
+`ae2:fluix_block` is not an Entro resource or residue.
 
-| Missing decision | Why it blocks completion | Required answer |
-| --- | --- | --- |
-| Productive Certus surrounding material | Budgets count physical blocks outside hearts; neither contract maps these to a registered block. Crystal item outputs and Sky Stone shells do not establish that mapping. | Exact registered block for the 4/5/6/7 surrounding blocks. This is separate from DRY. |
-| Native meteorite Flawless replacement | Exclusivity requires intervention, but preserving meteorites does not select a replacement rank or define migration. | Replacement rank and scope: new generation only or also existing meteorites/chunks. |
+## Runtime integration
 
-No replacement rank, surrounding material or migration is inferred. The pending
-DRY proposals remain 0–5 `ae2:quartz_block` for Certus and no physical residues
-for Entro; neither is applied. `ae2:fluix_block` is ordinary AE2 Fluix, not
-Entroized Fluix. Entro remains an IE mineral output, never a Budding family.
+`NativeCertusBudding` resolves exact registry IDs and checks AE2/AE2CS, all four
+ranks, four growth stages and quartz storage before productive admission. It
+copies no AE2 code or assets and changes no native growth, repair or loot behavior.
+`CanonicalBuddingSitePlans` shares geometry with GeOre; all rank states remain
+owned by their original mod. Missing dependencies fail closed without resource
+substitution. Certus uses the existing IE reserve transaction and fallback chain.
 
-## Verified implementation gaps
+`BuddingBlockIdentity` distinguishes GeOre and native Certus only. Committed
+Certus node positions, family, index/count and initial ore enter the existing
+locator save format. Jade reads the current native rank and the original site
+metadata; manual or replaced blocks do not gain invented provenance.
 
-- `worldgen/ExpeditionSiteFeature.java` selects Budding plans through
-  `BuddingResourceFamily.fromGeOreMaterial`; Certus has no matching family and
-  follows the structure-only path with its separate IE reserve.
-- `worldgen/Ae2MeteoriteIntegration.java` can resolve Flawed and Sky Stone
-  registry entries. That helper is not a canonical multi-node Certus placement
-  path or an authorization to use Sky Stone as counted ore.
-- `worldgen/BuddingPlanMetadata.java` detects `GeOreBuddingBlock` only.
-- `compat/jade/IoeJadePlugin.java` and `IoeBuddingProvider.java` register and
-  inspect GeOre blocks only. Generic `BuddingNodeInfo` serialization does not
-  prove native Certus metadata capture, persistence or display.
+`IoeNewChunkOreGuard` admits only new chunks (or their already-pending first-load
+passes). It replaces unauthorized native Flawless with Flawed while preserving
+exactly authorized IOE Motherlode hearts. Sky Stone, ordinary Fluix, quartz,
+non-Flawless budding and all quartz growth stages are preserved. The upstream
+meteorite biome overlay stays empty with `replace: false`.
 
-## Implementation milestones after decisions
+**Exclusivity is non-retroactive.** New IOE Motherlodes are the only authorized
+source of newly generated Flawless under this policy. Pre-existing Flawless
+blocks survive, including after reload; this update does not promise a global
+zero-Flawless audit of older saves. Administrative commands are not a worldgen
+guarantee. AE2CS Flawless crafting remains disabled by the existing override.
 
-1. Resolve native AE2 states and the approved surrounding material, rejecting
-   missing resources. Feed the canonical budget and one site draw into geometry.
-2. Attach exact-position Certus provenance through the existing transactional
-   commit, fallback and compensation path; teach Jade to read the live AE2 rank.
-3. Apply the approved meteorite replacement scope without suppressing structures,
-   buds, clusters, Sky Stone, ordinary Fluix or normal repair/processing.
-4. Verify budgets, fallback, no extra Flawless, independent DRY reward, rollback,
-   save/reload, native repair/degradation and Jade callbacks in hosted CI.
-5. Verify actual client visuals and progression separately before stable release.
+## Validation and remaining boundary
 
-The risks are unauthorized material substitution, accidental meteorite/progression
-changes, false provenance after replacement, and counting historical tests as new
-evidence. Explicit decisions, transactional tests and exact-commit CI address them.
-The prior 596 JUnit / 46 GameTests per configuration / 14 green checks belong to
-the previous implementation and do not validate this unimplemented Certus cycle.
+Targeted coverage includes deterministic geometry/ranks for every productive
+quality; forced Flawless and fallbacks; missing dependencies; DRY quantities and
+reward independence; productive and reward rollback; actual Certus/Entro profile
+transactions and nonduplication; locator disk save/reload; Jade callbacks for all
+four native ranks; and new versus existing chunks with authorized-heart survival.
+Hosted CI must pass at the implementation commit. Client visual acceptance and
+full player progression remain separate and unproven. No merge or release is
+authorized by this checkpoint.

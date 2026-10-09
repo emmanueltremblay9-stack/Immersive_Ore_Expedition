@@ -68,6 +68,19 @@ Un seul tirage à `7,77 %` est effectué pour le site :
 
 Le Flawless remplace un Flawed ; il ne crée pas un huitième node. Un fallback de `MOTHERLODE` vers une qualité inférieure doit supprimer toute sélection Flawless.
 
+### Application non rétroactive aux météorites AE2 — décision du 2026-10-09, 04:26 UTC
+
+Les Flawless natifs non autorisés sont remplacés par des Flawed natifs uniquement
+dans les nouveaux chunks. Les météorites restent générées par AE2. Aucun retrogen
+ni changement des blocs des chunks déjà générés n'est effectué : les anciens
+Flawless peuvent donc subsister hors Motherlode. Les nouveaux cœurs IOE autorisés
+restent protégés par leur transaction de placement.
+
+Les nodes Certus productifs utilisent `ae2:quartz_block` autour des cœurs, aux
+quantités 4/5/6/7. Le DRY Certus contient 0–5 blocs de ce même matériau ; le DRY
+Entro est une exception sans résidu physique. La seed neutre indépendante de 10 %
+est conservée pour les deux profils. Entro reste réservé à l'extraction IE.
+
 ## 4. Mécanique AE2 reproduite par les variantes GeOre
 
 Les variantes GeOre fournies par IOE reproduisent la mécanique réelle des Budding de la version AE2 chargée. IOE ne doit pas en créer une approximation fondée sur une ancienne documentation.
