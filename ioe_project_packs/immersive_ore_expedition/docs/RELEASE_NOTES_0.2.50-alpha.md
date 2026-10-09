@@ -142,3 +142,13 @@ Domum Ornamentum `1.0.231` has conflicting license metadata: the inspected sourc
 - Previous published release: `v0.2.0-alpha`.
 - Back up worlds and configs before upgrading or downgrading. Existing chunks are not retroactively converted by the Certus meteorite rule; legacy saves without node metadata remain readable, without reconstructed provenance.
 - Config and save rollback must be evaluated before downgrading; this candidate does not claim downgrade compatibility.
+
+### Explicit Nether admission integration (generation still disabled)
+
+A package-scoped admission entry now derives the canonical candidate from the world
+seed, requires its real first-generation receipt, claims the region durably, captures
+loaded terrain under the shared budget and hands a complete plan to prepared placement.
+Its supplied surface Y is not an automatic lake-selection policy. No command, tick
+or generation caller is registered. Tests use genuine load events on deliberately
+constructed terrain; natural lake discovery, protection qualification and automatic
+scheduling remain outside this increment. All existing generation gates stay closed.

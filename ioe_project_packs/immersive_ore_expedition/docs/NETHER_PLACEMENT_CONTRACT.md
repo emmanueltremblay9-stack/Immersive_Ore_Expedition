@@ -244,3 +244,35 @@ See [complete read-set validation](NETHER_READ_SET_VALIDATION.md) for acquisitio
 preflight/compensation read reservations, retained-entry memory bounds and the
 before/after regression evidence. Complete preflight does not establish publication
 atomicity; the production backend remains blocked.
+
+## Explicit canonical admission at a supplied surface
+
+`NetherNaturalAdmission.attempt` connects the world-seed canonical candidate to
+loaded-terrain capture, the existing planner and the prepared backend in one
+server-thread turn. It accepts only the candidate's actual chunk and requires its
+live first-generation receipt from `ChunkEvent.Load`; it never constructs receipts.
+Every write chunk still needs its own live receipt at placement. The surface Y is
+explicit input: automatic lake-height selection and natural scheduling are NOT
+implemented or enabled by this entry. No command or tick callback invokes it.
+
+A durable region claim is made before capture. Wrong candidate chunks do not claim;
+duplicates, unavailable/invalidated terrain, exhausted budgets and planning refusal
+cannot retry at another height or after reload. A transient single-use claim token
+hands the same canonical X/Z to placement without claiming the region twice; it is
+never serialized and is not itself a chunk-write permission. A process interrupted
+after admission leaves the existing terminal INTERRUPTED record on ordinary save.
+No OS-crash cross-file guarantee is added.
+
+Capture uses only already FULL loaded chunks, exact 74x74 and the shared server-tick
+read budget. Placement retains the complete read set and its acquisition plus
+validation/compensation accounting. Capture caches are discarded on exit.
+
+Hosted tests use a real newly generated fixture neighborhood and actual NeoForge
+load events, without calling observe or injecting first-generation receipts. Terrain
+is deliberately constructed to test the canonical chamber/remote-shore path; this
+is not discovery of a natural lake. Refusal coverage includes a noncandidate trigger,
+an unavailable FULL neighbor without forced loading, persistent claim round-trip and
+retry at a different Y. Existing coordinator tests retain old/replaced/expired chunks,
+read-set invalidation, budgets and partial compensation coverage. External protection
+remains unqualified (the host currently observes block entities); automatic generation
+and the production gate remain disabled. This entry is not an activation authorization.

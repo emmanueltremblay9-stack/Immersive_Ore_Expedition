@@ -19,7 +19,7 @@ public final class NetherSnapshotDiagnostic {
         Object loaded(long chunk);
         NetherSitePlanner.Cell read(Object identity, BlockPos pos);
     }
-    private static final class Aborted extends RuntimeException {
+    static final class Aborted extends RuntimeException {
         final State state;
         Aborted(State state) { this.state = state; }
     }

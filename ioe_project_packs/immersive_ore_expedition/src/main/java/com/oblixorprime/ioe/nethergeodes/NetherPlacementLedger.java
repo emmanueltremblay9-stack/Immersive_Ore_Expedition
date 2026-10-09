@@ -21,6 +21,25 @@ final class NetherPlacementLedger extends SavedData implements NetherPlacementCo
         setDirty();
         return true;
     }
+    /** A single-use transfer of a durable admission claim to the placement coordinator. */
+    NetherPlacementCoordinator.Ledger prepare(BlockPos origin) {
+        if (!claim(origin)) return null;
+        var admitted = origin.immutable();
+        return new NetherPlacementCoordinator.Ledger() {
+            boolean consumed;
+            public boolean claim(BlockPos target) {
+                if (consumed || target.getX() != admitted.getX() || target.getZ() != admitted.getZ()) return false;
+                consumed = true;
+                return true;
+            }
+            public boolean hasAcceptedWithin(BlockPos target, int distance) {
+                return NetherPlacementLedger.this.hasAcceptedWithin(target, distance);
+            }
+            public void finish(BlockPos target, NetherPlacementCoordinator.Result result) {
+                NetherPlacementLedger.this.finish(admitted, result);
+            }
+        };
+    }
     public boolean hasAcceptedWithin(BlockPos origin, int distance) {
         if (distance != 256) throw new IllegalArgumentException("Canonical spacing is 256");
         int rx = Math.floorDiv(origin.getX(), 256), rz = Math.floorDiv(origin.getZ(), 256);

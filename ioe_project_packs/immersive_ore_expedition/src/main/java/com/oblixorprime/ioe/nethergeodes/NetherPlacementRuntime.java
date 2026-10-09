@@ -58,6 +58,11 @@ final class NetherPlacementRuntime {
         return commitPrepared(level, plan, coordinator(level), host(level));
     }
 
+    static NetherPlacementCoordinator.Result commitPrepared(ServerLevel level, NetherPlacementCoordinator.Plan plan,
+                                                            NetherPlacementCoordinator.Ledger admission) {
+        return coordinator(level).commit(host(level), admission, plan);
+    }
+
     // Package-scoped capability/host seam for controlled faults against real storage/chunks.
     static NetherPlacementCoordinator.Result commitPrepared(ServerLevel level, NetherPlacementCoordinator.Plan plan,
                                                             NetherPlacementCoordinator coordinator,

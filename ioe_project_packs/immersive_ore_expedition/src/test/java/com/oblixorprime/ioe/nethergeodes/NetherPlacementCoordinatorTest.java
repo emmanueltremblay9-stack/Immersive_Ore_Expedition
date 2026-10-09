@@ -173,4 +173,17 @@ final class NetherPlacementCoordinatorTest {
         assertEquals(Result.DUPLICATE, f.coordinator.commit(f, ledger, plan()));
     }
 
+    @Test void preparationClaimIsTerminalAndTransfersOnlyOnceToSameCandidate() {
+        var ledger = new NetherPlacementLedger();
+        var permit = ledger.prepare(A);
+        assertNotNull(permit);
+        assertNull(ledger.prepare(A));
+        assertFalse(permit.claim(A.east()));
+        assertTrue(permit.claim(A.below(16)));
+        assertFalse(permit.claim(A));
+        var restored = NetherPlacementLedger.FACTORY.deserializer().apply(ledger.save(new CompoundTag(), null), null);
+        assertNull(restored.prepare(A));
+        assertEquals("INTERRUPTED", restored.resultAt(A).orElseThrow());
+    }
+
 }

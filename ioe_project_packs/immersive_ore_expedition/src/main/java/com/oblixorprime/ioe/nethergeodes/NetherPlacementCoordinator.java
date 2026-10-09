@@ -12,7 +12,7 @@ final class NetherPlacementCoordinator {
     static final int MAX_CHECKS = NetherSitePlanner.MAX_PROBES;
     static final int MAX_WRITES = 4_096;
     static final int MAX_WRITE_CHUNKS = 4;
-    enum Result { BACKEND_UNVERIFIED, COMMITTED, DUPLICATE, INVALID_PLAN, NOT_FRESH, SPACING, BUDGET,
+    enum Result { NOT_CANDIDATE, PLAN_REJECTED, BACKEND_UNVERIFIED, COMMITTED, DUPLICATE, INVALID_PLAN, NOT_FRESH, SPACING, BUDGET,
         TERRAIN_CHANGED, ROLLED_BACK, ROLLBACK_INCOMPLETE }
     interface Host {
         void requireServerThread();
@@ -82,6 +82,10 @@ final class NetherPlacementCoordinator {
         var lease = leases.get(chunk);
         int age = lease == null ? -1 : host.tick() - lease.born();
         return age > 0 && age < LEASE_TICKS && host.loadedChunk(chunk) == lease.identity();
+    }
+    synchronized boolean hasFreshReceipt(Host host, long chunk) {
+        host.requireServerThread();
+        return fresh(host, chunk);
     }
     private static long chunk(BlockPos pos) { return ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4); }
 
