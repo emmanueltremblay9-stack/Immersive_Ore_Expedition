@@ -12,7 +12,7 @@ final class NetherPlacementCoordinator {
     static final int MAX_CHECKS = 16_384;
     static final int MAX_WRITES = 4_096;
     static final int MAX_WRITE_CHUNKS = 4;
-    enum Result { COMMITTED, DUPLICATE, INVALID_PLAN, NOT_FRESH, SPACING, BUDGET,
+    enum Result { BACKEND_UNVERIFIED, COMMITTED, DUPLICATE, INVALID_PLAN, NOT_FRESH, SPACING, BUDGET,
         TERRAIN_CHANGED, ROLLED_BACK, ROLLBACK_INCOMPLETE }
     interface Host {
         void requireServerThread();

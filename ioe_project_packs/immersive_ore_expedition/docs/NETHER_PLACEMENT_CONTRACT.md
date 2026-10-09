@@ -102,3 +102,65 @@ partial-write compensation and unrecoverable invalidation, negative region coord
 spacing boundaries, identity limits, save/reload and real two-chunk Nether writes.
 GameTest fixtures explicitly simulate new-generation receipts; they do not prove
 natural Nether generation or manual gameplay acceptance.
+
+## Callback audit and production gate
+
+`NetherPlacementRuntime.commit` now returns `BACKEND_UNVERIFIED` before acquiring
+SavedData or writing blocks. The experimental coordinator remains exercised directly
+by tests; its journal is explicitly not a guaranteed rollback backend.
+
+The NeoForge 1.21.1 Level patch routes normal writes through chunk mutation and then
+`markAndNotifyBlock`, including block-state callbacks even when neighbor-update flag 1
+is absent. Snapshot capture delays notification/physics and the patched chunk path
+suppresses `onPlace`, but those provisions alone do not establish that all mutation,
+removal, lighting and eventual publication paths are free of reentrant code. Calling
+raw section setters would also bypass normal heightmap/light/ticking maintenance.
+No such unsupported shortcut, forced chunk ticket or restored permission is used.
+
+Sources inspected:
+- https://github.com/neoforged/NeoForge/blob/1.21.1/patches/net/minecraft/world/level/Level.java.patch
+- https://github.com/neoforged/NeoForge/blob/1.21.1/patches/net/minecraft/world/level/chunk/LevelChunk.java.patch
+
+The precise unresolved risk is a write followed by callback-driven invalidation of
+an already-written chunk: a later compensation would violate the no-old-chunk rule.
+An incomplete journal cannot solve that contradiction. Production stays blocked
+until a backend with an established callback/publication boundary is validated or a
+separate explicit decision accepts a weaker transactional guarantee. No crash
+atomicity is claimed.
+
+## Connected planning over snapshots
+
+`NetherSitePlanner` now composes deterministic per-region candidate selection,
+10/25/45/17/3 quality, a stable 5-in-1000 Motherlode-only debris draw, connected lake
+analysis and geometry into the existing coordinator Plan type. It performs no world
+access: its Snapshot must be immutable and return unknown for unavailable terrain.
+A hard 262,144 snapshot-probe bound covers all phases together. This bound does not
+replace the shared server-tick budget needed when acquiring a real snapshot.
+
+Surface analysis visits the 129-square at a supplied surface Y, excludes flowing
+surface lava and lava-covered source cells, and flood-fills four-neighbor source
+cells from the candidate. Only connected columns with four contiguous lava cells
+count toward the integer 60% threshold (9,985 of 16,641). Separate pools cannot sum.
+The whole footprint must be known. The floor search examines the complete 15-square
+chamber footprint, follows lava to the first solid rock and selects the lowest floor
+Y; the center is exactly 16 below it. Unknown, hollow or protected floors fail.
+
+Geometry requires a solid, unprotected 15-cube of vanilla netherrack/basalt/blackstone,
+carves only a radius-3 interior, and places the exact finite mineral budget within
+the radius-5 shell. This conservatively retains at least three solid cells around
+the cavity; existing voids, fluids, ores, block entities and protected cells reject
+the plan. The nearest admissible dry shore adjacent to the connected surface gets a
+two-block blackstone marker, with no tunnel. Original states for geometry and marker
+are supplied to the coordinator for revalidation. Region-spacing and freshness
+remain the coordinator's responsibility, not inferred from a successful plan.
+
+Pure tests cover integer coverage boundaries, disconnected pools, flowing/covered
+surfaces, shallow columns, actual floor rejection, crust/protection, absent shore,
+unknown terrain, total probe exhaustion, negative-region determinism, exact budgets
+and debris replacement. The runtime GameTest verifies that the production gate
+refuses a plan without changing either chunk.
+
+Remaining integration: capture immutable terrain within the shared global tick
+budget and first-load lifetime, select/verify surface Y, apply external protection
+checks, and qualify the transactional backend. No automatic snapshot acquisition,
+region scheduling, natural generation or client acceptance is claimed here.

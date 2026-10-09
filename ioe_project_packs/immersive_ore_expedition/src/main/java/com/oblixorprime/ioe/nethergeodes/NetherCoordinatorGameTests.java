@@ -32,6 +32,10 @@ public final class NetherCoordinatorGameTests {
         var plan = new NetherPlacementCoordinator.Plan(first, Map.of(first, rock, second, rock), Map.of(first, ore, second, ore));
         helper.runAfterDelay(1, () -> {
             var storage = level.getDataStorage();
+            helper.assertTrue(NetherPlacementRuntime.commit(level, plan)
+                    == NetherPlacementCoordinator.Result.BACKEND_UNVERIFIED, "Unqualified production backend became writable");
+            helper.assertTrue(level.getBlockState(first).is(Blocks.NETHERRACK)
+                    && level.getBlockState(second).is(Blocks.NETHERRACK), "Production safety gate mutated terrain");
             var ledger = new NetherPlacementLedger();
             storage.set(NetherPlacementLedger.NAME, ledger);
             helper.assertTrue(coordinator.commit(NetherPlacementRuntime.host(level), ledger, plan)

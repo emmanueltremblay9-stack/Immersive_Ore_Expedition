@@ -48,8 +48,9 @@ final class NetherPlacementRuntime {
     static NetherPlacementCoordinator.Result commit(ServerLevel level, NetherPlacementCoordinator.Plan plan) {
         var host = host(level);
         host.requireServerThread();
-        var ledger = level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY, NetherPlacementLedger.NAME);
-        return coordinator(level).commit(host, ledger, plan);
+        // setBlock may invoke reentrant callbacks; the journal is not an atomicity guarantee.
+        // Do not consume a region claim while the production backend is unqualified.
+        return NetherPlacementCoordinator.Result.BACKEND_UNVERIFIED;
     }
 
     static NetherPlacementCoordinator.Host host(ServerLevel level) {
