@@ -37,7 +37,13 @@ public final class IoeNewChunkOreGuard {
     private static final int BLOCK_UPDATE_FLAGS = Block.UPDATE_CLIENTS;
     private static final int SANITIZATIONS_PER_TICK = 1;
     private static final int FINAL_SANITIZATION_DELAY_TICKS = 20;
-    private static final Set<PendingChunk> PENDING_NEW_CHUNKS = ConcurrentHashMap.newKeySet();
+    // Global across dimensions; two passes per admission fit below the lifetime at the current service rate.
+    static final int MAX_PENDING_ADMISSIONS = 4096;
+    static final long ADMISSION_LIFETIME_TICKS = 12_000;
+    private static long admissionTick;
+    private static final FirstLoadAdmissions<PendingChunk> PENDING_NEW_CHUNKS =
+            new FirstLoadAdmissions<>(MAX_PENDING_ADMISSIONS, ADMISSION_LIFETIME_TICKS,
+                    IoeNewChunkOreGuard::releaseAdmission);
     private static final Set<PendingChunk> SCHEDULED_SANITIZATIONS = ConcurrentHashMap.newKeySet();
     private static final Queue<PendingChunk> INITIAL_SANITIZATION_QUEUE = new ConcurrentLinkedQueue<>();
     private static final ConcurrentHashMap<PendingChunk, Integer> FINAL_SANITIZATION_TICKS =
@@ -61,14 +67,10 @@ public final class IoeNewChunkOreGuard {
         scheduleChunk(level, event.getChunk().getPos(), event.isNewChunk());
     }
 
-    // Shared by the actual load listener and runtime tests; existing chunks cannot enter the queue.
+    // Shared by the load listener and runtime tests; existing chunks need an unexpired admission.
     static void scheduleChunk(ServerLevel level, ChunkPos chunkPos, boolean isNewChunk) {
         PendingChunk chunkKey = new PendingChunk(level.dimension(), chunkPos.toLong());
-        if (isNewChunk) {
-            PENDING_NEW_CHUNKS.add(chunkKey);
-        } else if (!PENDING_NEW_CHUNKS.contains(chunkKey)) {
-            return;
-        }
+        if (!PENDING_NEW_CHUNKS.admit(chunkKey, isNewChunk, admissionTick)) return;
         if (!SCHEDULED_SANITIZATIONS.add(chunkKey)) {
             return;
         }
@@ -76,6 +78,7 @@ public final class IoeNewChunkOreGuard {
     }
 
     private static void onServerTick(ServerTickEvent.Post event) {
+        advanceAdmissionTick();
         int currentTick = event.getServer().getTickCount();
         for (int pass = 0; pass < SANITIZATIONS_PER_TICK; pass++) {
             PendingFinal pendingFinal = findDueFinalSanitization(currentTick);
@@ -137,7 +140,7 @@ public final class IoeNewChunkOreGuard {
         if (chunkKey == null) {
             return;
         }
-        if (!PENDING_NEW_CHUNKS.contains(chunkKey)) {
+        if (!PENDING_NEW_CHUNKS.contains(chunkKey, admissionTick)) {
             FINAL_SANITIZATION_TICKS.remove(chunkKey);
             return;
         }
@@ -175,7 +178,7 @@ public final class IoeNewChunkOreGuard {
     }
 
     public static boolean sanitizeLoadedChunk(ServerLevel level, ChunkPos chunkPos, boolean finalizeSite) {
-        if (!PENDING_NEW_CHUNKS.contains(new PendingChunk(level.dimension(), chunkPos.toLong()))) return false;
+        if (!PENDING_NEW_CHUNKS.contains(new PendingChunk(level.dimension(), chunkPos.toLong()), admissionTick)) return false;
         LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z);
         if (chunk == null) {
             return false;
@@ -259,12 +262,35 @@ public final class IoeNewChunkOreGuard {
         return true;
     }
 
+    // Tick time cannot expire midway through a synchronous server-thread sanitation/confirmation.
+    static void advanceAdmissionTick() {
+        PENDING_NEW_CHUNKS.expire(++admissionTick);
+    }
+
+    private static void releaseAdmission(PendingChunk key) {
+        SCHEDULED_SANITIZATIONS.remove(key);
+        INITIAL_SANITIZATION_QUEUE.removeIf(key::equals);
+        FINAL_SANITIZATION_TICKS.remove(key);
+        ChunkPos chunkPos = new ChunkPos(key.chunkPos());
+        IoePendingExpeditionSites.discardChunk(key.dimension(), chunkPos);
+        IoeOrePlacementAuthorization.releaseChunk(key.dimension(), chunkPos);
+    }
+
+    static int pendingAdmissionCount() {
+        return PENDING_NEW_CHUNKS.size();
+    }
+
+    static int queuedSanitizationCount() {
+        return INITIAL_SANITIZATION_QUEUE.size() + FINAL_SANITIZATION_TICKS.size();
+    }
+
     static void clearPending() {
         PENDING_NEW_CHUNKS.clear();
         SCHEDULED_SANITIZATIONS.clear();
         INITIAL_SANITIZATION_QUEUE.clear();
         FINAL_SANITIZATION_TICKS.clear();
         prioritizeFinalSanitization = false;
+        admissionTick = 0;
     }
 
     private static BlockState replacementState(ServerLevel level, BlockPos pos) {

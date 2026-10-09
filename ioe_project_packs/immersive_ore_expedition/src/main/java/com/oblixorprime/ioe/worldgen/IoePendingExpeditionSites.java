@@ -502,6 +502,14 @@ final class IoePendingExpeditionSites {
         }
     }
 
+    /** Abandons only an unconfirmed transaction; never reads or changes chunk terrain or locator data. */
+    static void discardChunk(ResourceKey<Level> dimension, ChunkPos chunkPos) {
+        ConcurrentHashMap<Long, List<PendingSite>> byChunk = PENDING.get(dimension);
+        if (byChunk == null) return;
+        List<PendingSite> removed = byChunk.remove(chunkPos.toLong());
+        if (removed != null) removed.forEach(site -> rollbackReservationBestEffort(site, "admission ended"));
+    }
+
     static void clear() {
         PENDING.forEach((dimension, byChunk) -> {
             byChunk.values().forEach(sites -> sites.forEach(site -> {

@@ -30,3 +30,10 @@ Certus site hearts use native AE2 ranks and the canonical budgets. Surrounding
 blocks and DRY residues use `ae2:quartz_block`. Existing chunks are not scanned
 for this policy on reload. Consequently old Flawless may still exist outside
 Motherlodes. See [implementation and validation scope](CERTUS_INTEGRATION_BLOCKERS.md).
+
+Already-admitted first-load work may resume in the same server session, within
+12,000 ticks of admission and a global 4,096-admission capacity. Expiration or
+oldest-first eviction permanently abandons that work without touching terrain;
+an old chunk never acquires a fresh permission from reload or restart. A skipped
+first pass can therefore leave native Flawless in place. See the bounded-resumption
+linked contract for limits, transaction cleanup and the scope of this guarantee.

@@ -35,7 +35,7 @@ locator save format. Jade reads the current native rank and the original site
 metadata; manual or replaced blocks do not gain invented provenance.
 
 `IoeNewChunkOreGuard` admits only new chunks (or their already-pending first-load
-passes). It replaces unauthorized native Flawless with Flawed while preserving
+passes within the session limits below). It replaces unauthorized native Flawless with Flawed while preserving
 exactly authorized IOE Motherlode hearts. Sky Stone, ordinary Fluix, quartz,
 non-Flawless budding and all quartz growth stages are preserved. The upstream
 meteorite biome overlay stays empty with `replace: false`.
@@ -45,6 +45,35 @@ source of newly generated Flawless under this policy. Pre-existing Flawless
 blocks survive, including after reload; this update does not promise a global
 zero-Flawless audit of older saves. Administrative commands are not a worldgen
 guarantee. AE2CS Flawless crafting remains disabled by the existing override.
+
+### Bounded first-load resumption
+
+Approved session-only resumption uses **4,096 admissions across the whole server,
+shared by all dimensions**, and **12,000 server ticks from initial admission**
+(10 minutes at 20 TPS; longer in wall time if the server lags or pauses). Reloads
+and duplicate load events do not renew that deadline. The clock is checked before
+each tick's work and on admission/access; synchronous server-thread writes cannot
+cross a tick deadline. The existing rate of one sanitation pass per tick needs
+8,192 ticks for two passes on 4,096 loaded chunks, plus the final-pass delay of 20
+ticks. The lifetime leaves headroom for that finite backlog; sustained overload
+does not guarantee completion.
+
+An unavailable chunk keeps its admission until the deadline. A disk reload may
+resume only that still-valid admission. At capacity, admitting a genuinely new
+chunk evicts the oldest admission, irrespective of dimension or recent reloads.
+Expiration, eviction and session shutdown abandon the unfinished work: remove
+its queue entries, exact block permissions and unconfirmed plan/reservations.
+They neither load chunks nor sanitize/restore terrain, delete confirmed locator
+records, or remove pre-existing IE/IP resources. No tombstone queue accumulates.
+The independent pending-plan limits (256 chunks per dimension, 10 wall-clock
+minutes) remain unchanged and may discard a plan sooner.
+
+**Abandonment is final for subsequent existing-chunk loads.** There is no saved
+admission and no reconstruction from locator metadata after restart. If no first
+pass ran, unauthorized resources may remain; if finalization did not run, the
+unconfirmed site may be absent. This is an explicit bounded-work limitation of
+new-chunk exclusivity, not permission for retroactive cleanup. Jade continues to
+describe confirmed persisted sites only; abandoned plans gain no site provenance.
 
 ## Validation and remaining boundary
 
