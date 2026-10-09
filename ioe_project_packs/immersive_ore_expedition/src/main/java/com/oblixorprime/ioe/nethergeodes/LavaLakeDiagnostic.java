@@ -7,6 +7,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
 
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 /** Read-only measurements, deliberately not an anchor eligibility or placement decision. */
 public final class LavaLakeDiagnostic {
@@ -28,6 +29,11 @@ public final class LavaLakeDiagnostic {
 
     public static Report scan(ServerLevel level, BlockPos center, int radius, int depth) {
         Objects.requireNonNull(level, "level");
+        if (!level.getServer().isSameThread()) {
+            throw new IllegalStateException("Nether diagnostics require the server thread");
+        }
+        var budget = NetherAnalysisBudget.forServer(level.getServer());
+        int tick = level.getServer().getTickCount();
         return scan(new View() {
             public ResourceKey<Level> dimension() { return level.dimension(); }
             public int minY() { return level.getMinBuildHeight(); }
@@ -37,10 +43,15 @@ public final class LavaLakeDiagnostic {
                 return chunk == null ? Cell.UNLOADED
                         : chunk.getFluidState(pos).is(FluidTags.LAVA) ? Cell.LAVA : Cell.OTHER;
             }
-        }, center, radius, depth);
+        }, center, radius, depth, () -> budget.acquire(tick));
     }
 
     static Report scan(View view, BlockPos center, int radius, int depth) {
+        return scan(view, center, radius, depth, () -> true);
+    }
+
+    static Report scan(View view, BlockPos center, int radius, int depth, BooleanSupplier globalReadPermit) {
+        Objects.requireNonNull(globalReadPermit, "globalReadPermit");
         Objects.requireNonNull(view, "view");
         center = Objects.requireNonNull(center, "center").immutable();
         if (radius < 1 || radius > MAX_RADIUS || depth < 1 || depth > MAX_DEPTH) {
@@ -57,7 +68,7 @@ public final class LavaLakeDiagnostic {
                 for (int dx = -radius; dx <= radius; dx++) {
                     int columnDepth = 0;
                     for (int dy = 0; dy < depth; dy++) {
-                        if (reads == MAX_READS) { status = Status.BUDGET_EXHAUSTED; break scan; }
+                        if (reads == MAX_READS || !globalReadPermit.getAsBoolean()) { status = Status.BUDGET_EXHAUSTED; break scan; }
                         Cell cell = view.read(center.offset(dx, -dy, dz));
                         reads++;
                         if (cell == Cell.UNLOADED) { status = Status.UNLOADED; break scan; }
@@ -90,7 +101,7 @@ public final class LavaLakeDiagnostic {
                     + ", lavaColumns=" + lavaColumns + ", minObservedDepth=" + minimumObservedDepth
                     + ", maxObservedDepth=" + maximumObservedDepth + ", depthCappedColumns=" + depthCappedColumns
                     + ", reads=" + reads + "/" + MAX_READS
-                    + ". Source and flowing lava counted; incomplete columns excluded."
+                    + ". Budget is shared by all server Nether analyses in this tick. Source and flowing lava counted; incomplete columns excluded."
                     + " Capped depths are lower bounds. Measurements only; placement eligibility NOT_EVALUATED."
                     + " No chunks loaded or blocks changed.";
         }

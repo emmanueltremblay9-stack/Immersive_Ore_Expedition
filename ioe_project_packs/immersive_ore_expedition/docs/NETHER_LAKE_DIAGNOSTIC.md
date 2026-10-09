@@ -34,8 +34,10 @@ column is excluded from the counters. Reports distinguish `COMPLETE`, `UNLOADED`
 `BUDGET_EXHAUSTED`, `WRONG_DIMENSION` and `OUTSIDE_HEIGHT`; incomplete data must not be
 interpreted as whole-footprint coverage. The largest all-lava request can exhaust the
 budget intentionally. There are no block writes, chunk tickets, forced chunk loads,
-saved-data updates, retrogen or automatic scans. Repeated administrator requests each
-have this same bound; the command is synchronous.
+saved-data updates, retrogen or automatic scans. All real diagnostic calls on one server share a total of 65,536 probes per server
+tick. Repeated commands cannot multiply that allowance; later requests report
+`BUDGET_EXHAUSTED` with their own actual read count. The command is synchronous
+and restricted to the server thread. A new tick refreshes the shared allowance.
 
 ## Validation and next decisions
 

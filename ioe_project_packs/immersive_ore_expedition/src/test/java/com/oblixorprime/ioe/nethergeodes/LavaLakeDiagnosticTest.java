@@ -83,4 +83,20 @@ final class LavaLakeDiagnosticTest {
         pos.set(9, 9, 9);
         assertEquals(new BlockPos(1, 10, 1), report.center());
     }
+    @Test void scansShareOneServerTickAllowanceAndResumeOnlyOnNextTick() {
+        var budget = new NetherAnalysisBudget();
+        var terrain = view(Level.NETHER, pos -> Cell.LAVA);
+        var first = scan(terrain, new BlockPos(0, 64, 0), 32, 8, () -> budget.acquire(7));
+        var second = scan(terrain, new BlockPos(256, 64, 0), 32, 8, () -> budget.acquire(7));
+        assertEquals(Status.COMPLETE, first.status());
+        assertEquals(Status.BUDGET_EXHAUSTED, second.status());
+        assertEquals(NetherAnalysisBudget.READS_PER_TICK, first.reads() + second.reads());
+        var third = scan(terrain, new BlockPos(512, 64, 0), 1, 1, () -> budget.acquire(7));
+        assertEquals(0, third.reads());
+        assertEquals(Status.BUDGET_EXHAUSTED, third.status());
+        var next = scan(terrain, new BlockPos(512, 64, 0), 1, 1, () -> budget.acquire(8));
+        assertEquals(Status.COMPLETE, next.status());
+        assertEquals(9, next.reads());
+    }
+
 }
