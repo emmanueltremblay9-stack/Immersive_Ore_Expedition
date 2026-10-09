@@ -6,7 +6,9 @@ This is measurement infrastructure, not geode generation or a stable 2.0 release
 ## Command and strategy
 
 `/ioe diagnose lava_lake <radius> <depth>` requires operator permission level 2
-and the existing IOE root-command permission gate. It samples the command source's
+and the existing IOE root-command permission gate. It is registered only when at
+least one existing locate-command setting is enabled; disabling all configured
+commands still leaves only `status`. It samples the command source's
 current dimension and block position (use vanilla `/execute positioned` to choose Y).
 Radius is 1–32, depth is 1–16; no default placement thresholds are introduced.
 

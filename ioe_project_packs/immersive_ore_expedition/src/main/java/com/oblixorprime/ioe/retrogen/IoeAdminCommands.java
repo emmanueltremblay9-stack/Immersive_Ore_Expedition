@@ -49,16 +49,15 @@ public final class IoeAdminCommands {
         root.then(Commands.literal("status")
                 .executes(IoeAdminCommands::runtimeStatus));
 
-        root.then(Commands.literal("diagnose")
-                .requires(source -> source.hasPermission(2))
-                .then(Commands.literal("lava_lake")
-                        .then(Commands.argument("radius", IntegerArgumentType.integer(1,
-                                        LavaLakeDiagnostic.MAX_RADIUS))
-                                .then(Commands.argument("depth", IntegerArgumentType.integer(1,
-                                                LavaLakeDiagnostic.MAX_DEPTH))
-                                        .executes(context -> diagnoseLavaLake(context))))));
-
         if (settings.anyLocateCommandEnabled()) {
+            root.then(Commands.literal("diagnose")
+                    .requires(source -> source.hasPermission(2))
+                    .then(Commands.literal("lava_lake")
+                            .then(Commands.argument("radius", IntegerArgumentType.integer(1,
+                                            LavaLakeDiagnostic.MAX_RADIUS))
+                                    .then(Commands.argument("depth", IntegerArgumentType.integer(1,
+                                                    LavaLakeDiagnostic.MAX_DEPTH))
+                                            .executes(context -> diagnoseLavaLake(context))))));
             LiteralArgumentBuilder<CommandSourceStack> locate = Commands.literal("locate");
             if (settings.locateProvinceEnabled()) {
                 locate.then(Commands.literal("province")
