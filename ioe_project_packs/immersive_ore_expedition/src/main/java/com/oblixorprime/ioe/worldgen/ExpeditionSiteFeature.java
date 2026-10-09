@@ -18,7 +18,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
@@ -28,11 +27,9 @@ import net.neoforged.neoforge.common.Tags;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguration> {
     private static final int SURFACE_HAZARD_MARGIN = 2;
@@ -219,7 +216,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     || fallbackPlans.stream().anyMatch(fallbackPlan -> collidesWithStructure(
                             context.level(), fallbackPlan)))) {
                 skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.SURFACE_UNSUITABLE,
-                        "the prospector-camp volume collides with an existing structure");
+                        "the prospector-camp volume overlaps a structure or structure metadata is unavailable or capped");
                 return false;
             }
             if (siteType.naturalSurfaceSite() && !plan.isConnectedExpeditionSite()) {
@@ -612,25 +609,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
     }
 
     private static boolean collidesWithStructure(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
-        BoundingBox candidateBounds = expandedPlanBounds(plan.blocks().keySet());
-        Set<StructureStart> starts = new HashSet<>();
-        for (int chunkX = Math.floorDiv(candidateBounds.minX(), 16);
-             chunkX <= Math.floorDiv(candidateBounds.maxX(), 16);
-             chunkX++) {
-            for (int chunkZ = Math.floorDiv(candidateBounds.minZ(), 16);
-                 chunkZ <= Math.floorDiv(candidateBounds.maxZ(), 16);
-                 chunkZ++) {
-                starts.addAll(level.getLevel().structureManager().startsForStructure(
-                        new net.minecraft.world.level.ChunkPos(chunkX, chunkZ),
-                        ignored -> true
-                ));
-            }
-        }
-        List<BoundingBox> structureBounds = starts.stream()
-                .filter(StructureStart::isValid)
-                .map(StructureStart::getBoundingBox)
-                .toList();
-        return intersectsStructureBounds(plan.blocks().keySet(), structureBounds);
+        return LoadedStructureCollision.blocksPlacement(level, expandedPlanBounds(plan.blocks().keySet()));
     }
 
     private static void skip(
