@@ -25,6 +25,12 @@ and native Certus hearts, while preserving recognition of legacy growth blocks. 
 still requires the existing shaft/surface mine signature, scans only loaded chunks,
 and changes no blocks. Recovery restores an anchor, not original node provenance:
 it never reconstructs `budding_nodes` or Jade node indices/budgets from nearby hearts.
+Recovered anchors have unknown original quality: a shaft signature cannot establish
+the original quality roll. Older recovery records and saved compass targets using
+`bounded_admin_reindex_mine_signature` discard the previously hard-coded `NORMAL`
+quality when loaded; their positions remain usable. The corrected locator data is
+marked for saving. Proven generation records retain their quality and node metadata.
+This metadata-only migration does not load or modify world chunks and is not retrogen.
 
 Tests cover save/load, old saves, invalid data, dimension separation, replacement/removal,
 real production commit and IE fallback metadata. With Jade loaded, a GameTest verifies

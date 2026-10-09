@@ -73,9 +73,16 @@ final class ExpeditionLocatorSavedData extends SavedData {
         int loadedVersion = tag.getInt("data_version");
         ListTag sites = tag.getList(SITES, Tag.TAG_COMPOUND);
         for (int index = 0; index < sites.size(); index++) {
-            readSite(sites.getCompound(index))
+            CompoundTag siteTag = sites.getCompound(index);
+            readSite(siteTag)
                     .map(site -> migrateLegacyNaturalSite(site, loadedVersion))
-                    .ifPresent(data.index::record);
+                    .ifPresent(site -> {
+                        data.index.record(site);
+                        if (site.source().filter(ExpeditionSite.RECOVERED_MINE_SOURCE::equals).isPresent()
+                                && siteTag.contains("quality")) {
+                            data.setDirty(); // Persist removal of the old inferred NORMAL, without touching chunks.
+                        }
+                    });
         }
         if (loadedVersion < DATA_VERSION) {
             data.setDirty();

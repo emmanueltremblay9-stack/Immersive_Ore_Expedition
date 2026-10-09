@@ -23,6 +23,8 @@ public record ExpeditionSite(
         Optional<String> placementReason,
         List<BuddingNodeInfo> buddingNodes
 ) {
+    public static final String RECOVERED_MINE_SOURCE = "bounded_admin_reindex_mine_signature";
+
     public ExpeditionSite {
         Objects.requireNonNull(dimension, "dimension");
         Objects.requireNonNull(pos, "pos");
@@ -35,6 +37,8 @@ public record ExpeditionSite(
         provinceId = provinceId == null ? Optional.empty() : provinceId;
         quality = quality == null ? Optional.empty() : quality;
         source = source == null ? Optional.empty() : source.map(String::trim).filter(value -> !value.isBlank());
+        // A recovered shaft proves the entrance, not the original resource-quality roll.
+        if (source.filter(RECOVERED_MINE_SOURCE::equals).isPresent()) quality = Optional.empty();
         placementState = placementState == null ? ExpeditionSitePlacementState.PLACED : placementState;
         placementReason = placementReason == null
                 ? Optional.empty()
