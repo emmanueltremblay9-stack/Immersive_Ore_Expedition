@@ -1,4 +1,4 @@
-# Parcours vers 3.0 — périmètre à figer, aucune publication autorisée
+# Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
 Le numéro 3.0 est un objectif demandé, pas une spécification de fonctionnalités,
 une hausse de version autorisée ou une preuve de stabilité. Le module actif reste
@@ -52,17 +52,50 @@ incomplètes peuvent désormais refuser un site auparavant admis/chargé implici
 Ce correctif ne généralise pas la protection à tous les types de sites, ne raccorde
 pas les collisions Nether et ne résout pas la publication atomique.
 
-## Propositions non approuvées et décisions restantes
+## Décision de périmètre approuvée et suites restantes
 
 Les anciennes roadmaps mentionnent dangers Nether, nouvelles variantes/branches de
 mines et retrogen élargi. Ces intitulés ne définissent ni règles de gameplay ni
 critères d'acceptation suffisamment précis pour les ajouter au titre de « 3.0 ».
 
-Parcours recommandé : **3.0 comme consolidation du périmètre approuvé**, avec une
-liste d'inclusions/exclusions à figer avant toute qualification de release. Si 3.0
-doit impérativement inclure la génération Nether, le backend reste un prérequis
-bloquant ; son exclusion d'une future release est une décision de périmètre, pas
-une modification déjà appliquée au contrat Nether.
+Le 2026-10-09, l'utilisateur a choisi explicitement l'option 1 : **consolider le
+périmètre actuel et reporter la génération Nether**. Cette décision remplace la
+proposition de périmètre précédente. La génération Nether n'est donc pas un
+critère de livraison de cette consolidation. Le travail 74x74, les budgets, le
+coordinateur, les diagnostics et les tests sont conservés pour une reprise future ;
+ils ne constituent pas une fonctionnalité de génération livrée.
+
+Le verrou reste inchangé : `NetherPlacementRuntime.commit` retourne
+`BACKEND_UNVERIFIED`, `SubLavaGeodeGenerator.generateBelowLake` retourne `false`
+et aucun chemin automatique de publication n'est enregistré. Les options de
+planification ne lèvent pas ce verrou. Sa levée nécessitera une qualification
+technique distincte et une décision explicite de reprise du périmètre Nether.
+
+La consolidation couvre les fonctionnalités déjà implémentées et approuvées
+(Overworld, Budding GeOre/Certus, AE2, Jade et persistance), sans nouveaux dangers,
+familles, variantes, claims ou retrogen. La version reste `0.2.50-alpha` et les
+notes restent `NOT_PUBLISHED` ; 3.0 est une cible, pas une release réalisée.
+
+### PR62, traitement séparé proposé
+
+PR62 (`codex/test-budding-rank-restoration`, head
+`239450e75a5095d2d27845cc79c8e0ca0db7b420`) reste ouverte en brouillon. Elle ajoute
+seulement trois tests de plafond de restauration dans `BuddingRankTest.java` ; ce
+fichier n'est pas dans PR63 à ce checkpoint. Aucune fusion ni clôture n'est décidée.
+Proposition : revoir séparément son utilité par rapport à la couverture actuelle,
+puis décider soit de la conserver pour intégration ultérieure, soit de la clore
+explicitement si jugée redondante. Ne pas la présenter comme déjà intégrée.
+
+### Prochaines étapes réelles
+
+1. Lier la CI et, si accessibles, les octets du JAR au head final de ce cycle dans
+   un relevé externe ; les preuves historiques restent propres à leurs commits.
+2. Choisir un environnement autorisé et un responsable pour les validations
+   client, Jade, progression, save/exit/reopen et serveur. Aucune installation
+   n'est autorisée par cette décision ; ces validations restent non réalisées.
+3. Décider séparément du traitement de PR62, puis des autorisations de revue,
+   fusion et publication une fois les critères satisfaits. Rien ne renomme
+   automatiquement le candidat en 1.0.0 ou 3.0.
 
 Pré-requis de publication toujours distincts : CI et JAR au commit exact, validation
 manuelle client/visuelle non prouvée, qualification serveur non réalisée dans ce

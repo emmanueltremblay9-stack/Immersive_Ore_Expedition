@@ -75,10 +75,34 @@ Optional Jade inspection shows the current rank from the live block and committe
 
 Node records persist through the optional `budding_nodes` field in the existing version-2 save format. Old saves without that field remain readable and do not receive invented historical identities. Jade is separately distributed and is not embedded in IOE. See [Budding inspection](BUDDING_INSPECTION.md) for the displayed fields and limitations. Automated checks do not establish the appearance or usability of the overlay in a Minecraft client.
 
+### Consolidation Scope and Deferred Nether Generation
+
+On 2026-10-09 the owner explicitly selected consolidation of the existing approved
+scope with Nether generation deferred. This supersedes the undecided scope in the
+initial 3.0 roadmap. Version remains `0.2.50-alpha`, status `NOT_PUBLISHED`; 3.0 is
+an objective, not a released version. See [current roadmap](PATH_TO_3_0.md).
+
+Nether 74×74 planning, bounded reads, complete read-set revalidation and diagnostics
+remain in the source for future work. Production placement remains disabled:
+`NetherPlacementRuntime.commit` returns `BACKEND_UNVERIFIED` and the direct
+`SubLavaGeodeGenerator.generateBelowLake` path returns `false`. Planning options
+are not generation switches. Nether generation is excluded from this consolidation;
+no Nether generation, atomic publication or external-claim support is delivered.
+
+Camp structure collision checks now consult only loaded chunks or the current
+WorldGenRegion dependency cache, retaining complete structure bounds and the
+existing one-block margin. Work is capped at 64 footprint chunks and 256 metadata
+entries per plan; primary and fallback plans are checked before placement.
+Unavailable metadata or an exhausted budget conservatively refuses the camp.
+This protects against native structure metadata, not player builds or third-party claims.
+
+PR62 remains a separate, unmerged draft containing three restoration-rank tests.
+It is not included by this scope decision and requires its own disposition.
+
 ## Current Worldgen and Config State
 
 - `worldgen.global.naturalExpeditionSiteGenerationEnabled`: default `true`.
-- Current natural expedition-site worldgen: active when the current gate is enabled. Direct source inspection supports the production configured-feature, placed-feature, biome-modifier, and `ExpeditionSiteFeature` path.
+- Current Overworld natural expedition-site worldgen: active when the current gate is enabled. Direct source inspection supports the production configured-feature, placed-feature, biome-modifier, and `ExpeditionSiteFeature` path.
 - Production wrapper tags use `#c:is_overworld` and remain subject to IOE's runtime eligibility and placement controls. Historical controlled-smoke tags are not the current production binding.
 - `worldgen.runtimePlacementEnabled`: default `false`.
 - `worldgen.runtimePlacementDiagnostics`: default `false`.
