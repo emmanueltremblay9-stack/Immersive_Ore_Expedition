@@ -23,13 +23,13 @@ public final class FirstLoadAdmissionGameTests {
             var absent = new ChunkPos(1_500_000, 1_500_000);
             helper.assertTrue(level.getChunkSource().getChunkNow(absent.x, absent.z) == null, "Fixture must be absent");
             IoeNewChunkOreGuard.scheduleChunk(level, absent, true);
-            IoeNewChunkOreGuard.onServerTick(new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(level.getServer()));
+            IoeNewChunkOreGuard.onServerTick(new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(() -> true, level.getServer()));
             helper.assertTrue(IoeNewChunkOreGuard.pendingAdmissionCount() == 1
                     && IoeNewChunkOreGuard.queuedSanitizationCount() == 0, "Unavailable pass lost permission or retained queued work");
             IoeNewChunkOreGuard.scheduleChunk(level, absent, false);
             helper.assertTrue(IoeNewChunkOreGuard.pendingAdmissionCount() == 1, "Reload lost or duplicated admission");
             helper.assertTrue(IoeNewChunkOreGuard.queuedSanitizationCount() == 1, "Pending disk load did not reschedule");
-            IoeNewChunkOreGuard.onServerTick(new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(level.getServer()));
+            IoeNewChunkOreGuard.onServerTick(new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(() -> true, level.getServer()));
             helper.assertTrue(level.getChunkSource().getChunkNow(absent.x, absent.z) == null, "Guard forced chunk loading");
 
             BlockPos pos = helper.absolutePos(new BlockPos(2, 2, 2));
@@ -37,7 +37,7 @@ public final class FirstLoadAdmissionGameTests {
             level.setBlock(pos, Blocks.DIAMOND_ORE.defaultBlockState(), 2);
             IoeNewChunkOreGuard.scheduleChunk(level, loaded, true);
             IoeNewChunkOreGuard.scheduleChunk(level, loaded, false);
-            IoeNewChunkOreGuard.onServerTick(new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(level.getServer()));
+            IoeNewChunkOreGuard.onServerTick(new net.neoforged.neoforge.event.tick.ServerTickEvent.Post(() -> true, level.getServer()));
             helper.assertTrue(IoeNewChunkOreGuard.queuedSanitizationCount() == 1
                     && IoeNewChunkOreGuard.scheduledSanitizationCount() == 0, "Initial pass did not defer its final pass");
             helper.assertFalse(level.getBlockState(pos).is(Blocks.DIAMOND_ORE), "Valid admission did not sanitize");
