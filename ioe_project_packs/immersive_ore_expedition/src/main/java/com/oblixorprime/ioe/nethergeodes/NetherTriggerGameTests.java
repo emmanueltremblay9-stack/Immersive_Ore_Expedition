@@ -29,12 +29,12 @@ public final class NetherTriggerGameTests {
         var origin = new BlockPos(candidate.x(), level.getMinBuildHeight(), candidate.z());
         var chunk = new ChunkPos(origin);
         level.getChunk(chunk.x, chunk.z); // Fixture creates the actual lifecycle receipt.
-        helper.runAfterDelay(5, () -> {
+        helper.runAfterDelay(1, () -> {
             var ledger = level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY, NetherPlacementLedger.NAME);
             helper.assertTrue(ledger.resultAt(origin).isEmpty(), "Disabled tick gate admitted a region");
             var result = NetherNaturalTrigger.dispatch(level).get(chunk.toLong());
             helper.assertTrue(result != null && result != NetherPlacementCoordinator.Result.NOT_FRESH,
-                    "Trigger did not use the actual receipt");
+                    "Trigger did not use the actual receipt: " + result);
             helper.assertTrue(ledger.resultAt(origin).isPresent(), "Dispatch did not persist its refusal");
             helper.assertFalse(NetherNaturalTrigger.dispatch(level).containsKey(chunk.toLong()), "Trigger dispatched twice");
             helper.succeed();
