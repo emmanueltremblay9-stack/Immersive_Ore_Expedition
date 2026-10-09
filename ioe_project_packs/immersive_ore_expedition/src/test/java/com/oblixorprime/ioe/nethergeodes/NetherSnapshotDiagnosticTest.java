@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 final class NetherSnapshotDiagnosticTest {
     private static final int Y = 40;
-    private static final NetherSitePlanner.Candidate CANDIDATE = new NetherSitePlanner.Candidate(8, 8, SiteQuality.NORMAL, 73, false);
+    private static final NetherSitePlanner.Candidate CANDIDATE = new NetherSitePlanner.Candidate(8, 8, SiteQuality.NORMAL, 73, 999, 0);
     private static final class World implements NetherSnapshotDiagnostic.Source {
         final Map<Long, Object> identities = new HashMap<>();
         int reads, identityLookups;

@@ -90,7 +90,7 @@ public final class NetherSnapshotDiagnostic {
     private static Report report(State state, Capture capture, NetherSitePlanner.Candidate candidate,
                                  NetherSitePlanner.Outcome outcome) {
         return new Report(state.name(), capture.epoch, capture.reads, capture.identities.size(),
-                candidate.x(), candidate.z(), candidate.quality().name(), outcome == null ? "NOT_EVALUATED" : outcome.status().name(),
+                candidate.x(), candidate.z(), outcome == null || outcome.quality() == null ? "UNRESOLVED" : outcome.quality().name(), outcome == null ? "NOT_EVALUATED" : outcome.status().name(),
                 outcome == null ? 0 : outcome.connectedDeepColumns(),
                 outcome == null || outcome.plan() == null ? 0 : outcome.plan().writes().size());
     }

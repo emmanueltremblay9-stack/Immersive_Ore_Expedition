@@ -14,7 +14,14 @@ final class NetherSitePlanner {
     static final int WIDTH = NetherLakeWindow.WIDTH, COLUMNS = NetherLakeWindow.COLUMNS;
     static final int ANCHOR_INDEX = -NetherLakeWindow.MIN_OFFSET;
     static final int MAX_PROBES = 262_144;
-    record Candidate(int x, int z, SiteQuality quality, long shapeSeed, boolean debrisSelected) { }
+    record Candidate(int x, int z, SiteQuality quality, long shapeSeed, int debrisRoll, int soulQualityRoll) {
+        Candidate {
+            if (soulQualityRoll < 0 || soulQualityRoll >= 388) throw new IllegalArgumentException("Invalid soul quality roll");
+            if (debrisRoll < 0 || debrisRoll >= 1000) throw new IllegalArgumentException("Invalid debris roll");
+        }
+        SiteQuality quality(boolean soulSoilFloor) { return soulSoilFloor ? soulQualityAt(soulQualityRoll) : quality; }
+        boolean debrisSelected(boolean soulSoilFloor) { return debrisAt(quality(soulSoilFloor), debrisRoll, soulSoilFloor); }
+    }
     record Cell(BlockState state, boolean protectedBlock) { }
     interface Snapshot {
         boolean nether();
@@ -24,7 +31,11 @@ final class NetherSitePlanner {
     }
     enum Status { PLANNED, WRONG_DIMENSION, UNKNOWN_TERRAIN, BUDGET, SURFACE,
         COVERAGE, FLOOR, HEIGHT, CRUST_OR_PROTECTION, NO_SHORE }
-    record Outcome(Status status, int probes, int connectedDeepColumns, NetherPlacementCoordinator.Plan plan) { }
+    record Outcome(Status status, int probes, int connectedDeepColumns, NetherPlacementCoordinator.Plan plan, SiteQuality quality) {
+        Outcome(Status status, int probes, int connectedDeepColumns, NetherPlacementCoordinator.Plan plan) {
+            this(status, probes, connectedDeepColumns, plan, null);
+        }
+    }
     private static final class Stop extends RuntimeException {
         final Status status;
         Stop(Status status) { this.status = status; }
@@ -55,11 +66,23 @@ final class NetherSitePlanner {
         int x = Math.addExact(Math.multiplyExact(regionX, 256), random.nextInt(16) * 16 + 8);
         int z = Math.addExact(Math.multiplyExact(regionZ, 256), random.nextInt(16) * 16 + 8);
         SiteQuality quality = SiteQualityRoll.DEFAULT.roll(random);
-        return new Candidate(x, z, quality, random.nextLong(), debrisAt(quality, random.nextInt(1000)));
+        // Independent stream leaves all existing ordinary-site draws and shape seeds unchanged.
+        return new Candidate(x, z, quality, random.nextLong(), random.nextInt(1000),
+                RandomSource.create(seed ^ 0xD1B54A32D192ED03L).nextInt(388));
     }
-    static boolean debrisAt(SiteQuality quality, int roll) {
+    static SiteQuality soulQualityAt(int roll) {
+        if (roll < 0 || roll >= 388) throw new IllegalArgumentException("Invalid soul quality roll");
+        // Exact weights 30:75:135:51:97; 97/388 = 25%, others retain 10:25:45:17.
+        if (roll < 30) return SiteQuality.DRY;
+        if (roll < 105) return SiteQuality.POOR;
+        if (roll < 240) return SiteQuality.NORMAL;
+        if (roll < 291) return SiteQuality.RICH;
+        return SiteQuality.MOTHERLODE;
+    }
+    static boolean debrisAt(SiteQuality quality, int roll) { return debrisAt(quality, roll, false); }
+    static boolean debrisAt(SiteQuality quality, int roll, boolean soulSoilFloor) {
         if (roll < 0 || roll >= 1000) throw new IllegalArgumentException("Invalid debris roll");
-        return quality == SiteQuality.MOTHERLODE && roll < 5;
+        return quality == SiteQuality.MOTHERLODE && roll < (soulSoilFloor ? 100 : 5);
     }
     static int budget(SiteQuality quality) {
         return switch (quality) { case DRY -> 0; case POOR -> 12; case NORMAL -> 20; case RICH -> 30; case MOTHERLODE -> 49; };
@@ -70,6 +93,11 @@ final class NetherSitePlanner {
     private static boolean rock(Cell cell) {
         return !cell.protectedBlock() && cell.state().getFluidState().isEmpty() && !cell.state().hasBlockEntity()
                 && (cell.state().is(Blocks.NETHERRACK) || cell.state().is(Blocks.BASALT) || cell.state().is(Blocks.BLACKSTONE));
+    }
+    // Soul soil is admitted only as the first non-liquid floor, never as chamber/crust rock.
+    static boolean floorRock(Cell cell) {
+        return rock(cell) || cell.state().is(Blocks.SOUL_SOIL) && !cell.protectedBlock()
+                && cell.state().getFluidState().isEmpty() && !cell.state().hasBlockEntity();
     }
     private static BlockPos pos(Candidate candidate, int y, int index) {
         return new BlockPos(candidate.x() + index % WIDTH - ANCHOR_INDEX, y, candidate.z() + index / WIDTH - ANCHOR_INDEX);
@@ -121,6 +149,7 @@ final class NetherSitePlanner {
             }
             if (!enoughCoverage(count)) return new Outcome(Status.COVERAGE, reader.probes, count, null);
             int floor = surfaceY;
+            boolean soulSoilFloor = false;
             for (int z = -7; z <= 7; z++) for (int x = -7; x <= 7; x++) {
                 int y = surfaceY;
                 Cell cell = reader.read(new BlockPos(candidate.x() + x, y, candidate.z() + z));
@@ -129,7 +158,8 @@ final class NetherSitePlanner {
                     y--;
                     cell = reader.read(new BlockPos(candidate.x() + x, y, candidate.z() + z));
                 }
-                if (!rock(cell)) throw new Stop(Status.FLOOR);
+                if (!floorRock(cell)) throw new Stop(Status.FLOOR);
+                soulSoilFloor |= cell.state().is(Blocks.SOUL_SOIL);
                 floor = Math.min(floor, y);
             }
             BlockPos center = new BlockPos(candidate.x(), floor - 16, candidate.z());
@@ -143,10 +173,11 @@ final class NetherSitePlanner {
                 if (squared <= 9) writes.put(pos, Blocks.AIR.defaultBlockState());
                 else if (squared <= 25) orePositions.add(pos);
             }
+            var quality = candidate.quality(soulSoilFloor);
             var random = RandomSource.create(candidate.shapeSeed());
             for (int i = orePositions.size() - 1; i > 0; i--) Collections.swap(orePositions, i, random.nextInt(i + 1));
-            for (int i = 0; i < budget(candidate.quality()); i++) writes.put(orePositions.get(i),
-                    i == 0 && candidate.quality() == SiteQuality.MOTHERLODE && candidate.debrisSelected()
+            for (int i = 0; i < budget(quality); i++) writes.put(orePositions.get(i),
+                    i == 0 && candidate.debrisSelected(soulSoilFloor)
                             ? Blocks.ANCIENT_DEBRIS.defaultBlockState() : Blocks.NETHER_QUARTZ_ORE.defaultBlockState());
             BlockPos shore = null; int closest = Integer.MAX_VALUE;
             for (int i = 0; i < COLUMNS; i++) {
@@ -167,7 +198,7 @@ final class NetherSitePlanner {
             writes.put(shore.above(), Blocks.BLACKSTONE.defaultBlockState());
             writes.put(shore.above(2), Blocks.BLACKSTONE.defaultBlockState());
             return new Outcome(Status.PLANNED, reader.probes, count,
-                    new NetherPlacementCoordinator.Plan(center, reader.states, writes, reader.protectedCells, reader.states.size()));
+                    new NetherPlacementCoordinator.Plan(center, reader.states, writes, reader.protectedCells, reader.states.size()), quality);
         } catch (Stop stop) { return new Outcome(stop.status, reader.probes, count, null); }
     }
 }

@@ -44,8 +44,9 @@ final class NetherReadSetTest {
         public boolean safeToReplace(BlockPos pos, BlockState state) { return true; }
         public boolean write(BlockPos pos, BlockState state) { writes++; changes.put(pos, state); return true; }
         public boolean reserveReads(int count) { return budget.acquire(tick(), count); }
-        Plan plan() {
-            var result = NetherSitePlanner.plan(new NetherSitePlanner.Candidate(8, 8, SiteQuality.NORMAL, 73, false), 40, this);
+        Plan plan() { return plan(new NetherSitePlanner.Candidate(8, 8, SiteQuality.NORMAL, 73, 999, 0)); }
+        Plan plan(NetherSitePlanner.Candidate candidate) {
+            var result = NetherSitePlanner.plan(candidate, 40, this);
             assertEquals(NetherSitePlanner.Status.PLANNED, result.status());
             var plan = result.plan();
             plan.writes().keySet().stream().map(ChunkPos::new).distinct().forEach(chunk ->
@@ -111,4 +112,38 @@ final class NetherReadSetTest {
         assertEquals(Result.TERRAIN_CHANGED, world.coordinator.commit(world, new NetherPlacementLedger(), plan));
         assertEquals(0, world.writes);
     }
+    @Test void soulSoilBonusEvidenceMustStillMatchBeforeAnyWrite() {
+        for (boolean changeProtection : new boolean[]{false, true}) {
+            var world = new World();
+            world.changes.put(FLOOR, Blocks.SOUL_SOIL.defaultBlockState());
+            var plan = world.plan(new NetherSitePlanner.Candidate(8, 8, SiteQuality.MOTHERLODE, 73, 50, 291));
+            assertEquals(1, plan.writes().values().stream().filter(v -> v.is(Blocks.ANCIENT_DEBRIS)).count());
+            assertFalse(plan.writes().containsKey(FLOOR));
+            if (changeProtection) world.protectedCells.add(FLOOR);
+            else world.changes.put(FLOOR, Blocks.NETHERRACK.defaultBlockState());
+            assertEquals(Result.TERRAIN_CHANGED, world.coordinator.commit(world, new NetherPlacementLedger(), plan));
+            assertEquals(0, world.writes);
+        }
+    }
+
+    @Test void promotedSoulMotherlodePersistsExactDebrisAndQuartzProvenanceWithoutReplay() {
+        var world = new World(); world.changes.put(FLOOR, Blocks.SOUL_SOIL.defaultBlockState());
+        var plan = world.plan(new NetherSitePlanner.Candidate(8, 8, SiteQuality.DRY, 73, 99, 291));
+        var ledger = new NetherPlacementLedger();
+        assertEquals(Result.COMMITTED, world.coordinator.commit(world, ledger, plan));
+        var loaded = NetherPlacementLedger.FACTORY.deserializer().apply(ledger.save(new net.minecraft.nbt.CompoundTag(), null), null);
+        int quartz = 0, debris = 0;
+        for (var entry : plan.writes().entrySet()) {
+            var state = entry.getValue();
+            if (state.is(Blocks.NETHER_QUARTZ_ORE)) quartz++;
+            else if (state.is(Blocks.ANCIENT_DEBRIS)) debris++;
+            else continue;
+            assertEquals(state, world.state(entry.getKey()));
+            assertTrue(loaded.preserves(entry.getKey(), state));
+        }
+        assertEquals(48, quartz); assertEquals(1, debris);
+        assertFalse(loaded.preserves(FLOOR, Blocks.SOUL_SOIL.defaultBlockState()));
+        assertFalse(loaded.claim(plan.origin()));
+    }
+
 }

@@ -14,7 +14,7 @@ final class NetherSitePlannerTest {
     private static final Cell AIR = new Cell(Blocks.AIR.defaultBlockState(), false);
     private static final Cell LAVA = new Cell(Blocks.LAVA.defaultBlockState(), false);
     private static final int Y = 40;
-    private static Candidate candidate(SiteQuality quality, boolean debris) { return new Candidate(8, 8, quality, 73L, debris); }
+    private static Candidate candidate(SiteQuality quality, boolean debris) { return new Candidate(8, 8, quality, 73L, debris ? 0 : 999, 291); }
     private static Cell terrain(BlockPos pos) {
         if (pos.getY() > Y) return AIR;
         return pos.getX() - 8 <= 20 && pos.getY() > Y - 4 ? LAVA : ROCK;
@@ -37,7 +37,7 @@ final class NetherSitePlannerTest {
         }
         for (int anchor : new int[]{8, -8}) {
             var visited = new java.util.HashSet<BlockPos>();
-            var c = new Candidate(anchor, anchor, SiteQuality.NORMAL, 1, false);
+            var c = new Candidate(anchor, anchor, SiteQuality.NORMAL, 1, 999, 0);
             var result = plan(c, Y, snapshot(pos -> { visited.add(pos); return ROCK; }));
             assertEquals(Status.SURFACE, result.status());
             assertEquals(5476, visited.size());
@@ -141,4 +141,102 @@ final class NetherSitePlannerTest {
         };
         assertEquals(Status.WRONG_DIMENSION, plan(c, Y, wrong).status());
     }
+    @Test void soulSoilDebrisThresholdIsExactlyTenPercentOnlyForMotherlode() {
+        for (var quality : SiteQuality.values()) {
+            int ordinary = 0, soul = 0;
+            for (int roll = 0; roll < 1000; roll++) {
+                if (debrisAt(quality, roll, false)) ordinary++;
+                if (debrisAt(quality, roll, true)) soul++;
+            }
+            assertEquals(quality == SiteQuality.MOTHERLODE ? 5 : 0, ordinary);
+            assertEquals(quality == SiteQuality.MOTHERLODE ? 100 : 0, soul);
+        }
+        assertTrue(debrisAt(SiteQuality.MOTHERLODE, 99, true));
+        assertFalse(debrisAt(SiteQuality.MOTHERLODE, 100, true));
+        assertFalse(debrisAt(SiteQuality.MOTHERLODE, 5, false));
+        assertThrows(IllegalArgumentException.class, () -> debrisAt(SiteQuality.MOTHERLODE, -1, true));
+        assertThrows(IllegalArgumentException.class, () -> debrisAt(SiteQuality.MOTHERLODE, 1000, true));
+    }
+    @Test void oneSoulSoilCellInLastFloorColumnEnablesOneReplacementAndRetainsReadSet() {
+        var lastFloor = new BlockPos(15, Y - 4, 15);
+        var soul = new Cell(Blocks.SOUL_SOIL.defaultBlockState(), false);
+        var c = new Candidate(8, 8, SiteQuality.MOTHERLODE, 73, 99, 291);
+        var result = plan(c, Y, snapshot(pos -> pos.equals(lastFloor) ? soul : terrain(pos)));
+        assertEquals(Status.PLANNED, result.status());
+        assertEquals(soul.state(), result.plan().expected().get(lastFloor));
+        assertFalse(result.plan().writes().containsKey(lastFloor));
+        assertEquals(1, result.plan().writes().values().stream().filter(v -> v.is(Blocks.ANCIENT_DEBRIS)).count());
+        assertEquals(48, result.plan().writes().values().stream().filter(v -> v.is(Blocks.NETHER_QUARTZ_ORE)).count());
+        assertEquals(result, plan(c, Y, snapshot(pos -> pos.equals(lastFloor) ? soul : terrain(pos))));
+        assertEquals(0, plan(c, Y, snapshot(NetherSitePlannerTest::terrain)).plan().writes().values()
+                .stream().filter(v -> v.is(Blocks.ANCIENT_DEBRIS)).count());
+    }
+    @Test void soilOutsideTheFirstFloorCellsDoesNotGrantTheBonus() {
+        var c = new Candidate(8, 8, SiteQuality.MOTHERLODE, 73, 99, 291);
+        for (var soilPos : java.util.List.of(new BlockPos(16, Y - 4, 15), new BlockPos(8, Y - 5, 8))) {
+            var result = plan(c, Y, snapshot(pos -> pos.equals(soilPos)
+                    ? new Cell(Blocks.SOUL_SOIL.defaultBlockState(), false) : terrain(pos)));
+            assertEquals(Status.PLANNED, result.status());
+            assertEquals(0, result.plan().writes().values().stream().filter(v -> v.is(Blocks.ANCIENT_DEBRIS)).count());
+        }
+    }
+    @Test void soulSoilFloorDoesNotRelaxChamberProtectionOrOtherFloorMaterials() {
+        var c = candidate(SiteQuality.MOTHERLODE, true);
+        var floor = new BlockPos(8, Y - 4, 8);
+        var center = new BlockPos(8, Y - 4 - 16, 8);
+        var soul = new Cell(Blocks.SOUL_SOIL.defaultBlockState(), false);
+        assertEquals(Status.CRUST_OR_PROTECTION, plan(c, Y, snapshot(pos ->
+                pos.equals(floor) || pos.equals(center) ? soul : terrain(pos))).status());
+        assertEquals(Status.FLOOR, plan(c, Y, snapshot(pos -> pos.equals(floor)
+                ? new Cell(soul.state(), true) : terrain(pos))).status());
+        assertEquals(Status.FLOOR, plan(c, Y, snapshot(pos -> pos.equals(floor)
+                ? new Cell(Blocks.SOUL_SAND.defaultBlockState(), false) : terrain(pos))).status());
+    }
+
+    @Test void soulQualityDistributionIsExactlyOneQuarterWithProportionalRemainder() {
+        var counts = new java.util.EnumMap<SiteQuality, Integer>(SiteQuality.class);
+        for (int roll = 0; roll < 388; roll++) counts.merge(soulQualityAt(roll), 1, Integer::sum);
+        assertEquals(java.util.Map.of(SiteQuality.DRY, 30, SiteQuality.POOR, 75, SiteQuality.NORMAL, 135,
+                SiteQuality.RICH, 51, SiteQuality.MOTHERLODE, 97), counts);
+        assertEquals(SiteQuality.DRY, soulQualityAt(29)); assertEquals(SiteQuality.POOR, soulQualityAt(30));
+        assertEquals(SiteQuality.POOR, soulQualityAt(104)); assertEquals(SiteQuality.NORMAL, soulQualityAt(105));
+        assertEquals(SiteQuality.NORMAL, soulQualityAt(239)); assertEquals(SiteQuality.RICH, soulQualityAt(240));
+        assertEquals(SiteQuality.RICH, soulQualityAt(290)); assertEquals(SiteQuality.MOTHERLODE, soulQualityAt(291));
+        assertEquals(SiteQuality.MOTHERLODE, soulQualityAt(387));
+        assertThrows(IllegalArgumentException.class, () -> soulQualityAt(-1));
+        assertThrows(IllegalArgumentException.class, () -> soulQualityAt(388));
+    }
+    @Test void ordinarySeedSequenceAndAllNonSoulQualitiesRemainUnchanged() {
+        for (long worldSeed : new long[]{0, 1, -1, 987654321}) for (int rx = -8; rx <= 8; rx++) {
+            int rz = rx * 3;
+            long seed = worldSeed ^ (long) rx * 0x632BE59BD9B4E019L ^ (long) rz * 0x9E3779B97F4A7C15L;
+            var legacy = net.minecraft.util.RandomSource.create(seed);
+            int x = rx * 256 + legacy.nextInt(16) * 16 + 8;
+            int z = rz * 256 + legacy.nextInt(16) * 16 + 8;
+            var quality = com.oblixorprime.ioe.core.SiteQualityRoll.DEFAULT.roll(legacy);
+            long shape = legacy.nextLong(); int debris = legacy.nextInt(1000);
+            var actual = NetherSitePlanner.candidate(worldSeed, rx, rz);
+            assertEquals(x, actual.x()); assertEquals(z, actual.z());
+            assertEquals(quality, actual.quality(false)); assertEquals(shape, actual.shapeSeed());
+            assertEquals(debris, actual.debrisRoll());
+            assertEquals(quality == SiteQuality.MOTHERLODE && debris < 5, actual.debrisSelected(false));
+            assertEquals(actual, NetherSitePlanner.candidate(worldSeed, rx, rz));
+        }
+    }
+    @Test void effectiveSoulQualityControlsBudgetAndDebrisEvenWhenBaseQualityDiffers() {
+        var soulPos = new BlockPos(15, Y - 4, 15);
+        var soul = new Cell(Blocks.SOUL_SOIL.defaultBlockState(), false);
+        for (var base : SiteQuality.values()) for (int roll : new int[]{0, 30, 105, 240, 291}) {
+            var c = new Candidate(8, 8, base, 73, 50, roll);
+            var result = plan(c, Y, snapshot(pos -> pos.equals(soulPos) ? soul : terrain(pos)));
+            assertEquals(Status.PLANNED, result.status());
+            var effective = soulQualityAt(roll);
+            assertEquals(effective, result.quality());
+            assertEquals(budget(effective), result.plan().writes().values().stream()
+                    .filter(v -> v.is(Blocks.NETHER_QUARTZ_ORE) || v.is(Blocks.ANCIENT_DEBRIS)).count());
+            assertEquals(effective == SiteQuality.MOTHERLODE ? 1 : 0, result.plan().writes().values().stream()
+                    .filter(v -> v.is(Blocks.ANCIENT_DEBRIS)).count());
+        }
+    }
+
 }

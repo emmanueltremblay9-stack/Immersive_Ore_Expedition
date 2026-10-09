@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class NetherSurfaceSelectionTest {
-    private static final NetherSitePlanner.Candidate C = new NetherSitePlanner.Candidate(8, 8, SiteQuality.NORMAL, 73, false);
+    private static final NetherSitePlanner.Candidate C = new NetherSitePlanner.Candidate(8, 8, SiteQuality.NORMAL, 73, 999, 0);
 
     @Test void lowestSurfaceWinsAndAllSelectionObservationsAreRevalidated() {
         for (boolean protectionOnly : new boolean[]{false, true}) {

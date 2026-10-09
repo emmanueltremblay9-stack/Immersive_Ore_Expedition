@@ -56,10 +56,13 @@ promising cross-file atomicity on OS crashes.
 - Dry-shore clue required; no automatically dug tunnel crossing lava.
 - One deterministic candidate per 256 × 256 region; accepted sites at least 256
   blocks apart. No reroll after failure or reload.
-- DRY/POOR/NORMAL/RICH/MOTHERLODE weights 10/25/45/17/3, finite vanilla quartz-ore
-  budgets 0/12/20/30/49. No new quartz Budding family.
-- At most one ancient-debris block, replacing a quartz block, from one 0.5% draw
-  per accepted Motherlode. No extra roll on reload or fallback.
+- Outside soul-soil floors, DRY/POOR/NORMAL/RICH/MOTHERLODE weights remain
+  10/25/45/17/3. Soul-soil floors have a FINAL Motherlode probability of 25%, with
+  other qualities sharing 75% in ratio 10:25:45:17. Exact weights are 30/75/135/51/97
+  out of 388. Finite vanilla quartz-ore budgets remain 0/12/20/30/49. No new quartz Budding family.
+- At most one ancient-debris block, replacing a quartz block: 10% for an accepted
+  Motherlode whose inspected floor includes soul soil, 0.5% for other Motherlodes.
+  One stable draw only; no extra roll on reload or fallback.
 - Effective global analysis ceiling: 65,536 reads per server tick; at most 262,144
   reads per candidate. Transactional placement and persistent duplicate prevention.
 
@@ -172,7 +175,7 @@ atomicity is claimed.
 ## Connected planning over snapshots
 
 `NetherSitePlanner` now composes deterministic per-region candidate selection,
-10/25/45/17/3 quality, a stable 5-in-1000 Motherlode-only debris draw, connected lake
+10/25/45/17/3 quality, a stable terrain-conditioned Motherlode-only debris draw, connected lake
 analysis and geometry into the existing coordinator Plan type. It performs no world
 access: its Snapshot must be immutable and return unknown for unavailable terrain.
 A hard 262,144 snapshot-probe bound covers all phases together. This bound does not
@@ -184,7 +187,9 @@ cells from the candidate. Only connected columns with four contiguous lava cells
 count toward the integer 60% threshold (3,286 of 5,476). Separate pools cannot sum.
 The whole footprint must be known. The floor search examines the complete 15-square
 chamber footprint, follows lava to the first solid rock and selects the lowest floor
-Y; the center is exactly 16 below it. Unknown, hollow or protected floors fail.
+Y; the center is exactly 16 below it. In addition to netherrack/basalt/blackstone,
+soul soil is admitted as a first non-liquid floor cell. Unknown, hollow or protected
+floors fail. Soul sand and other materials are not implicitly admitted.
 
 Geometry requires a solid, unprotected 15-cube of vanilla netherrack/basalt/blackstone,
 carves only a radius-3 interior, and places the exact finite mineral budget within
@@ -407,3 +412,43 @@ Owner follow-up: native protections are retained for development; external claim
 choice is deferred until before publication. This is not a universal protection claim
 or permission to enable generation. Player-built structures remain without general
 protection coverage beyond the native checks described above.
+
+
+## Confirmed soul-soil floor/quality/debris amendment — 2026-10-09
+
+Confirmed scope: soul soil in at least one of the 225 first non-liquid floor cells
+qualifies an accepted Motherlode for 10% ancient-debris replacement, still at most
+one block replacing one quartz. Other Motherlodes retain 0.5%; all other qualities
+retain zero debris. Buried soil below the first floor, soil outside the footprint,
+biome names and nearby chamber/shore material do not qualify.
+
+The existing seeded draw is retained as an integer in [0,1000); evaluate <100 with
+soul soil, <5 otherwise. This consumes no additional random draw and preserves
+ordinary-site seed behavior. Soul-soil evidence uses the same reader and full read
+set as all floor cells. State or protection changes invalidate placement before
+writes. Soul soil is NOT added to the chamber/crust or shore replacement materials;
+height, LOWEST, coverage/depth, protection and every other condition still apply.
+
+The final quality decision is 25% Motherlode, NOT a relative 25% increase. Use an
+unbiased integer draw in [0,388), with intervals [0,30), [30,105), [105,240),
+[240,291), [291,388) for DRY/POOR/NORMAL/RICH/MOTHERLODE. Thus 97/388 is exactly
+one quarter; the other weights are exactly three times 10:25:45:17. No rounded
+percentage table or independent promotion chance is used.
+
+This soil-only quality draw uses a separate deterministically seeded random stream.
+The original candidate position, ordinary quality, shape seed and debris integer
+retain their exact draw order and values outside soul soil. Effective quality is
+resolved only after all 225 floor cells pass. It determines the finite mineral
+budget and eligibility for the debris replacement. Snapshot reporting uses the
+resolved quality for complete plans, otherwise UNRESOLVED instead of presenting
+the ordinary pre-floor roll as final. No saved attempt is rerolled or repaired.
+
+Tests exhaust every quality/debris threshold, compare ordinary generation with
+the legacy draw sequence, cover soil outside/below the first-floor footprint,
+soil/protection changes before writes, unchanged chamber restrictions and exact
+48-quartz/one-debris persisted provenance for a promoted Motherlode. The existing
+constructed-terrain GameTest now uses one soul-soil floor cell and verifies real
+admission, mineral budget, disk provenance, sanitation and no replay. It remains a
+constructed fixture, not a natural-generation or visual proof. The existing bounded
+64-region qualification fixture is retained without expanding its region set.
+Production generation remains disabled.

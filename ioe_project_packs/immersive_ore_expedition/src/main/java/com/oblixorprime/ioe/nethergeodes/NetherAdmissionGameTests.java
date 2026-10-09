@@ -40,6 +40,8 @@ public final class NetherAdmissionGameTests {
             level.setBlock(new BlockPos(c.x(), y, c.z()), Blocks.NETHERRACK.defaultBlockState(), 2);
         for (int y = 70; y <= 73; y++) level.setBlock(new BlockPos(c.x(), y, c.z()), Blocks.LAVA.defaultBlockState(), 2);
         level.setBlock(new BlockPos(c.x(), 74, c.z()), Blocks.AIR.defaultBlockState(), 2);
+        // Controlled soil-floor fixture: the chamber/crust remain ordinary admitted rock.
+        level.setBlock(new BlockPos(c.x() + 7, 36, c.z() + 7), Blocks.SOUL_SOIL.defaultBlockState(), 2);
         helper.runAfterDelay(1, () -> {
             var trigger = new ChunkPos(center);
             helper.assertTrue(NetherPlacementRuntime.coordinator(level).hasFreshReceipt(NetherPlacementRuntime.host(level), trigger.toLong()),
@@ -50,6 +52,8 @@ public final class NetherAdmissionGameTests {
             var shore = new BlockPos(c.x() + 21, 41, c.z());
             helper.assertTrue(level.getBlockState(shore).is(Blocks.BLACKSTONE)
                     && level.getBlockState(shore.above()).is(Blocks.BLACKSTONE), "Remote shore marker missing");
+            NetherGeneratedTerrainGameTests.verifyAccepted(helper, level, c, 36, true,
+                    new BlockPos(c.x(), level.getMinBuildHeight(), c.z()));
             helper.assertTrue(NetherNaturalAdmission.attempt(level, trigger) == NetherPlacementCoordinator.Result.DUPLICATE,
                     "Repeated admission allowed a reroll");
             helper.assertTrue(NetherPlacementRuntime.commit(level, new NetherPlacementCoordinator.Plan(center,

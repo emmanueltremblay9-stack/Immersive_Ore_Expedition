@@ -18,7 +18,7 @@ import java.util.Map;
 @PrefixGameTestTemplate(false)
 public final class NetherGeneratedTerrainGameTests {
     private static final int MAX_REGIONS = 64;
-    private record Filter(String reason, Integer surfaceY, Integer floor, int reads, String detail) { }
+    private record Filter(String reason, Integer surfaceY, Integer floor, boolean soulSoilFloor, int reads, String detail) { }
 
     @GameTest(template = "expedition_worldgen_empty", batch = "ioe_nether_generated_terrain", timeoutTicks = 1200)
     public static void boundedSearchOnUneditedGeneratedTerrain(GameTestHelper helper) {
@@ -28,16 +28,13 @@ public final class NetherGeneratedTerrainGameTests {
     private static boolean lava(NetherSitePlanner.Cell cell) {
         return cell.state().getFluidState().is(Fluids.LAVA) || cell.state().getFluidState().is(Fluids.FLOWING_LAVA);
     }
-    private static boolean rock(NetherSitePlanner.Cell cell) {
-        return !cell.protectedBlock() && cell.state().getFluidState().isEmpty() && !cell.state().hasBlockEntity()
-                && (cell.state().is(Blocks.NETHERRACK) || cell.state().is(Blocks.BASALT) || cell.state().is(Blocks.BLACKSTONE));
-    }
     // Qualification-only necessary conditions. Never pick another surface or relax full admission.
     // All reads debit the SAME server tick quota as the subsequent production admission.
     private static Filter filter(ServerLevel level, NetherSitePlanner.Candidate candidate) {
         var capture = new NetherSnapshotDiagnostic.Capture(NetherSnapshotDiagnostic.source(level),
                 () -> NetherAnalysisBudget.forServer(level.getServer()).acquire(level.getServer().getTickCount()));
         Integer surface = null, floor = null;
+        boolean soulSoilFloor = false;
         try {
             for (int y = capture.minY(); y < capture.maxY() - 1; y++) {
                 var pos = new BlockPos(candidate.x(), y, candidate.z());
@@ -46,27 +43,28 @@ public final class NetherGeneratedTerrainGameTests {
                     surface = y; break;
                 }
             }
-            if (surface == null) return new Filter("SURFACE", null, null, capture.reads, "no_LOWEST_source");
+            if (surface == null) return new Filter("SURFACE", null, null, false, capture.reads, "no_LOWEST_source");
             for (int z = -7; z <= 7; z++) for (int x = -7; x <= 7; x++) {
                 int y = surface;
                 var pos = new BlockPos(candidate.x() + x, y, candidate.z() + z);
                 var cell = capture.at(pos);
-                if (!lava(cell)) return new Filter("FLOOR_START", surface, floor, capture.reads, pos + " " + cell);
+                if (!lava(cell)) return new Filter("FLOOR_START", surface, floor, soulSoilFloor, capture.reads, pos + " " + cell);
                 do {
                     y--; pos = pos.below();
-                    if (y < capture.minY()) return new Filter("HEIGHT", surface, floor, capture.reads, pos + " outside_world");
+                    if (y < capture.minY()) return new Filter("HEIGHT", surface, floor, soulSoilFloor, capture.reads, pos + " outside_world");
                     cell = capture.at(pos);
                 } while (lava(cell));
-                if (!rock(cell)) return new Filter("FLOOR_BOTTOM", surface, floor, capture.reads, pos + " " + cell);
+                if (!NetherSitePlanner.floorRock(cell)) return new Filter("FLOOR_BOTTOM", surface, floor, soulSoilFloor, capture.reads, pos + " " + cell);
+                soulSoilFloor |= cell.state().is(Blocks.SOUL_SOIL);
                 floor = floor == null ? y : Math.min(floor, y);
                 if (floor < capture.minY() + 23)
-                    return new Filter("FLOOR_BELOW_23", surface, floor, capture.reads, pos + " " + cell + " cubeMinY=" + (floor - 23));
+                    return new Filter("FLOOR_BELOW_23", surface, floor, soulSoilFloor, capture.reads, pos + " " + cell + " cubeMinY=" + (floor - 23));
             }
             capture.validate();
             // Depth >=4 is checked by the full connected-coverage calculation, not imposed on every footprint column.
-            return new Filter("SURVIVOR", surface, floor, capture.reads, "225_valid_floors;coverage_depth_and_crust_not_yet_proven");
+            return new Filter("SURVIVOR", surface, floor, soulSoilFloor, capture.reads, "225_valid_floors;coverage_depth_and_crust_not_yet_proven");
         } catch (NetherSnapshotDiagnostic.Aborted failure) {
-            return new Filter("TECHNICAL_" + failure.state, surface, floor, capture.reads, "capture_aborted");
+            return new Filter("TECHNICAL_" + failure.state, surface, floor, soulSoilFloor, capture.reads, "capture_aborted");
         } finally { capture.discard(); }
     }
 
@@ -103,11 +101,11 @@ public final class NetherGeneratedTerrainGameTests {
                 helper.assertTrue(NetherNaturalAdmission.attempt(level, chunk) == NetherPlacementCoordinator.Result.DUPLICATE, "Region rerolled");
                 outcome = result + "/" + report.plannerStatus();
                 accepted = result == NetherPlacementCoordinator.Result.COMMITTED;
-                if (accepted) verifyAccepted(helper, level, candidate, filtered.floor(), origin);
+                if (accepted) verifyAccepted(helper, level, candidate, filtered.floor(), filtered.soulSoilFloor(), origin);
             }
             counts.merge(outcome, 1, Integer::sum);
             com.mojang.logging.LogUtils.getLogger().info("IOE bounded64 sample: seed={} region={},{} candidate={},{} quality={} loadTick={} admissionTick={} actualReceipt=true loading=controlled_full_5x5 filter={} admission={} terrainEditsBeforeAdmission=0 injectedReceipts=0",
-                    level.getSeed(), regionX, regionZ, candidate.x(), candidate.z(), candidate.quality(), loadedTick,
+                    level.getSeed(), regionX, regionZ, candidate.x(), candidate.z(), filtered.reason().equals("SURVIVOR") ? candidate.quality(filtered.soulSoilFloor()) : "UNRESOLVED", loadedTick,
                     level.getServer().getTickCount(), filtered, report);
             if (accepted || index + 1 == MAX_REGIONS) {
                 com.mojang.logging.LogUtils.getLogger().info("IOE bounded64 complete: seed={} sampled={} limit={} accepted={} outcomes={} loading=controlled_full_5x5_not_player_stream",
@@ -119,8 +117,8 @@ public final class NetherGeneratedTerrainGameTests {
         });
     }
 
-    private static void verifyAccepted(GameTestHelper helper, ServerLevel level, NetherSitePlanner.Candidate candidate,
-                                       int floor, BlockPos origin) {
+    static void verifyAccepted(GameTestHelper helper, ServerLevel level, NetherSitePlanner.Candidate candidate,
+                                       int floor, boolean soulSoilFloor, BlockPos origin) {
         var center = new BlockPos(candidate.x(), floor - 16, candidate.z());
         var resources = new LinkedHashMap<BlockPos, net.minecraft.world.level.block.state.BlockState>();
         for (int z = -5; z <= 5; z++) for (int y = -5; y <= 5; y++) for (int x = -5; x <= 5; x++) {
@@ -133,9 +131,9 @@ public final class NetherGeneratedTerrainGameTests {
             if (squared <= 9) helper.assertTrue(state.isAir(), "Cavity not carved at " + pos);
             else if (NetherOreProvenance.isResource(state)) resources.put(pos, state);
         }
-        helper.assertTrue(resources.size() == NetherSitePlanner.budget(candidate.quality()), "Wrong natural mineral budget");
+        helper.assertTrue(resources.size() == NetherSitePlanner.budget(candidate.quality(soulSoilFloor)), "Wrong natural mineral budget");
         long debris = resources.values().stream().filter(s -> s.is(Blocks.ANCIENT_DEBRIS)).count();
-        helper.assertTrue(debris == (candidate.debrisSelected() ? 1 : 0), "Wrong debris replacement");
+        helper.assertTrue(debris == (candidate.debrisSelected(soulSoilFloor) ? 1 : 0), "Wrong debris replacement");
         var storage = level.getDataStorage();
         try {
             storage.save();
