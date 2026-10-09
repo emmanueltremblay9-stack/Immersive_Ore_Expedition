@@ -4,15 +4,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 
-/** Explicit admission at a supplied surface. Not registered with a command, tick or generator. */
+/** Explicit admission with deterministic lowest-surface selection. Not registered with a command, tick or generator. */
 final class NetherNaturalAdmission {
     private NetherNaturalAdmission() { }
 
-    static NetherPlacementCoordinator.Result attempt(ServerLevel level, ChunkPos trigger, int surfaceY) {
+    static NetherPlacementCoordinator.Result attempt(ServerLevel level, ChunkPos trigger) {
         var host = NetherPlacementRuntime.host(level);
         host.requireServerThread();
         var candidate = NetherSitePlanner.candidate(level.getSeed(), Math.floorDiv(trigger.x, 16), Math.floorDiv(trigger.z, 16));
-        var origin = new BlockPos(candidate.x(), surfaceY, candidate.z());
+        var origin = new BlockPos(candidate.x(), level.getMinBuildHeight(), candidate.z());
         if (!new ChunkPos(origin).equals(trigger)) return NetherPlacementCoordinator.Result.NOT_CANDIDATE;
         var ledger = level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY, NetherPlacementLedger.NAME);
         var admission = ledger.prepare(origin);
@@ -24,7 +24,7 @@ final class NetherNaturalAdmission {
             if (!NetherPlacementRuntime.coordinator(level).hasFreshReceipt(host, trigger.toLong())) {
                 result = NetherPlacementCoordinator.Result.NOT_FRESH;
             } else {
-                var outcome = NetherSitePlanner.plan(candidate, surfaceY, capture);
+                var outcome = NetherSitePlanner.planLowest(candidate, capture);
                 capture.validate();
                 if (outcome.plan() == null) {
                     result = outcome.status() == NetherSitePlanner.Status.BUDGET

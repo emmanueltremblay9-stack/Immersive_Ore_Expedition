@@ -276,3 +276,30 @@ retry at a different Y. Existing coordinator tests retain old/replaced/expired c
 read-set invalidation, budgets and partial compensation coverage. External protection
 remains unqualified (the host currently observes block entities); automatic generation
 and the production gate remain disabled. This entry is not an activation authorization.
+
+## Lowest-surface selection — approved 2026-10-09 20:25:47 UTC
+
+The owner chose the lowest surface. Natural admission no longer accepts a supplied
+Y: at the canonical X/Z it scans from minimum build height upward, choosing the
+first lava-source block whose immediately higher block contains no lava. The top
+build-height cell cannot be a certified surface because its upper cell is outside
+the available world interval. Flowing lava is not a source, and either source or
+flowing lava above disqualifies a cell as a surface.
+
+Only this selected level receives the 74x74 eligibility analysis. No surface,
+unknown terrain, insufficient budget or failure of any lake/placement criterion
+terminates the regional attempt; no second level or later retry is tried. The
+existing durable claim precedes selection. Selection and planning share one Reader
+and one capture: every distinct selection state/protection observation is retained
+in the placement read set, including cells below the eventual chamber. Fresh reads
+consume the shared 65,536 tick quota and the 262,144 candidate accounting; overlap
+with planning is deduplicated, not billed as a second world read. Immediate preflight
+revalidates these selection observations before any write.
+
+This supersedes earlier statements that natural admission requires an externally
+chosen surface. The diagnostic command still intentionally takes an explicit Y.
+There is still no automatic command/tick/generator caller, and protection qualification
+remains outstanding; the generation gate stays closed. Tests use real load receipts
+and constructed terrain with two lava levels, plus unit coverage for lower-pocket
+failure without fallback, flowing/covered cells, unknown cells, shared quota exhaustion
+and state/protection changes affecting selection-only observations.

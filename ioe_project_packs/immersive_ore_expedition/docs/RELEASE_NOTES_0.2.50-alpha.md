@@ -152,3 +152,12 @@ Its supplied surface Y is not an automatic lake-selection policy. No command, ti
 or generation caller is registered. Tests use genuine load events on deliberately
 constructed terrain; natural lake discovery, protection qualification and automatic
 scheduling remain outside this increment. All existing generation gates stay closed.
+
+### Approved lowest-surface selection
+
+Natural admission now selects the lowest uncovered source-lava surface at the
+canonical candidate X/Z, scanning upward once. It does not fall back to a higher
+lake after rejection. Selection reads share existing budgets and are included in
+the complete preflight read set. This implements the owner's 2026-10-09 20:25:47 UTC
+choice and supersedes the supplied-Y limitation above for natural admission only.
+Diagnostic explicit-Y commands remain separate. Automatic generation stays disabled.

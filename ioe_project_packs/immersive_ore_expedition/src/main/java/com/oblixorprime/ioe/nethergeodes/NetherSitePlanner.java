@@ -74,10 +74,28 @@ final class NetherSitePlanner {
     private static BlockPos pos(Candidate candidate, int y, int index) {
         return new BlockPos(candidate.x() + index % WIDTH - ANCHOR_INDEX, y, candidate.z() + index / WIDTH - ANCHOR_INDEX);
     }
-    static Outcome plan(Candidate candidate, int surfaceY, Snapshot snapshot) {
+    /** Select once, before eligibility checks; every selection observation stays in the same Reader. */
+    static Outcome planLowest(Candidate candidate, Snapshot snapshot) {
         var reader = new Reader(snapshot);
-        int count = 0;
         if (!snapshot.nether()) return new Outcome(Status.WRONG_DIMENSION, 0, 0, null);
+        try {
+            for (int y = snapshot.minY(); y < snapshot.maxY() - 1; y++) {
+                var pos = new BlockPos(candidate.x(), y, candidate.z());
+                if (source(reader.read(pos)) && !lava(reader.read(pos.above())))
+                    return plan(candidate, y, reader);
+            }
+            return new Outcome(Status.SURFACE, reader.probes, 0, null);
+        } catch (Stop stop) {
+            return new Outcome(stop.status, reader.probes, 0, null);
+        }
+    }
+
+    static Outcome plan(Candidate candidate, int surfaceY, Snapshot snapshot) {
+        return plan(candidate, surfaceY, new Reader(snapshot));
+    }
+    private static Outcome plan(Candidate candidate, int surfaceY, Reader reader) {
+        int count = 0;
+        if (!reader.snapshot.nether()) return new Outcome(Status.WRONG_DIMENSION, 0, 0, null);
         try {
             boolean[] surface = new boolean[COLUMNS], deep = new boolean[COLUMNS];
             for (int i = 0; i < COLUMNS; i++) {
