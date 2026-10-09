@@ -57,7 +57,7 @@ final class NetherPlacementCoordinator {
             return Collections.unmodifiableMap(copy);
         }
     }
-    private record Lease(Object identity, int born) { }
+    private record Lease(Object identity, int born, boolean dispatched) { }
     private final Map<Long, Lease> leases = new HashMap<>();
     private final Map<Object, Boolean> seen = new WeakHashMap<>();
 
@@ -72,7 +72,21 @@ final class NetherPlacementCoordinator {
             leases.remove(chunk);
             return;
         }
-        leases.put(chunk, new Lease(identity, tick));
+        leases.put(chunk, new Lease(identity, tick, false));
+    }
+    /** At most MAX_LEASES entries; no new capability, ticket or retained queue is created. */
+    synchronized List<ChunkPos> takeNaturalCandidates(long seed, int tick) {
+        var result = new ArrayList<ChunkPos>();
+        for (long key : new TreeSet<>(leases.keySet())) {
+            var lease = leases.get(key);
+            if (lease.dispatched() || tick - lease.born() <= 0) continue;
+            var chunk = new ChunkPos(key);
+            var candidate = NetherSitePlanner.candidate(seed, Math.floorDiv(chunk.x, 16), Math.floorDiv(chunk.z, 16));
+            if ((candidate.x() >> 4) != chunk.x || (candidate.z() >> 4) != chunk.z) continue;
+            leases.put(key, new Lease(lease.identity(), lease.born(), true));
+            result.add(chunk);
+        }
+        return List.copyOf(result);
     }
     synchronized void invalidate(long chunk) { leases.remove(chunk); }
     private void prune(int tick) {

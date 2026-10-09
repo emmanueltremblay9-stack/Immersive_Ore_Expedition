@@ -303,3 +303,40 @@ remains outstanding; the generation gate stays closed. Tests use real load recei
 and constructed terrain with two lava levels, plus unit coverage for lower-pocket
 failure without fallback, flowing/covered cells, unknown cells, shared quota exhaustion
 and state/protection changes affecting selection-only observations.
+
+## Closed natural trigger and native protection
+
+The registered ServerTickEvent.Post listener now connects existing first-generation
+receipts to admission, behind the hard-coded false `GENERATION_ENABLED` gate.
+There is no config/command to lift it. With the gate closed, ticks neither dispatch
+candidates nor claim regions or read terrain. Explicit integration tests call the
+same dispatcher, without changing the production gate.
+
+No second pending queue or chunk ticket is introduced. At most the existing 256
+leases are inspected in sorted chunk-key order; only canonical candidate chunks
+from an earlier tick are dispatched. Each receipt is marked dispatched once before
+admission. Freshness/identity, shared budget and durable admission still decide the
+result. Noncanonical, disk-loaded, invalidated and repeated receipts confer no new
+permission; expiration is never extended. Metadata-only load callbacks stay unchanged.
+
+Capture and placement now share native protection: block entities, complete native
+structure bounding boxes and unavailable/capped structure metadata are protected.
+The existing loaded-only structure resolver is reused, including referenced origins;
+unknown origins refuse placement without loading. A protection change participates
+in complete read-set revalidation and immediate target/compensation checks. The
+resolver checks at most 256 metadata entries per point query; this is bounded
+metadata work, separate from the unchanged quotas on actual block-state reads.
+
+This is NOT a universal protection API: player constructions without such metadata
+and third-party claims are not identified. No provider was invented. Before enabling
+production, decide whether external claims must be supported and name the actual
+provider if so; native-only coverage must not be advertised as third-party coverage.
+Automatic generation remains off pending that scope and pipeline qualification.
+
+Tests cover real load-event dispatch after the closed tick gate has stayed idle,
+once-only canonical receipt selection, old/repeated/invalidated refusal, and real
+prepared-write rejection after native metadata changes. Structure geometry metadata
+is deliberately injected in that protection fixture; it is not natural fortress
+worldgen proof. Nominal constructed terrain fixtures explicitly clear their native
+structure metadata, while production never does. Existing structure resolver tests
+cover remote bounds and unavailable origins. No client/manual qualification is claimed.

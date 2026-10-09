@@ -21,6 +21,11 @@ public final class NetherAdmissionGameTests {
         // Fixture generation/terrain editing only. Admission never calls getChunk or observe.
         for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++)
             level.getChunk((c.x() >> 4) + x, (c.z() >> 4) + z);
+        for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++) {
+            var chunk = level.getChunk((c.x() >> 4) + x, (c.z() >> 4) + z);
+            chunk.setAllStarts(new java.util.HashMap<>());
+            chunk.setAllReferences(new java.util.HashMap<>()); // Controlled structure-free fixture.
+        }
         for (int z = -37; z <= 36; z++) for (int x = -37; x <= 36; x++) {
             for (int y = 37; y <= 42; y++) level.setBlock(new BlockPos(c.x() + x, y, c.z() + z),
                     y > 40 ? Blocks.AIR.defaultBlockState()

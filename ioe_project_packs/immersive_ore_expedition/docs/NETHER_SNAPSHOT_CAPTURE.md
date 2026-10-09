@@ -45,7 +45,7 @@ a closed capture rejects subsequent access. Incomplete/invalidated captures repo
 `NOT_EVALUATED` and zero proposed writes. `COMPLETE` means capture completed, not
 that the planner accepted the terrain. Command success follows capture completion.
 
-The real adapter marks block entities protected; external claim/protection systems
+The real adapter marks block entities and loaded native structure bounds protected, failing closed on unavailable/capped native metadata; external claim/protection systems
 remain `NOT_EVALUATED`. Fresh-generation provenance, accepted-site spacing, durable
 attempts and transactional publication are not inferred from this diagnostic.
 `NetherPlacementRuntime.commit` remains `BACKEND_UNVERIFIED`.

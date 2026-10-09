@@ -25,6 +25,7 @@ public final class NetherCoordinatorGameTests {
         var coordinator = new NetherPlacementCoordinator();
         for (var pos : java.util.List.of(first, second)) {
             var chunk = level.getChunk(pos);
+            chunk.setAllStarts(new java.util.HashMap<>()); chunk.setAllReferences(new java.util.HashMap<>());
             level.setBlock(pos, rock, 2);
             // Explicit synthetic first-generation receipts for fixture chunks, using their real identities.
             coordinator.observe(chunk.getPos().toLong(), chunk, true, level.getServer().getTickCount());
@@ -90,7 +91,8 @@ public final class NetherCoordinatorGameTests {
             var first = new BlockPos(-20008 - scenario * 4096, 40, -20008);
             origins.add(first);
             for (var pos : java.util.List.of(first, first.east(16))) {
-                level.getChunk(pos); // Fixture allocation, not a backend load.
+                var chunk = level.getChunk(pos); // Controlled structure-free fixture.
+                chunk.setAllStarts(new java.util.HashMap<>()); chunk.setAllReferences(new java.util.HashMap<>());
                 level.setBlock(pos, rock, 2);
             }
         }

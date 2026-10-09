@@ -28,6 +28,7 @@ final class NetherPlacementRuntime {
         NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::placed);
         NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::broken);
         NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::stopped);
+        NeoForge.EVENT_BUS.addListener(NetherNaturalTrigger::tick);
     }
     private static void load(ChunkEvent.Load event) {
         if (event.getLevel() instanceof ServerLevel level && level.dimension().equals(Level.NETHER))
@@ -89,7 +90,7 @@ final class NetherPlacementRuntime {
                 return chunk.getBlockState(pos);
             }
             // External claim integration remains unqualified; production commit stays gated.
-            public boolean protectedAt(BlockPos pos, BlockState state) { return state.hasBlockEntity(); }
+            public boolean protectedAt(BlockPos pos, BlockState state) { return NetherNativeProtection.protectedAt(level, pos, state); }
             public boolean safeToReplace(BlockPos pos, BlockState state) {
                 return !state.hasBlockEntity() && state.getFluidState().isEmpty()
                         && (state.isAir() || state.is(Blocks.NETHERRACK) || state.is(Blocks.BASALT) || state.is(Blocks.BLACKSTONE));

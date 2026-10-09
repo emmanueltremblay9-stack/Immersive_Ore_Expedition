@@ -161,3 +161,13 @@ lake after rejection. Selection reads share existing budgets and are included in
 the complete preflight read set. This implements the owner's 2026-10-09 20:25:47 UTC
 choice and supersedes the supplied-Y limitation above for natural admission only.
 Diagnostic explicit-Y commands remain separate. Automatic generation stays disabled.
+
+### Closed natural trigger and native structure protection
+
+A server post-tick trigger is wired to the existing bounded first-generation receipt
+store and canonical admission. Its hard-coded gate remains false, with no enabling
+config or command. Capture, preflight and compensation now use the same loaded-only
+native structure/block-entity protection checks; missing structure metadata fails
+closed. No external claim provider or player-build detection is supplied. Hosted
+fixtures exercise real load receipts and injected native structure metadata; automatic
+natural generation, manual acceptance and external protection remain unqualified.

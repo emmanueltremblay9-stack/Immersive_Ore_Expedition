@@ -11,11 +11,11 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import java.util.HashSet;
 
 /** Bounded metadata-only collision check. Unknown metadata blocks placement. */
-final class LoadedStructureCollision {
+public final class LoadedStructureCollision {
     static final int MAX_FOOTPRINT_CHUNKS = 64, MAX_METADATA_ENTRIES = 256;
     private LoadedStructureCollision() { }
 
-    static boolean blocksPlacement(WorldGenLevel level, BoundingBox bounds) {
+    public static boolean blocksPlacement(WorldGenLevel level, BoundingBox bounds) {
         int minX = Math.floorDiv(bounds.minX(), 16), maxX = Math.floorDiv(bounds.maxX(), 16);
         int minZ = Math.floorDiv(bounds.minZ(), 16), maxZ = Math.floorDiv(bounds.maxZ(), 16);
         if (((long) maxX - minX + 1) * ((long) maxZ - minZ + 1) > MAX_FOOTPRINT_CHUNKS) return true;

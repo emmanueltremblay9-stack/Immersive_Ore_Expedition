@@ -106,7 +106,7 @@ public final class NetherSnapshotDiagnostic {
             }
             public NetherSitePlanner.Cell read(Object identity, BlockPos pos) {
                 var state = ((LevelChunk) identity).getBlockState(pos);
-                return new NetherSitePlanner.Cell(state, state.hasBlockEntity());
+                return new NetherSitePlanner.Cell(state, NetherNativeProtection.protectedAt(level, pos, state));
             }
         };
     }
