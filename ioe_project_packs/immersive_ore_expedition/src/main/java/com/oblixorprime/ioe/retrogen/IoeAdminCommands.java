@@ -57,7 +57,10 @@ public final class IoeAdminCommands {
                                             LavaLakeDiagnostic.MAX_RADIUS))
                                     .then(Commands.argument("depth", IntegerArgumentType.integer(1,
                                                     LavaLakeDiagnostic.MAX_DEPTH))
-                                            .executes(context -> diagnoseLavaLake(context))))));
+                                            .executes(context -> diagnoseLavaLake(context)))))
+                    .then(Commands.literal("nether_site")
+                            .then(Commands.argument("surface_y", IntegerArgumentType.integer())
+                                    .executes(context -> diagnoseNetherSite(context)))));
             LiteralArgumentBuilder<CommandSourceStack> locate = Commands.literal("locate");
             if (settings.locateProvinceEnabled()) {
                 locate.then(Commands.literal("province")
@@ -174,6 +177,14 @@ public final class IoeAdminCommands {
                 origin,
                 ExpeditionLocatorService.index(source.getLevel())
         ));
+    }
+
+    private static int diagnoseNetherSite(CommandContext<CommandSourceStack> context) {
+        var source = context.getSource();
+        var report = com.oblixorprime.ioe.nethergeodes.NetherSnapshotDiagnostic.inspect(source.getLevel(),
+                BlockPos.containing(source.getPosition()), IntegerArgumentType.getInteger(context, "surface_y"));
+        source.sendSuccess(() -> Component.literal(report.message()), false);
+        return report.captureStatus().equals("COMPLETE") ? 1 : 0;
     }
 
     private static int diagnoseLavaLake(CommandContext<CommandSourceStack> context) {

@@ -160,7 +160,13 @@ unknown terrain, total probe exhaustion, negative-region determinism, exact budg
 and debris replacement. The runtime GameTest verifies that the production gate
 refuses a plan without changing either chunk.
 
-Remaining integration: capture immutable terrain within the shared global tick
-budget and first-load lifetime, select/verify surface Y, apply external protection
-checks, and qualify the transactional backend. No automatic snapshot acquisition,
-region scheduling, natural generation or client acceptance is claimed here.
+Read-only real acquisition is now available through `diagnose nether_site`; see
+[NETHER_SNAPSHOT_CAPTURE.md](NETHER_SNAPSHOT_CAPTURE.md). It is a bounded single
+server-thread turn with identity/epoch validation, not a multi-tick content revision
+or first-load write authorization. Incomplete data is discarded.
+
+Remaining integration: qualify stable acquisition across ticks where required,
+select/verify surface Y, apply external protection checks, and qualify the
+transactional backend. [Pre-publication review](NETHER_PREPUBLICATION_BACKEND_REVIEW.md)
+records the proof obligations and alternatives. No automatic region scheduling,
+natural generation or client acceptance is claimed here.

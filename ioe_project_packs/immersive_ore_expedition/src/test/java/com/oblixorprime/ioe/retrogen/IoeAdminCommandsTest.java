@@ -38,6 +38,7 @@ class IoeAdminCommandsTest {
         ).build();
 
         assertNotNull(root.getChild("diagnose").getChild("lava_lake").getChild("radius").getChild("depth"));
+        assertNotNull(root.getChild("diagnose").getChild("nether_site").getChild("surface_y"));
         assertNotNull(root.getChild("status"));
         assertNotNull(root.getChild("locate").getChild("province"));
         assertNotNull(root.getChild("locate").getChild("anchor"));
