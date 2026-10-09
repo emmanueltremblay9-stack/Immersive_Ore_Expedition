@@ -370,13 +370,22 @@ sanitation passes on real new chunks, verify unrelated quartz is removed, save/r
 the ledger and confirm IOE ore survives final sanitation. Unit tests cover exact IDs,
 positions, partial failures and revocation after successful compensation.
 
-A separate batch within the EXISTING hosted GameTest profile samples one unedited
-engine-generated 5x5 neighborhood per runtime run, with actual load events and explicit
-dispatch. It does not clear metadata or construct terrain. The harness requests those
-chunks; production still never requests them. The result is logged with seed/region,
-and is not required to be a successful geode. No search/reroll is performed. This
-checks a real terrain attempt under controlled availability, not player-driven loading
-or a natural placement frequency. Production generation remains disabled.
+A separate batch within the EXISTING hosted GameTest profile performs a bounded
+qualification search: at most 16 fixed regions (-1600-2*i, -1600), stopping at the
+first committed placement. Each region has exactly its one seed-derived candidate
+and LOWEST surface; rejection remains terminal and durable. This test-only search
+is not a production fallback or a change to placement frequency.
+
+Each sample uses unedited engine-generated terrain and actual load events. The
+harness requests its 5x5 FULL neighborhood; production still never requests chunks.
+No metadata clearing, synthetic receipts, tickets or freshness extension are used.
+Samples are separated across server ticks and use the same shared quotas. The
+admission report records the planner refusal, actual capture reads, connected
+columns and planned writes without rescanning or retaining a mutable plan. Logs
+include the seed, region, candidate, quality and aggregate outcomes. An all-rejected
+run passes qualification of terminal handling, but is explicitly NOT proof of an
+accepted natural geode. Controlled FULL availability is not player-driven loading.
+Production generation remains disabled.
 
 Owner follow-up: native protections are retained for development; external claims
 choice is deferred until before publication. This is not a universal protection claim
