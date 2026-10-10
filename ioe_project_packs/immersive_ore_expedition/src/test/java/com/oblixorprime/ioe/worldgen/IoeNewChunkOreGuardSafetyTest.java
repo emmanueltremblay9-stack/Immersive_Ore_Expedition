@@ -28,7 +28,7 @@ final class IoeNewChunkOreGuardSafetyTest {
         ));
         String chunkLoadCallback = source.substring(
                 source.indexOf("private static void onChunkLoad"),
-                source.indexOf("private static void onServerTick")
+                source.indexOf("static void onServerTick")
         );
 
         assertFalse(chunkLoadCallback.contains("getServer().execute"));
@@ -38,7 +38,7 @@ final class IoeNewChunkOreGuardSafetyTest {
         assertTrue(source.contains("ServerTickEvent.Post"));
         assertTrue(source.contains("INITIAL_SANITIZATION_QUEUE.clear()"));
         assertTrue(source.contains("SCHEDULED_SANITIZATIONS.contains(entry.getKey())"));
-        assertTrue(source.contains("!PENDING_NEW_CHUNKS.contains(chunkKey)"));
+        assertTrue(source.contains("!PENDING_NEW_CHUNKS.contains(chunkKey, admissionTick)"));
     }
 
     private static Path sourceFile(String relativePath) {

@@ -1,5 +1,6 @@
 package com.oblixorprime.ioe;
 
+import com.oblixorprime.ioe.budding.IoeIronBuddingBlocks;
 import com.oblixorprime.ioe.config.ImmersiveOreExpeditionConfig;
 import com.oblixorprime.ioe.core.IoeCoreMod;
 import com.oblixorprime.ioe.crystalgrowth.IoeCrystalGrowthMod;
@@ -23,6 +24,10 @@ public final class ImmersiveOreExpeditionMod {
         modContainer.registerConfig(ModConfig.Type.COMMON, ImmersiveOreExpeditionConfig.SPEC,
                 "immersive_ore_expedition-common.toml");
         IoeExpeditionCompassMod.bootstrap(modContainer.getEventBus());
+        IoeIronBuddingBlocks.register(modContainer.getEventBus());
+        com.oblixorprime.ioe.budding.BuddingMetadataEvents.register();
+        com.oblixorprime.ioe.discovery.DiscoveryJournalService.register();
+        com.oblixorprime.ioe.discovery.JournalNetworking.register(modContainer.getEventBus());
         IoeCoreMod.bootstrap();
         IoeExpeditionWorldgenMod.bootstrap(modContainer.getEventBus());
         IoeCrystalGrowthMod.bootstrap();

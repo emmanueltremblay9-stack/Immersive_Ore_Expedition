@@ -296,7 +296,8 @@ final class IoePendingExpeditionSites {
             }
 
             try {
-                ExpeditionLocatorService.record(level, effectiveSite.site());
+                ExpeditionLocatorService.record(level,
+                        effectiveSite.site().withBuddingNodes(BuddingPlanMetadata.nodes(effectiveSite.plan())));
             } catch (RuntimeException | LinkageError failure) {
                 rejectedSites++;
                 rollbackReservationBestEffort(effectiveSite, "locator failure after reservation commit");
@@ -499,6 +500,14 @@ final class IoePendingExpeditionSites {
             );
             return null;
         }
+    }
+
+    /** Abandons only an unconfirmed transaction; never reads or changes chunk terrain or locator data. */
+    static void discardChunk(ResourceKey<Level> dimension, ChunkPos chunkPos) {
+        ConcurrentHashMap<Long, List<PendingSite>> byChunk = PENDING.get(dimension);
+        if (byChunk == null) return;
+        List<PendingSite> removed = byChunk.remove(chunkPos.toLong());
+        if (removed != null) removed.forEach(site -> rollbackReservationBestEffort(site, "admission ended"));
     }
 
     static void clear() {

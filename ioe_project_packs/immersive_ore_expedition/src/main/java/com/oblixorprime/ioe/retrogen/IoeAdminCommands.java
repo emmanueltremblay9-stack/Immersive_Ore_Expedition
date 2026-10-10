@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
+import com.oblixorprime.ioe.nethergeodes.LavaLakeDiagnostic;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorIndex;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorReindexer;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorResult;
@@ -49,6 +50,17 @@ public final class IoeAdminCommands {
                 .executes(IoeAdminCommands::runtimeStatus));
 
         if (settings.anyLocateCommandEnabled()) {
+            root.then(Commands.literal("diagnose")
+                    .requires(source -> source.hasPermission(2))
+                    .then(Commands.literal("lava_lake")
+                            .then(Commands.argument("radius", IntegerArgumentType.integer(1,
+                                            LavaLakeDiagnostic.MAX_RADIUS))
+                                    .then(Commands.argument("depth", IntegerArgumentType.integer(1,
+                                                    LavaLakeDiagnostic.MAX_DEPTH))
+                                            .executes(context -> diagnoseLavaLake(context)))))
+                    .then(Commands.literal("nether_site")
+                            .then(Commands.argument("surface_y", IntegerArgumentType.integer())
+                                    .executes(context -> diagnoseNetherSite(context)))));
             LiteralArgumentBuilder<CommandSourceStack> locate = Commands.literal("locate");
             if (settings.locateProvinceEnabled()) {
                 locate.then(Commands.literal("province")
@@ -165,6 +177,23 @@ public final class IoeAdminCommands {
                 origin,
                 ExpeditionLocatorService.index(source.getLevel())
         ));
+    }
+
+    private static int diagnoseNetherSite(CommandContext<CommandSourceStack> context) {
+        var source = context.getSource();
+        var report = com.oblixorprime.ioe.nethergeodes.NetherSnapshotDiagnostic.inspect(source.getLevel(),
+                BlockPos.containing(source.getPosition()), IntegerArgumentType.getInteger(context, "surface_y"));
+        source.sendSuccess(() -> Component.literal(report.message()), false);
+        return report.captureStatus().equals("COMPLETE") ? 1 : 0;
+    }
+
+    private static int diagnoseLavaLake(CommandContext<CommandSourceStack> context) {
+        var source = context.getSource();
+        var report = LavaLakeDiagnostic.scan(source.getLevel(),
+                BlockPos.containing(source.getPosition()), IntegerArgumentType.getInteger(context, "radius"),
+                IntegerArgumentType.getInteger(context, "depth"));
+        source.sendSuccess(() -> Component.literal(report.message()), false);
+        return report.status() == LavaLakeDiagnostic.Status.COMPLETE ? 1 : 0;
     }
 
     private static int reindexLocator(CommandContext<CommandSourceStack> context, int radiusBlocks) {

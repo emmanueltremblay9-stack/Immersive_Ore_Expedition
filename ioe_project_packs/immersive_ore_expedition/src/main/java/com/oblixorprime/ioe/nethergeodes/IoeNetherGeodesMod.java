@@ -12,6 +12,7 @@ public final class IoeNetherGeodesMod {
     }
 
     public static void bootstrap() {
+        NetherPlacementRuntime.register();
         LOGGER.info("Initializing Immersive Ore Expedition: Nether Geodes alpha services");
     }
 }

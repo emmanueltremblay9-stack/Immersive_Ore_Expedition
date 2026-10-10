@@ -1,5 +1,6 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.budding.BuddingBlockIdentity;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -300,6 +301,20 @@ public final class ExpeditionSiteBlueprints {
             );
             roomCenters.add(origin.immutable());
             components.add(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER);
+        }
+
+        if (oreNodeHeartState != null
+                && BuddingBlockIdentity.isCanonical(oreNodeHeartState.getBlock())
+                && quality.isProductive() && components.contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER)) {
+            int radius = horizontalRadius(quality);
+            int halfHeight = Math.max(2, verticalHalfSize(quality));
+            List<BlockPos> candidates = chamberNodeCandidates(chamberCenter, radius, halfHeight);
+            // Compose after galleries and supports, preserving their solid blocks and room centers.
+            candidates.removeIf(pos -> roomCenters.contains(pos) || builder.contains(pos) && !builder.isAir(pos));
+            List<BlockPos> hearts = chamberShell(chamberCenter, radius, halfHeight);
+            hearts.retainAll(candidates);
+            oreNodeCount = addOreNodes(builder, candidates, hearts, oreState, oreNodeHeartState,
+                    chamberCenter, radius, halfHeight, oreBudget, requestedOreNodeCount, random);
         }
 
         return new ExpeditionSiteBlockPlan(
@@ -619,7 +634,9 @@ public final class ExpeditionSiteBlueprints {
             RandomSource random
     ) {
         int radius = horizontalRadius(quality);
-        int halfHeight = verticalHalfSize(quality);
+        int halfHeight = oreNodeHeartState != null
+                && BuddingBlockIdentity.isCanonical(oreNodeHeartState.getBlock())
+                ? Math.max(2, verticalHalfSize(quality)) : verticalHalfSize(quality);
         for (int dy = -halfHeight; dy <= halfHeight; dy++) {
             for (int dx = -radius; dx <= radius; dx++) {
                 for (int dz = -radius; dz <= radius; dz++) {
@@ -638,7 +655,7 @@ public final class ExpeditionSiteBlueprints {
         }
 
         int placedNodeCount = 0;
-        if (oreState != null) {
+        if (oreState != null && !(BuddingBlockIdentity.isCanonical(oreNodeHeartState.getBlock()))) {
             List<BlockPos> seedCandidates = chamberShell(center, radius, halfHeight);
             seedCandidates.removeIf(candidate -> !touchesOpenChamber(
                     candidate,
@@ -701,6 +718,11 @@ public final class ExpeditionSiteBlueprints {
             throw new IllegalStateException("Ore node candidate band cannot satisfy the requested node count");
         }
 
+        if (BuddingBlockIdentity.isCanonical(oreNodeHeartState.getBlock())) {
+            return addCanonicalBuddingNodes(builder, candidatePositions, seedCandidates, oreState, oreNodeHeartState,
+                    chamberCenter, chamberRadius, chamberHalfHeight, requestedOreBudget, requestedNodeCount);
+        }
+
         int oreBudget = requestedOreBudget;
         int nodeCount = requestedNodeCount;
         List<BlockPos> seeds = chooseSeparatedSeeds(seedCandidates, nodeCount);
@@ -739,6 +761,69 @@ public final class ExpeditionSiteBlueprints {
                 chamberHalfHeight
         );
         return nodeCount;
+    }
+
+    /** Reserve each connected region and its air face before accepting a heart position. */
+    private static int addCanonicalBuddingNodes(
+            Builder builder, LinkedHashSet<BlockPos> candidates, List<BlockPos> seedCandidates,
+            BlockState ore, BlockState heart, BlockPos center, int radius, int halfHeight,
+            int budgetIncludingHearts, int nodes
+    ) {
+        if (nodes <= 0 || budgetIncludingHearts % nodes != 0) {
+            throw new IllegalArgumentException("Canonical Iron requires equal positive node budgets");
+        }
+        int perNode = budgetIncludingHearts / nodes;
+        LinkedHashSet<BlockPos> occupied = new LinkedHashSet<>();
+        LinkedHashSet<BlockPos> reservedAir = new LinkedHashSet<>();
+        List<BlockPos> hearts = new ArrayList<>();
+        List<List<BlockPos>> regions = new ArrayList<>();
+        for (int node = 0; node < nodes; node++) {
+            List<BlockPos> ordered = new ArrayList<>(seedCandidates);
+            if (!hearts.isEmpty()) {
+                ordered.sort((a, b) -> Long.compare(distanceFromNearestSeed(b, hearts), distanceFromNearestSeed(a, hearts)));
+            }
+            List<BlockPos> selected = null;
+            BlockPos selectedAir = null;
+            for (BlockPos seed : ordered) {
+                if (occupied.contains(seed) || reservedAir.contains(seed)) continue;
+                for (Direction face : Direction.values()) {
+                    BlockPos air = seed.relative(face);
+                    if (occupied.contains(air) || !builder.isAir(air)
+                            || chamberDistance(air, center, radius, halfHeight) > 1.0D) continue;
+                    List<BlockPos> region = new ArrayList<>();
+                    region.add(seed);
+                    for (int cursor = 0; cursor < region.size() && region.size() < perNode; cursor++) {
+                        for (Direction direction : Direction.values()) {
+                            BlockPos next = region.get(cursor).relative(direction);
+                            if (region.size() < perNode && candidates.contains(next) && !occupied.contains(next)
+                                    && !reservedAir.contains(next) && !next.equals(air) && !region.contains(next)) {
+                                region.add(next);
+                            }
+                        }
+                    }
+                    if (region.size() == perNode) {
+                        selected = region;
+                        selectedAir = air;
+                        break;
+                    }
+                }
+                if (selected != null) break;
+            }
+            if (selected == null) {
+                throw new IllegalStateException("Iron chamber cannot fit connected canonical node " + node);
+            }
+            hearts.add(selected.getFirst());
+            regions.add(selected);
+            occupied.addAll(selected);
+            reservedAir.add(selectedAir);
+        }
+        for (List<BlockPos> region : regions) {
+            for (int index = 0; index < region.size(); index++) {
+                builder.put(region.get(index), index == 0 ? heart : ore);
+            }
+        }
+        addGeodeOuterWall(builder, occupied, center, radius, halfHeight);
+        return nodes;
     }
 
     private static LinkedHashSet<BlockPos> reserveOpenFaces(

@@ -1,0 +1,473 @@
+# Nether placement contract — amended 2026-10-09 15:58 UTC
+
+The user approved this complete gameplay lot. These rules are not proposals and do
+not require another gameplay approval. Approval does not authorize a release,
+installation, retrogen, or an assertion of stable client/server qualification.
+
+The 15:58 UTC user decision changes only the lake analysis window to exactly
+**74x74**, superseding the previous 129x129 window. It does not accept the proposed
+47x47 alternative or restrict chamber and shore to the same chunk.
+
+The explicit even-width convention is `[candidate - 37, candidate + 37)` on both
+X and Z: offsets **-37..+36 inclusive**. The candidate is the positive-side one of
+the two central cells on each axis. This technical anchoring is deterministic,
+including negative coordinates; no rounding to 75 and no candidate/quality reroll.
+
+## Compensation amendment — approved 2026-10-09 19:14:50 UTC
+
+The owner explicitly chose option 2: continue implementation with best-effort
+compensation, without enabling generation. Only the all-or-nothing guarantee is
+relaxed. If a chunk becomes unavailable/invalid during writes, a partial chamber
+or clue may remain permanently. Persist `ROLLBACK_INCOMPLETE`; do not retry the
+region, restore first-generation authority, force a chunk or repair an old chunk.
+All other rules below, including exact 74x74, read-set validation, budgets, spacing
+and persistent deduplication, remain unchanged. The previous strict-atomicity audit
+is historical evidence, not a requirement to solve atomic publication before this
+explicitly limited backend can be developed.
+
+`NetherPlacementRuntime.commitPrepared` now connects prepared plans, the real
+server host, the server coordinator and the world's SavedData ledger. It is a
+package-scoped backend entry, with no command, automatic scheduling or generation
+caller. `commit` still returns `BACKEND_UNVERIFIED`; the direct generator still
+returns false. This backend does not certify candidate acquisition, external
+protection or automatic natural generation. No synthetic test receipt is used by
+production to create first-generation authority.
+
+Freshness is checked again after immediate state/protection reads and immediately
+before compensation; a compensation that invalidates its chunk cannot be reported
+as a complete rollback. The host refuses writes when its chunk is unavailable.
+The persisted outcome and spacing of partial sites survive a real SavedData file
+round trip; reloaded claims reject replay without repairing remaining blocks.
+GameTests inject faults and synthetic first-generation receipts around real chunks
+and the production storage entry. This is not a server restart or a natural-generation
+qualification. Persistence retains the existing ordinary-save boundary, without
+promising cross-file atomicity on OS crashes.
+
+## Approved rules
+
+- New chunks only; no forced loads or retrogen.
+- Exact 74 × 74 square anchored as specified above. One source-lava surface connected
+  horizontally to the candidate covers at least 60%. Separate pools and cascades
+  cannot be added together. Counted columns have contiguous lava depth at least four.
+- Find the real bottom below the chamber footprint. Chamber center is 16 blocks
+  below that bottom. Keep at least three solid blocks between every carved cavity
+  and lava. Reject incompatible terrain, cavities, collisions or protected blocks.
+- Existing planning radii 7/5/3 may be reused according to their real layer meaning.
+- Dry-shore clue required; no automatically dug tunnel crossing lava.
+- One deterministic candidate per 256 × 256 region; accepted sites at least 256
+  blocks apart. No reroll after failure or reload.
+- Outside soul-soil floors, DRY/POOR/NORMAL/RICH/MOTHERLODE weights remain
+  10/25/45/17/3. Soul-soil floors have a FINAL Motherlode probability of 25%, with
+  other qualities sharing 75% in ratio 10:25:45:17. Exact weights are 30/75/135/51/97
+  out of 388. Finite vanilla quartz-ore budgets remain 0/12/20/30/49. No new quartz Budding family.
+- At most one ancient-debris block, replacing a quartz block: 10% for an accepted
+  Motherlode whose inspected floor includes soul soil, 0.5% for other Motherlodes.
+  One stable draw only; no extra roll on reload or fallback.
+- Effective global analysis ceiling: 65,536 reads per server tick; at most 262,144
+  reads per candidate. Transactional placement and persistent duplicate prevention.
+
+## Implementation checkpoints
+
+1. Existing read-only diagnostic measures loaded terrain, rejects unavailable chunks,
+   and exposes incomplete/capped results. It is not an eligibility test.
+2. Shared server-tick budget now applies to real diagnostic calls. Multiple commands
+   cannot multiply the ceiling. Future candidate analysis must acquire from the same
+   budget; it must additionally retain its own lifetime read counter.
+3. A first-load multi-chunk coordinator now tracks exact chunk object identities,
+   reserves the shared read budget, validates expected states and compensates failed
+   writes. A separate SavedData region ledger persists claimed/finished attempts.
+   No automatic candidate or generation caller is registered.
+4. Connected-surface analysis, deterministic selection and geometry are implemented
+   in the pure planner. Complete external protection, production scheduling and
+   a qualified transactional backend remain pending.
+
+## Integration constraint verified in current source
+
+`IoePendingExpeditionSites.PlanSignature.from` explicitly rejects any write outside
+its anchor chunk. A Nether chamber and a shore clue can lie in distinct chunks.
+`IoeNewChunkOreGuard` tracks only its own pending first-load chunks and releases the
+per-chunk placement authorizations on its final sanitation pass. Those existing mechanisms
+remain unchanged; `NetherPlacementCoordinator` now provides a separate bounded path.
+
+The next integration must retain exact first-generation identities for every write
+chunk, reject disk-loaded/unloaded/replaced chunks, revalidate terrain immediately
+before commit, and never use ordinary loaded status as permission to write. The
+surface scan may read older loaded neighbors, but cannot grant them write permission.
+NeoForge's chunk-load event precedes FULL promotion; interacting with the world in
+that callback is not a safe shortcut around deferred analysis. This is a missing
+transaction architecture, not a claim that NeoForge cannot support the feature.
+
+Until that lifecycle is implemented and tested, do not reuse the current one-chunk
+transaction by dropping its boundary check, and do not schedule delayed generation
+against arbitrary loaded chunks. A failed or expired attempt must stay terminal in
+the region ledger; a restart must never turn an old chunk into a new candidate.
+
+## Coordinator limits and guarantees
+
+First-generation identities are recorded in chunk-load callbacks without accessing
+world blocks. Only the same loaded chunk object may be written, from a later server
+tick and before age 20 ticks. Leases are not renewed; duplicate/disk load, unload,
+player break/entity placement and server stop invalidate them. Expired entries are
+pruned; at most 256 live identities are retained, with overflow denied.
+
+An immediate commit on the Nether server thread supports at most four write chunks,
+4,096 writes and at most 262,144 retained observations. Complete validation must
+fit the unchanged shared tick quota. All writes require expected states;
+fluid/block-entity targets are rejected. The adapter only replaces air, netherrack,
+basalt or blackstone without fluid or a block entity. This is not a substitute for
+future structure/protection and safe-crust planning. Expected read-only neighbors
+may be older chunks; every write chunk needs its own first-generation lease.
+
+Reads for preflight, immediate revalidation and possible compensation are reserved
+atomically from the global budget before inspecting blocks. Insufficient budget
+terminates the attempt; commit never waits until another tick. Regional claims are
+made before validation and remain terminal after failure or reload. Spacing checks
+inspect only nine neighboring region cells and reject distance below 256 from an
+accepted or incompletely compensated attempt. The original world seed/candidate
+selection must still be supplied by the future planner, not chosen by the coordinator.
+
+Interrupted attempts also reserve that same horizontal spacing: their write-ahead
+provenance already treats them as potentially partially written. An empty mineral
+list cannot prove that no cavity/crust/clue was written, so it does not waive the
+reservation. This conservatively includes an interruption before the first write
+when the saved record cannot distinguish it from a structural-only partial site.
+Known completed refusals and complete compensation (`ROLLED_BACK`) remain
+non-spacing-blocking, while their region claims still prevent replay.
+
+Because the coordinator claims before checking spacing, the same live candidate
+must not collide with its own in-flight claim. A memory-only distinction excludes
+only that live claim's own X/Z (admission and chamber Y may differ). Other live
+interrupted candidates remain obstacles. The distinction is cleared on finish and
+never serialized; a reloaded INTERRUPTED record has no exemption, including at its
+own origin. It creates no chunk lease, write permission, repair or retry. The saved
+format, nine-cell lookup, strict distance `<256` and acceptance at exactly 256 are
+unchanged. These rules enforce the existing partial-site separation; they do not
+change the candidate rate, geometry, rewards or closed generation gate.
+
+The reverse-order compensation journal restores only still-fresh chunks and only
+states still owned by the transaction. If another system unloads/replaces a chunk
+reentrantly during mutation, compensation must not load it or overwrite later work:
+`ROLLBACK_INCOMPLETE` is retained, blocks further attempts in that region and reserves
+neighbor spacing. No deferred recovery writes are attempted. This exceptional state
+is explicitly tested, not advertised as successful atomic placement. Generation must
+remain disabled until the final pipeline and its failure handling are qualified.
+
+Normal disk save/reload preserves all claims, including interrupted ones; leases
+are never serialized. This does not claim atomicity across an operating-system crash
+between Minecraft chunk saves and SavedData saves. Lost ledger data still cannot grant
+first-generation permission to a disk-loaded chunk. Cross-file crash consistency and
+full automated generation remain separate integration requirements.
+
+Validation covers both load orders, adjacent old/replaced chunks, same-tick use,
+expiry, unload/reload, player/terrain protection checks, global-budget refusal,
+partial-write compensation and unrecoverable invalidation, negative region coordinates,
+spacing boundaries, identity limits, save/reload and real two-chunk Nether writes.
+GameTest fixtures explicitly simulate new-generation receipts; they do not prove
+natural Nether generation or manual gameplay acceptance.
+
+## Callback audit and production gate
+
+`NetherPlacementRuntime.commit` now returns `BACKEND_UNVERIFIED` before acquiring
+SavedData or writing blocks. The experimental coordinator remains exercised directly
+by tests; its journal is explicitly not a guaranteed rollback backend.
+
+The NeoForge 1.21.1 Level patch routes normal writes through chunk mutation and then
+`markAndNotifyBlock`, including block-state callbacks even when neighbor-update flag 1
+is absent. Snapshot capture delays notification/physics and the patched chunk path
+suppresses `onPlace`, but those provisions alone do not establish that all mutation,
+removal, lighting and eventual publication paths are free of reentrant code. Calling
+raw section setters would also bypass normal heightmap/light/ticking maintenance.
+No such unsupported shortcut, forced chunk ticket or restored permission is used.
+
+Sources inspected:
+- https://github.com/neoforged/NeoForge/blob/1.21.1/patches/net/minecraft/world/level/Level.java.patch
+- https://github.com/neoforged/NeoForge/blob/1.21.1/patches/net/minecraft/world/level/chunk/LevelChunk.java.patch
+
+The precise unresolved risk is a write followed by callback-driven invalidation of
+an already-written chunk: a later compensation would violate the no-old-chunk rule.
+An incomplete journal cannot solve that contradiction. Production stays blocked
+until a backend with an established callback/publication boundary is validated or a
+separate explicit decision accepts a weaker transactional guarantee. No crash
+atomicity is claimed.
+
+## Connected planning over snapshots
+
+`NetherSitePlanner` now composes deterministic per-region candidate selection,
+ordinary 10/25/45/17/3 quality and the confirmed soul-soil profile, a stable
+terrain-conditioned Motherlode-only debris draw, connected lake
+analysis and geometry into the existing coordinator Plan type. It performs no world
+access: its Snapshot must be immutable and return unknown for unavailable terrain.
+A hard 262,144 snapshot-probe bound covers all phases together. This bound does not
+replace the shared server-tick budget needed when acquiring a real snapshot.
+
+Surface analysis visits the 74-square at a supplied surface Y, excludes flowing
+surface lava and lava-covered source cells, and flood-fills four-neighbor source
+cells from the candidate. Only connected columns with four contiguous lava cells
+count toward the integer 60% threshold (3,286 of 5,476). Separate pools cannot sum.
+The whole footprint must be known. The floor search examines the complete 15-square
+chamber footprint, follows lava to the first solid rock and selects the lowest floor
+Y; the center is exactly 16 below it. In addition to netherrack/basalt/blackstone,
+soul soil is admitted as a first non-liquid floor cell. Unknown, hollow or protected
+floors fail. Soul sand and other materials are not implicitly admitted.
+
+Geometry requires a solid, unprotected 15-cube of vanilla netherrack/basalt/blackstone,
+carves only a radius-3 interior, and places the exact finite mineral budget within
+the radius-5 shell. This conservatively retains at least three solid cells around
+the cavity; existing voids, fluids, ores, block entities and protected cells reject
+the plan. The nearest admissible dry shore adjacent to the connected surface gets a
+two-block blackstone marker, with no tunnel. All distinct planning observations, including lake/depth/floor states and protection
+bits outside the write set, are supplied to the coordinator for revalidation. Region-spacing and freshness
+remain the coordinator's responsibility, not inferred from a successful plan.
+
+Pure tests cover integer coverage boundaries, disconnected pools, flowing/covered
+surfaces, shallow columns, actual floor rejection, crust/protection, absent shore,
+unknown terrain, total probe exhaustion, negative-region determinism, exact budgets
+and debris replacement. The runtime GameTest verifies that the production gate
+refuses a plan without changing either chunk.
+
+Read-only real acquisition is now available through `diagnose nether_site`; see
+[NETHER_SNAPSHOT_CAPTURE.md](NETHER_SNAPSHOT_CAPTURE.md). It is a bounded single
+server-thread turn with identity/epoch validation, not a multi-tick content revision
+or first-load write authorization. Incomplete data is discarded.
+
+Remaining integration: qualify stable acquisition across ticks where required,
+select/verify surface Y, apply external protection checks, and qualify the
+transactional backend. [Pre-publication review](NETHER_PREPUBLICATION_BACKEND_REVIEW.md)
+records the proof obligations and alternatives. No automatic region scheduling,
+natural generation or client acceptance is claimed here.
+
+
+## Geometry and cost after the 74x74 decision
+
+At the unchanged candidate alignment (chunk-local X/Z = 8), the window spans chunk
+offsets -2..+2: **25 chunks**. For arbitrary alignment, one axis spans five chunks
+at local coordinates 5..11 and six at 0..4 or 12..15; 2D totals are 25, 30 or 36.
+Floor division is required at negative coordinates. The radius-seven chamber stays
+in the anchor chunk, but the shore is still free to lie elsewhere in the window.
+
+The exact threshold is `ceil(5476 * 60 / 100) = 3286`; 3285 fails. A fully deep,
+uncovered source surface costs at most `5476 * 5 = 27380` initial snapshot probes
+(and fresh reads before cache reuse). That phase fits one otherwise unused 65,536
+read quota. Floor search, geometry, shore validation and concurrent diagnostic work
+still consume budget; 262,144 per candidate and the global limit remain unchanged.
+Budget availability is not placement authorization.
+
+The native FEATURES terrain guarantee/write radius remains one chunk. Radius two
+terrain and general shore placement are still outside that guarantee. The 74 choice
+reduces cost but does not establish ownership, group publication or cancellation.
+Generation remains blocked until a conforming backend is qualified.
+
+`NetherLakeWindow` is the canonical width/offset contract used by the connected
+planner and capture diagnostic. The deprecated radius setting and scalar
+`LavaLakeAnchorSample` belong to the older synthetic metadata adapter; they cannot
+represent an even-width window and are not used to size the canonical capture.
+Their radius is not silently reinterpreted as 37 (which would suggest width 75).
+
+
+See [complete read-set validation](NETHER_READ_SET_VALIDATION.md) for acquisition,
+preflight/compensation read reservations, retained-entry memory bounds and the
+before/after regression evidence. Complete preflight does not establish publication
+atomicity; the production backend remains blocked.
+
+## Explicit canonical admission at a supplied surface
+
+`NetherNaturalAdmission.attempt` connects the world-seed canonical candidate to
+loaded-terrain capture, the existing planner and the prepared backend in one
+server-thread turn. It accepts only the candidate's actual chunk and requires its
+live first-generation receipt from `ChunkEvent.Load`; it never constructs receipts.
+Every write chunk still needs its own live receipt at placement. The surface Y is
+explicit input: automatic lake-height selection and natural scheduling are NOT
+implemented or enabled by this entry. No command or tick callback invokes it.
+
+A durable region claim is made before capture. Wrong candidate chunks do not claim;
+duplicates, unavailable/invalidated terrain, exhausted budgets and planning refusal
+cannot retry at another height or after reload. A transient single-use claim token
+hands the same canonical X/Z to placement without claiming the region twice; it is
+never serialized and is not itself a chunk-write permission. A process interrupted
+after admission leaves the existing terminal INTERRUPTED record on ordinary save.
+No OS-crash cross-file guarantee is added.
+
+Capture uses only already FULL loaded chunks, exact 74x74 and the shared server-tick
+read budget. Placement retains the complete read set and its acquisition plus
+validation/compensation accounting. Capture caches are discarded on exit.
+
+Hosted tests use a real newly generated fixture neighborhood and actual NeoForge
+load events, without calling observe or injecting first-generation receipts. Terrain
+is deliberately constructed to test the canonical chamber/remote-shore path; this
+is not discovery of a natural lake. Refusal coverage includes a noncandidate trigger,
+an unavailable FULL neighbor without forced loading, persistent claim round-trip and
+retry at a different Y. Existing coordinator tests retain old/replaced/expired chunks,
+read-set invalidation, budgets and partial compensation coverage. External protection
+remains unqualified (the host currently observes block entities); automatic generation
+and the production gate remain disabled. This entry is not an activation authorization.
+
+## Lowest-surface selection — approved 2026-10-09 20:25:47 UTC
+
+The owner chose the lowest surface. Natural admission no longer accepts a supplied
+Y: at the canonical X/Z it scans from minimum build height upward, choosing the
+first lava-source block whose immediately higher block contains no lava. The top
+build-height cell cannot be a certified surface because its upper cell is outside
+the available world interval. Flowing lava is not a source, and either source or
+flowing lava above disqualifies a cell as a surface.
+
+Only this selected level receives the 74x74 eligibility analysis. No surface,
+unknown terrain, insufficient budget or failure of any lake/placement criterion
+terminates the regional attempt; no second level or later retry is tried. The
+existing durable claim precedes selection. Selection and planning share one Reader
+and one capture: every distinct selection state/protection observation is retained
+in the placement read set, including cells below the eventual chamber. Fresh reads
+consume the shared 65,536 tick quota and the 262,144 candidate accounting; overlap
+with planning is deduplicated, not billed as a second world read. Immediate preflight
+revalidates these selection observations before any write.
+
+This supersedes earlier statements that natural admission requires an externally
+chosen surface. The diagnostic command still intentionally takes an explicit Y.
+There is still no automatic command/tick/generator caller, and protection qualification
+remains outstanding; the generation gate stays closed. Tests use real load receipts
+and constructed terrain with two lava levels, plus unit coverage for lower-pocket
+failure without fallback, flowing/covered cells, unknown cells, shared quota exhaustion
+and state/protection changes affecting selection-only observations.
+
+## Closed natural trigger and native protection
+
+The registered ServerTickEvent.Post listener now connects existing first-generation
+receipts to admission, behind the hard-coded false `GENERATION_ENABLED` gate.
+There is no config/command to lift it. With the gate closed, ticks neither dispatch
+candidates nor claim regions or read terrain. Explicit integration tests call the
+same dispatcher, without changing the production gate.
+
+No second pending queue or chunk ticket is introduced. At most the existing 256
+leases are inspected in sorted chunk-key order; only canonical candidate chunks
+from an earlier tick are dispatched. Each receipt is marked dispatched once before
+admission. Freshness/identity, shared budget and durable admission still decide the
+result. Noncanonical, disk-loaded, invalidated and repeated receipts confer no new
+permission; expiration is never extended. Metadata-only load callbacks stay unchanged.
+
+Capture and placement now share native protection: block entities, complete native
+structure bounding boxes and unavailable/capped structure metadata are protected.
+The existing loaded-only structure resolver is reused, including referenced origins;
+unknown origins refuse placement without loading. A protection change participates
+in complete read-set revalidation and immediate target/compensation checks. The
+resolver checks at most 256 metadata entries per point query; this is bounded
+metadata work, separate from the unchanged quotas on actual block-state reads.
+
+This is NOT a universal protection API: player constructions without such metadata
+and third-party claims are not identified. No provider was invented. Before enabling
+production, decide whether external claims must be supported and name the actual
+provider if so; native-only coverage must not be advertised as third-party coverage.
+Automatic generation remains off pending that scope and pipeline qualification.
+
+Tests cover real load-event dispatch after the closed tick gate has stayed idle,
+once-only canonical receipt selection, old/repeated/invalidated refusal, and real
+prepared-write rejection after native metadata changes. Structure geometry metadata
+is deliberately injected in that protection fixture; it is not natural fortress
+worldgen proof. Nominal constructed terrain fixtures explicitly clear their native
+structure metadata, while production never does. Existing structure resolver tests
+cover remote bounds and unavailable origins. No client/manual qualification is claimed.
+
+## First-load sanitation integration
+
+Qualification found a real production gap: `IoeNewChunkOreGuard` removes unauthorized
+Nether quartz/ancient debris during its initial/final passes, while the prepared
+Nether backend had no mineral provenance visible to that guard. The ledger now
+retains exact attempted resource positions and block IDs, before mutation. Only
+vanilla Nether quartz and ancient debris are eligible. These entries are sanitation
+exemptions, NEVER new-chunk write capabilities, retrogen or recovery instructions.
+
+Successful compensation removes the entry; a fully rejected/rolled-back attempt
+clears its resource set. COMMITTED and ROLLBACK_INCOMPLETE retain remaining entries.
+INTERRUPTED conservatively retains its write-ahead entries because some writes may
+have happened. Under partial/interrupted failure an attempted position may not have
+been written, but exemption still requires the exact matching resource block there;
+no block is created by provenance. No second attempt or repair is permitted.
+
+Resources are saved within each attempt and survive ordinary save/reload. Old
+records without resources do not acquire invented exemptions. Readback accepts only
+same-region quartz/debris IDs, bounded to MAX_WRITES per attempt (canonical plans
+have at most 49). The canonical ore shell stays in the candidate chunk/region;
+nonresource shore writes outside that region do not create provenance. The existing
+OS-crash cross-file consistency limitation is unchanged.
+
+The existing first-load guard now also consults this provenance. Its new-chunk/pending
+admission gates and handling of unrelated ores remain unchanged. Tests run both
+sanitation passes on real new chunks, verify unrelated quartz is removed, save/reload
+the ledger and confirm IOE ore survives final sanitation. Unit tests cover exact IDs,
+positions, partial failures and revocation after successful compensation.
+
+A separate batch within the EXISTING hosted GameTest profile now performs the one
+approved bounded existence search: seed 0, at most 64 NEW fixed regions
+(-1800-2*i, -1800), stopping at the first verified committed placement, the cap or a
+technical failure. It replaces the former 16-region fixture; it adds no runtime
+profile, workflow inputs, permissions or production behavior.
+
+A qualification-only cheap prefilter selects the same LOWEST surface, then checks
+its 225 footprint columns and rejects impossible floors, including F<minY+23 (the
+radius-seven cube at F-16 would extend below the world). It does NOT require depth
+four in every footprint column: the full connected-coverage predicate decides which
+columns count. No upper-surface fallback is used. A prefilter rejection is a test
+observation, not a persisted production attempt; the harness never revisits it.
+Survivors enter the unchanged real natural-admission path, which recaptures and
+revalidates the entire contract, including coverage, depth, crust, shore and receipts.
+All prefilter reads debit the SAME per-server tick budget as full admission; they
+are not refunded. No extra tick, budget reset, ticket or receipt extension is granted.
+A technical budget/availability failure stops the search instead of hiding it.
+
+The harness requests each unedited engine-generated 5x5 FULL neighborhood. Production
+never requests these chunks. Actual lifecycle receipts must be present on the next
+tick. Logs include seed, region, candidate, quality, load/admission ticks, surface,
+observed floor, precise prefilter failure position/state/protection, read counts and
+full-admission result. Controlled FULL availability is not player-driven exploration.
+
+On acceptance, the harness checks the actual carved cavity and exact mineral budget,
+ancient-debris replacement, real SavedData disk roundtrip, mineral provenance,
+conservation through pending-chunk sanitation and refusal of replay. It then stops.
+An all-rejected run may pass but is NOT proof of an accepted natural geode. This
+qualification is indispensable because constructed fixtures cannot show that the
+approved geometry fits generated terrain. It proves neither client appearance nor
+representative player loading, restart behavior or general site frequency.
+Production generation remains disabled.
+
+Owner follow-up: native protections are retained for development; external claims
+choice is deferred until before publication. This is not a universal protection claim
+or permission to enable generation. Player-built structures remain without general
+protection coverage beyond the native checks described above.
+
+
+## Confirmed soul-soil floor/quality/debris amendment — 2026-10-09
+
+Confirmed scope: soul soil in at least one of the 225 first non-liquid floor cells
+qualifies an accepted Motherlode for 10% ancient-debris replacement, still at most
+one block replacing one quartz. Other Motherlodes retain 0.5%; all other qualities
+retain zero debris. Buried soil below the first floor, soil outside the footprint,
+biome names and nearby chamber/shore material do not qualify.
+
+The existing seeded draw is retained as an integer in [0,1000); evaluate <100 with
+soul soil, <5 otherwise. This consumes no additional random draw and preserves
+ordinary-site seed behavior. Soul-soil evidence uses the same reader and full read
+set as all floor cells. State or protection changes invalidate placement before
+writes. Soul soil is NOT added to the chamber/crust or shore replacement materials;
+height, LOWEST, coverage/depth, protection and every other condition still apply.
+
+The final quality decision is 25% Motherlode, NOT a relative 25% increase. Use an
+unbiased integer draw in [0,388), with intervals [0,30), [30,105), [105,240),
+[240,291), [291,388) for DRY/POOR/NORMAL/RICH/MOTHERLODE. Thus 97/388 is exactly
+one quarter; the other weights are exactly three times 10:25:45:17. No rounded
+percentage table or independent promotion chance is used.
+
+This soil-only quality draw uses a separate deterministically seeded random stream.
+The original candidate position, ordinary quality, shape seed and debris integer
+retain their exact draw order and values outside soul soil. Effective quality is
+resolved only after all 225 floor cells pass. It determines the finite mineral
+budget and eligibility for the debris replacement. Snapshot reporting uses the
+resolved quality for complete plans, otherwise UNRESOLVED instead of presenting
+the ordinary pre-floor roll as final. No saved attempt is rerolled or repaired.
+
+Tests exhaust every quality/debris threshold, compare ordinary generation with
+the legacy draw sequence, cover soil outside/below the first-floor footprint,
+soil/protection changes before writes, unchanged chamber restrictions and exact
+48-quartz/one-debris persisted provenance for a promoted Motherlode. The existing
+constructed-terrain GameTest now uses one soul-soil floor cell and verifies real
+admission, mineral budget, disk provenance, sanitation and no replay. It remains a
+constructed fixture, not a natural-generation or visual proof. The existing bounded
+64-region qualification fixture is retained without expanding its region set.
+Production generation remains disabled.

@@ -81,3 +81,10 @@ config="immersive_ore_expedition.mixins.json"
     versionRange="${domum_version_range}"
     ordering="AFTER"
     side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="jade"
+type="optional"
+versionRange="[15.10.6,16)"
+ordering="AFTER"
+side="BOTH"

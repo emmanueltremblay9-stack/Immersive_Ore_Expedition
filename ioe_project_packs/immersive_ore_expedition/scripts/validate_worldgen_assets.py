@@ -609,6 +609,9 @@ def validate() -> None:
     from validate_abandoned_prospector_camp import validate as validate_abandoned_prospector_camp
 
     validate_abandoned_prospector_camp()
+    from validate_budding_models import validate as validate_budding_models
+
+    validate_budding_models()
     print(
         "Worldgen asset validation passed: "
         f"{len(FEATURE_IDS)} feature pairs, {len(NATURAL_FEATURE_TAGS)} biome modifiers, "

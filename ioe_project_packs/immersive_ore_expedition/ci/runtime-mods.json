@@ -86,6 +86,12 @@
       "filename": "domum-ornamentum-1.0.231-main.jar",
       "url": "https://ldtteam.jfrog.io/ldtteam/modding/com/ldtteam/domum-ornamentum/1.0.231/domum-ornamentum-1.0.231-main.jar",
       "sha512": "483061574a8452ce6b5b25779431540fc4e444123a987633546b290e9beb03ce094d0bdb80f28fb1dbc2317fd91d1dfbde1c4c0619dbf124768744cb8bc6ea35"
+    },
+    {
+      "mod_id": "jade",
+      "filename": "Jade-1.21.1-NeoForge-15.10.6.jar",
+      "url": "https://cdn.modrinth.com/data/nvQzSEkH/versions/eYz2YBGT/Jade-1.21.1-NeoForge-15.10.6.jar",
+      "sha512": "dad9755dce8d85d914fc4df2baa0211f13e5839a71c1925fdd01f69081a95e30a2934e6273f8b01f0169adebe7a9dae57a8d904de0c4cb36dc17369bb474f0f2"
     }
   ]
 }

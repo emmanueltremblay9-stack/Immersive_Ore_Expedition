@@ -18,10 +18,40 @@ public final class ExpeditionLocatorIndex {
     public static final String RUNTIME_PLACEMENT_PROOF_SOURCE = "runtime_worldgen_placement_proof";
 
     private final LinkedHashMap<SiteKey, ExpeditionSite> sites = new LinkedHashMap<>();
+    private final java.util.Map<NodeKey, NodeContext> nodes = new java.util.HashMap<>();
+
+    private final java.util.Map<NodeKey, ExpeditionSite> naturalAnchors = new java.util.HashMap<>();
+    private final java.util.Map<ChunkKey, LinkedHashMap<NodeKey, ExpeditionSite>> discoveryChunks = new java.util.HashMap<>();
+    private record ChunkKey(ResourceKey<Level> dimension, int x, int z) { }
+
+    public record NodeContext(ExpeditionSite site, com.oblixorprime.ioe.budding.BuddingNodeInfo node) { }
+    private record NodeKey(ResourceKey<Level> dimension, BlockPos pos) { }
+
+    public synchronized Optional<NodeContext> buddingNodeAt(ResourceKey<Level> dimension, BlockPos pos) {
+        return Optional.ofNullable(nodes.get(new NodeKey(dimension, pos)));
+    }
+
+    public synchronized boolean removeBuddingNode(ResourceKey<Level> dimension, BlockPos pos) {
+        NodeContext previous = nodes.get(new NodeKey(dimension, pos));
+        if (previous == null) return false;
+        record(previous.site().withBuddingNodes(previous.site().buddingNodes().stream()
+                .filter(node -> !node.pos().equals(pos)).toList()));
+        return true;
+    }
 
     public synchronized void record(ExpeditionSite site) {
         Objects.requireNonNull(site, "site");
-        sites.put(SiteKey.from(site), site);
+        if (naturalDiscoveryAnchor(site)) {
+            NodeKey key = new NodeKey(site.dimension(), site.pos());
+            naturalAnchors.put(key, site);
+            discoveryChunks.computeIfAbsent(new ChunkKey(site.dimension(), site.pos().getX() >> 4,
+                    site.pos().getZ() >> 4), ignored -> new LinkedHashMap<>()).put(key, site);
+        }
+        ExpeditionSite previous = sites.put(SiteKey.from(site), site);
+        if (previous != null) previous.buddingNodes().forEach(node -> nodes.remove(new NodeKey(previous.dimension(), node.pos()), new NodeContext(previous, node)));
+        if (site.playable() && site.quality().isPresent()) {
+            site.buddingNodes().forEach(node -> nodes.put(new NodeKey(site.dimension(), node.pos()), new NodeContext(site, node)));
+        }
     }
 
     public synchronized void recordPlacedProof(
@@ -110,6 +140,31 @@ public final class ExpeditionLocatorIndex {
                 });
     }
 
+    private static boolean naturalDiscoveryAnchor(ExpeditionSite site) {
+        return site.kind() == ExpeditionSiteKind.ANCHOR && site.playable()
+                && site.source().filter("natural_connected_expedition_site"::equals).isPresent();
+    }
+
+    public synchronized boolean hasNaturalDiscoveryAnchor(ResourceKey<Level> dimension, BlockPos pos) {
+        return naturalAnchors.containsKey(new NodeKey(dimension, pos));
+    }
+
+    /** Fixed nine buckets, at most sixteen anchors per bucket; no global index copy or terrain access. */
+    public synchronized List<ExpeditionSite> nearbyDiscoveryAnchors(ResourceKey<Level> dimension, BlockPos pos) {
+        var result = new java.util.ArrayList<ExpeditionSite>();
+        int cx = pos.getX() >> 4, cz = pos.getZ() >> 4;
+        for (int x = cx - 1; x <= cx + 1; x++) for (int z = cz - 1; z <= cz + 1; z++) {
+            var bucket = discoveryChunks.get(new ChunkKey(dimension, x, z));
+            if (bucket == null) continue;
+            int inspected = 0;
+            for (ExpeditionSite site : bucket.values()) {
+                if (inspected++ == 16) break;
+                result.add(site);
+            }
+        }
+        return List.copyOf(result);
+    }
+
     public synchronized List<ExpeditionSite> sites() {
         return gameplaySites();
     }
@@ -124,6 +179,9 @@ public final class ExpeditionLocatorIndex {
 
     public synchronized void clear() {
         sites.clear();
+        nodes.clear();
+        naturalAnchors.clear();
+        discoveryChunks.clear();
     }
 
     public static long distanceSquared(BlockPos first, BlockPos second) {

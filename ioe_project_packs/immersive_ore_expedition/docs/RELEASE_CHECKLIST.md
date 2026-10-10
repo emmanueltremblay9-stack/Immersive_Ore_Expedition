@@ -11,6 +11,14 @@ Use this checklist before publishing an Immersive Ore Expedition release from th
 - Java target: 21
 - Automated validation source of truth: GitHub Actions
 
+## Approved Consolidation Scope
+
+- Owner decision of 2026-10-09: consolidate the current approved scope and defer Nether generation; see `PATH_TO_3_0.md`.
+- Keep version `0.2.50-alpha` and notes `NOT_PUBLISHED`; the 3.0 objective does not authorize a version bump or publication.
+- Preserve Nether planning work without enabling generation. Verify `NetherPlacementRuntime.commit` still returns `BACKEND_UNVERIFIED`, the direct generator refuses placement and no automatic publication path is registered.
+- Distinguish active Overworld generation from retained experimental Nether planning in all candidate communications.
+- Keep PR62's review/disposition separate; do not imply that its tests or merge are included in PR63.
+
 ## Source and CI Identity
 
 - After the candidate is frozen, record its exact source commit and Git tree in the final external qualification/publication record.
@@ -72,4 +80,4 @@ Use this checklist before publishing an Immersive Ore Expedition release from th
 
 ## Known Limitation
 
-The production natural-worldgen path is implemented and currently enabled by default, but source inspection and hosted CI do not prove a manual client, dedicated-server, or visual worldgen smoke result. Those runtime observations remain separate release evidence.
+The production Overworld natural-worldgen path is implemented and currently enabled by default, but source inspection and hosted CI do not prove a manual client, dedicated-server, or visual worldgen smoke result. Those runtime observations remain separate release evidence.

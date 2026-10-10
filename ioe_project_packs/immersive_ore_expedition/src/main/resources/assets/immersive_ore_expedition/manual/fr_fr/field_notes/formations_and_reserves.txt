@@ -1,0 +1,13 @@
+Formations physiques et réserves IE
+Deux ressources distinctes sur un site
+« Nous ne conquérons pas le sous-sol en retirant tout ce que nous trouvons. Nous apprenons sa structure, comprenons ses ressources et prenons ce que nos machines peuvent utiliser. »
+<br><br>
+Les formations physiques sont des blocs présents dans le monde. Selon les ressources prises en charge, elles comprennent des matériaux minéraux environnants et des blocs de croissance Budding. Extraire un bloc et préserver un bloc de croissance productif sont deux choix distincts ; la croissance et le traitement des cristaux restent gérés par leurs mods respectifs.
+<br><br>
+Une réserve minérale Immersive Engineering est différente. C’est un gisement industriel fini, enregistré séparément du terrain visible. Ce n’est pas une chambre remplie d’une quantité équivalente de blocs de minerai.
+<br><br>
+La foreuse à échantillons d’IE fournit des informations de prospection. Son Excavator assure l’extraction industrielle ; la composition et l’épuisement dépendent de la réserve minérale réelle. Consultez les entrées natives du manuel IE pour ces machines.
+<br><br>
+Une formation physique et une réserve IE peuvent coexister sur un site IOE. Compter les nodes visibles ne mesure pas la réserve industrielle, et miner ces blocs n’est pas la même opération qu’exploiter la réserve avec l’Excavator.
+<br><br>
+Identifiez le système décrit par vos observations avant de planifier l’extraction. Un indice de surface ne suffit pas à établir la valeur d’une réserve ni sa quantité restante.

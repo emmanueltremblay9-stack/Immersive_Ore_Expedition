@@ -30,6 +30,13 @@ public final class ExpeditionLocatorService {
         runOnServerThread(level, () -> savedData(level).record(recordedSite));
     }
 
+    public static void removeBuddingNode(ServerLevel level, BlockPos pos) {
+        runOnServerThread(level, () -> {
+            ExpeditionLocatorSavedData data = savedData(level);
+            if (data.index().removeBuddingNode(level.dimension(), pos)) data.setDirty();
+        });
+    }
+
     public static ExpeditionLocatorIndex compassIndex(ServerLevel level, BlockPos origin) {
         ExpeditionLocatorIndex index = index(Objects.requireNonNull(level, "level"));
         logCompassDiagnostics(index, level.dimension(), Objects.requireNonNull(origin, "origin"));

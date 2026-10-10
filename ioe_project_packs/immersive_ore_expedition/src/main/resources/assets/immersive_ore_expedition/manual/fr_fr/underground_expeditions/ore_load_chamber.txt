@@ -1,0 +1,13 @@
+Chambre minérale
+Examiner la formation avant l’extraction
+« La roche ne s’est pas rassemblée ici pour nous faciliter la tâche. Nous avons construit la chambre parce que la roche était déjà là. »
+<br><br>
+Au bout de l’accès aménagé du site, la chambre offre un espace pour examiner la formation physique. Identifiez les blocs réellement présents. Selon la ressource et le site, vous pouvez y trouver du matériau minéral et des blocs de croissance Budding ; toutes les ressources ne prennent pas la même forme.
+<br><br>
+Une chambre peut être improductive. Sa présence ne garantit pas du minerai utile et son aspect actuel ne révèle pas ce qu’un autre explorateur a déjà retiré. Distinguez la qualité du site du rang d’un bloc Budding individuel.
+<br><br>
+Lorsqu’un bloc de croissance est présent, examinez ses informations avant de le casser. Préserver un bloc productif et récolter le matériau environnant répondent à des objectifs différents. La croissance et le traitement suivent toujours les règles du mod qui fournit la ressource.
+<br><br>
+Une réserve minérale IE associée est distincte de ces blocs physiques. Utilisez la foreuse de carottage d’IE pour prospecter et son excavatrice pour l’extraction industrielle. Compter les blocs visibles ne mesure ni la réserve ni son rendement restant.
+<br><br>
+Consignez ce que l’observation et la prospection permettent d’établir. Atteindre une salle ou lire cette page ne valide pas à lui seul les étapes ultérieures du journal des découvertes.

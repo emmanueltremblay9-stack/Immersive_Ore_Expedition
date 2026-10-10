@@ -146,6 +146,17 @@ reports. It is invoked by the existing worldgen validator used in hosted CI. The
 ground, powder snow, and lava within a two-block horizontal margin; it also enforces slope, natural ground,
 generated-structure absence across the footprint, replaceability, height, and the single-chunk envelope.
 
+The same native-structure check runs again when each camp plan is applied, including lower-quality fallbacks.
+Staging does not freeze structure starts/references: a new or moved overlapping structure, invalid/missing
+referenced start, unavailable chunk/status or exhausted metadata budget rejects the application before terrain
+reads/writes. This reuses the complete plan bounds, existing one-block margin and loaded-only resolver; it does
+not acquire chunk tickets or generate missing neighbors. Consequently a camp admitted during worldgen may be
+discarded if its metadata dependencies are unavailable at deferred confirmation. Unchanged, available metadata
+still permits placement. The policy remains limited to `MINER_CAMP` and native registered structure metadata;
+it does not add player-build or third-party claim protection, nor an atomic guarantee against other mods mutating
+metadata during the subsequent synchronous writes. Existing transaction compensation and bounded first-load
+admission rules remain in effect.
+
 Natural expedition sites use `naturalExpeditionSiteGenerationEnabled`. The older `runtimePlacementEnabled` flag is
 a legacy proof/planning hook only and does not disable the production `ExpeditionSiteFeature` path. Before any camp
 blocks or reservations are committed, the final server-thread transaction rejects a miner camp when an existing

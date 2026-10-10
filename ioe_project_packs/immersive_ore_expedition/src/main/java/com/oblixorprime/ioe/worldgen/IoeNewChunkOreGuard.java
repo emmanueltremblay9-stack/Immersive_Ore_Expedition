@@ -1,5 +1,7 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.budding.NativeCertusBudding;
+import com.oblixorprime.ioe.budding.BuddingRank;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -35,7 +37,13 @@ public final class IoeNewChunkOreGuard {
     private static final int BLOCK_UPDATE_FLAGS = Block.UPDATE_CLIENTS;
     private static final int SANITIZATIONS_PER_TICK = 1;
     private static final int FINAL_SANITIZATION_DELAY_TICKS = 20;
-    private static final Set<PendingChunk> PENDING_NEW_CHUNKS = ConcurrentHashMap.newKeySet();
+    // Global across dimensions; two passes per admission fit below the lifetime at the current service rate.
+    static final int MAX_PENDING_ADMISSIONS = 4096;
+    static final long ADMISSION_LIFETIME_TICKS = 12_000;
+    private static long admissionTick;
+    private static final FirstLoadAdmissions<PendingChunk> PENDING_NEW_CHUNKS =
+            new FirstLoadAdmissions<>(MAX_PENDING_ADMISSIONS, ADMISSION_LIFETIME_TICKS,
+                    IoeNewChunkOreGuard::releaseAdmission);
     private static final Set<PendingChunk> SCHEDULED_SANITIZATIONS = ConcurrentHashMap.newKeySet();
     private static final Queue<PendingChunk> INITIAL_SANITIZATION_QUEUE = new ConcurrentLinkedQueue<>();
     private static final ConcurrentHashMap<PendingChunk, Integer> FINAL_SANITIZATION_TICKS =
@@ -56,20 +64,21 @@ public final class IoeNewChunkOreGuard {
         if (!(event.getLevel() instanceof ServerLevel level)) {
             return;
         }
-        ChunkPos chunkPos = event.getChunk().getPos();
+        scheduleChunk(level, event.getChunk().getPos(), event.isNewChunk());
+    }
+
+    // Shared by the load listener and runtime tests; existing chunks need an unexpired admission.
+    static void scheduleChunk(ServerLevel level, ChunkPos chunkPos, boolean isNewChunk) {
         PendingChunk chunkKey = new PendingChunk(level.dimension(), chunkPos.toLong());
-        if (event.isNewChunk()) {
-            PENDING_NEW_CHUNKS.add(chunkKey);
-        } else if (!PENDING_NEW_CHUNKS.contains(chunkKey)) {
-            return;
-        }
+        if (!PENDING_NEW_CHUNKS.admit(chunkKey, isNewChunk, admissionTick)) return;
         if (!SCHEDULED_SANITIZATIONS.add(chunkKey)) {
             return;
         }
         INITIAL_SANITIZATION_QUEUE.add(chunkKey);
     }
 
-    private static void onServerTick(ServerTickEvent.Post event) {
+    static void onServerTick(ServerTickEvent.Post event) {
+        advanceAdmissionTick();
         int currentTick = event.getServer().getTickCount();
         for (int pass = 0; pass < SANITIZATIONS_PER_TICK; pass++) {
             PendingFinal pendingFinal = findDueFinalSanitization(currentTick);
@@ -131,7 +140,7 @@ public final class IoeNewChunkOreGuard {
         if (chunkKey == null) {
             return;
         }
-        if (!PENDING_NEW_CHUNKS.contains(chunkKey)) {
+        if (!PENDING_NEW_CHUNKS.contains(chunkKey, admissionTick)) {
             FINAL_SANITIZATION_TICKS.remove(chunkKey);
             return;
         }
@@ -168,7 +177,8 @@ public final class IoeNewChunkOreGuard {
         }
     }
 
-    private static boolean sanitizeLoadedChunk(ServerLevel level, ChunkPos chunkPos, boolean finalizeSite) {
+    public static boolean sanitizeLoadedChunk(ServerLevel level, ChunkPos chunkPos, boolean finalizeSite) {
+        if (!PENDING_NEW_CHUNKS.contains(new PendingChunk(level.dimension(), chunkPos.toLong()), admissionTick)) return false;
         LevelChunk chunk = level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z);
         if (chunk == null) {
             return false;
@@ -196,7 +206,8 @@ public final class IoeNewChunkOreGuard {
                                 minY + localY,
                                 chunkPos.getMinBlockZ() + localZ
                         );
-                        if (IoeOrePlacementAuthorization.matches(level.dimension(), pos, state)) {
+                        if (IoeOrePlacementAuthorization.matches(level.dimension(), pos, state)
+                                || com.oblixorprime.ioe.nethergeodes.NetherOreProvenance.preserves(level, pos, state)) {
                             continue;
                         }
                         targets.add(new Target(pos, kind));
@@ -237,6 +248,7 @@ public final class IoeNewChunkOreGuard {
                 }
             }
         }
+        if (finalizeSite) PENDING_NEW_CHUNKS.remove(new PendingChunk(level.dimension(), chunkPos.toLong()));
         IoeWorldgenRuntimeDiagnostics.recordGuardPass(removedOres, removedGrowthBlocks, finalizeSite);
         if (removedOres > 0 || removedGrowthBlocks > 0) {
             IoeExpeditionWorldgenMod.LOGGER.warn(
@@ -250,15 +262,45 @@ public final class IoeNewChunkOreGuard {
         return true;
     }
 
+    // Tick time cannot expire midway through a synchronous server-thread sanitation/confirmation.
+    static void advanceAdmissionTick() {
+        PENDING_NEW_CHUNKS.expire(++admissionTick);
+    }
+
+    private static void releaseAdmission(PendingChunk key) {
+        SCHEDULED_SANITIZATIONS.remove(key);
+        INITIAL_SANITIZATION_QUEUE.removeIf(key::equals);
+        FINAL_SANITIZATION_TICKS.remove(key);
+        ChunkPos chunkPos = new ChunkPos(key.chunkPos());
+        IoePendingExpeditionSites.discardChunk(key.dimension(), chunkPos);
+        IoeOrePlacementAuthorization.releaseChunk(key.dimension(), chunkPos);
+    }
+
+    static int pendingAdmissionCount() {
+        return PENDING_NEW_CHUNKS.size();
+    }
+
+    static int scheduledSanitizationCount() {
+        return SCHEDULED_SANITIZATIONS.size();
+    }
+
+    static int queuedSanitizationCount() {
+        return INITIAL_SANITIZATION_QUEUE.size() + FINAL_SANITIZATION_TICKS.size();
+    }
+
     static void clearPending() {
         PENDING_NEW_CHUNKS.clear();
         SCHEDULED_SANITIZATIONS.clear();
         INITIAL_SANITIZATION_QUEUE.clear();
         FINAL_SANITIZATION_TICKS.clear();
         prioritizeFinalSanitization = false;
+        admissionTick = 0;
     }
 
     private static BlockState replacementState(ServerLevel level, BlockPos pos) {
+        if (NativeCertusBudding.rank(level.getBlockState(pos).getBlock()).orElse(null) == BuddingRank.FLAWLESS) {
+            return NativeCertusBudding.block(BuddingRank.FLAWED).defaultBlockState();
+        }
         if (Level.NETHER.equals(level.dimension())) {
             return Blocks.NETHERRACK.defaultBlockState();
         }
@@ -278,6 +320,10 @@ public final class IoeNewChunkOreGuard {
                 || Ae2MeteoriteIntegration.forbiddenCertusOre(id)
                 || forbiddenVanillaOre(id)) {
             return TargetKind.ORE;
+        }
+        if (id.equals(NativeCertusBudding.id(BuddingRank.FLAWLESS))
+                && BuiltInRegistries.BLOCK.containsKey(NativeCertusBudding.id(BuddingRank.FLAWED))) {
+            return TargetKind.GROWTH_RESOURCE;
         }
         String namespace = id.getNamespace();
         String path = id.getPath();
