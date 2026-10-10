@@ -24,7 +24,10 @@ public final class ProximityDiscoveryGameTests {
     public static void actualBlueprintsRetainRecognizableSurfaceWitnesses(GameTestHelper helper) {
         var level = helper.getLevel();
         var player = FakePlayerFactory.get(level, new GameProfile(UUID.randomUUID(), "ioe_signature"));
-        BlockPos anchor = helper.absolutePos(new BlockPos(6, 4, 6));
+        BlockPos fixture = helper.absolutePos(new BlockPos(6, 4, 6));
+        // Camp plans require a hatch footprint contained in their anchor chunk.
+        BlockPos anchor = new BlockPos((fixture.getX() >> 4 << 4) + 8,
+                fixture.getY(), (fixture.getZ() >> 4 << 4) + 8);
         for (var type : com.oblixorprime.ioe.worldgen.ExpeditionSiteType.naturalSurfaceSites()) {
             for (SiteQuality quality : SiteQuality.values()) {
                 var plan = com.oblixorprime.ioe.worldgen.ExpeditionSiteBlueprints.plan(type, anchor, quality,
