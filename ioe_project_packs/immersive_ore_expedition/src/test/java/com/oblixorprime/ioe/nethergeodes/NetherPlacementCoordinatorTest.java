@@ -144,6 +144,41 @@ final class NetherPlacementCoordinatorTest {
         assertTrue(loaded.claim(new BlockPos(-1, 30, 8))); // floor division, distinct negative region
         assertFalse(loaded.claim(new BlockPos(-256, 30, 8)));
     }
+    @Test void interruptedPartialWriteReservesNeighborSpacingAfterReload() {
+        var f = new Fixture(false);
+        var ledger = new NetherPlacementLedger();
+        Host interruptedHost = new Host() {
+            public void requireServerThread() { }
+            public int tick() { return f.tick; }
+            public Object loadedChunk(long key) { return f.loadedChunk(key); }
+            public BlockState read(BlockPos pos) { return f.read(pos); }
+            public boolean protectedAt(BlockPos pos, BlockState state) { return false; }
+            public boolean safeToReplace(BlockPos pos, BlockState state) { return true; }
+            public boolean reserveReads(int count) { return f.reserveReads(count); }
+            public boolean write(BlockPos pos, BlockState state) {
+                f.write(pos, state);
+                throw new AssertionError("injected interruption after first write, before finish");
+            }
+        };
+        assertThrows(AssertionError.class, () -> f.coordinator.commit(interruptedHost, ledger, plan()));
+        assertEquals(ORE, f.blocks.get(A));
+        assertEquals(ROCK, f.blocks.get(B));
+        assertEquals("INTERRUPTED", ledger.resultAt(A).orElseThrow());
+        var loaded = NetherPlacementLedger.FACTORY.deserializer().apply(ledger.save(new CompoundTag(), null), null);
+        assertTrue(loaded.preserves(A, ORE));
+        assertFalse(loaded.claim(A));
+
+        var next = new Fixture(false);
+        var neighbor = A.west(16); // Different (negative) region, only 16 blocks from the partial site.
+        var identity = new Object();
+        next.chunks.put(key(neighbor), identity);
+        next.blocks.put(neighbor, ROCK);
+        next.coordinator.observe(key(neighbor), identity, true, 0);
+        assertEquals(Result.SPACING, next.coordinator.commit(next, loaded,
+                new Plan(neighbor, Map.of(neighbor, ROCK), Map.of(neighbor, ORE))));
+        assertEquals(0, next.mutations);
+        assertEquals(ROCK, next.blocks.get(neighbor));
+    }
     @Test void retainedIdentityCapacityNeverEvictsIntoAWritePermission() {
         var f = new Fixture(false);
         for (int i = 2; i <= MAX_LEASES; i++) {
