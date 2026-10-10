@@ -3,8 +3,10 @@
 Scope source: [governance PR5](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition_GPT/pull/5),
 handoff `IOE-EXPEDITION-DISCOVERY-MANUAL-001`, reconstruction commit
 `cd48b5129eae1881db2c8e0677455d58baea164d`. The user approved implementation and
-subsequently resumed this bounded technical cycle. The governance PR is unmerged;
-this reference does not claim canonical governance integration or modify FINAL_DESIGN.
+subsequently resumed bounded technical cycles. Governance PR5 was merged on
+2026-10-10 at 00:39:30 UTC as `2257fc3db7b296aa055bb1548955767da0446c7f`,
+integrating the handoff into governance main. This does not authorize technical PR
+merges or modify technical FINAL_DESIGN contracts.
 
 ## Server persistence core
 
