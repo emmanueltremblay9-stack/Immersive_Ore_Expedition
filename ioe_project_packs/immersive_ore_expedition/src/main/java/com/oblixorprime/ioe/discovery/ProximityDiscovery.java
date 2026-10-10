@@ -119,11 +119,11 @@ public final class ProximityDiscovery {
     private static boolean loadedBetween(ServerPlayer player, BlockPos target) {
         Vec3 eye = player.getEyePosition();
         if (eye.distanceToSqr(Vec3.atCenterOf(target)) > RANGE * RANGE) return false;
-        // Ray traversal must never request an unloaded chunk, including at a diagonal edge.
-        int minX = Math.min(player.blockPosition().getX(), target.getX()) >> 4;
-        int maxX = Math.max(player.blockPosition().getX(), target.getX()) >> 4;
-        int minZ = Math.min(player.blockPosition().getZ(), target.getZ()) >> 4;
-        int maxZ = Math.max(player.blockPosition().getZ(), target.getZ()) >> 4;
+        // Include a one-block halo for ray traversal endpoint epsilon and edge shapes.
+        int minX = (Math.min(player.blockPosition().getX(), target.getX()) - 1) >> 4;
+        int maxX = (Math.max(player.blockPosition().getX(), target.getX()) + 1) >> 4;
+        int minZ = (Math.min(player.blockPosition().getZ(), target.getZ()) - 1) >> 4;
+        int maxZ = (Math.max(player.blockPosition().getZ(), target.getZ()) + 1) >> 4;
         for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++)
             if (!player.serverLevel().getChunkSource().hasChunk(x, z)) return false;
         return true;
