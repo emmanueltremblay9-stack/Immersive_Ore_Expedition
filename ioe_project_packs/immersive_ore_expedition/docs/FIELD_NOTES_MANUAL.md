@@ -1,4 +1,4 @@
-# Field Notes — static fundamentals slice
+# Field Notes — fundamentals and Overworld surface evidence
 
 ## Delivered pages
 
@@ -61,7 +61,60 @@ results must be reported separately, not inherited from the previous Journal bui
 Actual IE client registration, page breaks, typography, resource reload and language
 switch remain NOT_PERFORMED. Static resource validation does not replace visual proof.
 
-Next suggested section: supported Overworld surface evidence, reconciled page by page
-against actual implemented structures before importing more of the RP source. The full
-Field Notes chapter set, resource atlas, Nether/End sections and discovery triggers are
-not completed by this slice.
+## Overworld surface-evidence increment
+
+A separate IOE `surface_evidence` category adds four EN/FR entries. English quotations
+come verbatim from source Chapter II entries 1–4; French quotations are translations.
+The miner-camp quotation originated in the abandoned-camp entry; the factual page
+describes both supported active/recent and abandoned camp presentations without
+claiming every camp contains survey notes or valuable supplies.
+
+| Included page | Active source and concrete details |
+|---|---|
+| `tiny_vertical_mine_entrance` | `ExpeditionSiteBlueprints.addMineEntrance`: stone ring, oak posts/planks, raised lantern |
+| `collapsed_shaft` | `addCollapsedShaft`: stone ring, gravel/tuff, stripped-oak support, planks and mossy cobblestone |
+| `miner_camp` | `addSurfaceClue` dispatches to `ProspectorCampOutcropComposer` or `AbandonedProspectorCampComposer`; campfire, worktables/containers according to layout, host-rock outcrop; archetype selected in `ExpeditionSiteFeature` |
+| `buried_survey_marker` | `addSurveyMarker`: partly buried mossy border, chiseled stone bricks, wall/lantern, stone-brick shaft cover with oak trapdoor |
+
+These are the four `ExpeditionSiteType.naturalSurfaceSites()`, not merely catalog
+entries. Each has a configured feature, placed feature and live `neoforge:add_features`
+modifier at `surface_structures`, through a biome tag containing `#c:is_overworld`.
+Natural generation and their structure toggles default on. Actual placement still
+requires compatible terrain, one valid resource profile, available resource dependencies
+and confirmed transaction/deposit preparation. Productive sites require IE. New-chunk
+admission/placement constraints still apply. This source path proves supported generation,
+not a fresh manual observation or a guarantee that every attempted site appears.
+
+The pages describe vanilla/common recognition features; they do not promise optional
+Domum-specific decoration when Domum is absent. Server configs/datapacks can change
+availability. No rarity numbers, geometry offsets, hidden quality correlations, resource
+mapping, site coordinates or private journal data are exposed by these pages.
+
+### Explicit exclusions from this section
+
+- **Standalone mineral outcrop:** not one of the four registered natural surface
+  types. The camp's host-rock outcrop is described only as part of its composition,
+  not as guaranteed extractable ore or a separately generated deposit.
+- **Reservoir seep/pocket lake/vent:** `IpReservoirSeepFeature.placeSeepClue` skips
+  direct placement, and the `SurfaceCluePlacementPlanner` path is planning scaffolding.
+  Abstract IP reservoir integration does not prove a generated surface seep. No IP-
+  dependent page is added and IP absence is not bypassed.
+- **Aquatic/shoreline camps:** the current natural camp path rejects that visual
+  family; no underwater or shoreline camp page is advertised.
+- **Dynamic collapses, special excavation puzzles, alternate hidden tunnels and
+  survey-note rewards:** source RP possibilities are not promoted to implemented
+  mechanics or guaranteed loot.
+- **Connector/chamber:** implemented underground components, not independent surface
+  clues; reserved for the next bounded section rather than advertised here as surface
+  types. Nether/End and unavailable optional integration content remain excluded.
+
+No worldgen, resource profile, recipe, dependency, Journal/Compass code or pending
+discovery-trigger decision changes. Registration uses the same additive IE manifest
+with a new IOE category; all four JSON bodies and eight texts stay in the IOE namespace.
+Static verification checks the live feature chain and localized entry references.
+Actual client rendering/registration remains NOT_PERFORMED.
+
+Next essential approved content: connected underground access and ore-load chambers,
+using source Chapter III entries 5–6 and reconciling their current geometry/resource
+semantics. The full Field Notes chapter set, atlas, Nether/End sections and discovery
+triggers remain incomplete.
