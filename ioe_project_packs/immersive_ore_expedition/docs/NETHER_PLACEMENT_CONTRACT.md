@@ -126,6 +126,24 @@ inspect only nine neighboring region cells and reject distance below 256 from an
 accepted or incompletely compensated attempt. The original world seed/candidate
 selection must still be supplied by the future planner, not chosen by the coordinator.
 
+Interrupted attempts also reserve that same horizontal spacing: their write-ahead
+provenance already treats them as potentially partially written. An empty mineral
+list cannot prove that no cavity/crust/clue was written, so it does not waive the
+reservation. This conservatively includes an interruption before the first write
+when the saved record cannot distinguish it from a structural-only partial site.
+Known completed refusals and complete compensation (`ROLLED_BACK`) remain
+non-spacing-blocking, while their region claims still prevent replay.
+
+Because the coordinator claims before checking spacing, the same live candidate
+must not collide with its own in-flight claim. A memory-only distinction excludes
+only that live claim's own X/Z (admission and chamber Y may differ). Other live
+interrupted candidates remain obstacles. The distinction is cleared on finish and
+never serialized; a reloaded INTERRUPTED record has no exemption, including at its
+own origin. It creates no chunk lease, write permission, repair or retry. The saved
+format, nine-cell lookup, strict distance `<256` and acceptance at exactly 256 are
+unchanged. These rules enforce the existing partial-site separation; they do not
+change the candidate rate, geometry, rewards or closed generation gate.
+
 The reverse-order compensation journal restores only still-fresh chunks and only
 states still owned by the transaction. If another system unloads/replaces a chunk
 reentrantly during mutation, compensation must not load it or overwrite later work:

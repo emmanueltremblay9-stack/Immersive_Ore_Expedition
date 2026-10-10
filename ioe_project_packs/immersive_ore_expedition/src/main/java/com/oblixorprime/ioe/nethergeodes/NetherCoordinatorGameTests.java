@@ -16,6 +16,51 @@ import java.util.Map;
 @PrefixGameTestTemplate(false)
 public final class NetherCoordinatorGameTests {
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 200)
+    public static void interruptedPartialSiteKeepsSpacingAfterDiskReload(GameTestHelper helper) {
+        var level = helper.getLevel().getServer().getLevel(Level.NETHER);
+        var origin = new BlockPos(-65528, 40, -65528);
+        var neighbor = origin.west(16); // Adjacent region, below the canonical 256-block minimum.
+        var rock = Blocks.NETHERRACK.defaultBlockState();
+        var ore = Blocks.NETHER_QUARTZ_ORE.defaultBlockState();
+        var coordinator = new NetherPlacementCoordinator();
+        for (var pos : java.util.List.of(origin, neighbor)) {
+            var chunk = level.getChunk(pos); // Controlled fixture only; production spacing reads only the ledger.
+            chunk.setAllStarts(new java.util.HashMap<>());
+            chunk.setAllReferences(new java.util.HashMap<>());
+            level.setBlock(pos, rock, 2);
+            coordinator.observe(chunk.getPos().toLong(), chunk, true, level.getServer().getTickCount());
+        }
+        var storage = level.getDataStorage();
+        var ledger = storage.computeIfAbsent(NetherPlacementLedger.FACTORY, NetherPlacementLedger.NAME);
+        helper.assertTrue(ledger.claim(origin), "Interrupted fixture region already claimed");
+        ledger.recordResource(origin, origin, ore);
+        level.setBlock(origin, ore, 2); // Partial write; deliberately no terminal finish record.
+        helper.runAfterDelay(1, () -> {
+            try {
+                storage.save();
+                net.neoforged.neoforge.common.IOUtilities.waitUntilIOWorkerComplete();
+                var disk = storage.readTagFromDisk(NetherPlacementLedger.NAME, null,
+                        SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+                var loaded = NetherPlacementLedger.FACTORY.deserializer().apply(disk.getCompound("data"), level.registryAccess());
+                helper.assertTrue(loaded.resultAt(origin).orElseThrow().equals("INTERRUPTED")
+                        && loaded.preserves(origin, ore), "Disk reload lost interrupted mineral provenance");
+                helper.assertTrue(loaded.hasAcceptedWithin(origin.west(255), 256), "Disk reload lost interrupted spacing");
+                helper.assertFalse(loaded.hasAcceptedWithin(origin.west(256), 256), "Exact 256-block boundary changed");
+                helper.assertTrue(coordinator.commit(NetherPlacementRuntime.host(level), loaded,
+                        new NetherPlacementCoordinator.Plan(neighbor, Map.of(neighbor, rock), Map.of(neighbor, ore)))
+                        == NetherPlacementCoordinator.Result.SPACING, "Neighbor entered a partial site's reserved spacing");
+                helper.assertTrue(coordinator.commit(NetherPlacementRuntime.host(level), loaded,
+                        new NetherPlacementCoordinator.Plan(origin, Map.of(origin, ore), Map.of(origin, rock)))
+                        == NetherPlacementCoordinator.Result.DUPLICATE, "Interrupted site was replayed or repaired");
+                helper.assertTrue(level.getBlockState(origin).equals(ore) && level.getBlockState(neighbor).equals(rock),
+                        "Reload/refusal changed the partial site or its neighbor");
+                helper.assertTrue(loaded.resultAt(origin).orElseThrow().equals("INTERRUPTED"), "Refusal rewrote prior outcome");
+            } catch (java.io.IOException failure) { throw new RuntimeException(failure); }
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 200)
     public static void multiChunkCommitPersistsWithoutRestoringWritePermissions(GameTestHelper helper) {
         var level = helper.getLevel().getServer().getLevel(Level.NETHER);
         var first = new BlockPos(-4088, 40, -4088);

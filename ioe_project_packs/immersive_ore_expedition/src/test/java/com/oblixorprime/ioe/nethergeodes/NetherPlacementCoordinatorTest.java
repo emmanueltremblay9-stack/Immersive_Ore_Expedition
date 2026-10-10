@@ -179,6 +179,56 @@ final class NetherPlacementCoordinatorTest {
         assertEquals(0, next.mutations);
         assertEquals(ROCK, next.blocks.get(neighbor));
     }
+    @Test void livePreparedClaimExemptsOnlyItsOwnCandidateAndStillCommits() {
+        var ledger = new NetherPlacementLedger();
+        var permit = ledger.prepare(A.above(40)); // Admission Y can differ from the eventual chamber Y.
+        assertNotNull(permit);
+        assertFalse(permit.hasAcceptedWithin(A, 256));
+        assertTrue(ledger.hasAcceptedWithin(A.west(16), 256));
+        var restored = NetherPlacementLedger.FACTORY.deserializer().apply(ledger.save(new CompoundTag(), null), null);
+        assertTrue(restored.hasAcceptedWithin(A, 256));
+        assertNull(restored.prepare(A));
+        var f = new Fixture(false);
+        assertEquals(Result.COMMITTED, f.coordinator.commit(f, permit, plan()));
+        assertTrue(ledger.hasAcceptedWithin(A, 256));
+        assertEquals(Result.DUPLICATE, f.coordinator.commit(f, permit, plan()));
+        assertEquals(2, f.mutations);
+    }
+
+    @Test void interruptedUnknownFootprintsRespectHorizontalBoundaryWithoutMineralProvenance() {
+        for (var origin : List.of(A, new BlockPos(-8, 30, -8))) {
+            var ledger = new NetherPlacementLedger();
+            assertTrue(ledger.claim(origin));
+            // Structural writes (air/crust/clue) have no mineral provenance. An empty list is not proof of no writes.
+            ledger.recordResource(origin, origin, Blocks.BLACKSTONE.defaultBlockState());
+            var loaded = NetherPlacementLedger.FACTORY.deserializer().apply(ledger.save(new CompoundTag(), null), null);
+            assertFalse(loaded.preserves(origin, ORE));
+            for (var delta : List.of(new BlockPos(255, 90, 0), new BlockPos(-255, -90, 0),
+                    new BlockPos(0, 0, 255), new BlockPos(0, 0, -255), new BlockPos(181, 0, 181))) {
+                assertTrue(loaded.hasAcceptedWithin(origin.offset(delta), 256));
+            }
+            for (var delta : List.of(new BlockPos(256, 0, 0), new BlockPos(-256, 0, 0),
+                    new BlockPos(0, 0, 256), new BlockPos(0, 0, -256), new BlockPos(182, 0, 181))) {
+                assertFalse(loaded.hasAcceptedWithin(origin.offset(delta), 256));
+            }
+            assertFalse(loaded.claim(origin));
+        }
+    }
+
+    @Test void knownRejectedOrRestoredAttemptsDoNotAcquireSpacingReservations() {
+        for (var result : List.of(Result.PLAN_REJECTED, Result.NOT_FRESH, Result.SPACING,
+                Result.BUDGET, Result.TERRAIN_CHANGED, Result.ROLLED_BACK)) {
+            var ledger = new NetherPlacementLedger();
+            assertTrue(ledger.claim(A));
+            ledger.recordResource(A, A, ORE);
+            ledger.finish(A, result);
+            var loaded = NetherPlacementLedger.FACTORY.deserializer().apply(ledger.save(new CompoundTag(), null), null);
+            assertFalse(loaded.hasAcceptedWithin(A.west(16), 256), result.name());
+            assertFalse(loaded.preserves(A, ORE));
+            assertFalse(loaded.claim(A));
+        }
+    }
+
     @Test void retainedIdentityCapacityNeverEvictsIntoAWritePermission() {
         var f = new Fixture(false);
         for (int i = 2; i <= MAX_LEASES; i++) {

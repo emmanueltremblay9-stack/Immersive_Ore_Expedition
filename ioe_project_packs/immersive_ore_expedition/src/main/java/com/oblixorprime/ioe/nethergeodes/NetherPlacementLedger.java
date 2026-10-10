@@ -10,7 +10,8 @@ import java.util.*;
 final class NetherPlacementLedger extends SavedData implements NetherPlacementCoordinator.Ledger {
     static final String NAME = "immersive_ore_expedition_nether_attempts";
     static final Factory<NetherPlacementLedger> FACTORY = new Factory<>(NetherPlacementLedger::new, NetherPlacementLedger::load);
-    private record Attempt(BlockPos origin, String result) { }
+    // liveClaim is only a self-spacing exemption for this session, never a write capability or saved field.
+    private record Attempt(BlockPos origin, String result, boolean liveClaim) { }
     private final Map<Long, Map<Long, String>> resources = new LinkedHashMap<>();
     private final Map<Long, Attempt> attempts = new LinkedHashMap<>();
     private static long region(BlockPos pos) {
@@ -18,7 +19,7 @@ final class NetherPlacementLedger extends SavedData implements NetherPlacementCo
     }
     public boolean claim(BlockPos origin) {
         if (attempts.containsKey(region(origin))) return false;
-        attempts.put(region(origin), new Attempt(origin.immutable(), "INTERRUPTED"));
+        attempts.put(region(origin), new Attempt(origin.immutable(), "INTERRUPTED", true));
         setDirty();
         return true;
     }
@@ -49,7 +50,13 @@ final class NetherPlacementLedger extends SavedData implements NetherPlacementCo
         int rx = Math.floorDiv(origin.getX(), 256), rz = Math.floorDiv(origin.getZ(), 256);
         for (int dz = -1; dz <= 1; dz++) for (int dx = -1; dx <= 1; dx++) {
             var a = attempts.get(net.minecraft.world.level.ChunkPos.asLong(rx + dx, rz + dz));
-            if (a == null || !(a.result().equals("COMMITTED") || a.result().equals("ROLLBACK_INCOMPLETE"))) continue;
+            if (a == null) continue;
+            boolean interrupted = a.result().equals("INTERRUPTED");
+            if (!(a.result().equals("COMMITTED") || a.result().equals("ROLLBACK_INCOMPLETE") || interrupted)) continue;
+            // The coordinator claims before validating spacing. Ignore only that live candidate's own X/Z;
+            // all other interrupted claims, including every reloaded one, may contain permanent partial writes.
+            if (interrupted && a.liveClaim() && origin.getX() == a.origin().getX()
+                    && origin.getZ() == a.origin().getZ()) continue;
             long x = (long) origin.getX() - a.origin().getX(), z = (long) origin.getZ() - a.origin().getZ();
             if (x * x + z * z < 65_536L) return true;
         }
@@ -59,7 +66,7 @@ final class NetherPlacementLedger extends SavedData implements NetherPlacementCo
     public void finish(BlockPos origin, NetherPlacementCoordinator.Result result) {
         if (result != NetherPlacementCoordinator.Result.COMMITTED
                 && result != NetherPlacementCoordinator.Result.ROLLBACK_INCOMPLETE) resources.remove(region(origin));
-        attempts.put(region(origin), new Attempt(origin.immutable(), result.name()));
+        attempts.put(region(origin), new Attempt(origin.immutable(), result.name(), false));
         setDirty();
     }
     public void recordResource(BlockPos origin, BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
@@ -110,7 +117,7 @@ final class NetherPlacementLedger extends SavedData implements NetherPlacementCo
             var entry = entries.getCompound(i);
             if (!entry.contains("origin", Tag.TAG_LONG)) continue;
             var origin = BlockPos.of(entry.getLong("origin"));
-            if (result.attempts.putIfAbsent(region(origin), new Attempt(origin, entry.getString("result"))) != null) continue;
+            if (result.attempts.putIfAbsent(region(origin), new Attempt(origin, entry.getString("result"), false)) != null) continue;
             var blocks = entry.getList("resources", Tag.TAG_COMPOUND);
             var retained = new LinkedHashMap<Long, String>();
             for (int j = 0; j < Math.min(blocks.size(), NetherPlacementCoordinator.MAX_WRITES); j++) {
