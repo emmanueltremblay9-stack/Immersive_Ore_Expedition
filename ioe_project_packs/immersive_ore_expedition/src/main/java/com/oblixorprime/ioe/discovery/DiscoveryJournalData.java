@@ -16,6 +16,7 @@ final class DiscoveryJournalData extends SavedData {
     static final Factory<DiscoveryJournalData> FACTORY = new Factory<>(DiscoveryJournalData::new, DiscoveryJournalData::load);
     private record Key(UUID player, DiscoverySiteKey site) { }
     private final Map<Key, DiscoveryView> records = new LinkedHashMap<>();
+    private CompoundTag unsupportedData;
 
     List<DiscoveryView> views(UUID player) {
         return records.entrySet().stream().filter(e -> e.getKey().player().equals(player))
@@ -26,6 +27,7 @@ final class DiscoveryJournalData extends SavedData {
         Objects.requireNonNull(player);
         Objects.requireNonNull(site);
         Objects.requireNonNull(evidence);
+        if (unsupportedData != null) return false;
         Key key = new Key(player, site);
         DiscoveryView previous = records.get(key);
         int expected = previous == null ? 0 : previous.stage().ordinal() + 1;
@@ -47,6 +49,7 @@ final class DiscoveryJournalData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+        if (unsupportedData != null) return tag.merge(unsupportedData.copy());
         tag.putInt("version", 1);
         ListTag entries = new ListTag();
         records.forEach((key, view) -> {
@@ -68,8 +71,15 @@ final class DiscoveryJournalData extends SavedData {
     }
 
     private static DiscoveryJournalData load(CompoundTag tag, HolderLookup.Provider registries) {
-        if (tag.getInt("version") != 1) throw new IllegalArgumentException("Unsupported IOE discovery data version");
         DiscoveryJournalData data = new DiscoveryJournalData();
+        if (tag.getInt("version") != 1) {
+            // Throwing here lets DimensionDataStorage replace an unreadable file with fresh data.
+            // Preserve unknown formats intact and refuse progression instead.
+            data.unsupportedData = tag.copy();
+            com.oblixorprime.ioe.ImmersiveOreExpeditionMod.LOGGER.warn(
+                    "Unsupported IOE discovery data version {}; journal is read-only until migrated", tag.getInt("version"));
+            return data;
+        }
         for (Tag value : tag.getList("entries", Tag.TAG_COMPOUND)) {
             CompoundTag entry = (CompoundTag) value;
             try {

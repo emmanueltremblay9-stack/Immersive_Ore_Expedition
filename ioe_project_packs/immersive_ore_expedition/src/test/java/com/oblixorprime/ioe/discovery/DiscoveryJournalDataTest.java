@@ -99,7 +99,10 @@ class DiscoveryJournalDataTest {
         var loaded = DiscoveryJournalData.FACTORY.deserializer().apply(tag, null);
         assertEquals(data.views(PLAYER), loaded.views(PLAYER));
         tag.putInt("version", 2);
-        assertThrows(IllegalArgumentException.class, () -> DiscoveryJournalData.FACTORY.deserializer().apply(tag, null));
+        var future = DiscoveryJournalData.FACTORY.deserializer().apply(tag, null);
+        assertTrue(future.views(PLAYER).isEmpty());
+        assertFalse(future.advance(PLAYER, KEY, evidence(DiscoveryStage.EVIDENCE_DISCOVERED)));
+        assertEquals(tag, future.save(new CompoundTag(), null));
     }
 
     @Test void identitySurvivesQualityAndReindexMetadataChanges() {

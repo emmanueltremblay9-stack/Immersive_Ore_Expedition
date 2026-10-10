@@ -34,8 +34,9 @@ for several stages can submit each justified step; it must not fabricate prerequ
 The boolean changed result is a deduplication signal, not a notification implementation.
 Repeated evidence does not dirty SavedData. Save/load preserves progress and IDs.
 Malformed rows are skipped, first valid duplicate wins, and future-stage fields in
-an earlier-stage row are ignored. Unknown format versions fail loading instead of
-being interpreted as a known layout; forward migration is not provided in this slice.
+an earlier-stage row are ignored. Unknown format versions retain their raw data,
+log a warning and refuse progression or player projections rather than allowing
+SavedData fallback to overwrite them; forward migration is not provided in this slice.
 
 ## Trust boundary and actual connection
 
