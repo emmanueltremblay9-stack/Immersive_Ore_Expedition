@@ -15,7 +15,16 @@ public final class JournalClient {
     private JournalClient() { }
     public static void register(IEventBus bus) {
         NeoForge.EVENT_BUS.addListener(JournalClient::logout);
+        NeoForge.EVENT_BUS.addListener(JournalClient::commands);
         if (ModList.get().isLoaded("immersiveengineering")) bus.addListener(JournalClient::loadComplete);
+    }
+    private static void commands(net.neoforged.neoforge.client.event.RegisterClientCommandsEvent event) {
+        event.getDispatcher().register(com.mojang.brigadier.builder.LiteralArgumentBuilder
+                .<net.minecraft.commands.CommandSourceStack>literal("ioejournal").executes(context -> {
+                    // Defer past chat's own close callback so the journal remains open.
+                    Minecraft.getInstance().tell(() -> JournalScreen.open(null));
+                    return 1;
+                }));
     }
     private static void loadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(() -> {

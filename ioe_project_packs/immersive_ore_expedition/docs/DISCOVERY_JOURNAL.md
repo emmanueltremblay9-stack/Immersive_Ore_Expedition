@@ -13,8 +13,9 @@ merges or modify technical FINAL_DESIGN contracts.
 The consolidated mod registers a server-start listener that opens world SavedData
 `immersive_ore_expedition_discoveries`. `DiscoveryJournalService` is the production
 server-thread API for reading the current player's immutable journal and accepting
-evidence from future trusted server producers. There is no command granting
-discoveries, chunk scan, terrain write or IE dependency in this core.
+evidence from trusted server producers. The visible-proximity producer below now
+records the first stage. There is no grant command, terrain write or IE dependency
+in the persistence core.
 
 Records are keyed by player UUID and dimension plus exact site anchor position.
 The anchor is the existing locator site position, not a generated ID derived from
@@ -49,26 +50,64 @@ This is placement eligibility, **not proof of observation**. The caller must val
 the actual clue, observation or survey on the server before passing stage-specific
 facts. The service does not copy hidden fields from the global locator.
 
-No gameplay evidence producer is connected in this increment. Neither opening the
-Compass nor requesting a Jade tooltip automatically grants a discovery. The real
-connection in this slice is server lifecycle plus persistent storage/service; tests
-exercise that production service with controlled evidence, not natural discovery.
-Normal play does not yet populate it; no discovery notifications are implemented.
-The optional IE consultation below can display the saved records or an empty state.
+## Visible-proximity discovery — bounded production increment
 
-## Next bounded increment and decisions
+The owner resolved the first trigger in the live voice conversation: “à proximité”,
+“non pas un outil”, a private chat notice on discovering an actual nearby clue,
+then more information in the manual. This decision was supplied by the parent on
+2026-10-10 and authorizes this production connection. The merged handoff does not
+set radius/visibility constants; the current mandate permits a conservative default.
 
-Define the first authoritative discovery event using actual placed-clue evidence.
-The approved scope does not yet specify a proximity radius, interaction requirement,
-observation validation, valid resource probe, quality survey action or documentation
-completion action. Resolve only the trigger needed for that next increment before
-wiring it; do not turn locator availability into player knowledge. If live evidence
-is lost on reindex, new progression fails closed while the historical record remains.
+`ProximityDiscovery` is registered on server post-ticks. No tool or interaction is
+required. Survival/creative living players, excluding spectators, can earn only
+`EVIDENCE_DISCOVERED`. Later stage producers remain unimplemented: proximity does
+not grant Site Located, identify a resource, survey quality or complete the journal.
 
-Default Compass visibility and Jade behavior are unchanged. Narrative IE manual
-pages and stage notifications remain separate work. IE is optional;
-no native recipe or progression is gated. End parameters and the pending Nether
-resource-transition decision remain untouched.
+Chosen defaults and limits:
+- At most eight player slots processed per server tick, round-robin; each player is
+  scanned at most once per 20 ticks. Large populations may wait longer. Session
+  scheduling is memory-only and cleared on server stop; journal history is durable.
+- The existing locator has a derived nine-chunk lookup, capped at sixteen natural
+  anchors per bucket (144 candidates/player scan). Exact identity eligibility is an
+  O(1) lookup. Both derived indexes rebuild through the normal SavedData loader.
+  No full index/terrain scan, chunk ticket or forced load. Extremely dense imported
+  buckets can omit later candidates rather than exceed the cap.
+- Eye-to-witness block-center distance at most eight blocks. The player must face
+  within sixty degrees of the witness collision-shape center (dot product >= 0.5).
+  A server collision/fluid ray must hit that witness first. Intervening solid
+  blocks or fluids reject observation; this is not through-wall detection.
+- All chunks along the short ray and structural-neighbor reads must already be
+  loaded. No night/light-level requirement is introduced. This geometric visibility
+  check does not prove an actual rendered pixel or human attention.
+
+Only playable natural connected ANCHOR records qualify, excluding debug/proof,
+unregistered and recovered-only sites. Index presence alone cannot grant discovery:
+recognizable blocks must survive at the source blueprint's surface offsets:
+entrance lantern on oak planks; collapsed-shaft oak beam over stripped-oak support;
+survey-marker wall over chiseled stone bricks; camp oak hatch next to planks.
+A destroyed, changed or obstructed witness fails closed. Modified/historical layouts
+without these witnesses may remain undiscovered. Blocks reconstructed identically
+at an already legitimate site are not distinguishable from surviving original blocks;
+no player-build ownership claim is made. No generic lantern/hatch outside a confirmed
+site is accepted. Reindex-only provenance does not invent natural-placement evidence.
+
+The saved first-stage record is the deduplication authority. The record advances
+before a private `sendSystemMessage` notice; repeated ticks, revisits and ordinary
+save/reload cannot notify again. Notification text contains no coordinates, resource,
+quality or hidden stage. The journal stores only the observed witness location/type
+and dimension. Existing later-stage history is never regressed. As with the existing
+SavedData contract, an OS crash before the next world save is not durable delivery
+proof; no cross-file/transport exactly-once guarantee is claimed.
+
+The localized EN/FR notice links to the personal IOE journal through `/ioejournal`,
+a client command registered whenever IOE is present, independent of IE. With IE,
+the notice also directs the player to the Engineer's Manual; without IE, it directs
+only to the usable standalone journal. This command opens consultation only and
+uses the existing private paginated protocol; it never grants evidence. Client-only
+registration stays behind the existing distribution gate. No new item or dependency.
+
+Compass visibility, Jade, native progression, Nether/End generation and resource
+contracts are unchanged. Manual narrative pages remain the existing seven entries.
 
 ## Validation boundaries
 
@@ -133,4 +172,20 @@ they do not execute the actual client/manual lifecycle or prove visual behavior.
 
 Actual manual opening, language/resource reload, button layout, scrolling and
 rendering remain `NOT_PERFORMED` in a Minecraft client. No local launch or installation
-is authorized by this implementation. No trigger, Nether or End rule changes.
+is authorized by this implementation. No Nether or End rule changes. The first-stage trigger is described above.
+
+### Proximity-specific qualification
+
+A hosted GameTest exercises the production scan with fake server players and actual
+blocks: unknown/debug records, facing, wall, range and destroyed-witness rejection;
+private independent first-stage records; repeated scans; real SavedData disk reload;
+and the shared IE-independent chat action. Its notice sink captures the exact
+production message but does not prove client receipt/click rendering. A second
+GameTest checks witness signatures against actual generated blueprints for all four
+surface types and five qualities. A JUnit test checks the derived spatial index's
+cap, negative chunk boundaries, dimensions, duplicate anchors and clearing. Existing
+aggregate suites cover persistence/protocol and both dependency configurations.
+
+Actual player exploration, reconnect, client chat-link behavior/manual layout and
+visual qualification remain NOT_PERFORMED. Hosted results must be attached to the
+exact final source commit, not inherited from the preceding manual-only build.

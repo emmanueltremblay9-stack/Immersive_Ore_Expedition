@@ -18,6 +18,30 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class ExpeditionLocatorIndexTest {
     @Test
+    void discoveryLookupIsSpatialBoundedAndDeduplicated() {
+        var index = new ExpeditionLocatorIndex();
+        for (int i = 0; i < 40; i++) {
+            var pos = new BlockPos(-1, i, -1);
+            var site = ExpeditionSite.anchor(Level.OVERWORLD, pos, id("miner_camp"), null,
+                    SiteQuality.NORMAL, "natural_connected_expedition_site");
+            index.record(site);
+            index.record(site.withBuddingNodes(java.util.List.of()));
+        }
+        index.record(ExpeditionSite.anchor(Level.NETHER, new BlockPos(-1, 2, -1), id("miner_camp"), null,
+                SiteQuality.NORMAL, "natural_connected_expedition_site"));
+        index.record(ExpeditionSite.anchor(Level.OVERWORLD, new BlockPos(500, 2, 500), id("miner_camp"), null,
+                SiteQuality.NORMAL, "natural_connected_expedition_site"));
+        index.record(anchor("miner_camp", new BlockPos(1, 2, 1)));
+        assertEquals(16, index.nearbyDiscoveryAnchors(Level.OVERWORLD, BlockPos.ZERO).size());
+        assertEquals(1, index.nearbyDiscoveryAnchors(Level.NETHER, BlockPos.ZERO).size());
+        assertTrue(index.hasNaturalDiscoveryAnchor(Level.OVERWORLD, new BlockPos(-1, 39, -1)));
+        assertFalse(index.hasNaturalDiscoveryAnchor(Level.OVERWORLD, new BlockPos(1, 2, 1)));
+        index.clear();
+        assertTrue(index.nearbyDiscoveryAnchors(Level.OVERWORLD, BlockPos.ZERO).isEmpty());
+        assertFalse(index.hasNaturalDiscoveryAnchor(Level.OVERWORLD, new BlockPos(-1, 39, -1)));
+    }
+
+    @Test
     void nearestSelectsClosestSameKindSite() {
         ExpeditionLocatorIndex index = new ExpeditionLocatorIndex();
         ExpeditionSite distant = anchor("collapsed_shaft", new BlockPos(20, 64, 0));

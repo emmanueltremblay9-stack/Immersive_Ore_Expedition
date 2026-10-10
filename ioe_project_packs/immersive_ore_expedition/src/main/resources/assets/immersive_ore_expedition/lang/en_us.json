@@ -125,5 +125,8 @@
   "journal.ioe.stage.site_surveyed": "Site Surveyed",
   "journal.ioe.stage.expedition_documented": "Expedition Documented",
   "manual.immersive_ore_expedition.field_notes": "IOE — Expedition Field Notes",
-  "manual.immersive_ore_expedition.surface_evidence": "IOE — Surface Evidence"
+  "manual.immersive_ore_expedition.surface_evidence": "IOE — Surface Evidence",
+  "journal.ioe.discovery.manual": "You discovered a nearby expedition clue. Your journal and the Engineer’s Manual contain more information.",
+  "journal.ioe.discovery.standalone": "You discovered a nearby expedition clue. It has been recorded in your personal journal.",
+  "journal.ioe.discovery.open": "[Open journal]"
 }

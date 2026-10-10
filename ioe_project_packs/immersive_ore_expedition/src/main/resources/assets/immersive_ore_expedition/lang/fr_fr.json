@@ -125,5 +125,8 @@
   "journal.ioe.stage.site_surveyed": "Site prospecté",
   "journal.ioe.stage.expedition_documented": "Expédition documentée",
   "manual.immersive_ore_expedition.field_notes": "IOE — Notes de terrain",
-  "manual.immersive_ore_expedition.surface_evidence": "IOE — Indices de surface"
+  "manual.immersive_ore_expedition.surface_evidence": "IOE — Indices de surface",
+  "journal.ioe.discovery.manual": "Vous avez découvert un indice d’expédition à proximité. Consultez votre journal et le manuel de l’ingénieur pour en savoir plus.",
+  "journal.ioe.discovery.standalone": "Vous avez découvert un indice d’expédition à proximité. Il a été consigné dans votre journal personnel.",
+  "journal.ioe.discovery.open": "[Ouvrir le journal]"
 }

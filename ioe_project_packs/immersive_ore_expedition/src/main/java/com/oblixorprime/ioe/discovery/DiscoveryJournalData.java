@@ -32,6 +32,8 @@ final class DiscoveryJournalData extends SavedData {
         return new DiscoveryPage(offset, rows.size(), Optional.of(records.get(rows.get(offset))));
     }
 
+    boolean contains(UUID player, DiscoverySiteKey site) { return records.containsKey(new Key(player, site)); }
+
     boolean advance(UUID player, DiscoverySiteKey site, DiscoveryEvidence evidence) {
         Objects.requireNonNull(player);
         Objects.requireNonNull(site);
