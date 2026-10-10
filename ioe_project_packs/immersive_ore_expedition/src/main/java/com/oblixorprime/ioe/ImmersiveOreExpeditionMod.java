@@ -26,6 +26,7 @@ public final class ImmersiveOreExpeditionMod {
         IoeExpeditionCompassMod.bootstrap(modContainer.getEventBus());
         IoeIronBuddingBlocks.register(modContainer.getEventBus());
         com.oblixorprime.ioe.budding.BuddingMetadataEvents.register();
+        com.oblixorprime.ioe.discovery.DiscoveryJournalService.register();
         IoeCoreMod.bootstrap();
         IoeExpeditionWorldgenMod.bootstrap(modContainer.getEventBus());
         IoeCrystalGrowthMod.bootstrap();

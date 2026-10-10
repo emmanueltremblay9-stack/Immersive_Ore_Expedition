@@ -1,0 +1,48 @@
+package com.oblixorprime.ioe.discovery;
+
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
+import com.oblixorprime.ioe.expeditionlocator.ExpeditionSiteKind;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import java.util.List;
+
+/** Server integration boundary. No client receiver, gameplay trigger, scan or notification. */
+public final class DiscoveryJournalService {
+    private DiscoveryJournalService() { }
+
+    public static void register() {
+        NeoForge.EVENT_BUS.addListener(DiscoveryJournalService::onServerStarted);
+    }
+
+    private static void onServerStarted(ServerStartedEvent event) {
+        data(event.getServer());
+    }
+
+    static DiscoveryJournalData data(MinecraftServer server) {
+        if (!server.isSameThread()) throw new IllegalStateException("Discovery journal requires server thread");
+        return server.overworld().getDataStorage().computeIfAbsent(DiscoveryJournalData.FACTORY, DiscoveryJournalData.NAME);
+    }
+
+    public static List<DiscoveryView> journal(ServerPlayer player) {
+        return data(player.serverLevel().getServer()).views(player.getUUID());
+    }
+
+    /**
+     * Only a trusted server evidence producer may call this after validating the actual
+     * observation/probe. This checks placement and identity, not line of sight or distance.
+     * A true return is the sole new-stage signal; repeated/old/out-of-order input returns false.
+     * No gameplay producer is installed until its discovery conditions are resolved.
+     */
+    public static boolean recordVerifiedEvidence(ServerPlayer player, DiscoverySiteKey key, DiscoveryEvidence evidence) {
+        var level = player.serverLevel();
+        var data = data(level.getServer());
+        if (!key.dimension().equals(level.dimension().location())) return false;
+        boolean placed = ExpeditionLocatorService.index(level).sites().stream().anyMatch(site ->
+                site.kind() == ExpeditionSiteKind.ANCHOR && site.playable()
+                && site.source().filter("natural_connected_expedition_site"::equals).isPresent()
+                && DiscoverySiteKey.from(site).equals(key));
+        return placed && data.advance(player.getUUID(), key, evidence);
+    }
+}
