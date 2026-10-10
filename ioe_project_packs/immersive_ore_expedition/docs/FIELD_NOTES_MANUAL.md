@@ -1,4 +1,4 @@
-# Field Notes — fundamentals and Overworld surface evidence
+# Field Notes — fundamentals and Overworld expeditions
 
 ## Delivered pages
 
@@ -32,15 +32,16 @@ nodes. Site quality is not final world frequency. Abstract IE reserves are not r
 ore volumes. Reading these static entries neither awards discoveries nor gates recipes.
 
 No site coordinates, original rolls, personal survey results or runtime index are read
-or embedded. No promise of active Nether geodes, End caverns or an automatic journal
-discovery trigger is made. Their pending decisions remain outside this slice.
+or embedded. No promise of active Nether geodes or End caverns is made. The separate proximity
+discovery implementation is documented in `DISCOVERY_JOURNAL.md`; these static pages
+do not change its behavior.
 
 ## Additive registration and localization
 
 Pinned IE 1.21.1-12.4.2-194 `ManualInstance.loadAutoEntries()` reads
 `assets/immersiveengineering/manual/autoload.json` separately from every client resource
 pack; it does not select only the highest-priority file. IOE contributes a manifest
-containing only its own category and entry IDs. Upstream categories and entries are not
+containing only its own categories and entry IDs. Upstream categories and entries are not
 copied, replaced or removed. Registration is conditional on IE's client manual existing;
 without IE these resources are inert. No code/dependency/network change is required.
 
@@ -104,17 +105,40 @@ mapping, site coordinates or private journal data are exposed by these pages.
 - **Dynamic collapses, special excavation puzzles, alternate hidden tunnels and
   survey-note rewards:** source RP possibilities are not promoted to implemented
   mechanics or guaranteed loot.
-- **Connector/chamber:** implemented underground components, not independent surface
-  clues; reserved for the next bounded section rather than advertised here as surface
-  types. Nether/End and unavailable optional integration content remain excluded.
+- **Connector/chamber:** documented in the underground section below, not advertised
+  as independent surface clues. Nether/End and unavailable optional integration
+  content remain excluded.
 
-No worldgen, resource profile, recipe, dependency, Journal/Compass code or pending
-discovery-trigger decision changes. Registration uses the same additive IE manifest
+No worldgen, resource profile, recipe, dependency, Journal/Compass code or
+discovery-trigger changes. Registration uses the same additive IE manifest
 with a new IOE category; all four JSON bodies and eight texts stay in the IOE namespace.
 Static verification checks the live feature chain and localized entry references.
 Actual client rendering/registration remains NOT_PERFORMED.
 
-Next essential approved content: connected underground access and ore-load chambers,
-using source Chapter III entries 5–6 and reconciling their current geometry/resource
-semantics. The full Field Notes chapter set, atlas, Nether/End sections and discovery
-triggers remain incomplete.
+## Connected underground increment
+
+The `underground_expeditions` category adds `mineshaft_connector` and
+`ore_load_chamber`, each with EN/FR text. Chapter III entries 5–6 supply the verbatim
+English quotations and their faithful French translations. The full manifest now has
+three categories and nine static entries (18 localized bodies, nine JSON descriptors).
+
+`ExpeditionSiteBlueprints.plan` connects natural surface sites through `addConnector`,
+`connectTunnelToChamber` and `addChamber`; `restoreConnectorLadder` restores ladder
+access. `addConnector` supplies oak supports, plank flooring and the short branch
+terminated by gravel through `addDryBranch`. These facts support route recognition,
+not dynamic collapse mechanics, guaranteed safety or another deposit behind gravel.
+Neither underground component is a `naturalSurfaceSite`; with the normal anchor
+requirement, `ExpeditionSiteFeature.place` rejects standalone ore-load chambers.
+
+Chamber text describes resource-dependent physical formations without exposing quality
+geometry, coordinates, allocation budgets or resource mappings. Unproductive chambers
+remain possible. The physical formation and finite abstract IE reserve are distinct;
+Budding block rank is not site quality. Reading or reaching these pages awards no
+Discovery stages. No new resource, Entro/Fluix rule, Nether/End/IPM content, recipe,
+worldgen or server/client code is introduced. IE absence leaves these resources inert.
+
+Static validation covers all nine manifest references, empty descriptors, EN/FR
+bodies, allowed markup, category translations and original English quotations.
+Exact-commit hosted CI and runtime JAR inspection must be reported for this increment.
+Client rendering, pagination and language reload remain NOT_PERFORMED. The broader
+Field Notes atlas and other proposed chapters remain incomplete.

@@ -13,5 +13,11 @@
       "immersive_ore_expedition:surface_evidence/miner_camp",
       "immersive_ore_expedition:surface_evidence/buried_survey_marker"
     ]
+  },
+  "immersive_ore_expedition:underground_expeditions": {
+    "entry_list": [
+      "immersive_ore_expedition:underground_expeditions/mineshaft_connector",
+      "immersive_ore_expedition:underground_expeditions/ore_load_chamber"
+    ]
   }
 }

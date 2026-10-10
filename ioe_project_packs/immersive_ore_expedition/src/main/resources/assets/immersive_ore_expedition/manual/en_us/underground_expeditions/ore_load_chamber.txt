@@ -1,0 +1,13 @@
+Ore-Load Chamber
+Examine the formation before extraction
+"The rock did not gather here for our convenience. We built the chamber because the rock was already here."
+<br><br>
+At the end of the site's constructed access, the chamber provides space to inspect the physical formation. Identify the blocks you actually find. Depending on the resource and the site, these can include mineral material and Budding growth nodes; not every resource uses the same formation.
+<br><br>
+A chamber can be unproductive. Its existence does not guarantee useful ore, and its present appearance does not reveal how much another explorer has already removed. Distinguish the site's quality from the rank of an individual Budding block.
+<br><br>
+Where a growth node is present, examine its information before breaking it. Preserving a growing block and collecting surrounding material serve different purposes. Growth and processing still follow the rules of the mod that supplies the resource.
+<br><br>
+An associated IE mineral reserve is separate from these physical blocks. Use IE's Core Sample Drill to prospect and its Excavator for industrial extraction. Counting visible nodes does not measure the reserve or its remaining yield.
+<br><br>
+Record what you can establish through observation and prospecting. Reaching a room or reading this page does not itself award the later stages of the Discovery Journal.
