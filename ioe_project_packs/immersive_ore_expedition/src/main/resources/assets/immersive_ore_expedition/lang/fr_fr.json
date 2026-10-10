@@ -123,5 +123,6 @@
   "journal.ioe.stage.site_located": "Site localisé",
   "journal.ioe.stage.resource_identified": "Ressource identifiée",
   "journal.ioe.stage.site_surveyed": "Site prospecté",
-  "journal.ioe.stage.expedition_documented": "Expédition documentée"
+  "journal.ioe.stage.expedition_documented": "Expédition documentée",
+  "manual.immersive_ore_expedition.field_notes": "IOE — Notes de terrain"
 }

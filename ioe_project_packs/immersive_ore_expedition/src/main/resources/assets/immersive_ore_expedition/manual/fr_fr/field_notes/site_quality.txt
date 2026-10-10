@@ -1,0 +1,13 @@
+Qualité du site et fréquence des ressources
+Deux questions différentes
+« Le sol ne nous doit rien. Le meilleur ingénieur apprend à reconnaître les endroits où rien ne vaut la peine d’être extrait. »
+<br><br>
+IOE distingue cinq qualités de site : DRY, POOR, NORMAL, RICH et MOTHERLODE. Elles décrivent l’allocation de ressources d’un site particulier, pas la fréquence de cette ressource dans le monde.
+<br><br>
+Un site DRY ne possède aucun node Budding IOE actif. Les résidus dépendent des règles propres à la ressource ; ils ne constituent pas une récompense garantie. Les sites Budding productifs reçoivent des budgets croissants de nodes et de matériaux environnants, de POOR à MOTHERLODE. Toutes les ressources n’utilisent pas des nodes Budding.
+<br><br>
+Une ressource rare peut former une Motherlode sans devenir commune. La sélection du biome, le terrain compatible et la réussite du placement déterminent les sites qui existent. Le tirage de qualité est une étape distincte, pas une probabilité de découverte par chunk.
+<br><br>
+Le rang d’un bloc Budding décrit ce bloc de croissance individuel. Il ne faut pas le confondre avec la qualité attribuée au site entier.
+<br><br>
+La taille visible d’une entrée ou d’un indice ne mesure pas la qualité. Ces classifications générales ne révèlent pas la qualité d’un site non examiné.

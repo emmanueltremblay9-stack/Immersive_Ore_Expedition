@@ -1,0 +1,9 @@
+{
+  "immersive_ore_expedition:field_notes": {
+    "entry_list": [
+      "immersive_ore_expedition:field_notes/expedition_principles",
+      "immersive_ore_expedition:field_notes/site_quality",
+      "immersive_ore_expedition:field_notes/formations_and_reserves"
+    ]
+  }
+}
