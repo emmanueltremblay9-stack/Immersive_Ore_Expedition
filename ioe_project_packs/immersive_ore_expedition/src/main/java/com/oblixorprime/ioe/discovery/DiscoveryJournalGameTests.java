@@ -46,6 +46,15 @@ public final class DiscoveryJournalGameTests {
                 && views.getFirst().resource().isEmpty() && views.getFirst().quality().isEmpty()
                 && views.getFirst().clueLocation().equals(clue), "Unearned site metadata leaked");
         helper.assertTrue(DiscoveryJournalService.journal(other).isEmpty(), "Another player received journal data");
+        var request = new JournalRequest(55, Integer.MAX_VALUE);
+        var response = JournalNetworking.response(player, request);
+        helper.assertTrue(response.token() == 55 && response.page().offset() == 0
+                && response.page().total() == 1 && response.page().entry().orElseThrow().equals(views.getFirst()),
+                "Private page did not clamp to the player's own record");
+        helper.assertTrue(JournalNetworking.response(other, request).page().total() == 0,
+                "Consultation disclosed another player's journal");
+        helper.assertTrue(DiscoveryJournalService.journal(other).isEmpty()
+                && views.equals(DiscoveryJournalService.journal(player)), "Consultation granted or changed discoveries");
         helper.assertTrue(before.equals(ExpeditionLocatorService.index(level).diagnosticSites()), "Journal changed locator/Compass source");
         var storage = level.getServer().overworld().getDataStorage();
         storage.save();

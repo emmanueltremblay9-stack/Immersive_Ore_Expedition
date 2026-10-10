@@ -29,6 +29,10 @@ public final class DiscoveryJournalService {
         return data(player.serverLevel().getServer()).views(player.getUUID());
     }
 
+    public static DiscoveryPage page(ServerPlayer player, int offset) {
+        return data(player.serverLevel().getServer()).page(player.getUUID(), offset);
+    }
+
     /**
      * Only a trusted server evidence producer may call this after validating the actual
      * observation/probe. This checks placement and identity, not line of sight or distance.

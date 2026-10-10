@@ -16,11 +16,20 @@ final class DiscoveryJournalData extends SavedData {
     static final Factory<DiscoveryJournalData> FACTORY = new Factory<>(DiscoveryJournalData::new, DiscoveryJournalData::load);
     private record Key(UUID player, DiscoverySiteKey site) { }
     private final Map<Key, DiscoveryView> records = new LinkedHashMap<>();
+    private final Map<UUID, List<Key>> playerRows = new HashMap<>();
     private CompoundTag unsupportedData;
 
     List<DiscoveryView> views(UUID player) {
         return records.entrySet().stream().filter(e -> e.getKey().player().equals(player))
                 .map(Map.Entry::getValue).toList();
+    }
+
+    DiscoveryPage page(UUID player, int requestedOffset) {
+        if (requestedOffset < 0) throw new IllegalArgumentException("Negative page offset");
+        List<Key> rows = playerRows.getOrDefault(player, List.of());
+        if (rows.isEmpty()) return new DiscoveryPage(0, 0, Optional.empty());
+        int offset = Math.min(requestedOffset, rows.size() - 1);
+        return new DiscoveryPage(offset, rows.size(), Optional.of(records.get(rows.get(offset))));
     }
 
     boolean advance(UUID player, DiscoverySiteKey site, DiscoveryEvidence evidence) {
@@ -43,6 +52,7 @@ final class DiscoveryJournalData extends SavedData {
                     evidence.stage() == DiscoveryStage.SITE_SURVEYED
                         ? Optional.of(evidence.quality()) : previous.quality());
         records.put(key, next);
+        if (previous == null) playerRows.computeIfAbsent(player, ignored -> new ArrayList<>()).add(key);
         setDirty();
         return true;
     }
@@ -102,7 +112,10 @@ final class DiscoveryJournalData extends SavedData {
                         surveyed ? Optional.of(SiteQuality.valueOf(entry.getString("quality"))) : Optional.empty());
                 Key key = new Key(entry.getUUID("player"), new DiscoverySiteKey(dimension, BlockPos.of(entry.getLong("anchor"))));
                 DiscoveryView old = data.records.get(key);
-                if (old == null) data.records.put(key, view);
+                if (old == null) {
+                    data.records.put(key, view);
+                    data.playerRows.computeIfAbsent(key.player(), ignored -> new ArrayList<>()).add(key);
+                }
                 // Duplicate/corrupt rows cannot silently award a higher stage or change known facts.
             } catch (IllegalArgumentException invalid) {
                 // One malformed entry cannot discard other players' journals.

@@ -1,4 +1,4 @@
-# Discovery journal — first server persistence increment
+# Discovery journal — server persistence and optional IE consultation
 
 Scope source: [governance PR5](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition_GPT/pull/5),
 handoff `IOE-EXPEDITION-DISCOVERY-MANUAL-001`, reconstruction commit
@@ -6,13 +6,13 @@ handoff `IOE-EXPEDITION-DISCOVERY-MANUAL-001`, reconstruction commit
 subsequently resumed this bounded technical cycle. The governance PR is unmerged;
 this reference does not claim canonical governance integration or modify FINAL_DESIGN.
 
-## Runtime provided
+## Server persistence core
 
 The consolidated mod registers a server-start listener that opens world SavedData
 `immersive_ore_expedition_discoveries`. `DiscoveryJournalService` is the production
 server-thread API for reading the current player's immutable journal and accepting
-evidence from future trusted server producers. It has no client packet receiver,
-command granting discoveries, chunk scan, terrain write or optional IE dependency.
+evidence from future trusted server producers. There is no command granting
+discoveries, chunk scan, terrain write or IE dependency in this core.
 
 Records are keyed by player UUID and dimension plus exact site anchor position.
 The anchor is the existing locator site position, not a generated ID derived from
@@ -51,7 +51,8 @@ No gameplay evidence producer is connected in this increment. Neither opening th
 Compass nor requesting a Jade tooltip automatically grants a discovery. The real
 connection in this slice is server lifecycle plus persistent storage/service; tests
 exercise that production service with controlled evidence, not natural discovery.
-There is no journal UI or notification yet, and normal play does not populate it.
+Normal play does not yet populate it; no discovery notifications are implemented.
+The optional IE consultation below can display the saved records or an empty state.
 
 ## Next bounded increment and decisions
 
@@ -62,8 +63,8 @@ completion action. Resolve only the trigger needed for that next increment befor
 wiring it; do not turn locator availability into player knowledge. If live evidence
 is lost on reindex, new progression fails closed while the historical record remains.
 
-Default Compass visibility and Jade behavior are unchanged. IE manual pages, client
-rendering/localization and stage notifications remain separate work. IE is optional;
+Default Compass visibility and Jade behavior are unchanged. Narrative IE manual
+pages and stage notifications remain separate work. IE is optional;
 no native recipe or progression is gated. End parameters and the pending Nether
 resource-transition decision remain untouched.
 
@@ -77,3 +78,57 @@ then verifies history remains after removing live site-index evidence. It runs i
 baseline and complete pinned runtime configurations, including IE absence in baseline.
 This is not an actual reconnect, process restart, natural discovery or visual/manual
 qualification. CI results must be reported for the exact resulting commit.
+
+## Optional Engineer's Manual consultation increment
+
+On clients with pinned IE 12.4.2-194 present, the load-complete callback adds one
+IOE-owned `immersive_ore_expedition:journal` entry under the additive Field Records
+category. It uses `ManualHelper.getManual()`, the manual tree and `ManualEntryBuilder`,
+with an original functional description and a button opening the IOE journal screen.
+It does not replace native entries, recipes, advancements or progression. Registration
+checks entry identity to avoid duplicates; supplier-based text follows the current
+language on manual reload. English and French functional labels are provided.
+
+The journal screen lists all five approved stages, an empty/loading state, and one
+personal record per page, with previous/next/refresh/back controls and scrolling for
+small viewports. Only earned fields are rendered; exact registry IDs identify clue
+types/resources. This is a functional consultation interface, not the narrative
+Field Notes chapter. The original RP source was supplied by the parent during this
+cycle and is reserved for a later scoped reconciliation; it is not imported here.
+
+The common network registration has no client or IE linkage. A distribution-gated
+reflection bridge loads the generic client; a separate `ModList` check admits the
+IE-specific registration only when IE is loaded. Dedicated-server and IE-absent
+paths never load the manual adapter. No dependency/version change was needed.
+
+### Private, bounded protocol
+
+- `journal/request` carries only a correlation token and nonnegative page offset.
+  The handler obtains `ServerPlayer` exclusively from the connection. There is no
+  requested player UUID, coordinate, dimension or discovery-stage write operation.
+- `journal/page` returns only that player's count and at most one `DiscoveryView`.
+  Oversized offsets clamp to the last personal record; empty journals return offset
+  zero. An in-memory per-player row index is rebuilt on load, so lookup does not
+  scan/copy the global locator or all journal records per request.
+- Identifiers use length-limited UTF encoding (256 characters); conditional stage
+  encoding omits unearned location/resource/quality even if incidental view fields
+  are populated. No internal anchor, province, nodes or budgets are transmitted.
+- Only `PacketDistributor.sendToPlayer` replies to the originating player. The
+  Compass snapshot and global site index are not used for consultation.
+- The client accepts only its outstanding request token, rejects stale/duplicate
+  responses, refreshes the active screen, and clears cached data on close/logout.
+  The sequence does not reset on logout, preventing an old response from matching
+  a subsequent request. No discovery is granted by opening or refreshing the UI.
+
+### Qualification limits
+
+Codec/unit tests cover page isolation, reload, extreme offsets, invalid bounds,
+bounded strings, stage-specific fields and cache/logout ordering. The server GameTest
+exercises the same response builder for two players, verifies clamping/privacy and
+that consultation changes no discovery. Baseline runtime covers IE absence. Compiled
+bytecode checks cover common/generic-client isolation and client registration wiring;
+they do not execute the actual client/manual lifecycle or prove visual behavior.
+
+Actual manual opening, language/resource reload, button layout, scrolling and
+rendering remain `NOT_PERFORMED` in a Minecraft client. No local launch or installation
+is authorized by this implementation. No trigger, Nether or End rule changes.
