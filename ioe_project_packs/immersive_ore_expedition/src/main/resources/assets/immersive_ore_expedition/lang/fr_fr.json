@@ -129,5 +129,6 @@
   "manual.immersive_ore_expedition.underground_expeditions": "IOE — Expéditions souterraines",
   "journal.ioe.discovery.manual": "Vous avez découvert un indice d’expédition à proximité. Consultez votre journal et le manuel de l’ingénieur pour en savoir plus.",
   "journal.ioe.discovery.standalone": "Vous avez découvert un indice d’expédition à proximité. Il a été consigné dans votre journal personnel.",
+  "journal.ioe.discovery.located": "Entrée extérieure localisée. Sa position observée est consignée dans votre journal.",
   "journal.ioe.discovery.open": "[Ouvrir le journal]"
 }

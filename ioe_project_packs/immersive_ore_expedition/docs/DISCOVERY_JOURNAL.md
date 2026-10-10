@@ -14,7 +14,7 @@ The consolidated mod registers a server-start listener that opens world SavedDat
 `immersive_ore_expedition_discoveries`. `DiscoveryJournalService` is the production
 server-thread API for reading the current player's immutable journal and accepting
 evidence from trusted server producers. The visible-proximity producer below now
-records the first stage. There is no grant command, terrain write or IE dependency
+records the first two stages. There is no grant command, terrain write or IE dependency
 in the persistence core.
 
 Records are keyed by player UUID and dimension plus exact site anchor position.
@@ -59,9 +59,10 @@ then more information in the manual. This decision was supplied by the parent on
 set radius/visibility constants; the current mandate permits a conservative default.
 
 `ProximityDiscovery` is registered on server post-ticks. No tool or interaction is
-required. Survival/creative living players, excluding spectators, can earn only
-`EVIDENCE_DISCOVERED`. Later stage producers remain unimplemented: proximity does
-not grant Site Located, identify a resource, survey quality or complete the journal.
+required. Survival/creative living players, excluding spectators, first earn
+`EVIDENCE_DISCOVERED`; after that, verified exterior entrance observation can earn
+`SITE_LOCATED` as specified below. Resource identification, quality surveying and
+expedition completion producers remain unimplemented.
 
 Chosen defaults and limits:
 - At most eight player slots processed per server tick, round-robin; each player is
@@ -107,7 +108,7 @@ uses the existing private paginated protocol; it never grants evidence. Client-o
 registration stays behind the existing distribution gate. No new item or dependency.
 
 Compass visibility, Jade, native progression, Nether/End generation and resource
-contracts are unchanged. Manual narrative pages remain the existing seven entries.
+contracts are unchanged. Manual narrative pages contain nine static entries.
 
 ## Validation boundaries
 
@@ -189,3 +190,40 @@ aggregate suites cover persistence/protocol and both dependency configurations.
 Actual player exploration, reconnect, client chat-link behavior/manual layout and
 visual qualification remain NOT_PERFORMED. Hosted results must be attached to the
 exact final source commit, not inherited from the preceding manual-only build.
+
+## Exterior entrance location — approved second-stage producer
+
+The owner resolved the pending next trigger in the voice conversation: **« À l'entrée
+extérieure »**, in answer to entrance versus underground deposit. The parent supplied
+this decision and explicitly authorized the existing eight-block visible-proximity
+checks for this bounded increment. No new tool, IE or Jade prerequisite is introduced.
+
+Only an existing personal `EVIDENCE_DISCOVERED` record can advance. The same bounded
+scheduler, loaded-chunk ray checks, range and facing apply. Each scan records at most
+one stage and sends at most one private notice. Stage lookup is O(1), without copying
+or scanning the journal. Completed location records are skipped on later scans.
+
+The exterior witness is the top north-facing ladder for tiny entrances/collapsed
+shafts, or the actual oak hatch for survey markers/camps (including the camp's
+supported origin fallback). In addition to the visible witness, both first shaft
+rungs below the surface must survive, face north, and have air in the adjacent shaft.
+All reads require already loaded chunks. This confirms the access rather than merely
+a decorative surface marker. For camps the clue itself is the entrance hatch, so a
+later scan may locate it without requiring the player to move or use it. Closed or
+open hatches can qualify when their collision shape is actually visible. DRY uses
+the same entrance geometry and does not require mineral blocks or an IE reserve.
+
+Only the observed exterior witness position is saved as `siteLocation`; original clue
+and record identity remain unchanged. No chamber center, resource, quality or higher
+stage is inferred. EN/FR private notices link to the standalone journal; persistence
+of the stage deduplicates notices across ordinary save/reload. Destroyed/changed
+access signatures fail closed; identical rebuilding at a confirmed site cannot be
+distinguished from the original, as for first-stage clues. Existing natural placement
+eligibility and production gates are unchanged.
+
+Hosted coverage adds an actual production-scan GameTest for prerequisite rejection,
+DRY progression, gaze/obstruction/range/damaged-access rejection, private independent
+players, precise permitted fields and real SavedData disk reload without repeat
+notification. Blueprint signature coverage checks all four surface types and five
+qualities. Exact-commit CI evidence is required; these tests are not actual player
+exploration, reconnect, full process restart or client visual proof.

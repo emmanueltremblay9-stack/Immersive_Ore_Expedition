@@ -34,6 +34,10 @@ final class DiscoveryJournalData extends SavedData {
 
     boolean contains(UUID player, DiscoverySiteKey site) { return records.containsKey(new Key(player, site)); }
 
+    Optional<DiscoveryStage> stage(UUID player, DiscoverySiteKey site) {
+        return Optional.ofNullable(records.get(new Key(player, site))).map(DiscoveryView::stage);
+    }
+
     boolean advance(UUID player, DiscoverySiteKey site, DiscoveryEvidence evidence) {
         Objects.requireNonNull(player);
         Objects.requireNonNull(site);

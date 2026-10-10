@@ -129,5 +129,6 @@
   "manual.immersive_ore_expedition.underground_expeditions": "IOE — Underground Expeditions",
   "journal.ioe.discovery.manual": "You discovered a nearby expedition clue. Your journal and the Engineer’s Manual contain more information.",
   "journal.ioe.discovery.standalone": "You discovered a nearby expedition clue. It has been recorded in your personal journal.",
+  "journal.ioe.discovery.located": "Exterior entrance located. Its observed location is recorded in your journal.",
   "journal.ioe.discovery.open": "[Open journal]"
 }

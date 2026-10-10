@@ -3,6 +3,8 @@ package com.oblixorprime.ioe.discovery;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService;
 import com.oblixorprime.ioe.expeditionlocator.ExpeditionSite;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -62,17 +64,20 @@ public final class ProximityDiscovery {
         for (ExpeditionSite site : ExpeditionLocatorService.index(level)
                 .nearbyDiscoveryAnchors(level.dimension(), player.blockPosition())) {
             var key = DiscoverySiteKey.from(site);
-            if (data.contains(player.getUUID(), key) || site.anchorId().isEmpty()
+            var previous = data.stage(player.getUUID(), key);
+            if (previous.filter(stage -> stage != DiscoveryStage.EVIDENCE_DISCOVERED).isPresent() || site.anchorId().isEmpty()
                     || !site.anchorId().get().getNamespace().equals("immersive_ore_expedition")) continue;
             // Witness offsets are at most four blocks from the confirmed surface anchor.
             if (player.getEyePosition().distanceToSqr(Vec3.atCenterOf(site.pos())) > 13 * 13) continue;
-            for (BlockPos witness : witnesses(site)) {
-                if (!loadedBetween(player, witness) || !survivingClue(player, site, witness)
+            boolean locating = previous.isPresent();
+            for (BlockPos witness : locating ? entrances(site) : witnesses(site)) {
+                if (!loadedBetween(player, witness) || !(locating
+                        ? survivingEntrance(player, site, witness) : survivingClue(player, site, witness))
                         || !visible(player, witness)) continue;
                 if (DiscoveryJournalService.recordVerifiedEvidence(player, key,
-                        new DiscoveryEvidence(DiscoveryStage.EVIDENCE_DISCOVERED, witness,
-                                site.anchorId().orElseThrow(), null))) {
-                    notices.accept(notice(ModList.get().isLoaded("immersiveengineering")));
+                        new DiscoveryEvidence(locating ? DiscoveryStage.SITE_LOCATED : DiscoveryStage.EVIDENCE_DISCOVERED, witness,
+                                locating ? null : site.anchorId().orElseThrow(), null))) {
+                    notices.accept(locating ? locatedNotice() : notice(ModList.get().isLoaded("immersiveengineering")));
                     return true; // at most one private notice per scan
                 }
             }
@@ -85,6 +90,41 @@ public final class ProximityDiscovery {
                 .append(" ").append(Component.translatable("journal.ioe.discovery.open")
                         .withStyle(style -> style.withUnderlined(true)
                                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ioejournal"))));
+    }
+
+    static Component locatedNotice() {
+        return Component.translatable("journal.ioe.discovery.located")
+                .append(" ").append(Component.translatable("journal.ioe.discovery.open")
+                        .withStyle(style -> style.withUnderlined(true)
+                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ioejournal"))));
+    }
+
+    static List<BlockPos> entrances(ExpeditionSite site) {
+        return switch (site.anchorId().orElseThrow().getPath()) {
+            case "tiny_vertical_mine_entrance", "collapsed_shaft", "buried_survey_marker" -> List.of(site.pos().south());
+            case "miner_camp" -> List.of(site.pos().south(), site.pos());
+            default -> List.of();
+        };
+    }
+
+    static boolean survivingEntrance(ServerPlayer player, ExpeditionSite site, BlockPos target) {
+        var level = player.serverLevel();
+        BlockPos ladder = site.pos().south().below();
+        // Exterior witness plus surviving shaft rungs: a decorative hatch alone is insufficient.
+        for (BlockPos p : List.of(target, ladder, ladder.below(), site.pos().below()))
+            if (!level.hasChunkAt(p)) return false;
+        for (BlockPos p : List.of(ladder, ladder.below())) {
+            var rung = level.getBlockState(p);
+            if (!rung.is(Blocks.LADDER) || rung.getValue(LadderBlock.FACING) != Direction.NORTH) return false;
+        }
+        if (!level.getBlockState(site.pos().below()).isAir()) return false;
+        var block = level.getBlockState(target);
+        return switch (site.anchorId().orElseThrow().getPath()) {
+            case "tiny_vertical_mine_entrance", "collapsed_shaft" -> block.is(Blocks.LADDER)
+                    && block.getValue(LadderBlock.FACING) == Direction.NORTH;
+            case "buried_survey_marker", "miner_camp" -> block.is(Blocks.OAK_TRAPDOOR);
+            default -> false;
+        };
     }
 
     static List<BlockPos> witnesses(ExpeditionSite site) {
