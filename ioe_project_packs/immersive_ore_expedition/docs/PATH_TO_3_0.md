@@ -86,6 +86,23 @@ comme le head technique actuel. Aucun fichier Gov n'est modifié dans ce cycle l
 lot Gov distinct ; ils ne doivent pas être insérés silencieusement dans le dossier
 Nether proposé de PR6. Aucune décision Nether/IPM n'est prise ici.
 
+## Suivi borné Nether — 2026-10-12
+
+Une unique recherche supplémentaire autorisée a examiné 256 nouvelles régions, sans
+modifier les critères : **zéro acceptation et zéro écriture de géode naturelle**.
+Le commit expérimental est `a0e7452239cb64b0fc00a0ef5be9881c1471a8c0` ; CI push
+`38192711455` et PR `38192716620` réussies, mais seule la configuration de base du
+push exécute la recherche. Le chargement 5x5 reste artificiel, non représentatif.
+Voir `NETHER_BOUNDED256_EVIDENCE.json` (256 traces) et la clôture détaillée dans
+`NETHER_PLACEMENT_CONTRACT.md`. Plafond atteint : aucune nouvelle boucle lancée.
+
+L'instrumentation temporaire est retirée ; les fichiers de code retrouvent exactement
+le checkpoint `5d14b64366c6ef4da080e1ea1494b00787cef002`. La source gameplay et le JAR
+qualifiés ci-dessus restent inchangés. Le commit de restauration/documentation est
+à lire dans Git ; il utilise `[skip ci]` pour ne pas répéter la recherche historique.
+Ne lui attribuer ni les tests du commit expérimental ni une nouvelle qualification
+naturelle. CI de cette restauration : `NOT_PERFORMED`. Production désactivée.
+
 ## Historique de consolidation et contrats conservés
 
 Les sections suivantes conservent leur contexte de cycle. Les expressions « ce

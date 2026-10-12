@@ -471,3 +471,49 @@ admission, mineral budget, disk provenance, sanitation and no replay. It remains
 constructed fixture, not a natural-generation or visual proof. The existing bounded
 64-region qualification fixture is retained without expanding its region set.
 Production generation remains disabled.
+
+
+## One authorized 256-region follow-up — 2026-10-12
+
+After the targeted audit of the existing 64-region refusals, the owner authorized
+one additional search, capped at 256 distinct NEW candidates. Temporary test commit
+`a0e7452239cb64b0fc00a0ef5be9881c1471a8c0` changed only the existing GameTest's region
+set, sample cap, harness timeout and one-shot execution gating. No planner, admission,
+read budget, block palette, LOWEST selection, geometry, receipt or production gate
+changed. Source/runtime remains `46051a13febd676ef59d21d98dd6528b05915727`.
+
+The experiment ran once in [push CI 38192711455](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/38192711455),
+attempt 1, baseline, seed 0, Minecraft 1.21.1 / NeoForge 21.1.230. Regions were
+`(-2000-2*i,-2000)`, i=0..255, disjoint from the previous 64. PR CI and full-runtime
+steps explicitly logged NOT_RUN for this search to prevent duplicates. Both push
+and [PR CI 38192716620](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/38192716620)
+completed successfully (14 jobs); their success is not natural-placement acceptance.
+
+**Result: 256 sampled, zero accepted, zero full admissions, zero natural geode writes.**
+First failures: FLOOR_BELOW_23=76, FLOOR_START=76, SURFACE=64, FLOOR_BOTTOM=40.
+Selection/prefilter reads total 29,871, maximum 1,511 for one candidate, charged to
+existing shared budgets. No technical budget failure occurred. Every sample reports
+zero edits before admission and zero injected receipts. Controlled 5x5 FULL loading
+is artificial and is NOT representative player exploration.
+
+`NETHER_BOUNDED256_EVIDENCE.json` preserves all candidate coordinates, floor/surface
+observations, actual load/admission ticks, reads, first failure details and write
+counts, with exact source/run/version/log provenance. Earlier constructed-soil
+fixture successes in the same logs are explicitly excluded from natural acceptance.
+The first-failure categories cannot predict which later coverage/crust/shore checks
+would fail if an earlier rule were relaxed.
+
+The experiment stopped at its authorized cap and was not repeated. Temporary Java
+instrumentation is restored byte-for-byte to checkpoint
+`5d14b64366c6ef4da080e1ea1494b00787cef002`; only documentary evidence remains versus
+that checkpoint. The restoration/evidence commit uses `[skip ci]` to avoid rerunning
+the old 64-region search as a side effect. Its own CI is NOT_PERFORMED; experimental
+CI belongs only to the experiment commit above, not this documentary restoration.
+
+The blocker is still absence of a naturally eligible candidate, not a demonstrated
+placement-code defect. Y<23 cannot contain the required cube at center F-16; permitted
+floor materials and full 15x15 lava footprint are explicit current conditions. No
+further search is authorized by this result. Any proposal to change depth, footprint
+or floor materials needs a separate gameplay decision and cannot promise acceptance.
+Representative player loading remains an independent missing qualification. No new
+server/profile, installation, production activation, merge or publication occurred.
