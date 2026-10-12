@@ -103,6 +103,23 @@ qualifiés ci-dessus restent inchangés. Le commit de restauration/documentation
 Ne lui attribuer ni les tests du commit expérimental ni une nouvelle qualification
 naturelle. CI de cette restauration : `NOT_PERFORMED`. Production désactivée.
 
+## Comparaison de géométrie — 2026-10-12
+
+Étude autorisée, distincte d'une adoption : 32 terrains naturels appariés, quatre
+variantes profondeur/cube (16/15, 12/15, 8/15, 12/13), **zéro plan admissible pour
+chacune**. Les 128 évaluations et read sets sont conservés dans
+`NETHER_GEOMETRY_COMPARISON_EVIDENCE.json`; méthode, limites et recommandation dans
+`NETHER_GEOMETRY_COMPARISON.md`. Source expérimentale
+`bd6849ef08c1cdc6ba636dea4b15f748e25f2917`, CI push `38201536790` et PR `38201539982`
+réussies. Une seule exécution de la comparaison, en baseline ; aucune écriture.
+
+Recommandation provisoire si refonte approuvée : profondeur 12 avec cube 15, mais
+aucun gain empirique d'admissibilité démontré. Les blocages dominants précèdent cette
+étape (couverture/fond). Aucune modification du contrat de production n'est adoptée.
+Instrumentation retirée : code identique au checkpoint `61f6f1c...`; la preuve CI de
+l'expérience ne se transfère pas au commit documentaire de clôture. La validation
+normale de cette clôture sera consignée par reçu exact sur PR63, sans refaire l'étude.
+
 ## Historique de consolidation et contrats conservés
 
 Les sections suivantes conservent leur contexte de cycle. Les expressions « ce
