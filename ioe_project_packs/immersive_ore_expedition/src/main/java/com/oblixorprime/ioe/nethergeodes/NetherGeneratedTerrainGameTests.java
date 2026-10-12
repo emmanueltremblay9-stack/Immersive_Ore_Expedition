@@ -22,7 +22,7 @@ public final class NetherGeneratedTerrainGameTests {
 
     @GameTest(template = "expedition_worldgen_empty", batch = "ioe_nether_generated_terrain", timeoutTicks = 1200)
     public static void boundedSearchOnUneditedGeneratedTerrain(GameTestHelper helper) {
-        sample(helper, 0, new LinkedHashMap<>());
+        NetherPlacementComparison.run(helper);
     }
 
     private static boolean lava(NetherSitePlanner.Cell cell) {
