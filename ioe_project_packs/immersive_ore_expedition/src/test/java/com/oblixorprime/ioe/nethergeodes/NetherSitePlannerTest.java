@@ -190,7 +190,53 @@ final class NetherSitePlannerTest {
         assertEquals(Status.FLOOR, plan(c, Y, snapshot(pos -> pos.equals(floor)
                 ? new Cell(soul.state(), true) : terrain(pos))).status());
         assertEquals(Status.FLOOR, plan(c, Y, snapshot(pos -> pos.equals(floor)
-                ? new Cell(Blocks.SOUL_SAND.defaultBlockState(), false) : terrain(pos))).status());
+                ? new Cell(Blocks.GRAVEL.defaultBlockState(), false) : terrain(pos))).status());
+    }
+
+    @Test void naturalFloorSubstratesRemainObservedAndNeverGrantSoulSoilBonuses() {
+        for (var block : java.util.List.of(Blocks.MAGMA_BLOCK, Blocks.SOUL_SAND)) {
+            var material = new Cell(block.defaultBlockState(), false);
+            for (var quality : SiteQuality.values()) {
+                // Roll 50 would yield debris with soul_soil; soul quality 291 would promote to Motherlode.
+                var c = new Candidate(8, 8, quality, 73, 50, 291);
+                var baseline = plan(c, Y, snapshot(NetherSitePlannerTest::terrain));
+                var result = plan(c, Y, snapshot(pos -> pos.getY() == Y-4
+                        && Math.abs(pos.getX()-8)<=7 && Math.abs(pos.getZ()-8)<=7 ? material : terrain(pos)));
+                assertEquals(Status.PLANNED, result.status());
+                assertEquals(quality, result.quality());
+                assertEquals(baseline.plan().writes(), result.plan().writes());
+                assertEquals(baseline.plan().origin(), result.plan().origin());
+                for (int z=-7; z<=7; z++) for (int x=-7; x<=7; x++) {
+                    var floor = new BlockPos(8+x,Y-4,8+z);
+                    assertEquals(material.state(), result.plan().expected().get(floor));
+                    assertFalse(result.plan().writes().containsKey(floor));
+                }
+                assertTrue(result.plan().writes().values().stream().noneMatch(v -> v.is(Blocks.ANCIENT_DEBRIS)));
+            }
+        }
+    }
+
+    @Test void addedFloorsPreserveCrustProtectionAndExcludedMaterials() {
+        var c = candidate(SiteQuality.NORMAL, false);
+        var floor = new BlockPos(8,Y-4,8);
+        var center = new BlockPos(8,Y-4-16,8);
+        for (var block : java.util.List.of(Blocks.MAGMA_BLOCK, Blocks.SOUL_SAND)) {
+            assertEquals(Status.FLOOR, plan(c,Y,snapshot(pos -> pos.equals(floor)
+                    ? new Cell(block.defaultBlockState(),true) : terrain(pos))).status());
+            for (var target : java.util.List.of(center,center.east(5),center.east(7)))
+                assertEquals(Status.CRUST_OR_PROTECTION, plan(c,Y,snapshot(pos -> pos.equals(target)
+                        ? new Cell(block.defaultBlockState(),false) : terrain(pos))).status());
+        }
+        for (var block : java.util.List.of(Blocks.GRAVEL,Blocks.BEDROCK))
+            assertEquals(Status.FLOOR, plan(c,Y,snapshot(pos -> pos.equals(floor)
+                    ? new Cell(block.defaultBlockState(),false) : terrain(pos))).status());
+        var last = new BlockPos(15,Y-4,15);
+        var mixed = plan(new Candidate(8,8,SiteQuality.NORMAL,73,50,291),Y,snapshot(pos ->
+                pos.equals(last) ? new Cell(Blocks.SOUL_SOIL.defaultBlockState(),false)
+                : pos.equals(floor) ? new Cell(Blocks.SOUL_SAND.defaultBlockState(),false) : terrain(pos)));
+        assertEquals(Status.PLANNED,mixed.status());
+        assertEquals(SiteQuality.MOTHERLODE,mixed.quality());
+        assertEquals(1,mixed.plan().writes().values().stream().filter(v -> v.is(Blocks.ANCIENT_DEBRIS)).count());
     }
 
     @Test void soulQualityDistributionIsExactlyOneQuarterWithProportionalRemainder() {

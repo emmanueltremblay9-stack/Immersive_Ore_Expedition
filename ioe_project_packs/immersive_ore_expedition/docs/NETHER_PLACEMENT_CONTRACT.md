@@ -207,8 +207,9 @@ count toward the integer 60% threshold (3,286 of 5,476). Separate pools cannot s
 The whole footprint must be known. The floor search examines the complete 15-square
 chamber footprint, follows lava to the first solid rock and selects the lowest floor
 Y; the center is exactly 16 below it. In addition to netherrack/basalt/blackstone,
-soul soil is admitted as a first non-liquid floor cell. Unknown, hollow or protected
-floors fail. Soul sand and other materials are not implicitly admitted.
+soul soil is admitted as a first non-liquid floor cell. The explicit 2026-10-12
+amendment below additionally admits magma and soul sand as observed floor only.
+Unknown, hollow or protected floors fail; gravel and bedrock remain excluded.
 
 Geometry requires a solid, unprotected 15-cube of vanilla netherrack/basalt/blackstone,
 carves only a radius-3 interior, and places the exact finite mineral budget within
@@ -517,3 +518,47 @@ further search is authorized by this result. Any proposal to change depth, footp
 or floor materials needs a separate gameplay decision and cannot promise acceptance.
 Representative player loading remains an independent missing qualification. No new
 server/profile, installation, production activation, merge or publication occurred.
+
+
+## Approved observed-floor palette amendment — 2026-10-12
+
+Owner approval supplied by the parent: « feu vert pour essayer celle-là » and
+« on doit accepter ça », explicitly accepting magma and soul sand as natural observed
+lake floor. This narrowly changes `floorRock`: `minecraft:magma_block` and
+`minecraft:soul_sand` join the permitted first non-liquid floor cells, with unchanged
+fluid/block-entity/protection checks. The existing cheap qualification filter calls
+the same predicate, so it cannot retain the former material veto.
+
+This is NOT permission to excavate/replace these blocks. `rock` and the runtime
+replacement adapter remain unchanged. The complete radius-7 rock check still rejects
+these materials in the cavity, radius-5 ore shell and protective envelope. Gravel and
+bedrock remain invalid floors. Depth stays F-16, floor survey stays all 225 cells,
+LOWEST/74x74/coverage, budgets, receipts, read-set checks, ledger and compensation are
+unchanged. No native generation hook or production gate is enabled.
+
+`soul_sand` is not `soul_soil`. Only a first floor cell whose exact block is
+`minecraft:soul_soil` participates in the already approved 25% Motherlode / 10% debris
+rules. New floor materials alone preserve original quality and 0.5% Motherlode debris
+behavior, all other qualities zero debris. No additional reward or roll is introduced.
+
+Regression tests cover every quality with all 225 cells made of each newly admitted
+floor material: same writes/origin as ordinary terrain, complete read-set retention,
+no write to observed floors and no soil bonus. They also cover protected floors,
+rejection inside all parts of the placed/protective volume, gravel/bedrock exclusion,
+a real soul_soil cell coexisting with soul_sand, and coordinator rejection of changed
+floor state/protection before any mutation.
+
+`NetherFloorObservationGameTests` reuses the exact 32-region stratified cohort from
+`NETHER_GEOMETRY_COMPARISON_EVIDENCE.json`, seed 0, in the existing hosted GameTest
+profile. It records the current complete planner status, connected columns, reads and
+planned writes on unedited engine terrain, then revalidates state/protection against
+the same shared budget. New-chunk receipts are real; fixture 5x5 loading is artificial.
+It performs no placement, so an eligible plan would not itself qualify an accepted
+natural geode. The existing bounded64 test still exercises real admission if its
+necessary conditions pass. Compare baseline to the earlier baseline; complete-runtime
+results are a separate configuration, not automatically paired to those old samples.
+
+Exact source commit, CI, cohort measurements and produced JAR identity are recorded
+in the PR63 execution receipt after hosted validation. Earlier study/source proofs
+remain bound to their own commits. Natural acceptance, representative player loading
+and visual qualification require their own evidence. No merge or release is implied.

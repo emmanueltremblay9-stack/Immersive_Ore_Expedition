@@ -120,6 +120,23 @@ Instrumentation retirée : code identique au checkpoint `61f6f1c...`; la preuve 
 l'expérience ne se transfère pas au commit documentaire de clôture. La validation
 normale de cette clôture sera consignée par reçu exact sur PR63, sans refaire l'étude.
 
+## Fonds magma / sable des âmes — approbation et implémentation du 2026-10-12
+
+Le propriétaire a approuvé uniquement `magma_block` et `soul_sand` comme premiers
+fonds observés du lac. Le prédicat est mis à jour avec tests de non-remplacement,
+revalidation, exclusions et absence de bonus `soul_soil`. Profondeur F-16, cube 15,
+225 cellules, fenêtre 74x74, LOWEST et gates de production restent inchangés.
+Voir l'amendement de `NETHER_PLACEMENT_CONTRACT.md` pour la portée exacte.
+
+Nouvelle source : commit portant cette modification de `NetherSitePlanner.java`,
+à résoudre par `git log -1 --format=%H -- ioe_project_packs/immersive_ore_expedition/src/main/java/com/oblixorprime/ioe/nethergeodes/NetherSitePlanner.java`.
+Elle est distincte des anciennes sources/JAR qualifiés ci-dessus. La comparaison
+réutilise les mêmes 32 terrains via le GameTest existant et ne change aucune géométrie.
+Le reçu de clôture sur PR63 lie les résultats réellement mesurés, CI et JAR à ce
+nouveau SHA ; ne pas transférer les preuves précédentes ni déduire une acceptation
+naturelle du seul succès CI. Ce document est un état d'implémentation, pas une
+acceptation de stabilité, de rendu ou de production.
+
 ## Historique de consolidation et contrats conservés
 
 Les sections suivantes conservent leur contexte de cycle. Les expressions « ce

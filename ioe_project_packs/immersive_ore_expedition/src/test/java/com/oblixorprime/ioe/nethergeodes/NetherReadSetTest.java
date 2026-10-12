@@ -68,6 +68,23 @@ final class NetherReadSetTest {
         assertFalse(world.budget.acquire(1));
         assertThrows(UnsupportedOperationException.class, () -> plan.expected().clear());
     }
+    @Test void observedMagmaAndSoulSandAreRevalidatedAndNeverWritten() {
+        for (var block : List.of(Blocks.MAGMA_BLOCK, Blocks.SOUL_SAND)) {
+            for (int change=0; change<3; change++) {
+                var world = new World(); world.changes.put(FLOOR,block.defaultBlockState());
+                var plan = world.plan();
+                assertEquals(block.defaultBlockState(),plan.expected().get(FLOOR));
+                assertFalse(plan.writes().containsKey(FLOOR));
+                if (change==1) world.changes.put(FLOOR,Blocks.AIR.defaultBlockState());
+                if (change==2) world.protectedCells.add(FLOOR);
+                var result=world.coordinator.commit(world,new NetherPlacementLedger(),plan);
+                assertEquals(change==0 ? Result.COMMITTED : Result.TERRAIN_CHANGED,result);
+                if (change==0) assertEquals(block.defaultBlockState(),world.state(FLOOR));
+                else assertEquals(0,world.writes);
+            }
+        }
+    }
+
     @Test void changedProtectionOnUnwrittenFloorRejectsEvenWhenStateMatches() {
         var world = new World(); var plan = world.plan();
         world.protectedCells.add(FLOOR);

@@ -94,9 +94,10 @@ final class NetherSitePlanner {
         return !cell.protectedBlock() && cell.state().getFluidState().isEmpty() && !cell.state().hasBlockEntity()
                 && (cell.state().is(Blocks.NETHERRACK) || cell.state().is(Blocks.BASALT) || cell.state().is(Blocks.BLACKSTONE));
     }
-    // Soul soil is admitted only as the first non-liquid floor, never as chamber/crust rock.
+    // Additional natural substrates are observation-only, never chamber/crust replacement rock.
     static boolean floorRock(Cell cell) {
-        return rock(cell) || cell.state().is(Blocks.SOUL_SOIL) && !cell.protectedBlock()
+        return rock(cell) || (cell.state().is(Blocks.SOUL_SOIL) || cell.state().is(Blocks.SOUL_SAND)
+                || cell.state().is(Blocks.MAGMA_BLOCK)) && !cell.protectedBlock()
                 && cell.state().getFluidState().isEmpty() && !cell.state().hasBlockEntity();
     }
     private static BlockPos pos(Candidate candidate, int y, int index) {
