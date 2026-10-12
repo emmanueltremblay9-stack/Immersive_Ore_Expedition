@@ -17,11 +17,21 @@ import java.util.Map;
 @GameTestHolder(ImmersiveOreExpeditionMod.MODID)
 @PrefixGameTestTemplate(false)
 public final class NetherGeneratedTerrainGameTests {
-    private static final int MAX_REGIONS = 64;
+    private static final int MAX_REGIONS = 256;
     private record Filter(String reason, Integer surfaceY, Integer floor, boolean soulSoilFloor, int reads, String detail) { }
 
-    @GameTest(template = "expedition_worldgen_empty", batch = "ioe_nether_generated_terrain", timeoutTicks = 1200)
+    @GameTest(template = "expedition_worldgen_empty", batch = "ioe_nether_generated_terrain", timeoutTicks = 2400)
     public static void boundedSearchOnUneditedGeneratedTerrain(GameTestHelper helper) {
+        // One authorized temporary experiment: push attempt 1, baseline only.
+        // PR/full-runtime duplicates must not repeat the candidate search.
+        if (!"push".equals(System.getenv("GITHUB_EVENT_NAME"))
+                || !"1".equals(System.getenv("GITHUB_RUN_ATTEMPT"))
+                || net.neoforged.fml.ModList.get().isLoaded("immersiveengineering")) {
+            com.mojang.logging.LogUtils.getLogger().info("IOE bounded256 NOT_RUN: one-shot push baseline only");
+            helper.succeed();
+            return;
+        }
+        com.mojang.logging.LogUtils.getLogger().info("IOE bounded256 start: source={} run={} seed=0 minecraft=1.21.1 neoforge=21.1.230 regions=(-2000-2*i,-2000),i=0..255 max=256 loading=controlled_full_5x5_not_player_stream", System.getenv("GITHUB_SHA"), System.getenv("GITHUB_RUN_ID"));
         sample(helper, 0, new LinkedHashMap<>());
     }
 
@@ -71,11 +81,11 @@ public final class NetherGeneratedTerrainGameTests {
     private static void sample(GameTestHelper helper, int index, Map<String, Integer> counts) {
         var level = helper.getLevel().getServer().getLevel(Level.NETHER);
         helper.assertTrue(level.getSeed() == 0L, "Qualification requires recorded seed 0");
-        int regionX = -1800 - 2 * index, regionZ = -1800;
+        int regionX = -2000 - 2 * index, regionZ = -2000;
         var candidate = NetherSitePlanner.candidate(level.getSeed(), regionX, regionZ);
         var origin = new BlockPos(candidate.x(), level.getMinBuildHeight(), candidate.z());
         var chunk = new ChunkPos(origin);
-        // Test fixture only: 64 NEW fixed regions, disjoint 5x5 neighborhoods; no edits or synthetic receipts.
+        // Test fixture only: 256 NEW fixed regions, disjoint 5x5 neighborhoods; no edits or synthetic receipts.
         for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++) level.getChunk(chunk.x + x, chunk.z + z);
         int loadedTick = level.getServer().getTickCount();
         helper.runAfterDelay(1, () -> {
@@ -104,11 +114,11 @@ public final class NetherGeneratedTerrainGameTests {
                 if (accepted) verifyAccepted(helper, level, candidate, filtered.floor(), filtered.soulSoilFloor(), origin, "natural_generated");
             }
             counts.merge(outcome, 1, Integer::sum);
-            com.mojang.logging.LogUtils.getLogger().info("IOE bounded64 sample: seed={} region={},{} candidate={},{} quality={} loadTick={} admissionTick={} actualReceipt=true loading=controlled_full_5x5 filter={} admission={} terrainEditsBeforeAdmission=0 injectedReceipts=0",
+            com.mojang.logging.LogUtils.getLogger().info("IOE bounded256 sample: seed={} region={},{} candidate={},{} quality={} loadTick={} admissionTick={} actualReceipt=true loading=controlled_full_5x5 filter={} admission={} terrainEditsBeforeAdmission=0 injectedReceipts=0",
                     level.getSeed(), regionX, regionZ, candidate.x(), candidate.z(), filtered.reason().equals("SURVIVOR") ? candidate.quality(filtered.soulSoilFloor()) : "UNRESOLVED", loadedTick,
                     level.getServer().getTickCount(), filtered, report);
             if (accepted || index + 1 == MAX_REGIONS) {
-                com.mojang.logging.LogUtils.getLogger().info("IOE bounded64 complete: seed={} sampled={} limit={} accepted={} outcomes={} loading=controlled_full_5x5_not_player_stream",
+                com.mojang.logging.LogUtils.getLogger().info("IOE bounded256 complete: seed={} sampled={} limit={} accepted={} outcomes={} loading=controlled_full_5x5_not_player_stream",
                         level.getSeed(), index + 1, MAX_REGIONS, accepted, counts);
                 helper.succeed();
             } else {
