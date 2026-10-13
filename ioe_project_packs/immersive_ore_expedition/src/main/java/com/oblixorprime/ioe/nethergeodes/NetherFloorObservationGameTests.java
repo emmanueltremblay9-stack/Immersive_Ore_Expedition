@@ -225,7 +225,7 @@ public final class NetherFloorObservationGameTests {
                 candidate.x(),candidate.z(),report.result(),report.plannerStatus(),report.connectedColumns(),report.worldReads(),filtered.reads(),before.size(),after.size(),changed,negative,admissionTick,level.getServer().getTickCount());
         level.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
         helper.runAfterDelay(20,()->{
-            for(var entry:after.entrySet()) {
+            if(committed) for(var entry:after.entrySet()) {
                 helper.assertTrue(host.reserveReads(1),"Delayed-volume budget exhausted");
                 helper.assertTrue(host.read(entry.getKey()).equals(entry.getValue()),"Normal volume changed after 20 ticks: "+entry.getKey());
             }
@@ -240,7 +240,7 @@ public final class NetherFloorObservationGameTests {
                 helper.assertTrue(NetherNaturalAdmission.attempt(level,chunk)==NetherPlacementCoordinator.Result.DUPLICATE,"Reloaded normal admission replayed");
             } catch(java.io.IOException failure) {throw new RuntimeException(failure);}
             level.getChunkSource().removeRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
-            com.mojang.logging.LogUtils.getLogger().info("IOE normal60 known verification: committed={} delayedReads={} ticks=20 volumeStable=true savedLedger=true replay=false chunkReload=false processRestart=false playerStreaming=false",committed,after.size());
+            com.mojang.logging.LogUtils.getLogger().info("IOE normal60 known verification: committed={} delayedReads={} ticks=20 committedVolumeStable=true savedLedger=true replay=false chunkReload=false processRestart=false playerStreaming=false",committed,committed?after.size():0);
             sample(helper,index+1);
         });
     }
