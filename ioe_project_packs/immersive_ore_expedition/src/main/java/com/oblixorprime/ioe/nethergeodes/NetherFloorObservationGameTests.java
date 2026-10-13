@@ -83,6 +83,10 @@ public final class NetherFloorObservationGameTests {
             var coordinator=NetherPlacementRuntime.coordinator(level);
             helper.assertTrue(coordinator.takeNaturalCandidates(level.getSeed(),level.getServer().getTickCount()).contains(chunk)
                     && coordinator.hasFreshReceipt(NetherPlacementRuntime.host(level),chunk.toLong()),"Missing real new-chunk receipt");
+            if(rx==-2014 && rz==-2000) {
+                normalAdmission(helper,index,level,candidate,chunk);
+                return;
+            }
             var capture=new NetherSnapshotDiagnostic.Capture(NetherSnapshotDiagnostic.source(level),
                     ()->NetherAnalysisBudget.forServer(level.getServer()).acquire(level.getServer().getTickCount()));
             NetherPlacementCoordinator.Plan committedPlan=null;
@@ -168,6 +172,76 @@ public final class NetherFloorObservationGameTests {
                     helper.succeed();
                 } else sample(helper,index+1);
             });
+        });
+    }
+    /** Replaces this candidate's paired/prepared experiment; no duplicate world or admission. */
+    private static void normalAdmission(GameTestHelper helper,int index,net.minecraft.server.level.ServerLevel level,
+                                        NetherSitePlanner.Candidate candidate,ChunkPos chunk) {
+        var filtered=NetherGeneratedTerrainGameTests.filter(level,candidate);
+        helper.assertTrue(filtered.reason().equals("SURVIVOR"),"Known candidate prefilter changed: "+filtered);
+        var center=new BlockPos(candidate.x(),filtered.floor()-16,candidate.z());
+        var origin=new BlockPos(candidate.x(),level.getMinBuildHeight(),candidate.z());
+        var host=NetherPlacementRuntime.host(level);
+        var before=new java.util.LinkedHashMap<BlockPos,net.minecraft.world.level.block.state.BlockState>();
+        for(int z=-7;z<=7;z++) for(int y=-7;y<=7;y++) for(int x=-7;x<=7;x++) {
+            var pos=center.offset(x,y,z);
+            helper.assertTrue(host.reserveReads(1),"Before-volume read budget exhausted");
+            before.put(pos,host.read(pos));
+        }
+        int admissionTick=level.getServer().getTickCount();
+        var report=NetherNaturalAdmission.attemptDetailed(level,chunk);
+        boolean committed=report.result()==NetherPlacementCoordinator.Result.COMMITTED;
+        helper.assertTrue(committed || report.result()==NetherPlacementCoordinator.Result.PLAN_REJECTED,
+                "Normal admission technical failure: "+report);
+        if(NetherDepth32Prototype.requested() && net.neoforged.fml.ModList.get().isLoaded("immersiveengineering"))
+            helper.assertTrue(committed,"Known full-runtime candidate did not commit through normal 60% admission");
+        var after=new java.util.LinkedHashMap<BlockPos,net.minecraft.world.level.block.state.BlockState>();
+        var resources=new java.util.LinkedHashMap<BlockPos,net.minecraft.world.level.block.state.BlockState>();
+        int changed=0,negative=0;
+        for(var entry:before.entrySet()) {
+            var pos=entry.getKey();
+            helper.assertTrue(host.reserveReads(1),"After-volume read budget exhausted");
+            var state=host.read(pos);after.put(pos,state);
+            if(!state.equals(entry.getValue())) {
+                changed++;if(pos.getY()<0)negative++;
+                helper.assertFalse(entry.getValue().is(net.minecraft.world.level.block.Blocks.BEDROCK),"Normal admission wrote bedrock");
+            }
+            int dx=pos.getX()-center.getX(),dy=pos.getY()-center.getY(),dz=pos.getZ()-center.getZ();
+            int radius=dx*dx+dy*dy+dz*dz;
+            if(committed && radius<=9)helper.assertTrue(state.isAir(),"Normal cavity incomplete");
+            if(committed && NetherOreProvenance.isResource(state)) {
+                helper.assertTrue(radius>9 && radius<=25,"Resource outside canonical shell");
+                resources.put(pos,state);
+            }
+        }
+        helper.assertTrue(changed==(committed?report.plannedWrites():0),"Observed changes disagree with admission");
+        if(committed) {
+            helper.assertTrue(resources.size()==NetherSitePlanner.budget(candidate.quality(filtered.soulSoilFloor())),"Normal resource budget differs");
+            helper.assertTrue(resources.values().stream().filter(state->state.is(net.minecraft.world.level.block.Blocks.ANCIENT_DEBRIS)).count()
+                    ==(candidate.debrisSelected(filtered.soulSoilFloor())?1:0),"Normal debris replacement differs");
+        }
+        helper.assertTrue(NetherNaturalAdmission.attempt(level,chunk)==NetherPlacementCoordinator.Result.DUPLICATE,"Normal admission replayed");
+        com.mojang.logging.LogUtils.getLogger().info("IOE normal60 known candidate: candidate={},{} result={} planner={} connected={} admissionCaptureReads={} prefilterReads={} fixtureBeforeReads={} fixtureAfterReads={} changed={} negativeWrites={} admissionTick={} finalTick={} commitReadCounter=not_instrumented loading=controlled_full_5x5 terrainEditsBeforeAdmission=0 injectedReceipts=0",
+                candidate.x(),candidate.z(),report.result(),report.plannerStatus(),report.connectedColumns(),report.worldReads(),filtered.reads(),before.size(),after.size(),changed,negative,admissionTick,level.getServer().getTickCount());
+        level.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
+        helper.runAfterDelay(20,()->{
+            for(var entry:after.entrySet()) {
+                helper.assertTrue(host.reserveReads(1),"Delayed-volume budget exhausted");
+                helper.assertTrue(host.read(entry.getKey()).equals(entry.getValue()),"Normal volume changed after 20 ticks: "+entry.getKey());
+            }
+            var storage=level.getDataStorage();
+            try {
+                storage.save();net.neoforged.neoforge.common.IOUtilities.waitUntilIOWorkerComplete();
+                var disk=storage.readTagFromDisk(NetherPlacementLedger.NAME,null,net.minecraft.SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+                var loaded=NetherPlacementLedger.FACTORY.deserializer().apply(disk.getCompound("data"),level.registryAccess());
+                helper.assertFalse(loaded.claim(origin),"Disk ledger permits normal replay");
+                resources.forEach((pos,state)->helper.assertTrue(loaded.preserves(pos,state),"Disk ledger lost normal resource at "+pos));
+                storage.set(NetherPlacementLedger.NAME,loaded);
+                helper.assertTrue(NetherNaturalAdmission.attempt(level,chunk)==NetherPlacementCoordinator.Result.DUPLICATE,"Reloaded normal admission replayed");
+            } catch(java.io.IOException failure) {throw new RuntimeException(failure);}
+            level.getChunkSource().removeRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
+            com.mojang.logging.LogUtils.getLogger().info("IOE normal60 known verification: committed={} delayedReads={} ticks=20 volumeStable=true savedLedger=true replay=false chunkReload=false processRestart=false playerStreaming=false",committed,after.size());
+            sample(helper,index+1);
         });
     }
 }

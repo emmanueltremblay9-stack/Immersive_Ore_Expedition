@@ -18,7 +18,7 @@ import java.util.Map;
 @PrefixGameTestTemplate(false)
 public final class NetherGeneratedTerrainGameTests {
     private static final int MAX_REGIONS = 64;
-    private record Filter(String reason, Integer surfaceY, Integer floor, boolean soulSoilFloor, int reads, String detail) { }
+    record Filter(String reason, Integer surfaceY, Integer floor, boolean soulSoilFloor, int reads, String detail) { }
 
     @GameTest(template = "expedition_worldgen_empty", batch = "ioe_nether_generated_terrain", timeoutTicks = 1200)
     public static void boundedSearchOnUneditedGeneratedTerrain(GameTestHelper helper) {
@@ -30,7 +30,7 @@ public final class NetherGeneratedTerrainGameTests {
     }
     // Qualification-only necessary conditions. Never pick another surface or relax full admission.
     // All reads debit the SAME server tick quota as the subsequent production admission.
-    private static Filter filter(ServerLevel level, NetherSitePlanner.Candidate candidate) {
+    static Filter filter(ServerLevel level, NetherSitePlanner.Candidate candidate) {
         var capture = new NetherSnapshotDiagnostic.Capture(NetherSnapshotDiagnostic.source(level),
                 () -> NetherAnalysisBudget.forServer(level.getServer()).acquire(level.getServer().getTickCount()));
         Integer surface = null, floor = null;

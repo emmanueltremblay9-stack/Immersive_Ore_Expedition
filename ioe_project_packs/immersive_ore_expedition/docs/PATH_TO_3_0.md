@@ -392,3 +392,27 @@ No additional FULL neighborhood or production ticket is introduced. Successful
 cohort commits additionally save/reload their real ledger and verify provenance
 and replay refusal, logging negative-height writes separately. This is SavedData
 roundtrip evidence, not a complete server restart.
+
+## Normal 60% admission on the known depth32 candidate — 2026-10-13
+
+The (-2014,-2000) cohort entry now calls `NetherNaturalAdmission.attemptDetailed`
+at the unchanged normal 60% threshold, replacing its paired planning and prepared
+40% commit. It does not add a second placement, retry, region, server or profile.
+The other 31 entries keep their previous comparison and are separate evidence.
+A third full capture after paired planning would exceed the existing shared 65536
+reads/tick; instead this entry uses the existing charged necessary-condition filter
+and charged 15-cube observations before/after the real admission. No budget reset,
+extra tick before admission, receipt injection or terrain preparation is introduced.
+
+Counters distinguish admission capture reads, prefilter reads, before/after volume
+reads and delayed volume reads. Commit's protected full revalidation still uses the
+existing reservation and checks; no independent actual commit-read counter exists,
+so the log explicitly says not_instrumented rather than claiming a total. The full
+pinned depth32 fixture must actually COMMIT; a mere PLANNED or rejection cannot pass.
+It checks observed changed blocks against the report, cavity/resource/debris budgets,
+no bedrock changes, the whole volume after 20 ticks, real SavedData disk roundtrip,
+resource provenance and replay refusal. Loading and temporary retention are controlled
+FULL 5x5 fixture operations, not player streaming. Ledger reload is not chunk reload
+or a complete process restart. Prototype data remains outside the normal JAR;
+production, merge and publication remain disabled. Exact-source results belong in
+the PR receipt after hosted CI finishes.
