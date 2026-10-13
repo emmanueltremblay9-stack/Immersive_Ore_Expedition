@@ -450,3 +450,35 @@ Reload freshness is checked one tick after loading, inside the existing 20-tick
 lease window, as well as after the delayed volume verification. Checking only at
 20 ticks would allow an erroneously fresh receipt to expire before observation;
 the early assertion prevents that false proof without changing lease semantics.
+
+## Include both shore markers in the same reload proof — 2026-10-13
+
+The normal admission report now includes an immutable, package-private list of the
+shore positions from the successfully committed plan (empty on every noncommit).
+This is read-only result metadata; it adds no terrain scan, permission or generation
+change. The existing known-candidate fixture asserts exactly two adjacent vertical
+blackstone markers outside the cube and inside its already loaded FULL 5x5, then
+reads them with the shared budget and includes them in the 20-tick checks.
+
+The same save/unload/reload cycle now waits for ALL unique cube/marker chunks to be
+absent together for five ticks, reloads each once, requires each object to differ,
+and checks freshness at tick 1 and all 3377 observed states at tick 20. No extra
+cohort, study, placement, profile or neighborhood. Marker observations start after
+commit; their expected before-state remains the planner's validated read set, not
+an independent fixture before-observation. CI must establish the actual chunk count,
+positions and outcome at the resulting source.
+
+### Complete process restart boundary
+
+The existing two Gradle profiles are development GameTest servers in
+`run/gametest-baseline` and `run/gametest-full`. NetherDepth32Prototype.register
+calls requireFreshDirectory before registering the external pack, rejecting any
+level.dat, level.dat_old or .mca. Therefore relaunching either profile against the
+saved prototype world fails intentionally. Cleaning the world and rerunning tests
+would only test a new world, not persistence. Disabling the prototype or bypassing
+this guard would invalidate the requested proof or widen the new-world-only scope.
+A true restart also necessarily launches another server process, outside the current
+no-new-server constraint. No restart, resume exception, guard bypass, extra profile
+or access expansion is implemented. A future restart qualification needs explicit
+approval for a second CI process reopening only its proven fixture world, plus a
+bounded resume design; it cannot be inferred from chunk reload or SavedData tests.

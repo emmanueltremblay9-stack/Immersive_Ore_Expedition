@@ -9,7 +9,12 @@ final class NetherNaturalAdmission {
     private NetherNaturalAdmission() { }
 
     record Report(NetherPlacementCoordinator.Result result, String plannerStatus, int worldReads,
-                  int connectedColumns, int plannedWrites) { }
+                  int connectedColumns, int plannedWrites, java.util.List<BlockPos> committedShoreMarkers) {
+        Report(NetherPlacementCoordinator.Result result,String plannerStatus,int worldReads,int connectedColumns,int plannedWrites) {
+            this(result,plannerStatus,worldReads,connectedColumns,plannedWrites,java.util.List.of());
+        }
+        Report { committedShoreMarkers=java.util.List.copyOf(committedShoreMarkers); }
+    }
 
     static NetherPlacementCoordinator.Result attempt(ServerLevel level, ChunkPos trigger) {
         return attemptDetailed(level, trigger).result();
@@ -43,7 +48,13 @@ final class NetherNaturalAdmission {
                 } else {
                     // Acquisition and placement share the same server turn and global budget.
                     var placed = NetherPlacementRuntime.commitPrepared(level, outcome.plan(), admission);
-                    return new Report(placed, plannerStatus, capture.reads, connectedColumns, outcome.plan().writes().size());
+                    // Read-only evidence from the actual committed plan; no additional terrain scan or write.
+                    var markers=placed==NetherPlacementCoordinator.Result.COMMITTED
+                            ? outcome.plan().writes().entrySet().stream()
+                                .filter(entry->entry.getValue().is(net.minecraft.world.level.block.Blocks.BLACKSTONE))
+                                .map(entry->entry.getKey().immutable()).toList()
+                            : java.util.List.<BlockPos>of();
+                    return new Report(placed, plannerStatus, capture.reads, connectedColumns, outcome.plan().writes().size(),markers);
                 }
             }
         } catch (NetherSnapshotDiagnostic.Aborted failure) {
