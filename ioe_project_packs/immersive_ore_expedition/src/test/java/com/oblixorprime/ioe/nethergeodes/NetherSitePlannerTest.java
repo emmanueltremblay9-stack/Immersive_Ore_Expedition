@@ -110,11 +110,11 @@ final class NetherSitePlannerTest {
         for (int size : new int[]{2190, 2191}) {
             var result = plan(candidate(SiteQuality.NORMAL, false), Y, snapshot(pos -> {
                 if (pos.getY() > Y) return AIR;
-                int index = (pos.getZ() - 8 + 37) * 74 + Math.floorMod(pos.getX() - 8 + 37 - 23, 74);
+                int index = Math.floorMod(pos.getZ() - 8 + 37 - 17, 74) * 74 + Math.floorMod(pos.getX() - 8 + 37 - 23, 74);
                 return index >= 0 && index < size && pos.getY() > Y - 4 ? LAVA : ROCK;
             }), 40);
             assertEquals(size, result.connectedDeepColumns());
-            assertEquals(size == 2190 ? Status.COVERAGE : Status.FLOOR, result.status());
+            assertEquals(size == 2190 ? Status.COVERAGE : Status.PLANNED, result.status());
         }
     }
     @Test void experimentalCoveragePreservesVolumeFloorAndShoreChecks() {
