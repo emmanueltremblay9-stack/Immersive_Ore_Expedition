@@ -214,6 +214,9 @@ final class NetherSitePlannerTest {
         var gravel=new Cell(Blocks.GRAVEL.defaultBlockState(),false);
         assertEquals(Status.GRAVEL_SUPPORT,plan(c,Y,snapshot(pos ->
                 pos.equals(center.above(4)) ? gravel : terrain(pos))).status());
+        var distant=new BlockPos(40,Y,8);
+        assertEquals(Status.PLANNED,plan(c,Y,snapshot(pos -> pos.equals(distant) ? gravel
+                : pos.equals(distant.below()) ? AIR : terrain(pos))).status());
         var edge=center.offset(7,-7,7);var support=edge.below(3);
         var stable=plan(c,Y,snapshot(pos -> pos.equals(edge) || pos.equals(edge.below()) || pos.equals(edge.below(2))
                 ? gravel : terrain(pos)));

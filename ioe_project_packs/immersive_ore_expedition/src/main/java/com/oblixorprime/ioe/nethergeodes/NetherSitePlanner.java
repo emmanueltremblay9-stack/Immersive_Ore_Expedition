@@ -220,6 +220,9 @@ final class NetherSitePlanner {
             // Every additional support observation shares this Reader's budget and complete read set.
             for (var entry : new ArrayList<>(reader.states.entrySet())) {
                 if (!entry.getValue().is(Blocks.GRAVEL) || writes.containsKey(entry.getKey())) continue;
+                if (Math.abs(entry.getKey().getX()-center.getX())>7
+                        || Math.abs(entry.getKey().getY()-center.getY())>7
+                        || Math.abs(entry.getKey().getZ()-center.getZ())>7) continue;
                 var support = entry.getKey().below();
                 while (true) {
                     var observed = reader.read(support);
