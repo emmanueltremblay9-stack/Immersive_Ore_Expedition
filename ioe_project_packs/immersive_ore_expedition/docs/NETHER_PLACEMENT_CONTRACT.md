@@ -577,3 +577,20 @@ The experiment follows every downstream planner check until rejection or PLANNED
 exact CI results and per-candidate transitions belong in the PR63 execution receipt.
 No claim of natural success, player-stream qualification or client validation follows
 from automated success. Production remains disabled; no merge/release authorized.
+
+## Approved intact-bedrock contact trial — 2026-10-13
+
+Owner explicitly permits exterior bedrock contact only where bedrock stays intact.
+The planner accepts unprotected, fluid-free, block-entity-free bedrock in retained
+volume cells. Every cavity cell still requires replaceable rock. The full radius-5
+shell remains in the original deterministic shuffle; if a selected resource write
+hits bedrock, reject the whole plan. No skipping, reroll, truncation or replacement.
+Unselected shell cells and outer envelope can retain bedrock; it remains in the
+complete state/protection read set. Runtime replacement permissions are unchanged.
+Bedrock remains invalid as observed lake floor or shore. All other criteria remain:
+74x74, LOWEST, F-16, 225 floor cells, full 15-cube, rewards, budgets and new chunks.
+The complete outer top is already below selected lava surface by this geometry;
+no new margin is added. Normal coverage remains 60%, the explicit experiment 40%.
+The existing targeted observation records the next outcome without forcing a plan
+or placing terrain. Exact-source CI and findings are recorded on PR63. Production
+remains disabled; no merge, release or installation is authorized.

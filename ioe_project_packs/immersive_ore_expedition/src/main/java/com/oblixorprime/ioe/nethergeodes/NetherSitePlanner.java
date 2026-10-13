@@ -188,21 +188,30 @@ final class NetherSitePlanner {
             BlockPos center = new BlockPos(candidate.x(), floor - 16, candidate.z());
             var writes = new LinkedHashMap<BlockPos, BlockState>();
             var orePositions = new ArrayList<BlockPos>();
+            var intactBedrock = new HashMap<BlockPos, Cell>();
             // Solid cube enclosing radius-3 cavity gives >=3 intact solid cells in every direction.
             for (int z = -7; z <= 7; z++) for (int y = -7; y <= 7; y++) for (int x = -7; x <= 7; x++) {
                 BlockPos pos = center.offset(x, y, z); var cell = reader.read(pos);
-                if (!rock(cell)) throw new Stop(Status.CRUST_OR_PROTECTION,
-                        new VolumeRejection(center, pos, cell));
                 int squared = x * x + y * y + z * z;
+                boolean bedrock = cell.state().is(Blocks.BEDROCK) && !cell.protectedBlock()
+                        && cell.state().getFluidState().isEmpty() && !cell.state().hasBlockEntity();
+                if (!rock(cell) && !(bedrock && squared > 9)) throw new Stop(Status.CRUST_OR_PROTECTION,
+                        new VolumeRejection(center, pos, cell));
+                if (bedrock) intactBedrock.put(pos, cell);
                 if (squared <= 9) writes.put(pos, Blocks.AIR.defaultBlockState());
                 else if (squared <= 25) orePositions.add(pos);
             }
             var quality = candidate.quality(soulSoilFloor);
             var random = RandomSource.create(candidate.shapeSeed());
             for (int i = orePositions.size() - 1; i > 0; i--) Collections.swap(orePositions, i, random.nextInt(i + 1));
-            for (int i = 0; i < budget(quality); i++) writes.put(orePositions.get(i),
-                    i == 0 && candidate.debrisSelected(soulSoilFloor)
-                            ? Blocks.ANCIENT_DEBRIS.defaultBlockState() : Blocks.NETHER_QUARTZ_ORE.defaultBlockState());
+            for (int i = 0; i < budget(quality); i++) {
+                var pos = orePositions.get(i);
+                // Keep the original full shell and deterministic draw. Never skip/reroll bedrock.
+                if (intactBedrock.containsKey(pos)) throw new Stop(Status.CRUST_OR_PROTECTION,
+                        new VolumeRejection(center, pos, intactBedrock.get(pos)));
+                writes.put(pos, i == 0 && candidate.debrisSelected(soulSoilFloor)
+                        ? Blocks.ANCIENT_DEBRIS.defaultBlockState() : Blocks.NETHER_QUARTZ_ORE.defaultBlockState());
+            }
             BlockPos shore = null; int closest = Integer.MAX_VALUE;
             for (int i = 0; i < COLUMNS; i++) {
                 if (surface[i]) continue;

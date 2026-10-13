@@ -120,6 +120,20 @@ final class NetherReadSetTest {
         assertEquals(Result.BUDGET, world.coordinator.commit(world, new NetherPlacementLedger(), plan));
         assertEquals(0, world.reads); assertEquals(0, world.writes);
     }
+    @Test void intactBedrockIsRevalidatedBeforeAnyWrite() {
+        var corner = new BlockPos(1,13,1);
+        for(int change=0;change<3;change++) {
+            var world = new World(); world.changes.put(corner,Blocks.BEDROCK.defaultBlockState());
+            var plan=world.plan(); assertTrue(plan.expected().get(corner).is(Blocks.BEDROCK));
+            assertFalse(plan.writes().containsKey(corner));
+            if(change==1) world.changes.put(corner,Blocks.AIR.defaultBlockState());
+            if(change==2) world.protectedCells.add(corner);
+            var result=world.coordinator.commit(world,new NetherPlacementLedger(),plan);
+            assertEquals(change==0 ? Result.COMMITTED : Result.TERRAIN_CHANGED,result);
+            if(change==0) assertTrue(world.state(corner).is(Blocks.BEDROCK));
+            else assertEquals(0,world.writes);
+        }
+    }
     @Test void changedLavaOutsideWritesRejectsBeforeMutation() { changedCellRejects(LAVA); }
     @Test void changedFloorOutsideWritesRejectsBeforeMutation() { changedCellRejects(FLOOR); }
     private void changedCellRejects(BlockPos position) {

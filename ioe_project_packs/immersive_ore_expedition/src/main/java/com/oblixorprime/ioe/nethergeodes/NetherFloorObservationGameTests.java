@@ -82,8 +82,9 @@ public final class NetherFloorObservationGameTests {
                 capture.validate();
                 if (candidate.x()==-512472 && candidate.z()==-511864) {
                     var failure=experimental.volumeRejection();
-                    helper.assertTrue(experimental.status()==NetherSitePlanner.Status.CRUST_OR_PROTECTION
-                            && failure!=null,"Target no longer reproduces its volume rejection");
+                    com.mojang.logging.LogUtils.getLogger().info("IOE bedrock target outcome: candidate={},{} status={} plannedWrites={} actualWrites=0 validated=true",
+                            candidate.x(),candidate.z(),experimental.status(),experimental.plan()==null?0:experimental.plan().writes().size());
+                    if (failure!=null) {
                     var state=failure.cell().state();
                     com.mojang.logging.LogUtils.getLogger().info("IOE targeted volume rejection: candidate={},{} center={} position={} offset={} state={} protected={} fluidEmpty={} blockEntity={} allowedRock={} validated=true actualWrites=0",
                             candidate.x(),candidate.z(),failure.center(),failure.position(),failure.position().subtract(failure.center()),
@@ -91,6 +92,11 @@ public final class NetherFloorObservationGameTests {
                             state.is(net.minecraft.world.level.block.Blocks.NETHERRACK)
                                     || state.is(net.minecraft.world.level.block.Blocks.BASALT)
                                     || state.is(net.minecraft.world.level.block.Blocks.BLACKSTONE));
+                    }
+                    if (experimental.plan()!=null) {
+                        helper.assertTrue(experimental.plan().writes().keySet().stream().noneMatch(pos ->
+                                experimental.plan().expected().get(pos).is(net.minecraft.world.level.block.Blocks.BEDROCK)),"Plan writes bedrock");
+                    }
                 }
                 com.mojang.logging.LogUtils.getLogger().info("IOE floor cohort row: region={},{} candidate={},{} status={} connected={} probes={} captureReads={} revalidationReads={} plannedWrites={} actualWrites=0 edits=0 injectedReceipts=0",
                         rx,rz,candidate.x(),candidate.z(),result.status(),result.connectedDeepColumns(),result.probes(),capture.reads,capture.cells.size(),result.plan()==null?0:result.plan().writes().size());

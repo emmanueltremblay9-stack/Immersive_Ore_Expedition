@@ -158,6 +158,38 @@ final class NetherSitePlannerTest {
         }
         assertNull(plan(c, Y, snapshot(NetherSitePlannerTest::terrain), 40).volumeRejection());
     }
+    @Test void intactBedrockPreservesWholeGeometryAndSelectedWritesAcrossQualities() {
+        for (SiteQuality quality : SiteQuality.values()) {
+            var c = candidate(quality, true);
+            var baseline = plan(c, Y, snapshot(NetherSitePlannerTest::terrain), 40);
+            var center = baseline.plan().origin();
+            var bedrock = new Cell(Blocks.BEDROCK.defaultBlockState(), false);
+            java.util.function.Predicate<BlockPos> intact = pos ->
+                    Math.abs(pos.getX()-center.getX())<=7 && Math.abs(pos.getY()-center.getY())<=7
+                    && Math.abs(pos.getZ()-center.getZ())<=7 && !baseline.plan().writes().containsKey(pos);
+            var accepted = plan(c, Y, snapshot(pos -> intact.test(pos) ? bedrock : terrain(pos)), 40);
+            assertEquals(Status.PLANNED, accepted.status());
+            assertEquals(baseline.plan().origin(), accepted.plan().origin());
+            assertEquals(baseline.plan().writes(), accepted.plan().writes());
+            assertTrue(accepted.plan().expected().entrySet().stream().anyMatch(e -> e.getValue().is(Blocks.BEDROCK)));
+            assertTrue(accepted.plan().writes().keySet().stream().noneMatch(intact));
+            // Entire outer top (including block upper face) stays below the selected surface.
+            for (int x=-7;x<=7;x++) for(int z=-7;z<=7;z++)
+                assertTrue(center.offset(x,7,z).getY()+1 < Y);
+            var testedWriteKinds = new java.util.HashSet<net.minecraft.world.level.block.Block>();
+            for (var pos : baseline.plan().writes().keySet()) {
+                if (Math.abs(pos.getY()-center.getY())>7) continue; // separate shore marker
+                if (!testedWriteKinds.add(baseline.plan().writes().get(pos).getBlock())) continue;
+                var rejected = plan(c, Y, snapshot(p -> p.equals(pos) ? bedrock : terrain(p)), 40);
+                assertEquals(Status.CRUST_OR_PROTECTION, rejected.status());
+                assertNull(rejected.plan());
+                assertEquals(pos, rejected.volumeRejection().position());
+            }
+            var corner = center.offset(-7,-7,-7);
+            assertEquals(Status.CRUST_OR_PROTECTION, plan(c,Y,snapshot(pos -> pos.equals(corner)
+                    ? new Cell(bedrock.state(),true) : terrain(pos)),40).status());
+        }
+    }
     @Test void separatedPoolsAndFlowingSurfaceDoNotCombine() {
         var split = plan(candidate(SiteQuality.NORMAL, false), Y, snapshot(pos ->
                 pos.getX() - 8 == 1 && pos.getY() <= Y ? ROCK : terrain(pos)));

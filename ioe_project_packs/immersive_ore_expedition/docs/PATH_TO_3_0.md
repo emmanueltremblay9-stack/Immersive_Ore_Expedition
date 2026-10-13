@@ -297,3 +297,20 @@ offset, state and each rock-predicate condition after complete read-set revalida
 This supplies the missing cause; repeated cohort results are not a new eligibility
 experiment. Exact-source CI and the observed cause are recorded in the PR63 receipt.
 Normal coverage remains 60%, explicit experiment 40%, production disabled.
+
+## Approved intact-bedrock contact trial — 2026-10-13
+
+Owner explicitly permits exterior bedrock contact only where bedrock stays intact.
+The planner accepts unprotected, fluid-free, block-entity-free bedrock in retained
+volume cells. Every cavity cell still requires replaceable rock. The full radius-5
+shell remains in the original deterministic shuffle; if a selected resource write
+hits bedrock, reject the whole plan. No skipping, reroll, truncation or replacement.
+Unselected shell cells and outer envelope can retain bedrock; it remains in the
+complete state/protection read set. Runtime replacement permissions are unchanged.
+Bedrock remains invalid as observed lake floor or shore. All other criteria remain:
+74x74, LOWEST, F-16, 225 floor cells, full 15-cube, rewards, budgets and new chunks.
+The complete outer top is already below selected lava surface by this geometry;
+no new margin is added. Normal coverage remains 60%, the explicit experiment 40%.
+The existing targeted observation records the next outcome without forcing a plan
+or placing terrain. Exact-source CI and findings are recorded on PR63. Production
+remains disabled; no merge, release or installation is authorized.
