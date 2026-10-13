@@ -31,14 +31,23 @@ final class NetherSitePlanner {
     }
     enum Status { PLANNED, WRONG_DIMENSION, UNKNOWN_TERRAIN, BUDGET, SURFACE,
         COVERAGE, FLOOR, HEIGHT, CRUST_OR_PROTECTION, NO_SHORE }
-    record Outcome(Status status, int probes, int connectedDeepColumns, NetherPlacementCoordinator.Plan plan, SiteQuality quality) {
+    record VolumeRejection(BlockPos center, BlockPos position, Cell cell) { }
+    record Outcome(Status status, int probes, int connectedDeepColumns, NetherPlacementCoordinator.Plan plan,
+                   SiteQuality quality, VolumeRejection volumeRejection) {
+        Outcome(Status status, int probes, int connectedDeepColumns, NetherPlacementCoordinator.Plan plan, SiteQuality quality) {
+            this(status, probes, connectedDeepColumns, plan, quality, null);
+        }
         Outcome(Status status, int probes, int connectedDeepColumns, NetherPlacementCoordinator.Plan plan) {
             this(status, probes, connectedDeepColumns, plan, null);
         }
     }
     private static final class Stop extends RuntimeException {
         final Status status;
-        Stop(Status status) { this.status = status; }
+        final VolumeRejection volumeRejection;
+        Stop(Status status) { this(status, null); }
+        Stop(Status status, VolumeRejection volumeRejection) {
+            this.status = status; this.volumeRejection = volumeRejection;
+        }
     }
     private static final class Reader {
         final Snapshot snapshot;
@@ -182,7 +191,8 @@ final class NetherSitePlanner {
             // Solid cube enclosing radius-3 cavity gives >=3 intact solid cells in every direction.
             for (int z = -7; z <= 7; z++) for (int y = -7; y <= 7; y++) for (int x = -7; x <= 7; x++) {
                 BlockPos pos = center.offset(x, y, z); var cell = reader.read(pos);
-                if (!rock(cell)) throw new Stop(Status.CRUST_OR_PROTECTION);
+                if (!rock(cell)) throw new Stop(Status.CRUST_OR_PROTECTION,
+                        new VolumeRejection(center, pos, cell));
                 int squared = x * x + y * y + z * z;
                 if (squared <= 9) writes.put(pos, Blocks.AIR.defaultBlockState());
                 else if (squared <= 25) orePositions.add(pos);
@@ -213,6 +223,6 @@ final class NetherSitePlanner {
             writes.put(shore.above(2), Blocks.BLACKSTONE.defaultBlockState());
             return new Outcome(Status.PLANNED, reader.probes, count,
                     new NetherPlacementCoordinator.Plan(center, reader.states, writes, reader.protectedCells, reader.states.size()), quality);
-        } catch (Stop stop) { return new Outcome(stop.status, reader.probes, count, null); }
+        } catch (Stop stop) { return new Outcome(stop.status, reader.probes, count, null, null, stop.volumeRejection); }
     }
 }

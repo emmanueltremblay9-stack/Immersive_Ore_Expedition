@@ -136,6 +136,28 @@ final class NetherSitePlannerTest {
         assertEquals(Status.NO_SHORE, plan(c, Y, snapshot(pos ->
                 pos.getY() > Y ? AIR : pos.getY() > Y - 4 ? LAVA : ROCK), 40).status());
     }
+    @Test void volumeRejectionReportsExactAlreadyReadCellWithoutChangingReads() {
+        var c = candidate(SiteQuality.NORMAL, false);
+        var center = new BlockPos(8, Y - 4 - 16, 8);
+        var target = center.offset(-7, -7, -7);
+        int expectedReads = -1;
+        for (Cell rejected : new Cell[]{AIR, new Cell(ROCK.state(), true),
+                new Cell(Blocks.MAGMA_BLOCK.defaultBlockState(), false), LAVA}) {
+            var reads = new java.util.ArrayList<BlockPos>();
+            var result = plan(c, Y, snapshot(pos -> {
+                reads.add(pos.immutable());
+                return pos.equals(target) ? rejected : terrain(pos);
+            }), 40);
+            assertEquals(Status.CRUST_OR_PROTECTION, result.status());
+            assertNull(result.plan());
+            assertEquals(new VolumeRejection(center, target, rejected), result.volumeRejection());
+            assertEquals(target, reads.getLast());
+            assertEquals(1, reads.stream().filter(target::equals).count());
+            if (expectedReads < 0) expectedReads = reads.size();
+            assertEquals(expectedReads, reads.size());
+        }
+        assertNull(plan(c, Y, snapshot(NetherSitePlannerTest::terrain), 40).volumeRejection());
+    }
     @Test void separatedPoolsAndFlowingSurfaceDoNotCombine() {
         var split = plan(candidate(SiteQuality.NORMAL, false), Y, snapshot(pos ->
                 pos.getX() - 8 == 1 && pos.getY() <= Y ? ROCK : terrain(pos)));

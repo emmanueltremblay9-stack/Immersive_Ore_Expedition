@@ -286,3 +286,14 @@ The experiment follows every downstream planner check until rejection or PLANNED
 exact CI results and per-candidate transitions belong in the PR63 execution receipt.
 No claim of natural success, player-stream qualification or client validation follows
 from automated success. Production remains disabled; no merge/release authorized.
+
+## Targeted volume rejection diagnosis — 2026-10-13
+
+Investigation of the already recorded candidate (-512472,-511864) adds the exact
+first rejected volume cell to the planner outcome, using the state already read.
+No extra terrain read, predicate change, search, protection relaxation or placement
+is introduced. The existing hosted cohort now logs this target's center, position,
+offset, state and each rock-predicate condition after complete read-set revalidation.
+This supplies the missing cause; repeated cohort results are not a new eligibility
+experiment. Exact-source CI and the observed cause are recorded in the PR63 receipt.
+Normal coverage remains 60%, explicit experiment 40%, production disabled.
