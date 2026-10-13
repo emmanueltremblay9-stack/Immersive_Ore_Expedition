@@ -477,8 +477,9 @@ level.dat, level.dat_old or .mca. Therefore relaunching either profile against t
 saved prototype world fails intentionally. Cleaning the world and rerunning tests
 would only test a new world, not persistence. Disabling the prototype or bypassing
 this guard would invalidate the requested proof or widen the new-world-only scope.
-A true restart also necessarily launches another server process, outside the current
-no-new-server constraint. No restart, resume exception, guard bypass, extra profile
-or access expansion is implemented. A future restart qualification needs explicit
-approval for a second CI process reopening only its proven fixture world, plus a
-bounded resume design; it cannot be inferred from chunk reload or SavedData tests.
+A second invocation could reuse the existing Gradle profile, but the saved-world
+refusal still prevents that proof; a fresh run cannot stand in for a restart. No
+restart, resume exception, guard bypass, extra profile or access expansion is
+implemented. A future restart qualification needs explicit approval for a bounded
+exception reopening only the proven CI fixture world in the same profile. It cannot
+be inferred from chunk reload or SavedData tests.
