@@ -221,8 +221,8 @@ public final class NetherFloorObservationGameTests {
                     ==(candidate.debrisSelected(filtered.soulSoilFloor())?1:0),"Normal debris replacement differs");
         }
         helper.assertTrue(NetherNaturalAdmission.attempt(level,chunk)==NetherPlacementCoordinator.Result.DUPLICATE,"Normal admission replayed");
-        com.mojang.logging.LogUtils.getLogger().info("IOE normal60 known candidate: candidate={},{} result={} planner={} connected={} admissionCaptureReads={} prefilterReads={} fixtureBeforeReads={} fixtureAfterReads={} cubeChanged={} committedPlanWrites={} shoreWritesOutsideObservation=2 negativeWrites={} admissionTick={} finalTick={} commitReadCounter=not_instrumented loading=controlled_full_5x5 terrainEditsBeforeAdmission=0 injectedReceipts=0",
-                candidate.x(),candidate.z(),report.result(),report.plannerStatus(),report.connectedColumns(),report.worldReads(),filtered.reads(),before.size(),after.size(),changed,committed?report.plannedWrites():0,negative,admissionTick,level.getServer().getTickCount());
+        com.mojang.logging.LogUtils.getLogger().info("IOE normal60 known candidate: candidate={},{} result={} planner={} connected={} admissionCaptureReads={} prefilterReads={} fixtureBeforeReads={} fixtureAfterReads={} cubeChanged={} committedPlanWrites={} shoreWritesOutsideObservation={} negativeWrites={} admissionTick={} finalTick={} commitReadCounter=not_instrumented loading=controlled_full_5x5 terrainEditsBeforeAdmission=0 injectedReceipts=0",
+                candidate.x(),candidate.z(),report.result(),report.plannerStatus(),report.connectedColumns(),report.worldReads(),filtered.reads(),before.size(),after.size(),changed,committed?report.plannedWrites():0,committed?2:0,negative,admissionTick,level.getServer().getTickCount());
         level.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
         helper.runAfterDelay(20,()->{
             if(committed) for(var entry:after.entrySet()) {
@@ -241,7 +241,52 @@ public final class NetherFloorObservationGameTests {
             } catch(java.io.IOException failure) {throw new RuntimeException(failure);}
             level.getChunkSource().removeRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
             com.mojang.logging.LogUtils.getLogger().info("IOE normal60 known verification: committed={} delayedReads={} ticks=20 committedVolumeStable=true savedLedger=true replay=false chunkReload=false processRestart=false playerStreaming=false",committed,committed?after.size():0);
-            sample(helper,index+1);
+            if(committed) {
+                var original=level.getChunkSource().getChunkNow(chunk.x,chunk.z);
+                helper.assertTrue(original!=null,"Original committed chunk unavailable before save");
+                helper.assertTrue(after.keySet().stream().allMatch(pos->new ChunkPos(pos).equals(chunk)),"Cube crosses observed reload chunk");
+                // Public vanilla save/flush path; no direct unload-map manipulation or synthetic event.
+                level.getChunkSource().save(true);
+                awaitUnloaded(helper,index,level,chunk,original,after,resources,0,0);
+            } else sample(helper,index+1);
+        });
+    }
+    private static void awaitUnloaded(GameTestHelper helper,int index,net.minecraft.server.level.ServerLevel level,
+                                      ChunkPos chunk,net.minecraft.world.level.chunk.LevelChunk original,
+                                      java.util.Map<BlockPos,net.minecraft.world.level.block.state.BlockState> expected,
+                                      java.util.Map<BlockPos,net.minecraft.world.level.block.state.BlockState> resources,
+                                      int waited,int absentTicks) {
+        helper.runAfterDelay(1,()->{
+            boolean absent=level.getChunkSource().getChunkNow(chunk.x,chunk.z)==null;
+            int consecutive=absent?absentTicks+1:0;
+            helper.assertTrue(waited<200,"Committed chunk did not naturally unload within 200 ticks after releasing test ticket");
+            if(consecutive<5) {
+                awaitUnloaded(helper,index,level,chunk,original,expected,resources,waited+1,consecutive);
+                return;
+            }
+            var host=NetherPlacementRuntime.host(level);
+            helper.assertFalse(NetherPlacementRuntime.coordinator(level).hasFreshReceipt(host,chunk.toLong()),"Unloaded chunk retained fresh receipt");
+            // One explicit fixture reload after observed absence; never a production load or retry.
+            var reloaded=level.getChunk(chunk.x,chunk.z);
+            helper.assertTrue(reloaded!=original,"Reload returned original chunk object; disk roundtrip unproven");
+            level.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
+            int unloadedWait=waited+1;
+            helper.runAfterDelay(20,()->{
+                var current=level.getChunkSource().getChunkNow(chunk.x,chunk.z);
+                helper.assertTrue(current==reloaded,"Reloaded chunk identity changed during verification");
+                helper.assertFalse(NetherPlacementRuntime.coordinator(level).hasFreshReceipt(host,chunk.toLong()),"Existing chunk reload acquired new-generation receipt");
+                for(var entry:expected.entrySet()) {
+                    helper.assertTrue(host.reserveReads(1),"Reload verification budget exhausted");
+                    helper.assertTrue(host.read(entry.getKey()).equals(entry.getValue()),"Reload lost placed/retained block at "+entry.getKey());
+                }
+                var ledger=level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY,NetherPlacementLedger.NAME);
+                resources.forEach((pos,state)->helper.assertTrue(ledger.preserves(pos,state),"Reloaded block lost ledger provenance at "+pos));
+                helper.assertTrue(NetherNaturalAdmission.attempt(level,chunk)==NetherPlacementCoordinator.Result.DUPLICATE,"Chunk reload allowed another placement");
+                level.getChunkSource().removeRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
+                com.mojang.logging.LogUtils.getLogger().info("IOE normal60 chunk reload: chunk={},{} absentTicks=5 waitedTicks={} identityChanged=true cubeReads={} resources={} negativeResources={} postReloadTicks=20 blocksMatch=true freshReceipt=false replay=false savedLedger=true processRestart=false playerStreaming=false shoreReloadObserved=false",
+                        chunk.x,chunk.z,unloadedWait,expected.size(),resources.size(),resources.keySet().stream().filter(pos->pos.getY()<0).count());
+                sample(helper,index+1);
+            });
         });
     }
 }

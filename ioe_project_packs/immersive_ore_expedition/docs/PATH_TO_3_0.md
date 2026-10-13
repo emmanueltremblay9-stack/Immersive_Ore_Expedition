@@ -424,3 +424,24 @@ The fixture now checks cube changes against committed plan writes minus those tw
 markers and logs these quantities separately. Shore writes remain covered by the
 coordinator's successful commit checks, not an independent fixture before/after
 observation; the 20-tick volume check covers the cube only. No gameplay fix was made.
+
+## Real chunk unload/reload qualification — 2026-10-13
+
+The already successful normal-60% candidate now continues in the same GameTest,
+without another placement or new profile: save/flush chunks through the public
+vanilla API, release its existing temporary ticket, observe the center chunk absent
+for five consecutive ticks (200-tick bound), then perform one controlled reload.
+The fixture requires a different LevelChunk object, no new-generation receipt,
+all 3375 cube states still equal after 20 further ticks, retained resource provenance
+and duplicate admission refusal. Every verification block read debits the existing
+shared budget. It never edits unload internals, injects events or relaxes freshness.
+The cube must be wholly in that chunk; its two shore markers remain outside this
+reload observation. Log counts for shore writes now report zero for rejected plans.
+
+This distinguishes prior SavedData-only roundtrip from observed chunk absence,
+new object and persisted block states. It is not a process restart, player-driven
+streaming, visual validation, existing-world migration or production qualification.
+Only the known committed candidate gains this check; baseline rejection adds no
+reload trial. Production and the external-pack exclusion remain unchanged. Hosted
+CI at the resulting source must supply the actual outcome; this entry is not itself
+an assertion that the unload/reload passed.
