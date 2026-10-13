@@ -18,7 +18,7 @@ final class NetherDepth32PrototypeTest {
         }
     }
     private static com.google.gson.JsonObject data(String path) throws Exception {
-        return com.google.gson.JsonParser.parseString(Files.readString(Path.of("prototype/depth32/"+path))).getAsJsonObject();
+        return com.google.gson.JsonParser.parseString(Files.readString(Path.of(System.getProperty("ioe.moduleProjectDir"),"prototype/depth32/"+path))).getAsJsonObject();
     }
     @Test void fixedUpperBoundLavaAndCarverAnchors() throws Exception {
         var dimension=data("data/minecraft/dimension_type/the_nether.json");
@@ -35,9 +35,9 @@ final class NetherDepth32PrototypeTest {
         assertEquals(126,carver.getAsJsonObject("y").getAsJsonObject("max_inclusive").get("absolute").getAsInt());
     }
     @Test void clonedFeaturesRetainSuppressionAndCannotOverrideOverworldFeatures() throws Exception {
-        var original=com.google.gson.JsonParser.parseString(Files.readString(Path.of("src/main/resources/data/immersive_ore_expedition/tags/worldgen/placed_feature/normal_ore_generation.json"))).getAsJsonObject().getAsJsonArray("values");
+        var original=com.google.gson.JsonParser.parseString(Files.readString(Path.of(System.getProperty("ioe.moduleProjectDir"),"src/main/resources/data/immersive_ore_expedition/tags/worldgen/placed_feature/normal_ore_generation.json"))).getAsJsonObject().getAsJsonArray("values");
         var extra=data("data/immersive_ore_expedition/tags/worldgen/placed_feature/normal_ore_generation.json").getAsJsonArray("values");
-        assertFalse(Files.exists(Path.of("prototype/depth32/data/minecraft/worldgen/placed_feature")));
+        assertFalse(Files.exists(Path.of(System.getProperty("ioe.moduleProjectDir"),"prototype/depth32/data/minecraft/worldgen/placed_feature")));
         for(var entry:data("PROVENANCE.json").getAsJsonArray("cloned_nether_features")) {
             var name=entry.getAsString();
             assertFalse(data("data/ioe_depth32/worldgen/placed_feature/"+name+".json").toString().contains("above_bottom"));
@@ -45,6 +45,6 @@ final class NetherDepth32PrototypeTest {
             if(original.contains(new com.google.gson.JsonPrimitive("minecraft:"+name)))
                 assertTrue(extra.contains(new com.google.gson.JsonPrimitive("ioe_depth32:"+name)),name);
         }
-        assertFalse(Files.exists(Path.of("src/main/resources/data/minecraft/dimension_type/the_nether.json")));
+        assertFalse(Files.exists(Path.of(System.getProperty("ioe.moduleProjectDir"),"src/main/resources/data/minecraft/dimension_type/the_nether.json")));
     }
 }
