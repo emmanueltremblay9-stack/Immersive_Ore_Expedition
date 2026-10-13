@@ -483,3 +483,32 @@ restart, resume exception, guard bypass, extra profile or access expansion is
 implemented. A future restart qualification needs explicit approval for a bounded
 exception reopening only the proven CI fixture world in the same profile. It cannot
 be inferred from chunk reload or SavedData tests.
+
+## Owner-approved same-profile CI process restart — 2026-10-13
+
+Explicit owner approval permits reopening only this CI execution's own fresh
+prototype32 fixture, never an old player or unknown save. Default behavior still
+calls requireFreshDirectory unchanged. The optional full-profile fresh/resume
+phases require GitHub Actions identity, exact module/profile path, run/attempt/SHA
+and a per-execution nonce. Fresh authorization first rejects every existing save,
+then creates its origin receipt exclusively. No user-selected save path is accepted.
+
+The existing full-runtime workflow step now runs a sequential orchestration script:
+normal 75-test fresh invocation, successful exit and verified absence of its Java
+PID, sealed hashes of the exact saved world and expected-state proof, then one
+resume invocation of the SAME runFullRuntimeGameTestServer profile. Namespace
+filtering selects one restart verification test; no cohort or placement repeats.
+The second process must have a different PID; its permit is consumed once before
+world loading. Modified files, missing origin, wrong run/commit, live producer,
+player data, additional worlds and links are refused. The world hash excludes only
+the session.lock file; no world data is deleted or migrated. Hashes and provenance
+are fixture identification, not an authentication service or player-save support.
+
+The producer records the actual 3377 expected states, 20 resource positions and two
+shore positions after the already-qualified chunk reload. The second process loads
+the same world path, checks all states, resources/negative-Y provenance, markers,
+SavedData and duplicate refusal; freshness is checked at tick 1. Reported block
+reads are 3377 + 20 + 2 = 3399, with the unchanged shared budget. Existing baseline
+profile and production gate remain unchanged; external generation pack stays out
+of the normal JAR. Automated same-profile process persistence does not prove client
+rendering or player streaming. Exact-source CI must establish the outcome.

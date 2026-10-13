@@ -54,7 +54,7 @@ jobs:
         run: python3 scripts/stage_ci_runtime_mods.py
 
       - name: Run expedition worldgen GameTests with complete pinned runtime
-        run: gradle --no-daemon -PioeIncludeIeRuntime=true -PioeDepth32Prototype=true runFullRuntimeGameTestServer
+        run: python3 scripts/qualify_depth32_restart.py
 
       - name: Inspect runtime multi-seed biome frequency
         run: |

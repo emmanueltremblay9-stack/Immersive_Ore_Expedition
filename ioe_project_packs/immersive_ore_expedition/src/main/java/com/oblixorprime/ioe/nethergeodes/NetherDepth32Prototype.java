@@ -20,7 +20,8 @@ public final class NetherDepth32Prototype {
         if (!requested()) return;
         if (FMLLoader.isProduction() || !GameTestHooks.isGametestServer())
             throw new IllegalStateException("Depth32 is restricted to development GameTest servers");
-        requireFreshDirectory(Path.of(System.getProperty("user.dir")));
+        if(Depth32RestartPermit.phase().isEmpty()) requireFreshDirectory(Path.of(System.getProperty("user.dir")));
+        else Depth32RestartPermit.authorizeRuntime(Path.of(System.getProperty("user.dir")));
         var root=Path.of(System.getProperty("ioe.depth32Pack", "")).toAbsolutePath();
         if (!Files.isRegularFile(root.resolve("pack.mcmeta")))
             throw new IllegalStateException("External depth32 prototype pack missing");

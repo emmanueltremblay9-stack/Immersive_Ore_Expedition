@@ -268,7 +268,7 @@ public final class NetherFloorObservationGameTests {
                 }
                 // Public vanilla save/flush path; no direct unload-map manipulation or synthetic event.
                 level.getChunkSource().save(true);
-                awaitUnloaded(helper,index,level,chunk,originals,after,resources,0,0);
+                awaitUnloaded(helper,index,level,chunk,originals,after,resources,markers,0,0);
             } else sample(helper,index+1);
         });
     }
@@ -276,13 +276,13 @@ public final class NetherFloorObservationGameTests {
                                       ChunkPos chunk,java.util.Map<ChunkPos,net.minecraft.world.level.chunk.LevelChunk> originals,
                                       java.util.Map<BlockPos,net.minecraft.world.level.block.state.BlockState> expected,
                                       java.util.Map<BlockPos,net.minecraft.world.level.block.state.BlockState> resources,
-                                      int waited,int absentTicks) {
+                                      java.util.List<BlockPos> markers,int waited,int absentTicks) {
         helper.runAfterDelay(1,()->{
             boolean absent=originals.keySet().stream().allMatch(pos->level.getChunkSource().getChunkNow(pos.x,pos.z)==null);
             int consecutive=absent?absentTicks+1:0;
             helper.assertTrue(waited<200,"Committed chunk did not naturally unload within 200 ticks after releasing test ticket");
             if(consecutive<5) {
-                awaitUnloaded(helper,index,level,chunk,originals,expected,resources,waited+1,consecutive);
+                awaitUnloaded(helper,index,level,chunk,originals,expected,resources,markers,waited+1,consecutive);
                 return;
             }
             var host=NetherPlacementRuntime.host(level);
@@ -318,6 +318,7 @@ public final class NetherFloorObservationGameTests {
                 level.getChunkSource().removeRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
                 com.mojang.logging.LogUtils.getLogger().info("IOE normal60 chunk reload: chunk={},{} absentTicks=5 waitedTicks={} identityChanged=true observedReads={} cubeBlocks=3375 shoreBlocks=2 observedChunks={} resources={} negativeResources={} postReloadTicks=20 blocksMatch=true freshReceipt=false replay=false savedLedger=true processRestart=false playerStreaming=false shoreReloadObserved=true",
                         chunk.x,chunk.z,unloadedWait,expected.size(),reloaded.size(),resources.size(),resources.keySet().stream().filter(pos->pos.getY()<0).count());
+                Depth32RestartEvidence.record(level,chunk,expected,resources,markers);
                 sample(helper,index+1);
             });
         });
