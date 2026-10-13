@@ -354,3 +354,33 @@ Controlled FULL 5x5 loading remains artificial. A separate small GameTest verifi
 vanilla falling/stable gravel behavior. Exact CI and actual placements belong in
 the PR63 receipt, not inferred from PLANNED. Production remains disabled; no new
 server/profile, merge, release or installation is authorized.
+
+## Approved new-world depth32 prototype — 2026-10-13
+
+Owner selected 32 additional blocks downward, retaining lava at Y=32. External
+`prototype/depth32` data sets minY=-32, build upper boundary 256 exclusive, generated
+upper boundary 128 exclusive and logical upper boundary 128. Lower bedrock moves
+32 blocks down; roof anchors remain at their original upper boundary. Existing
+noise density gradients are retained. Cave centers and cave-lava threshold, fossil
+heights and relative Nether feature ranges are frozen to original absolute heights.
+This avoids silently moving existing ore/decorative ranges; it does not promise
+identical terrain because random consumption and carver geometry can differ.
+
+Shared placed features are cloned under `ioe_depth32` and referenced only by five
+vanilla Nether biome definitions. Suppressed mineral clones join the existing IOE
+removal tag. Overworld placed features and production data are not overwritten.
+The normal JAR excludes the entire external pack, checked by CI. Loader activation
+requires an explicit property, development GameTest mode and a directory without
+any level.dat/level.dat_old/region file; it refuses existing worlds without deletion
+or migration. Only the two existing hosted GameTest profiles enable this prototype.
+No production activation or new profile is introduced.
+
+Existing bounded 32/64 cohorts exercise the new depth without altering LOWEST,
+74x74, 60% normal/40% experiment, F-16, exact writes/rewards, protections, budgets,
+full read-set, new-chunk receipts or deduplication. Runtime checks observe negative
+substrate, bedrock floor/roof, lava/build/logical bounds and portal creation; static
+checks cover anchors and mineral suppression. Pinned full runtime is the measured
+compatibility scope; other mods' relative anchors/custom dimensions remain unqualified.
+Fresh-world checks do not constitute an existing-save migration test. Exact-source
+CI, artifact inspection and measured placement outcomes are recorded in PR63's
+receipt. Visual client validation and a complete process restart remain unproven.

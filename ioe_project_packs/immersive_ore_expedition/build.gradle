@@ -22,11 +22,19 @@ neoForge {
             type = "gameTestServer"
             gameDirectory = project.file("run/gametest-baseline")
             systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+            if (providers.gradleProperty('ioeDepth32Prototype').map { it.toBoolean() }.getOrElse(false)) {
+                systemProperty "ioe.depth32Prototype", "true"
+                systemProperty "ioe.depth32Pack", project.file("prototype/depth32").absolutePath
+            }
         }
         fullRuntimeGameTestServer {
             type = "gameTestServer"
             gameDirectory = project.file("run/gametest-full")
             systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+            if (providers.gradleProperty('ioeDepth32Prototype').map { it.toBoolean() }.getOrElse(false)) {
+                systemProperty "ioe.depth32Prototype", "true"
+                systemProperty "ioe.depth32Pack", project.file("prototype/depth32").absolutePath
+            }
             systemProperty "ioe.expectDomumRuntime", "true"
             systemProperty "ioe.multiSeedReport", layout.buildDirectory.file(
                     "reports/ioe/multi-seed-biome-frequency.json"

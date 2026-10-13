@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "ioe_depth32:ore_debris_small",
+    "ioe_depth32:ore_gold_nether",
+    "ioe_depth32:ore_quartz_nether"
+  ]
+}

@@ -48,13 +48,13 @@ jobs:
           python3 scripts/analyze_distribution_seeds.py
 
       - name: Run expedition worldgen GameTests
-        run: gradle --no-daemon runGameTestServer
+        run: gradle --no-daemon -PioeDepth32Prototype=true runGameTestServer
 
       - name: Stage pinned biome and integration runtime
         run: python3 scripts/stage_ci_runtime_mods.py
 
       - name: Run expedition worldgen GameTests with complete pinned runtime
-        run: gradle --no-daemon -PioeIncludeIeRuntime=true runFullRuntimeGameTestServer
+        run: gradle --no-daemon -PioeIncludeIeRuntime=true -PioeDepth32Prototype=true runFullRuntimeGameTestServer
 
       - name: Inspect runtime multi-seed biome frequency
         run: |
@@ -449,6 +449,7 @@ jobs:
               counts = Counter(entries)
               duplicates = sorted(name for name, count in counts.items() if count > 1)
               neoforge_metadata = [name for name in entries if name == "META-INF/neoforge.mods.toml"]
+              assert not any(name.startswith(("prototype/", "data/ioe_depth32/", "data/minecraft/dimension_type/", "data/minecraft/worldgen/noise_settings/")) for name in entries), "Prototype generation data leaked into normal jar"
               pack_metadata = [name for name in entries if name == "pack.mcmeta"]
               embedded_jars = sorted(name for name in entries if name.lower().endswith(".jar"))
               compiled_mod_classes = sorted(
