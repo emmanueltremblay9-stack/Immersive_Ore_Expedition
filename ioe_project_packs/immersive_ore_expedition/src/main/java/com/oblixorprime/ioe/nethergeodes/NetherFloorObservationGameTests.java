@@ -129,6 +129,9 @@ public final class NetherFloorObservationGameTests {
                             rx,rz,committed,committed==NetherPlacementCoordinator.Result.COMMITTED?experimental.plan().writes().size():0);
                     helper.assertTrue(committed==NetherPlacementCoordinator.Result.COMMITTED,"Natural prepared placement failed: "+committed);
                     helper.assertTrue(ledger.prepare(experimental.plan().origin())==null,"Committed region can replay");
+                    // Test-only radius 2 ticket keeps exactly the already loaded FULL 5x5;
+                    // its center is block-ticking during the delayed stability assertion.
+                    level.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
                     committedPlan=experimental.plan();
                 }
             } finally {capture.discard();}
@@ -143,6 +146,21 @@ public final class NetherFloorObservationGameTests {
                         helper.assertTrue(host.read(entry.getKey()).equals(placed.writes().getOrDefault(entry.getKey(),entry.getValue())),
                                 "Placed geometry or retained gravel/bedrock changed after ticks: "+entry.getKey());
                     }
+                    var storage=level.getDataStorage();
+                    try {
+                        storage.save();
+                        net.neoforged.neoforge.common.IOUtilities.waitUntilIOWorkerComplete();
+                        var disk=storage.readTagFromDisk(NetherPlacementLedger.NAME,null,
+                                net.minecraft.SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+                        var reloaded=NetherPlacementLedger.FACTORY.deserializer().apply(disk.getCompound("data"),level.registryAccess());
+                        helper.assertFalse(reloaded.claim(placed.origin()),"Reload permits cohort replay");
+                        placed.writes().forEach((pos,state)->{
+                            if(NetherOreProvenance.isResource(state)) helper.assertTrue(reloaded.preserves(pos,state),"Reload lost cohort resource at "+pos);
+                        });
+                        storage.set(NetherPlacementLedger.NAME,reloaded);
+                        com.mojang.logging.LogUtils.getLogger().info("IOE depth32 cohort persistence: region={},{} negativeWrites={} savedLedger=true replay=false",rx,rz,placed.writes().keySet().stream().filter(pos->pos.getY()<0).count());
+                    } catch(java.io.IOException failure) { throw new RuntimeException(failure); }
+                    level.getChunkSource().removeRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
                     com.mojang.logging.LogUtils.getLogger().info("IOE natural palette retained-state verification: region={},{} ticks=20 passed=true",rx,rz);
                 }
                 if(index+1==REGIONS.length) {

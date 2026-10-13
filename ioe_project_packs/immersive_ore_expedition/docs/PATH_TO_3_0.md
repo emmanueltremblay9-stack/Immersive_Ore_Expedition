@@ -384,3 +384,11 @@ compatibility scope; other mods' relative anchors/custom dimensions remain unqua
 Fresh-world checks do not constitute an existing-save migration test. Exact-source
 CI, artifact inspection and measured placement outcomes are recorded in PR63's
 receipt. Visual client validation and a complete process restart remain unproven.
+
+The first prototype runtime reached a natural commit, exposing a fixture-only unload
+before its delayed check. The cohort now retains its existing FULL 5x5 through a
+radius-2 test ticket for those 20 ticks (center block-ticking), then removes it.
+No additional FULL neighborhood or production ticket is introduced. Successful
+cohort commits additionally save/reload their real ledger and verify provenance
+and replay refusal, logging negative-height writes separately. This is SavedData
+roundtrip evidence, not a complete server restart.
