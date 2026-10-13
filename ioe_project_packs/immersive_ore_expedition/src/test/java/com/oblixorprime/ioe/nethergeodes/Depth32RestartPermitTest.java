@@ -33,6 +33,9 @@ final class Depth32RestartPermitTest {
         setup();Files.createDirectory(root.resolve("world"));var file=root.resolve("world/level.dat");Files.writeString(file,"player save");
         assertThrows(IllegalStateException.class,()->Depth32RestartPermit.authorize(root,session,"fresh",context,11,"first",pid->false));
         assertFalse(Files.exists(root.resolve(".ioe-depth32-origin.json")));assertEquals("player save",Files.readString(file));
+        Files.delete(file);Files.createSymbolicLink(root.resolve("world/external"),temp.resolve("report"));
+        assertThrows(IllegalStateException.class,()->Depth32RestartPermit.authorize(root,session,"fresh",context,11,"first",pid->false));
+        assertFalse(Files.exists(root.resolve(".ioe-depth32-origin.json")));
     }
     @Test void tamperedWorldAndProofRefusedWithoutConsumption() throws Exception {
         setup();seal();var file=root.resolve("world/level.dat");Files.writeString(file,"unknown replacement");

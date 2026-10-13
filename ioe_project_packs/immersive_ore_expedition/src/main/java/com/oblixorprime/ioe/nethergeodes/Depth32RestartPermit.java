@@ -38,6 +38,9 @@ final class Depth32RestartPermit {
         var origin=root.resolve(".ioe-depth32-origin.json");
         if(phase.equals("fresh")) {
             NetherDepth32Prototype.requireFreshDirectory(root);
+            try(var paths=Files.walk(root)) {
+                require(paths.noneMatch(Files::isSymbolicLink),"Linked profile content refused before fresh world creation");
+            }
             require(permit.get("phase").getAsString().equals("fresh"),"Fresh phase mismatch");
             var created=permit.deepCopy();created.addProperty("producer_pid",pid);created.addProperty("producer_start",start);
             Files.writeString(origin,created.toString(),StandardOpenOption.CREATE_NEW);
