@@ -66,6 +66,12 @@ public final class NetherFloorObservationGameTests {
                     ()->NetherAnalysisBudget.forServer(level.getServer()).acquire(level.getServer().getTickCount()));
             try {
                 var result=NetherSitePlanner.planLowest(candidate,capture);
+                var experimental=NetherSitePlanner.planLowest(candidate,capture,40);
+                helper.assertTrue(experimental.status()!=NetherSitePlanner.Status.BUDGET
+                        && experimental.status()!=NetherSitePlanner.Status.UNKNOWN_TERRAIN,"Experimental qualification failure");
+                helper.assertTrue(result.connectedDeepColumns()==experimental.connectedDeepColumns(),"Paired coverage diverged");
+                com.mojang.logging.LogUtils.getLogger().info("IOE coverage40 row: region={},{} candidate={},{} control={} experimental={} connected={} controlProbes={} experimentalProbes={} plannedWrites={} actualWrites=0",
+                        rx,rz,candidate.x(),candidate.z(),result.status(),experimental.status(),experimental.connectedDeepColumns(),result.probes(),experimental.probes(),experimental.plan()==null?0:experimental.plan().writes().size());
                 helper.assertTrue(result.status()!=NetherSitePlanner.Status.BUDGET
                         && result.status()!=NetherSitePlanner.Status.UNKNOWN_TERRAIN,"Technical qualification failure");
                 for(var entry:capture.cells.entrySet()) {

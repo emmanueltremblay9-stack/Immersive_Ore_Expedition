@@ -87,7 +87,11 @@ final class NetherSitePlanner {
     static int budget(SiteQuality quality) {
         return switch (quality) { case DRY -> 0; case POOR -> 12; case NORMAL -> 20; case RICH -> 30; case MOTHERLODE -> 49; };
     }
-    static boolean enoughCoverage(int count) { return (long) count * 100 >= (long) COLUMNS * 60; }
+    static boolean enoughCoverage(int count) { return enoughCoverage(count, 60); }
+    static boolean enoughCoverage(int count, int coveragePercent) {
+        if (coveragePercent != 60 && coveragePercent != 40) throw new IllegalArgumentException("Unsupported coverage study");
+        return (long) count * 100 >= (long) COLUMNS * coveragePercent;
+    }
     private static boolean lava(Cell cell) { return cell.state().getFluidState().is(Fluids.LAVA) || cell.state().getFluidState().is(Fluids.FLOWING_LAVA); }
     private static boolean source(Cell cell) { return lava(cell) && cell.state().getFluidState().isSource(); }
     private static boolean rock(Cell cell) {
@@ -105,13 +109,18 @@ final class NetherSitePlanner {
     }
     /** Select once, before eligibility checks; every selection observation stays in the same Reader. */
     static Outcome planLowest(Candidate candidate, Snapshot snapshot) {
+        return planLowest(candidate, snapshot, 60);
+    }
+    /** Explicit qualification-only alternative; normal callers retain the approved 60% rule. */
+    static Outcome planLowest(Candidate candidate, Snapshot snapshot, int coveragePercent) {
+        enoughCoverage(0, coveragePercent);
         var reader = new Reader(snapshot);
         if (!snapshot.nether()) return new Outcome(Status.WRONG_DIMENSION, 0, 0, null);
         try {
             for (int y = snapshot.minY(); y < snapshot.maxY() - 1; y++) {
                 var pos = new BlockPos(candidate.x(), y, candidate.z());
                 if (source(reader.read(pos)) && !lava(reader.read(pos.above())))
-                    return plan(candidate, y, reader);
+                    return plan(candidate, y, reader, coveragePercent);
             }
             return new Outcome(Status.SURFACE, reader.probes, 0, null);
         } catch (Stop stop) {
@@ -120,9 +129,13 @@ final class NetherSitePlanner {
     }
 
     static Outcome plan(Candidate candidate, int surfaceY, Snapshot snapshot) {
-        return plan(candidate, surfaceY, new Reader(snapshot));
+        return plan(candidate, surfaceY, snapshot, 60);
     }
-    private static Outcome plan(Candidate candidate, int surfaceY, Reader reader) {
+    static Outcome plan(Candidate candidate, int surfaceY, Snapshot snapshot, int coveragePercent) {
+        enoughCoverage(0, coveragePercent);
+        return plan(candidate, surfaceY, new Reader(snapshot), coveragePercent);
+    }
+    private static Outcome plan(Candidate candidate, int surfaceY, Reader reader, int coveragePercent) {
         int count = 0;
         if (!reader.snapshot.nether()) return new Outcome(Status.WRONG_DIMENSION, 0, 0, null);
         try {
@@ -148,7 +161,7 @@ final class NetherSitePlanner {
                     if (surface[next] && !connected[next]) { connected[next] = true; queue[tail++] = next; }
                 }
             }
-            if (!enoughCoverage(count)) return new Outcome(Status.COVERAGE, reader.probes, count, null);
+            if (!enoughCoverage(count, coveragePercent)) return new Outcome(Status.COVERAGE, reader.probes, count, null);
             int floor = surfaceY;
             boolean soulSoilFloor = false;
             for (int z = -7; z <= 7; z++) for (int x = -7; x <= 7; x++) {

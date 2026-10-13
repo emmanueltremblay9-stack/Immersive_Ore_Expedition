@@ -103,6 +103,39 @@ final class NetherSitePlannerTest {
             assertEquals(size == 3285 ? Status.COVERAGE : Status.PLANNED, result.status());
         }
     }
+    @Test void experimentalFortyPercentBoundaryIsExactAndDefaultRemainsSixty() {
+        assertFalse(enoughCoverage(2190, 40)); assertTrue(enoughCoverage(2191, 40));
+        assertFalse(enoughCoverage(2191)); assertFalse(enoughCoverage(3285));
+        assertThrows(IllegalArgumentException.class, () -> enoughCoverage(2191, 50));
+        for (int size : new int[]{2190, 2191}) {
+            var result = plan(candidate(SiteQuality.NORMAL, false), Y, snapshot(pos -> {
+                if (pos.getY() > Y) return AIR;
+                int index = (pos.getZ() - 8 + 37) * 74 + Math.floorMod(pos.getX() - 8 + 37 - 23, 74);
+                return index >= 0 && index < size && pos.getY() > Y - 4 ? LAVA : ROCK;
+            }), 40);
+            assertEquals(size, result.connectedDeepColumns());
+            assertEquals(size == 2190 ? Status.COVERAGE : Status.FLOOR, result.status());
+        }
+    }
+    @Test void experimentalCoveragePreservesVolumeFloorAndShoreChecks() {
+        Function<BlockPos, Cell> narrowLake = pos -> pos.getY() > Y ? AIR :
+                pos.getX() - 8 >= -15 && pos.getX() - 8 < 15 && pos.getY() > Y - 4 ? LAVA : ROCK;
+        var c = candidate(SiteQuality.NORMAL, false);
+        assertEquals(Status.COVERAGE, plan(c, Y, snapshot(narrowLake)).status());
+        var experimental = plan(c, Y, snapshot(narrowLake), 40);
+        assertEquals(Status.PLANNED, experimental.status());
+        assertEquals(2220, experimental.connectedDeepColumns());
+        assertEquals(Y - 4 - 16, experimental.plan().origin().getY());
+        for (int offset : new int[]{0, 5, 7}) {
+            var protectedPos = experimental.plan().origin().offset(offset, 0, 0);
+            assertEquals(Status.CRUST_OR_PROTECTION, plan(c, Y, snapshot(pos ->
+                    pos.equals(protectedPos) ? new Cell(ROCK.state(), true) : narrowLake.apply(pos)), 40).status());
+        }
+        assertEquals(Status.FLOOR, plan(c, Y, snapshot(pos ->
+                pos.equals(new BlockPos(8, Y - 4, 8)) ? new Cell(Blocks.BEDROCK.defaultBlockState(), false) : narrowLake.apply(pos)), 40).status());
+        assertEquals(Status.NO_SHORE, plan(c, Y, snapshot(pos ->
+                pos.getY() > Y ? AIR : pos.getY() > Y - 4 ? LAVA : ROCK), 40).status());
+    }
     @Test void separatedPoolsAndFlowingSurfaceDoNotCombine() {
         var split = plan(candidate(SiteQuality.NORMAL, false), Y, snapshot(pos ->
                 pos.getX() - 8 == 1 && pos.getY() <= Y ? ROCK : terrain(pos)));

@@ -271,3 +271,18 @@ placement is relaxed; the 74x74 gameplay and other guarantees remain. The prepar
 placement backend is now wired to real world SavedData, behind the unchanged
 automatic generation gate. Consolidated Overworld scope and version are preserved.
 See `NETHER_PLACEMENT_CONTRACT.md` for the exact amendment and test boundaries.
+
+## Authorized coverage experiment — 2026-10-13
+
+The owner explicitly approved testing 40% lake coverage (2,191 of 5,476 columns),
+not adopting or activating production. The normal planner entry remains at 60%;
+a package-scoped explicit experimental argument changes only coverage. The existing
+32-region hosted observation compares 60% and 40% on the same captured terrain,
+then revalidates the complete union read set with the same shared budget.
+74x74, LOWEST/no fallback, F-16, all 225 floor cells, the 15-cube protection volume,
+materials, rewards, new-chunk authority and deduplication are unchanged.
+No experimental placement is performed: PLANNED is distinct from accepted/committed.
+The experiment follows every downstream planner check until rejection or PLANNED;
+exact CI results and per-candidate transitions belong in the PR63 execution receipt.
+No claim of natural success, player-stream qualification or client validation follows
+from automated success. Production remains disabled; no merge/release authorized.
