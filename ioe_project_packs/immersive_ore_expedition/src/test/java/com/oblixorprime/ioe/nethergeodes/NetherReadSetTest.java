@@ -134,6 +134,19 @@ final class NetherReadSetTest {
             else assertEquals(0,world.writes);
         }
     }
+    @Test void gravelSupportOutsideVolumeRemainsInReadSet() {
+        var gravel=new BlockPos(15,13,15);var support=gravel.below(2);
+        for(int change=0;change<3;change++) {
+            var world=new World();world.changes.put(gravel,Blocks.GRAVEL.defaultBlockState());
+            world.changes.put(gravel.below(),Blocks.GRAVEL.defaultBlockState());
+            var plan=world.plan();assertTrue(plan.expected().containsKey(support));
+            if(change==1) world.changes.put(support,Blocks.AIR.defaultBlockState());
+            if(change==2) world.protectedCells.add(support);
+            assertEquals(change==0?Result.COMMITTED:Result.TERRAIN_CHANGED,
+                    world.coordinator.commit(world,new NetherPlacementLedger(),plan));
+            if(change!=0) assertEquals(0,world.writes);
+        }
+    }
     @Test void changedLavaOutsideWritesRejectsBeforeMutation() { changedCellRejects(LAVA); }
     @Test void changedFloorOutsideWritesRejectsBeforeMutation() { changedCellRejects(FLOOR); }
     private void changedCellRejects(BlockPos position) {

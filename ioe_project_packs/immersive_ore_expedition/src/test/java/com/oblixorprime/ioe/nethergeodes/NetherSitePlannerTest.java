@@ -142,7 +142,7 @@ final class NetherSitePlannerTest {
         var target = center.offset(-7, -7, -7);
         int expectedReads = -1;
         for (Cell rejected : new Cell[]{AIR, new Cell(ROCK.state(), true),
-                new Cell(Blocks.MAGMA_BLOCK.defaultBlockState(), false), LAVA}) {
+                new Cell(Blocks.NETHER_QUARTZ_ORE.defaultBlockState(), false), LAVA}) {
             var reads = new java.util.ArrayList<BlockPos>();
             var result = plan(c, Y, snapshot(pos -> {
                 reads.add(pos.immutable());
@@ -189,6 +189,38 @@ final class NetherSitePlannerTest {
             assertEquals(Status.CRUST_OR_PROTECTION, plan(c,Y,snapshot(pos -> pos.equals(corner)
                     ? new Cell(bedrock.state(),true) : terrain(pos)),40).status());
         }
+    }
+    @Test void naturalPaletteIsClosedAndReplacesOnlySelectedCells() {
+        var c=candidate(SiteQuality.NORMAL,false);
+        var baseline=plan(c,Y,snapshot(NetherSitePlannerTest::terrain));
+        var center=baseline.plan().origin();
+        for(var block:java.util.List.of(Blocks.NETHERRACK,Blocks.MAGMA_BLOCK,Blocks.GRAVEL,
+                Blocks.BLACKSTONE,Blocks.BASALT,Blocks.SOUL_SAND,Blocks.SOUL_SOIL)) {
+            assertTrue(naturalSubstrate(block.defaultBlockState()));
+            // Change exactly the existing write inputs; preserve floor quality evidence and geometry.
+            var result=plan(c,Y,snapshot(pos -> baseline.plan().writes().containsKey(pos)
+                    && Math.abs(pos.getY()-center.getY())<=7 ? new Cell(block.defaultBlockState(),false) : terrain(pos)));
+            assertEquals(Status.PLANNED,result.status());
+            assertEquals(baseline.plan().writes(),result.plan().writes());
+            assertEquals(Status.CRUST_OR_PROTECTION,plan(c,Y,snapshot(pos -> pos.equals(center)
+                    ? new Cell(block.defaultBlockState(),true) : terrain(pos))).status());
+        }
+        for(var block:java.util.List.of(Blocks.BEDROCK,Blocks.NETHER_QUARTZ_ORE,Blocks.NETHER_GOLD_ORE,
+                Blocks.ANCIENT_DEBRIS,Blocks.NETHER_BRICKS,Blocks.CHEST))
+            assertFalse(naturalSubstrate(block.defaultBlockState()));
+    }
+    @Test void retainedGravelRequiresFinalSupportIncludingStacksOutsideVolume() {
+        var c=candidate(SiteQuality.DRY,false);var center=new BlockPos(8,Y-4-16,8);
+        var gravel=new Cell(Blocks.GRAVEL.defaultBlockState(),false);
+        assertEquals(Status.GRAVEL_SUPPORT,plan(c,Y,snapshot(pos ->
+                pos.equals(center.above(4)) ? gravel : terrain(pos))).status());
+        var edge=center.offset(7,-7,7);var support=edge.below(3);
+        var stable=plan(c,Y,snapshot(pos -> pos.equals(edge) || pos.equals(edge.below()) || pos.equals(edge.below(2))
+                ? gravel : terrain(pos)));
+        assertEquals(Status.PLANNED,stable.status());assertTrue(stable.plan().expected().containsKey(support));
+        assertFalse(stable.plan().writes().containsKey(edge));
+        assertEquals(Status.GRAVEL_SUPPORT,plan(c,Y,snapshot(pos -> pos.equals(support) ? AIR :
+                pos.equals(edge) || pos.equals(edge.below()) || pos.equals(edge.below(2)) ? gravel : terrain(pos))).status());
     }
     @Test void separatedPoolsAndFlowingSurfaceDoNotCombine() {
         var split = plan(candidate(SiteQuality.NORMAL, false), Y, snapshot(pos ->
@@ -272,11 +304,11 @@ final class NetherSitePlannerTest {
         var floor = new BlockPos(8, Y - 4, 8);
         var center = new BlockPos(8, Y - 4 - 16, 8);
         var soul = new Cell(Blocks.SOUL_SOIL.defaultBlockState(), false);
-        assertEquals(Status.CRUST_OR_PROTECTION, plan(c, Y, snapshot(pos ->
+        assertEquals(Status.PLANNED, plan(c, Y, snapshot(pos ->
                 pos.equals(floor) || pos.equals(center) ? soul : terrain(pos))).status());
         assertEquals(Status.FLOOR, plan(c, Y, snapshot(pos -> pos.equals(floor)
                 ? new Cell(soul.state(), true) : terrain(pos))).status());
-        assertEquals(Status.FLOOR, plan(c, Y, snapshot(pos -> pos.equals(floor)
+        assertEquals(Status.PLANNED, plan(c, Y, snapshot(pos -> pos.equals(floor)
                 ? new Cell(Blocks.GRAVEL.defaultBlockState(), false) : terrain(pos))).status());
     }
 
@@ -311,10 +343,10 @@ final class NetherSitePlannerTest {
             assertEquals(Status.FLOOR, plan(c,Y,snapshot(pos -> pos.equals(floor)
                     ? new Cell(block.defaultBlockState(),true) : terrain(pos))).status());
             for (var target : java.util.List.of(center,center.east(5),center.east(7)))
-                assertEquals(Status.CRUST_OR_PROTECTION, plan(c,Y,snapshot(pos -> pos.equals(target)
+                assertEquals(Status.PLANNED, plan(c,Y,snapshot(pos -> pos.equals(target)
                         ? new Cell(block.defaultBlockState(),false) : terrain(pos))).status());
         }
-        for (var block : java.util.List.of(Blocks.GRAVEL,Blocks.BEDROCK))
+        for (var block : java.util.List.of(Blocks.BEDROCK))
             assertEquals(Status.FLOOR, plan(c,Y,snapshot(pos -> pos.equals(floor)
                     ? new Cell(block.defaultBlockState(),false) : terrain(pos))).status());
         var last = new BlockPos(15,Y-4,15);

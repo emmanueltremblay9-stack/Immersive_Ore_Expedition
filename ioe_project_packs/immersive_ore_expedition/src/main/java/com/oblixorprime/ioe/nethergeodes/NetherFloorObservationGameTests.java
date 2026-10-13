@@ -50,6 +50,27 @@ public final class NetherFloorObservationGameTests {
         com.mojang.logging.LogUtils.getLogger().info("IOE floor cohort start: source={} seed=0 minecraft=1.21.1 neoforge=21.1.230 regions=32 baseline={} controlled_full_5x5=true planner_only=true",System.getenv("GITHUB_SHA"),!net.neoforged.fml.ModList.get().isLoaded("immersiveengineering"));
         sample(helper,0);
     }
+    @GameTest(template="expedition_worldgen_empty",batch="ioe_gravel_support",timeoutTicks=100)
+    public static void gravelSupportMatchesVanillaTicks(GameTestHelper helper) {
+        helper.setBlock(new BlockPos(1,1,1),net.minecraft.world.level.block.Blocks.NETHERRACK);
+        helper.setBlock(new BlockPos(1,2,1),net.minecraft.world.level.block.Blocks.GRAVEL);
+        helper.setBlock(new BlockPos(3,0,1),net.minecraft.world.level.block.Blocks.BLACKSTONE);
+        helper.setBlock(new BlockPos(3,1,1),net.minecraft.world.level.block.Blocks.AIR);
+        helper.setBlock(new BlockPos(3,2,1),net.minecraft.world.level.block.Blocks.GRAVEL);
+        var host=NetherPlacementRuntime.host(helper.getLevel().getServer().getLevel(Level.NETHER));
+        for(var block:java.util.List.of(net.minecraft.world.level.block.Blocks.NETHERRACK,
+                net.minecraft.world.level.block.Blocks.MAGMA_BLOCK,net.minecraft.world.level.block.Blocks.GRAVEL,
+                net.minecraft.world.level.block.Blocks.BLACKSTONE,net.minecraft.world.level.block.Blocks.BASALT,
+                net.minecraft.world.level.block.Blocks.SOUL_SAND,net.minecraft.world.level.block.Blocks.SOUL_SOIL))
+            helper.assertTrue(host.safeToReplace(BlockPos.ZERO,block.defaultBlockState()),"Native substrate refused by host");
+        helper.assertFalse(host.safeToReplace(BlockPos.ZERO,net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState()),"Host permits bedrock");
+        helper.runAfterDelay(20,()->{
+            helper.assertBlockPresent(net.minecraft.world.level.block.Blocks.GRAVEL,new BlockPos(1,2,1));
+            helper.assertBlockPresent(net.minecraft.world.level.block.Blocks.AIR,new BlockPos(3,2,1));
+            helper.assertBlockPresent(net.minecraft.world.level.block.Blocks.GRAVEL,new BlockPos(3,1,1));
+            helper.succeed();
+        });
+    }
     private static void sample(GameTestHelper helper,int index) {
         var level=helper.getLevel().getServer().getLevel(Level.NETHER);
         helper.assertTrue(level.getSeed()==0L,"Expected recorded seed");
@@ -64,6 +85,7 @@ public final class NetherFloorObservationGameTests {
                     && coordinator.hasFreshReceipt(NetherPlacementRuntime.host(level),chunk.toLong()),"Missing real new-chunk receipt");
             var capture=new NetherSnapshotDiagnostic.Capture(NetherSnapshotDiagnostic.source(level),
                     ()->NetherAnalysisBudget.forServer(level.getServer()).acquire(level.getServer().getTickCount()));
+            NetherPlacementCoordinator.Plan committedPlan=null;
             try {
                 var result=NetherSitePlanner.planLowest(candidate,capture);
                 var experimental=NetherSitePlanner.planLowest(candidate,capture,40);
@@ -74,7 +96,7 @@ public final class NetherFloorObservationGameTests {
                         rx,rz,candidate.x(),candidate.z(),result.status(),experimental.status(),experimental.connectedDeepColumns(),result.probes(),experimental.probes(),experimental.plan()==null?0:experimental.plan().writes().size());
                 helper.assertTrue(result.status()!=NetherSitePlanner.Status.BUDGET
                         && result.status()!=NetherSitePlanner.Status.UNKNOWN_TERRAIN,"Technical qualification failure");
-                for(var entry:capture.cells.entrySet()) {
+                if (experimental.plan()==null) for(var entry:capture.cells.entrySet()) {
                     helper.assertTrue(NetherAnalysisBudget.forServer(level.getServer()).acquire(level.getServer().getTickCount()),"Read-set budget exhausted");
                     var identity=capture.identities.get(new ChunkPos(entry.getKey()).toLong());
                     helper.assertTrue(entry.getValue().equals(capture.source.read(identity,entry.getKey())),"Read set changed");
@@ -89,9 +111,7 @@ public final class NetherFloorObservationGameTests {
                     com.mojang.logging.LogUtils.getLogger().info("IOE targeted volume rejection: candidate={},{} center={} position={} offset={} state={} protected={} fluidEmpty={} blockEntity={} allowedRock={} validated=true actualWrites=0",
                             candidate.x(),candidate.z(),failure.center(),failure.position(),failure.position().subtract(failure.center()),
                             state,failure.cell().protectedBlock(),state.getFluidState().isEmpty(),state.hasBlockEntity(),
-                            state.is(net.minecraft.world.level.block.Blocks.NETHERRACK)
-                                    || state.is(net.minecraft.world.level.block.Blocks.BASALT)
-                                    || state.is(net.minecraft.world.level.block.Blocks.BLACKSTONE));
+                            NetherSitePlanner.naturalSubstrate(state));
                     }
                     if (experimental.plan()!=null) {
                         helper.assertTrue(experimental.plan().writes().keySet().stream().noneMatch(pos ->
@@ -100,11 +120,36 @@ public final class NetherFloorObservationGameTests {
                 }
                 com.mojang.logging.LogUtils.getLogger().info("IOE floor cohort row: region={},{} candidate={},{} status={} connected={} probes={} captureReads={} revalidationReads={} plannedWrites={} actualWrites=0 edits=0 injectedReceipts=0",
                         rx,rz,candidate.x(),candidate.z(),result.status(),result.connectedDeepColumns(),result.probes(),capture.reads,capture.cells.size(),result.plan()==null?0:result.plan().writes().size());
+                if(experimental.plan()!=null) {
+                    var ledger=level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY,NetherPlacementLedger.NAME);
+                    var admission=ledger.prepare(experimental.plan().origin());
+                    helper.assertTrue(admission!=null,"Duplicate experimental region");
+                    var committed=NetherPlacementRuntime.commitPrepared(level,experimental.plan(),admission);
+                    com.mojang.logging.LogUtils.getLogger().info("IOE natural palette placement: region={},{} result={} writes={} injectedReceipts=0",
+                            rx,rz,committed,committed==NetherPlacementCoordinator.Result.COMMITTED?experimental.plan().writes().size():0);
+                    helper.assertTrue(committed==NetherPlacementCoordinator.Result.COMMITTED,"Natural prepared placement failed: "+committed);
+                    helper.assertTrue(ledger.prepare(experimental.plan().origin())==null,"Committed region can replay");
+                    committedPlan=experimental.plan();
+                }
             } finally {capture.discard();}
-            if(index+1==REGIONS.length) {
-                com.mojang.logging.LogUtils.getLogger().info("IOE floor cohort complete: regions=32 planner_only=true writes=0");
-                helper.succeed();
-            } else helper.runAfterDelay(2,()->sample(helper,index+1));
+            var placed=committedPlan;
+            helper.runAfterDelay(20,()->{
+                if(placed!=null) {
+                    var host=NetherPlacementRuntime.host(level);
+                    for(var entry:placed.expected().entrySet()) {
+                        if(!placed.writes().containsKey(entry.getKey()) && !entry.getValue().is(net.minecraft.world.level.block.Blocks.GRAVEL)
+                                && !entry.getValue().is(net.minecraft.world.level.block.Blocks.BEDROCK)) continue;
+                        helper.assertTrue(host.reserveReads(1),"Post-placement verification budget exhausted");
+                        helper.assertTrue(host.read(entry.getKey()).equals(placed.writes().getOrDefault(entry.getKey(),entry.getValue())),
+                                "Placed geometry or retained gravel/bedrock changed after ticks: "+entry.getKey());
+                    }
+                    com.mojang.logging.LogUtils.getLogger().info("IOE natural palette retained-state verification: region={},{} ticks=20 passed=true",rx,rz);
+                }
+                if(index+1==REGIONS.length) {
+                    com.mojang.logging.LogUtils.getLogger().info("IOE floor cohort complete: regions=32 conditional_prepared_placement=true");
+                    helper.succeed();
+                } else sample(helper,index+1);
+            });
         });
     }
 }

@@ -93,7 +93,7 @@ final class NetherPlacementRuntime {
             public boolean protectedAt(BlockPos pos, BlockState state) { return NetherNativeProtection.protectedAt(level, pos, state); }
             public boolean safeToReplace(BlockPos pos, BlockState state) {
                 return !state.hasBlockEntity() && state.getFluidState().isEmpty()
-                        && (state.isAir() || state.is(Blocks.NETHERRACK) || state.is(Blocks.BASALT) || state.is(Blocks.BLACKSTONE));
+                        && (state.isAir() || NetherSitePlanner.naturalSubstrate(state));
             }
             public boolean write(BlockPos pos, BlockState state) {
                 if (level.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) == null) return false;

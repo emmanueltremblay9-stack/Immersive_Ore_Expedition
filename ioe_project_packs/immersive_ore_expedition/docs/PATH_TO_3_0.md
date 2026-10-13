@@ -314,3 +314,43 @@ no new margin is added. Normal coverage remains 60%, the explicit experiment 40%
 The existing targeted observation records the next outcome without forcing a plan
 or placing terrain. Exact-source CI and findings are recorded on PR63. Production
 remains disabled; no merge, release or installation is authorized.
+
+## Approved native substrate palette — 2026-10-13
+
+The owner explicitly permits the seven discussed natural substrates as observed
+floors, retained volume, and inputs to the existing cavity/resource writes:
+`netherrack`, `magma_block`, `gravel`, `blackstone`, `basalt`, `soul_sand`, `soul_soil`.
+This is an exact block list, not a natural-block tag or permission for ores, rewards,
+structures, player work, block entities or protected cells. Original shore palette
+remains unchanged. Bedrock retains only its previously approved read-only exception.
+
+Official Minecraft 1.21.1 server data was downloaded for inspection only, not run or
+installed. SHA1 of the official bundle: `59353fb40c36d304f2035d51e7d6e6baa98dc05c`.
+See `NETHER_NATIVE_PALETTE_EVIDENCE.json` for Mojang URL, hashes and biome features.
+Default terrain is netherrack. Basalt deltas surface rules select basalt/blackstone
+and gravel patches; soul-sand valleys select soul sand/soil and gravel patches.
+Nether wastes include soul-sand/gravel layers. All five Nether biomes include magma
+features; the four non-delta biomes also include gravel/blackstone ore-shaped deposits
+(these configured-feature names generate gravel/blackstone, not reward ores).
+Delta blobs/columns and valley basalt pillars add biome-specific basalt. Forest
+nylium/wart surface materials exist but are outside the approved list. This palette
+is not a promise that every lake bottom has all seven materials.
+
+Retained gravel is checked against final planned states using vanilla
+`FallingBlock.isFree`. A gravel stack is followed down to a non-gravel support,
+including outside the inspected cube when necessary. An unsupported final stack
+rejects the plan with GRAVEL_SUPPORT; no invented support or shape truncation.
+All support reads use the same bounded Reader, loaded-only capture and revalidated
+read set. Replaced gravel follows the unchanged exact write selection. Bedrock is
+never written. F-16/radii and therefore the entire exterior-top guarantee remain.
+
+The existing 32-region hosted comparison retains 60%/40% paired planning. If the
+40% plan is admissible, the fixture uses real new-chunk receipts and the existing
+prepared backend/real ledger in the same tick. Commit performs full revalidation;
+no extra manual full reread is charged beforehand for these plans. Rejected plans
+still receive diagnostic reread. No receipt injection, budget reset, retry or added
+region. Twenty ticks later the fixture checks writes and retained gravel/bedrock.
+Controlled FULL 5x5 loading remains artificial. A separate small GameTest verifies
+vanilla falling/stable gravel behavior. Exact CI and actual placements belong in
+the PR63 receipt, not inferred from PLANNED. Production remains disabled; no new
+server/profile, merge, release or installation is authorized.

@@ -1,0 +1,59 @@
+{
+  "minecraft": "1.21.1",
+  "official_manifest": "https://piston-meta.mojang.com/v1/packages/cedfc3b6dcbca34e2b478d498bf1d56a8fa2f404/1.21.1.json",
+  "server_download": {
+    "sha1": "59353fb40c36d304f2035d51e7d6e6baa98dc05c",
+    "size": 51627615,
+    "url": "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar"
+  },
+  "verified_bundle_sha1": "59353fb40c36d304f2035d51e7d6e6baa98dc05c",
+  "extracted_data_sha256": {
+    "warped_forest.json": "96b9607dc5c678183f7c53e033644e953e31491e0d49decbee53ced71126de61",
+    "large_basalt_columns.json": "3c0b472fcf40344afb23c24770f5b6a95a556df5becaf82f358a9b64a6afc00d",
+    "blackstone_blobs.json": "9a42858681655b7b16f13ef28a8120efe7fe21072ae7fe1563fb0a0642c52a5b",
+    "ore_gravel_nether.json": "2d53f9b03fc1907277d7e0a83f39911c3a848f7e8466cb989be2a11cde305c28",
+    "crimson_forest.json": "50f92721ba5717727514c27ee6eceee2da4b516eb2073123035ee30b3f016df9",
+    "ore_magma.json": "251a8f42c92d76279b9cf1a8033acdde3143752654dc7f031a829212dab62166",
+    "nether.json": "80ee79c0385539e6b6b0a9c1101e0f9fe80a744ccf19815cecc7fee4d319d7b3",
+    "basalt_blobs.json": "f8f4edf617c170cd75bcebcd33f96edcdf147fc2cedc4f22ee9814558713974f",
+    "basalt_deltas.json": "a4c1a53a0608b17bb5dd81b0fa2c307185c53374422851ac90109b32c957ca54",
+    "disk_gravel.json": "c2e5b4fb26dc197dfe8310cd34ec166e245418ecadfcdde32e0de61dcff3329d",
+    "nether_wastes.json": "5dbbb2b273d16d420f94cdf7ed33e8be2f657ced6eceea29450a06b812e8be57",
+    "small_basalt_columns.json": "6bfdf11e2a05b9937481fb209563dc35e0b04dc5c3bc1437867e004b30f6af85",
+    "soul_sand_valley.json": "e5d8584c8b379da2df74ca5798fd5fa91d0ef0df124ca81c57977f678df1b781",
+    "underwater_magma.json": "2dd51300efab521938aac36ac49108487b87a130578f28563ef7cc0e32b7fa4e",
+    "ore_gravel.json": "27d25dd85d2d3fe6f91cc3b7a3b5275e17ff4cad553402d7c4f781f75447a2da",
+    "basalt_pillar.json": "dead7771f9bb911099f78a8235d7230dca6b169eedb4d97af880eb7ad15f62b1",
+    "ore_blackstone.json": "3994934d12bb94c13f7b293702e40f589af3cf7b6e6381cc904686009542af6b"
+  },
+  "biome_feature_subset": {
+    "nether_wastes": [
+      "minecraft:ore_magma",
+      "minecraft:ore_gravel_nether",
+      "minecraft:ore_blackstone"
+    ],
+    "soul_sand_valley": [
+      "minecraft:basalt_pillar",
+      "minecraft:ore_magma",
+      "minecraft:ore_gravel_nether",
+      "minecraft:ore_blackstone"
+    ],
+    "basalt_deltas": [
+      "minecraft:small_basalt_columns",
+      "minecraft:large_basalt_columns",
+      "minecraft:basalt_blobs",
+      "minecraft:blackstone_blobs",
+      "minecraft:ore_magma"
+    ],
+    "crimson_forest": [
+      "minecraft:ore_magma",
+      "minecraft:ore_gravel_nether",
+      "minecraft:ore_blackstone"
+    ],
+    "warped_forest": [
+      "minecraft:ore_magma",
+      "minecraft:ore_gravel_nether",
+      "minecraft:ore_blackstone"
+    ]
+  }
+}

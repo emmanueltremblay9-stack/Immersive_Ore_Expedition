@@ -30,7 +30,7 @@ final class NetherSitePlanner {
         Cell at(BlockPos pos); // null means unknown; callers must not load chunks to answer this.
     }
     enum Status { PLANNED, WRONG_DIMENSION, UNKNOWN_TERRAIN, BUDGET, SURFACE,
-        COVERAGE, FLOOR, HEIGHT, CRUST_OR_PROTECTION, NO_SHORE }
+        COVERAGE, FLOOR, HEIGHT, CRUST_OR_PROTECTION, GRAVEL_SUPPORT, NO_SHORE }
     record VolumeRejection(BlockPos center, BlockPos position, Cell cell) { }
     record Outcome(Status status, int probes, int connectedDeepColumns, NetherPlacementCoordinator.Plan plan,
                    SiteQuality quality, VolumeRejection volumeRejection) {
@@ -103,15 +103,19 @@ final class NetherSitePlanner {
     }
     private static boolean lava(Cell cell) { return cell.state().getFluidState().is(Fluids.LAVA) || cell.state().getFluidState().is(Fluids.FLOWING_LAVA); }
     private static boolean source(Cell cell) { return lava(cell) && cell.state().getFluidState().isSource(); }
-    private static boolean rock(Cell cell) {
-        return !cell.protectedBlock() && cell.state().getFluidState().isEmpty() && !cell.state().hasBlockEntity()
-                && (cell.state().is(Blocks.NETHERRACK) || cell.state().is(Blocks.BASALT) || cell.state().is(Blocks.BLACKSTONE));
+    static boolean naturalSubstrate(BlockState state) {
+        return state.is(Blocks.NETHERRACK) || state.is(Blocks.BASALT) || state.is(Blocks.BLACKSTONE)
+                || state.is(Blocks.MAGMA_BLOCK) || state.is(Blocks.GRAVEL)
+                || state.is(Blocks.SOUL_SAND) || state.is(Blocks.SOUL_SOIL);
     }
-    // Additional natural substrates are observation-only, never chamber/crust replacement rock.
-    static boolean floorRock(Cell cell) {
-        return rock(cell) || (cell.state().is(Blocks.SOUL_SOIL) || cell.state().is(Blocks.SOUL_SAND)
-                || cell.state().is(Blocks.MAGMA_BLOCK)) && !cell.protectedBlock()
-                && cell.state().getFluidState().isEmpty() && !cell.state().hasBlockEntity();
+    private static boolean rock(Cell cell) {
+        return !cell.protectedBlock() && cell.state().getFluidState().isEmpty()
+                && !cell.state().hasBlockEntity() && naturalSubstrate(cell.state());
+    }
+    static boolean floorRock(Cell cell) { return rock(cell); }
+    private static boolean shoreRock(Cell cell) {
+        return rock(cell) && (cell.state().is(Blocks.NETHERRACK)
+                || cell.state().is(Blocks.BASALT) || cell.state().is(Blocks.BLACKSTONE));
     }
     private static BlockPos pos(Candidate candidate, int y, int index) {
         return new BlockPos(candidate.x() + index % WIDTH - ANCHOR_INDEX, y, candidate.z() + index / WIDTH - ANCHOR_INDEX);
@@ -212,6 +216,20 @@ final class NetherSitePlanner {
                 writes.put(pos, i == 0 && candidate.debrisSelected(soulSoilFloor)
                         ? Blocks.ANCIENT_DEBRIS.defaultBlockState() : Blocks.NETHER_QUARTZ_ORE.defaultBlockState());
             }
+            // Validate final support, including retained gravel stacks crossing the inspected cube.
+            // Every additional support observation shares this Reader's budget and complete read set.
+            for (var entry : new ArrayList<>(reader.states.entrySet())) {
+                if (!entry.getValue().is(Blocks.GRAVEL) || writes.containsKey(entry.getKey())) continue;
+                var support = entry.getKey().below();
+                while (true) {
+                    var observed = reader.read(support);
+                    var finalState = writes.getOrDefault(support, observed.state());
+                    if (net.minecraft.world.level.block.FallingBlock.isFree(finalState))
+                        throw new Stop(Status.GRAVEL_SUPPORT, new VolumeRejection(center, support, observed));
+                    if (!finalState.is(Blocks.GRAVEL)) break;
+                    support = support.below();
+                }
+            }
             BlockPos shore = null; int closest = Integer.MAX_VALUE;
             for (int i = 0; i < COLUMNS; i++) {
                 if (surface[i]) continue;
@@ -221,7 +239,7 @@ final class NetherSitePlanner {
                 if (!adjacent) continue;
                 var pos = pos(candidate, surfaceY, i);
                 int distance = (x - ANCHOR_INDEX) * (x - ANCHOR_INDEX) + (z - ANCHOR_INDEX) * (z - ANCHOR_INDEX);
-                if (distance >= closest || !rock(reader.read(pos))) continue;
+                if (distance >= closest || !shoreRock(reader.read(pos))) continue;
                 var above = reader.read(pos.above()); var top = reader.read(pos.above(2));
                 if (!above.state().isAir() || above.protectedBlock() || !top.state().isAir() || top.protectedBlock()) continue;
                 shore = pos; closest = distance;
