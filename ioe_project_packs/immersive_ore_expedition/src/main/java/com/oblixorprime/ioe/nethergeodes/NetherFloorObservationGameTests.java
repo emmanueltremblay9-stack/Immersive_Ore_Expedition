@@ -214,15 +214,15 @@ public final class NetherFloorObservationGameTests {
                 resources.put(pos,state);
             }
         }
-        helper.assertTrue(changed==(committed?report.plannedWrites():0),"Observed changes disagree with admission");
+        helper.assertTrue(changed==(committed?report.plannedWrites()-2:0),"Observed cube changes disagree with admission excluding its two shore markers");
         if(committed) {
             helper.assertTrue(resources.size()==NetherSitePlanner.budget(candidate.quality(filtered.soulSoilFloor())),"Normal resource budget differs");
             helper.assertTrue(resources.values().stream().filter(state->state.is(net.minecraft.world.level.block.Blocks.ANCIENT_DEBRIS)).count()
                     ==(candidate.debrisSelected(filtered.soulSoilFloor())?1:0),"Normal debris replacement differs");
         }
         helper.assertTrue(NetherNaturalAdmission.attempt(level,chunk)==NetherPlacementCoordinator.Result.DUPLICATE,"Normal admission replayed");
-        com.mojang.logging.LogUtils.getLogger().info("IOE normal60 known candidate: candidate={},{} result={} planner={} connected={} admissionCaptureReads={} prefilterReads={} fixtureBeforeReads={} fixtureAfterReads={} changed={} negativeWrites={} admissionTick={} finalTick={} commitReadCounter=not_instrumented loading=controlled_full_5x5 terrainEditsBeforeAdmission=0 injectedReceipts=0",
-                candidate.x(),candidate.z(),report.result(),report.plannerStatus(),report.connectedColumns(),report.worldReads(),filtered.reads(),before.size(),after.size(),changed,negative,admissionTick,level.getServer().getTickCount());
+        com.mojang.logging.LogUtils.getLogger().info("IOE normal60 known candidate: candidate={},{} result={} planner={} connected={} admissionCaptureReads={} prefilterReads={} fixtureBeforeReads={} fixtureAfterReads={} cubeChanged={} committedPlanWrites={} shoreWritesOutsideObservation=2 negativeWrites={} admissionTick={} finalTick={} commitReadCounter=not_instrumented loading=controlled_full_5x5 terrainEditsBeforeAdmission=0 injectedReceipts=0",
+                candidate.x(),candidate.z(),report.result(),report.plannerStatus(),report.connectedColumns(),report.worldReads(),filtered.reads(),before.size(),after.size(),changed,committed?report.plannedWrites():0,negative,admissionTick,level.getServer().getTickCount());
         level.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
         helper.runAfterDelay(20,()->{
             if(committed) for(var entry:after.entrySet()) {

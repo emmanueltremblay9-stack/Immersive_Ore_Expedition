@@ -416,3 +416,11 @@ FULL 5x5 fixture operations, not player streaming. Ledger reload is not chunk re
 or a complete process restart. Prototype data remains outside the normal JAR;
 production, merge and publication remain disabled. Exact-source results belong in
 the PR receipt after hosted CI finishes.
+
+The first full-runtime normal-admission attempt reached COMMITTED but exposed a
+fixture assertion that incorrectly equated observed cube changes with every plan
+write. The unchanged plan also writes two shore-marker blocks outside that cube.
+The fixture now checks cube changes against committed plan writes minus those two
+markers and logs these quantities separately. Shore writes remain covered by the
+coordinator's successful commit checks, not an independent fixture before/after
+observation; the 20-tick volume check covers the cube only. No gameplay fix was made.
