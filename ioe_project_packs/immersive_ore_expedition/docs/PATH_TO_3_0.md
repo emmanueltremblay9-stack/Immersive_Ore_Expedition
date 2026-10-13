@@ -445,3 +445,8 @@ Only the known committed candidate gains this check; baseline rejection adds no
 reload trial. Production and the external-pack exclusion remain unchanged. Hosted
 CI at the resulting source must supply the actual outcome; this entry is not itself
 an assertion that the unload/reload passed.
+
+Reload freshness is checked one tick after loading, inside the existing 20-tick
+lease window, as well as after the delayed volume verification. Checking only at
+20 ticks would allow an erroneously fresh receipt to expire before observation;
+the early assertion prevents that false proof without changing lease semantics.

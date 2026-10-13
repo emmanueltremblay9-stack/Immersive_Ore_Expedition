@@ -271,6 +271,11 @@ public final class NetherFloorObservationGameTests {
             helper.assertTrue(reloaded!=original,"Reload returned original chunk object; disk roundtrip unproven");
             level.getChunkSource().addRegionTicket(net.minecraft.server.level.TicketType.FORCED,chunk,2,chunk);
             int unloadedWait=waited+1;
+            helper.runAfterDelay(1,()->{
+                helper.assertFalse(NetherPlacementRuntime.coordinator(level).hasFreshReceipt(host,chunk.toLong()),
+                        "Existing chunk reload acquired fresh receipt inside its lease window");
+                com.mojang.logging.LogUtils.getLogger().info("IOE normal60 reload freshness: afterTicks=1 leaseTicks={} freshReceipt=false",NetherPlacementCoordinator.LEASE_TICKS);
+            });
             helper.runAfterDelay(20,()->{
                 var current=level.getChunkSource().getChunkNow(chunk.x,chunk.z);
                 helper.assertTrue(current==reloaded,"Reloaded chunk identity changed during verification");
