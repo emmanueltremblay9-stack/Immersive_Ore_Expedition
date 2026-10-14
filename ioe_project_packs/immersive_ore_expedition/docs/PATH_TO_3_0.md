@@ -544,3 +544,9 @@ for normal entity/chunk tracking, with its standard no-op packet sink. It does n
 exercise login, client packet handling or change production network validation.
 The relevant proof is server player-ticket loading; it remains distinct from an
 actual connected client journey. No mod is removed to make the fixture pass.
+
+The first player-ticket run exposed accelerated GameTest ticks: thousands of ticks
+elapsed before asynchronous terrain workers completed the final neighborhood. That
+run is not a representative walking qualification. The observation now pauses
+50 ms per fixture tick (hosted CI only), preserving real worker progress and the
+unchanged 20-tick lease. No engine timing or production budget is modified.

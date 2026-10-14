@@ -38,6 +38,9 @@ public final class NetherPlayerStreamingGameTests {
     private static void observe(GameTestHelper helper,ServerLevel level,ServerPlayer player,
             NetherSitePlanner.Candidate c,ChunkPos chunk,int elapsed,
             NetherPlacementCoordinator.Result recorded,int countAtAdmission,int admissionTick) {
+        // GameTestServer runs without normal tick pacing. Give asynchronous terrain workers
+        // the same nominal 50 ms between observations; this fixture owns no chunk tickets.
+        java.util.concurrent.locks.LockSupport.parkNanos(50_000_000L);
         // Position advances at ordinary walking speed; vanilla player tracking owns all tickets.
         double x=Math.min(c.x(),c.x()-320+elapsed*0.22);
         player.setPos(x,100,c.z());level.getChunkSource().move(player);
@@ -60,7 +63,7 @@ public final class NetherPlayerStreamingGameTests {
                 out.addProperty("candidate_x",c.x());out.addProperty("candidate_z",c.z());out.addProperty("admission_elapsed",admissionTick);
                 out.addProperty("full_neighbors_at_admission",countAtAdmission);out.addProperty("full_neighbors_final",count);
                 out.addProperty("result",recorded.name());out.addProperty("activation_qualified",recorded==NetherPlacementCoordinator.Result.COMMITTED);
-                out.addProperty("forced_by_ioe",false);out.addProperty("injected_receipts",0);out.addProperty("walking_blocks_per_tick",0.22);
+                out.addProperty("forced_by_ioe",false);out.addProperty("injected_receipts",0);out.addProperty("walking_blocks_per_tick",0.22);out.addProperty("fixture_tick_pause_ms",50);
                 out.addProperty("requested_view_distance",player.requestedViewDistance());
                 out.addProperty("server_view_distance",level.getServer().getPlayerList().getViewDistance());out.addProperty("replay",false);
                 var path=Depth32RestartPermit.module().resolve("build/reports/ioe/player-streaming.json");Files.createDirectories(path.getParent());Files.writeString(path,out.toString(),StandardOpenOption.CREATE_NEW);
