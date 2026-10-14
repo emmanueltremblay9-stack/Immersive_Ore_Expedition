@@ -18,9 +18,11 @@ public final class NetherPlayerStreamingGameTests {
         var c=NetherSitePlanner.candidate(0,-2014,-2000);
         var chunk=new ChunkPos(new BlockPos(c.x(),0,c.z()));
         helper.assertTrue(level.getChunkSource().getChunkNow(chunk.x,chunk.z)==null,"Candidate already loaded before player approach");
-        var player=helper.makeMockServerPlayerInLevel();
+        var player=new net.neoforged.neoforge.common.util.FakePlayer(level,
+                new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(),"ioe-stream-observer"));
         level.getServer().getPlayerList().setViewDistance(4);
-        player.teleportTo(level,c.x()-320,100,c.z(),0,0);
+        player.setPos(c.x()-320,100,c.z());
+        level.addNewPlayer(player);
         player.setNoGravity(true);player.noPhysics=true;
         player.getAbilities().flying=true;player.getAbilities().invulnerable=true;
         observe(helper,level,player,c,chunk,0,null,0,-1);
@@ -61,7 +63,7 @@ public final class NetherPlayerStreamingGameTests {
                 var path=Depth32RestartPermit.module().resolve("build/reports/ioe/player-streaming.json");Files.createDirectories(path.getParent());Files.writeString(path,out.toString(),StandardOpenOption.CREATE_NEW);
                 com.mojang.logging.LogUtils.getLogger().info("IOE player streaming observation complete: {}",out);
             } catch(Exception e) {throw new IllegalStateException(e);}
-            level.getServer().getPlayerList().remove(player);
+            level.removePlayerImmediately(player,net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
             helper.succeed();return;
         }
         helper.assertTrue(elapsed<2800,"Player stream did not complete: neighbors="+count+" result="+recorded);

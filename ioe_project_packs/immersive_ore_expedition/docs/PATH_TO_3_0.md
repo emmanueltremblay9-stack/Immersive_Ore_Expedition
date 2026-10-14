@@ -518,7 +518,7 @@ rendering or player streaming. Exact-source CI must establish the outcome.
 Written owner approval authorizes activation for newly created worlds and merging
 PR63 only after essential qualification, with existing saves excluded. No release.
 Before changing world selection or opening the automatic gate, the existing full
-CI profile now observes the known natural 60% candidate through a mock connected
+CI profile now observes the known natural 60% candidate through a NeoForge fake
 server player's actual chunk tickets, moving 0.22 blocks/tick at view distance four.
 The IOE fixture makes no direct neighborhood load or chunk-ticket request and
 injects no freshness receipts. It calls the unchanged dispatcher every tick and
@@ -537,3 +537,10 @@ save, add a profile, install a server, or transfer the CI restart permit.
 Production remains closed until this prerequisite and new-world selection/mutation
 guards are qualified. Existing terrain-selection gates, budgets and contracts are
 unchanged. Exact-source CI must supply the observation and activation decision.
+
+The vanilla login helper failed before admission because it did not negotiate Jade
+custom payloads. The fixture now uses NeoForge FakePlayer and level.addNewPlayer
+for normal entity/chunk tracking, with its standard no-op packet sink. It does not
+exercise login, client packet handling or change production network validation.
+The relevant proof is server player-ticket loading; it remains distinct from an
+actual connected client journey. No mod is removed to make the fixture pass.
