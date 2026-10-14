@@ -25,15 +25,7 @@ public final class NetherDepth32Prototype {
         var root=Path.of(System.getProperty("ioe.depth32Pack", "")).toAbsolutePath();
         if (!Files.isRegularFile(root.resolve("pack.mcmeta")))
             throw new IllegalStateException("External depth32 prototype pack missing");
-        bus.addListener((AddPackFindersEvent event)->{
-            if(event.getPackType()!=PackType.SERVER_DATA) return;
-            var pack=Pack.readMetaAndCreate(
-                    new PackLocationInfo("ioe_depth32_new_world_test",Component.literal("IOE depth32 test only"),PackSource.BUILT_IN,Optional.empty()),
-                    BuiltInPackSource.fromName(info->new PathPackResources(info,root)),
-                    PackType.SERVER_DATA,new PackSelectionConfig(true,Pack.Position.TOP,true));
-            if(pack==null) throw new IllegalStateException("Invalid depth32 prototype pack");
-            event.addRepositorySource(consumer->consumer.accept(pack));
-        });
+        // Per-world repository and pre-registry hooks now select this pack. No global finder.
     }
     static void requireFreshDirectory(Path directory) {
         try(var paths=Files.walk(directory)) {

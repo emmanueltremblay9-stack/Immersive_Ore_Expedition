@@ -104,6 +104,7 @@ def replacementProperties = [
 ]
 
 tasks.named('processResources', ProcessResources).configure {
+    from('prototype/depth32') { into 'packs/ioe_depth32' }
     inputs.properties replacementProperties
     filesMatching('META-INF/neoforge.mods.toml') {
         expand replacementProperties

@@ -23,6 +23,8 @@ final class NetherNaturalAdmission {
     static Report attemptDetailed(ServerLevel level, ChunkPos trigger) {
         var host = NetherPlacementRuntime.host(level);
         host.requireServerThread();
+        if (!NetherWorldActivation.permits(level))
+            return new Report(NetherPlacementCoordinator.Result.BACKEND_UNVERIFIED, "WORLD_NOT_ENABLED", 0, 0, 0);
         var candidate = NetherSitePlanner.candidate(level.getSeed(), Math.floorDiv(trigger.x, 16), Math.floorDiv(trigger.z, 16));
         var origin = new BlockPos(candidate.x(), level.getMinBuildHeight(), candidate.z());
         if (!new ChunkPos(origin).equals(trigger)) return new Report(NetherPlacementCoordinator.Result.NOT_CANDIDATE, "NOT_EVALUATED", 0, 0, 0);

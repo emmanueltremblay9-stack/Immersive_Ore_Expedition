@@ -20,6 +20,8 @@ public final class Depth32RestartGameTests {
         Depth32RestartPermit.require(Depth32RestartPermit.digest(proofPath).equals(session.get("proof_sha256").getAsString()),"Proof changed after authorization");
         var proof=Depth32RestartPermit.read(proofPath);
         var level=helper.getLevel().getServer().getLevel(Level.NETHER);
+        helper.assertTrue(NetherWorldActivation.identity(level).orElseThrow().toString().equals(proof.get("world_generation_id").getAsString()),"Restart changed generation identity");
+        helper.assertTrue(NetherWorldActivation.selectedBeforeRegistries(level.getServer().getPackRepository()),"Restart pack selected after registries");
         helper.assertTrue(level.getMinBuildHeight()==-32 && level.getMaxBuildHeight()==256 && level.getSeed()==0,"Prototype world configuration changed");
         helper.assertTrue(level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).toRealPath().toString().equals(proof.get("world").getAsString()),"Different world opened");
         var chunks=new LinkedHashSet<ChunkPos>();
@@ -59,6 +61,8 @@ public final class Depth32RestartGameTests {
             try {
                 var result=new com.google.gson.JsonObject();result.addProperty("producer_pid",proof.get("producer_pid").getAsLong());
                 result.addProperty("consumer_pid",ProcessHandle.current().pid());result.addProperty("blocks",3377);result.addProperty("resources",20);result.addProperty("markers",2);result.addProperty("negative_resources",negative);
+                result.addProperty("world_generation_id",NetherWorldActivation.identity(level).orElseThrow().toString());
+                result.addProperty("selected_before_registries",true);
                 result.addProperty("replay",false);result.addProperty("fresh_receipt",false);result.addProperty("player_streaming",false);
                 Files.writeString(Depth32RestartPermit.evidence().resolve("verified.json"),result.toString(),StandardOpenOption.CREATE_NEW);
             } catch(Exception e) {throw new IllegalStateException(e);}

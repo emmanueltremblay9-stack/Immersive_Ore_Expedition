@@ -88,3 +88,6 @@ type="optional"
 versionRange="[15.10.6,16)"
 ordering="AFTER"
 side="BOTH"
+
+[[mixins]]
+config="immersive_ore_expedition.worldgen.mixins.json"

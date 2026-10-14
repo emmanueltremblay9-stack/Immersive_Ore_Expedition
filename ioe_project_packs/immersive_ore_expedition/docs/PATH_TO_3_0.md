@@ -605,3 +605,19 @@ records first complete neighborhood and candidate/oldest retained identity ages.
 It now requires COMMITTED on unmodified natural terrain, not merely a recorded
 refusal. This provisional ceiling must be reviewed against those exact-source
 measurements before activation is called qualified. No new server/profile is added.
+
+
+The new-world activation implementation is now prepared behind the CLOSED production
+gate. Exact LevelStorageAccess repository binding establishes an immutable UUID and
+schema/depth manifest only for directories without existing level.dat/level.dat_old
+or region files. Unmarked existing saves remain excluded. WorldLoader.PackConfig
+selects the world-scoped pack before WORLDGEN registry loading; temporary new-world
+creation repositories use initMode and receive no mutation authority until bound
+to an actual fresh save. Reopens require the original identity and selected pack.
+Malformed identities fail closed, with no replacement or migration. All real write
+adapters and natural admission check the bound world and depth. The external CI
+prototype now exercises these SAME hooks instead of a global AddPackFinders source.
+The runtime jar carries depth32 only inside a nested pack, not global vanilla data.
+Hosted tests will check identity, pre-registry selection, bounds and restart identity;
+client GUI flow and visual acceptance remain unproved. This is preparation/test work,
+not production activation, merge or publication.

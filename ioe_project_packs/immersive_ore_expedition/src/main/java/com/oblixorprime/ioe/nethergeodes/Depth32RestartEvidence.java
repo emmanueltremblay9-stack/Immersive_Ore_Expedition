@@ -17,6 +17,7 @@ final class Depth32RestartEvidence {
             var origin=Depth32RestartPermit.read(Path.of(System.getProperty("user.dir")).resolve(".ioe-depth32-origin.json"));
             var proof=new JsonObject();proof.add("nonce",origin.get("nonce"));
             proof.addProperty("producer_pid",ProcessHandle.current().pid());proof.addProperty("producer_start",Depth32RestartPermit.processStart());
+            proof.addProperty("world_generation_id",NetherWorldActivation.identity(level).orElseThrow().toString());
             proof.addProperty("world",level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).toRealPath().toString());
             proof.addProperty("chunk_x",chunk.x);proof.addProperty("chunk_z",chunk.z);
             var blocks=new JsonArray();states.forEach((pos,state)->{var b=new JsonObject();b.addProperty("pos",pos.asLong());b.addProperty("state",state.toString());blocks.add(b);});proof.add("blocks",blocks);

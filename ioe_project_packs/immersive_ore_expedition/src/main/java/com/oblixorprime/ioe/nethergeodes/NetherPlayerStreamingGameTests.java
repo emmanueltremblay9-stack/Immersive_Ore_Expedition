@@ -72,6 +72,8 @@ public final class NetherPlayerStreamingGameTests {
                 var out=new com.google.gson.JsonObject();
                 out.addProperty("source",System.getenv("GITHUB_SHA"));out.addProperty("pid",ProcessHandle.current().pid());
                 out.addProperty("world",level.getServer().getWorldPath(net.minecraft.world.level.storage.LevelResource.ROOT).toRealPath().toString());
+                out.addProperty("world_generation_id",NetherWorldActivation.identity(level).orElseThrow().toString());
+                out.addProperty("selected_before_registries",NetherWorldActivation.selectedBeforeRegistries(level.getServer().getPackRepository()));
                 out.addProperty("candidate_x",c.x());out.addProperty("candidate_z",c.z());out.addProperty("admission_elapsed",admissionTick);
                 out.addProperty("full_neighbors_at_admission",countAtAdmission);out.addProperty("full_neighbors_final",count);
                 out.addProperty("first_full_elapsed",observation.firstFullTick);

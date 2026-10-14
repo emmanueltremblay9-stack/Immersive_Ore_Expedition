@@ -61,6 +61,7 @@ final class NetherPlacementRuntime {
 
     static NetherPlacementCoordinator.Result commitPrepared(ServerLevel level, NetherPlacementCoordinator.Plan plan,
                                                             NetherPlacementCoordinator.Ledger admission) {
+        if (!NetherWorldActivation.permits(level)) return NetherPlacementCoordinator.Result.BACKEND_UNVERIFIED;
         return coordinator(level).commit(host(level), admission, plan);
     }
 
@@ -69,6 +70,7 @@ final class NetherPlacementRuntime {
                                                             NetherPlacementCoordinator coordinator,
                                                             NetherPlacementCoordinator.Host host) {
         host(level).requireServerThread();
+        if (!NetherWorldActivation.permits(level)) return NetherPlacementCoordinator.Result.BACKEND_UNVERIFIED;
         var ledger = level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY, NetherPlacementLedger.NAME);
         return coordinator.commit(host, ledger, plan);
     }
@@ -96,6 +98,7 @@ final class NetherPlacementRuntime {
                         && (state.isAir() || NetherSitePlanner.naturalSubstrate(state));
             }
             public boolean write(BlockPos pos, BlockState state) {
+                if (!NetherWorldActivation.permits(level)) return false;
                 if (level.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) == null) return false;
                 return level.setBlock(pos, state, 2);
             }
