@@ -19,7 +19,9 @@ public final class NetherPlayerStreamingGameTests {
         var chunk=new ChunkPos(new BlockPos(c.x(),0,c.z()));
         helper.assertTrue(level.getChunkSource().getChunkNow(chunk.x,chunk.z)==null,"Candidate already loaded before player approach");
         var player=new net.neoforged.neoforge.common.util.FakePlayer(level,
-                new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(),"ioe-stream-observer"));
+                new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(),"ioe-stream-observer")) {
+            @Override public int requestedViewDistance() { return 4; }
+        };
         level.getServer().getPlayerList().setViewDistance(4);
         player.setPos(c.x()-320,100,c.z());
         level.addNewPlayer(player);
@@ -59,6 +61,7 @@ public final class NetherPlayerStreamingGameTests {
                 out.addProperty("full_neighbors_at_admission",countAtAdmission);out.addProperty("full_neighbors_final",count);
                 out.addProperty("result",recorded.name());out.addProperty("activation_qualified",recorded==NetherPlacementCoordinator.Result.COMMITTED);
                 out.addProperty("forced_by_ioe",false);out.addProperty("injected_receipts",0);out.addProperty("walking_blocks_per_tick",0.22);
+                out.addProperty("requested_view_distance",player.requestedViewDistance());
                 out.addProperty("server_view_distance",level.getServer().getPlayerList().getViewDistance());out.addProperty("replay",false);
                 var path=Depth32RestartPermit.module().resolve("build/reports/ioe/player-streaming.json");Files.createDirectories(path.getParent());Files.writeString(path,out.toString(),StandardOpenOption.CREATE_NEW);
                 com.mojang.logging.LogUtils.getLogger().info("IOE player streaming observation complete: {}",out);
