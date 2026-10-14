@@ -130,5 +130,19 @@
   "journal.ioe.discovery.manual": "Vous avez découvert un indice d’expédition à proximité. Consultez votre journal et le manuel de l’ingénieur pour en savoir plus.",
   "journal.ioe.discovery.standalone": "Vous avez découvert un indice d’expédition à proximité. Il a été consigné dans votre journal personnel.",
   "journal.ioe.discovery.located": "Entrée extérieure localisée. Sa position observée est consignée dans votre journal.",
-  "journal.ioe.discovery.open": "[Ouvrir le journal]"
+  "journal.ioe.discovery.open": "[Ouvrir le journal]",
+  "budding.ioe.rank.fully": "Complet (usurable)",
+  "block.immersive_ore_expedition.fully_budding_iron": "Fer bourgeonnant complet",
+  "block.immersive_ore_expedition.fully_budding_coal": "Charbon bourgeonnant complet",
+  "block.immersive_ore_expedition.fully_budding_copper": "Cuivre bourgeonnant complet",
+  "block.immersive_ore_expedition.fully_budding_diamond": "Diamant bourgeonnant complet",
+  "block.immersive_ore_expedition.fully_budding_emerald": "Émeraude bourgeonnante complete",
+  "block.immersive_ore_expedition.fully_budding_gold": "Or bourgeonnant complet",
+  "block.immersive_ore_expedition.fully_budding_lapis": "Lapis-lazuli bourgeonnant complet",
+  "block.immersive_ore_expedition.fully_budding_redstone": "Redstone bourgeonnante complete",
+  "block.immersive_ore_expedition.fully_budding_aluminum": "Aluminium bourgeonnant complet",
+  "block.immersive_ore_expedition.fully_budding_lead": "Plomb bourgeonnant complet",
+  "block.immersive_ore_expedition.fully_budding_nickel": "Nickel bourgeonnant complet",
+  "block.immersive_ore_expedition.fully_budding_silver": "Argent bourgeonnant complet",
+  "block.immersive_ore_expedition.fully_budding_uranium": "Uranium bourgeonnant complet"
 }

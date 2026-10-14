@@ -130,5 +130,19 @@
   "journal.ioe.discovery.manual": "You discovered a nearby expedition clue. Your journal and the Engineer’s Manual contain more information.",
   "journal.ioe.discovery.standalone": "You discovered a nearby expedition clue. It has been recorded in your personal journal.",
   "journal.ioe.discovery.located": "Exterior entrance located. Its observed location is recorded in your journal.",
-  "journal.ioe.discovery.open": "[Open journal]"
+  "journal.ioe.discovery.open": "[Open journal]",
+  "budding.ioe.rank.fully": "Fully (wearing)",
+  "block.immersive_ore_expedition.fully_budding_iron": "Fully Budding Iron",
+  "block.immersive_ore_expedition.fully_budding_coal": "Fully Budding Coal",
+  "block.immersive_ore_expedition.fully_budding_copper": "Fully Budding Copper",
+  "block.immersive_ore_expedition.fully_budding_diamond": "Fully Budding Diamond",
+  "block.immersive_ore_expedition.fully_budding_emerald": "Fully Budding Emerald",
+  "block.immersive_ore_expedition.fully_budding_gold": "Fully Budding Gold",
+  "block.immersive_ore_expedition.fully_budding_lapis": "Fully Budding Lapis",
+  "block.immersive_ore_expedition.fully_budding_redstone": "Fully Budding Redstone",
+  "block.immersive_ore_expedition.fully_budding_aluminum": "Fully Budding Aluminum",
+  "block.immersive_ore_expedition.fully_budding_lead": "Fully Budding Lead",
+  "block.immersive_ore_expedition.fully_budding_nickel": "Fully Budding Nickel",
+  "block.immersive_ore_expedition.fully_budding_silver": "Fully Budding Silver",
+  "block.immersive_ore_expedition.fully_budding_uranium": "Fully Budding Uranium"
 }

@@ -10,7 +10,7 @@ from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1] / 'src/main/resources'
 MOD = 'immersive_ore_expedition'
-RANKS = ('flawless', 'flawed', 'chipped', 'damaged')
+RANKS = ('flawless', 'fully', 'flawed', 'chipped', 'damaged')
 FAMILIES = ('iron', 'coal', 'copper', 'diamond', 'emerald', 'gold', 'lapis', 'redstone',
             'aluminum', 'lead', 'nickel', 'silver', 'uranium')
 IE_FAMILIES = {'aluminum', 'lead', 'nickel', 'silver', 'uranium'}
@@ -35,7 +35,7 @@ def validate_data(family, read):
             children = entries[0]['children']
             assert children[0]['name'] == f'{MOD}:{name}', name
             assert children[0]['conditions'][0]['predicate']['predicates']['minecraft:enchantments'][0]['enchantments'] == 'minecraft:silk_touch'
-            lower = {'flawed': 'chipped', 'chipped': 'damaged'}.get(rank)
+            lower = {'fully': 'flawed', 'flawed': 'chipped', 'chipped': 'damaged'}.get(rank)
             assert children[1]['name'] == (f'{MOD}:{lower}_budding_{family}' if lower else storage), name
         for tag in ('c/tags/block/budding_blocks', 'minecraft/tags/block/mineable/pickaxe'):
             values = json.loads(read(f'data/{tag}.json'))['values']
@@ -127,12 +127,12 @@ def validate(jars=()):
                 coverage.append(face_area['north'])
                 if archives:
                     resolve(item_id)
-            assert len(signatures) == 4, 'Ranks must have distinct model data'
+            assert len(signatures) == 5, 'Ranks must have distinct model data'
             assert coverage == sorted(set(coverage)) and coverage[0] == 0 and coverage[-1] < 64, coverage
             validate_data(family, read)
-        print(f'Budding resources: {len(FAMILIES)} families, 52 distinct rank bindings; '
+        print(f'Budding resources: {len(FAMILIES)} families, 65 distinct rank bindings; '
               f'{len(resolved)} texture resources resolved' if archives else
-              'Budding resources: 13 families, 52 rank bindings; external JAR resolution not requested')
+              'Budding resources: 13 families, 65 rank bindings; external JAR resolution not requested')
     finally:
         for archive in archives:
             archive.close()

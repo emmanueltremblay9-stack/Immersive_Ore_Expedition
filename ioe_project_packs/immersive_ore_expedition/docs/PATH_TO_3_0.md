@@ -671,3 +671,16 @@ produits et budgets nécessitent décision avant implémentation. Aucun comporte
 modifié dans ce cycle documentaire, aucune famille fictivement déclarée terminée.
 La CI du successeur documentaire ne transforme pas le JAR PR63 en implémentation
 Crystal Cave ; reçu exact sur la PR. Validation client/visuelle toujours non prouvée.
+
+
+## PR64 — quatre usurables et cinquième Flawless permanent
+
+Décision confirmée, message vocal `01a13b6f-6a6e-70ba-bee1-95d780921357`.
+Même branche/PR64 : premier cycle de code sur les 13 familles GeOre IOE existantes,
+65 blocs/items, ancien registre conservé. FULLY descend vers FLAWED puis CHIPPED,
+DAMAGED et stockage ; Flawless reste permanent. Paramètres ExtendedAE 1/3 et 1/10.
+Budgets naturels/recettes/plafond de restauration FLAWED et blocs Certus natifs
+conservés. Nouvelles familles et distributions Crystal Cave encore non implémentées.
+Les tests adaptés et leur CI au head exact sont consignés dans le reçu PR64 ;
+les résultats du commit documentaire 949e716 ne prouvent pas ce nouveau code.
+Production OFF, aucun ancien monde modifié ; qualification visuelle non prouvée.

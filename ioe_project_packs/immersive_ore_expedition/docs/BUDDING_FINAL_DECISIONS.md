@@ -235,7 +235,19 @@ un bloc par phase est confirmée, ainsi que l'améthyste et les familles à int�
 ou créer Fluix, Draconium, Glowstone. Le [contrat Crystal Cave](CRYSTAL_CAVE_CONTRACT.md)
 distingue cette cible de l'implémentation actuelle décrite ci-dessus. ExtendedAE
 use ses quatre phases, y compris fully ; aucune équivalence avec Flawless n'est
-implicite. La permanence Flawless, le mapping/restauration et la portée native
-restent à résoudre avant changement runtime. Les budgets de cave mixte ne sont
+implicite. Décision ultérieure confirmée : quatre rangs usurables puis Flawless permanent.
+La chaîne IOE est FULLY → FLAWED → CHIPPED → DAMAGED → stockage.
+La restauration reste plafonnée à FLAWED et les blocs natifs restent inchangés dans ce cycle. Les budgets de cave mixte ne sont
 pas déduits des budgets monofamille. Entro reste réservé à IE ; les contrats Nether
 et météorites ne changent pas par cet amendement de préparation.
+
+### Application du cinquième rang — PR64
+
+La décision du message `01a13b6f-6a6e-70ba-bee1-95d780921357` est implémentée
+pour les 13 familles GeOre IOE. Le §4 décrivait le moteur AE2 antérieur : les cœurs
+IOE utilisent désormais les paramètres ExtendedAE vérifiés (1/3 tentative, 1/10
+usure après croissance), avec quatre rangs usurables et Flawless permanent.
+Les identités existantes, stockages, recettes, récoltes existantes et budgets sont
+préservés. Le rang ajouté FULLY suit la récolte canonique usurable (Silk Touch :
+lui-même ; sinon FLAWED). Aucune recette ni sélection naturelle de FULLY ajoutée.
+Les règles AE2 natives, Entro/IE et Nether ne sont pas modifiées.

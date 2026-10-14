@@ -61,7 +61,7 @@ public final class CertusBuddingGameTests {
         helper.assertTrue(plan.blocks().values().stream().filter(state -> state.is(ore)).count() == budget.totalOreBlocks(),
                 "Wrong surrounding quartz budget");
         helper.assertTrue(plan.oreBlockCount() == budget.totalOreBlocks() + budget.nodeRanks().size(), "Lost mixed-rank accounting");
-        for (BuddingRank rank : BuddingRank.values()) {
+        for (BuddingRank rank : com.oblixorprime.ioe.budding.NativeCertusBudding.ranks()) {
             helper.assertTrue(plan.blocks().values().stream().filter(state -> state.is(NativeCertusBudding.block(rank))).count()
                     == budget.nodeRanks().stream().filter(expected -> expected == rank).count(), "Wrong native rank population");
         }

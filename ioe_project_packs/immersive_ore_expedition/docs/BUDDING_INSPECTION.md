@@ -71,3 +71,12 @@ block's family identity to the stored node, for every available family.
 The approved DRY count is uniform 0–5 for the whole pocket. GeOre profiles use their
 existing `geore:<material>_block` pocket material, not their exhausted storage target.
 See `BUDDING_FAMILY_IMPLEMENTATION.md` for scope, tests and remaining special-profile limits.
+
+## PR64: five IOE ranks
+
+IOE GeOre hearts now include FULLY (wearing) above FLAWED, with permanent FLAWLESS
+separate. Jade reads FULLY from the actual block, using EN/FR labels, after the
+existing node metadata reload. No saved rank field or old-world migration is added.
+Native Certus still exposes its four actual AE2 blocks; native ExtendedAE fully
+is not a permanent Flawless. Entro remains excluded from IOE generated-node Jade
+provenance. This does not constitute visual/client acceptance.

@@ -14,6 +14,10 @@ public final class NativeCertusBudding {
     public static final ResourceLocation FAMILY = BuddingResourceFamily.CERTUS_QUARTZ.identity();
     public static final ResourceLocation QUARTZ = ResourceLocation.parse("ae2:quartz_block");
 
+    public static java.util.List<BuddingRank> ranks() {
+        return java.util.List.of(BuddingRank.DAMAGED, BuddingRank.CHIPPED, BuddingRank.FLAWED, BuddingRank.FLAWLESS);
+    }
+
     private NativeCertusBudding() { }
 
     public static ResourceLocation id(BuddingRank rank) {
@@ -22,7 +26,7 @@ public final class NativeCertusBudding {
 
     public static Optional<BuddingRank> rank(Block block) {
         ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
-        return Arrays.stream(BuddingRank.values()).filter(rank -> id(rank).equals(id)).findFirst();
+        return ranks().stream().filter(rank -> id(rank).equals(id)).findFirst();
     }
 
     public static Block block(BuddingRank rank) {
@@ -36,7 +40,7 @@ public final class NativeCertusBudding {
 
     public static boolean available(Predicate<String> loaded, Predicate<ResourceLocation> present) {
         return loaded.test("ae2") && loaded.test("ae2cs") && present.test(QUARTZ)
-                && Arrays.stream(BuddingRank.values()).allMatch(rank -> present.test(id(rank)))
+                && ranks().stream().allMatch(rank -> present.test(id(rank)))
                 && BuddingResourceFamily.CERTUS_QUARTZ.growthProductIds().stream().allMatch(present);
     }
 }

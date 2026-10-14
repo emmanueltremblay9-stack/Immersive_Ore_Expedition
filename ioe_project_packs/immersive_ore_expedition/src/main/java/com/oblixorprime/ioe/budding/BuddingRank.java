@@ -6,7 +6,9 @@ public enum BuddingRank {
     DAMAGED("damaged"),
     CHIPPED("chipped"),
     FLAWED("flawed"),
-    FLAWLESS("flawless");
+    FLAWLESS("flawless"),
+    // Appended to preserve legacy enum ordinals as well as registry paths.
+    FULLY("fully");
 
     public static final BuddingRank MAXIMUM_RESTORABLE = FLAWED;
 
@@ -26,6 +28,7 @@ public enum BuddingRank {
 
     public Optional<BuddingRank> degradedRank() {
         return switch (this) {
+            case FULLY -> Optional.of(FLAWED);
             case FLAWED -> Optional.of(CHIPPED);
             case CHIPPED -> Optional.of(DAMAGED);
             case DAMAGED, FLAWLESS -> Optional.empty();
@@ -36,7 +39,7 @@ public enum BuddingRank {
         return switch (this) {
             case DAMAGED -> Optional.of(CHIPPED);
             case CHIPPED -> Optional.of(FLAWED);
-            case FLAWED, FLAWLESS -> Optional.empty();
+            case FLAWED, FULLY, FLAWLESS -> Optional.empty();
         };
     }
 }

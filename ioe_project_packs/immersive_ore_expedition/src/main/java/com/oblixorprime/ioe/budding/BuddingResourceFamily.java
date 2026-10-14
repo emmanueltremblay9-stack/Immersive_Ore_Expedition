@@ -102,12 +102,15 @@ public enum BuddingResourceFamily {
         Objects.requireNonNull(rank, "rank");
         return switch (kind) {
             case GEORE -> Optional.empty();
-            case CERTUS -> Optional.of(id("ae2", rank.path() + "_budding_quartz"));
-            case EXTENDED_AE -> Optional.of(id("extendedae", switch (rank) {
+            case CERTUS -> rank == BuddingRank.FULLY ? Optional.empty()
+                    : Optional.of(id("ae2", rank.path() + "_budding_quartz"));
+            case EXTENDED_AE -> rank == BuddingRank.FLAWLESS ? Optional.empty()
+                    : Optional.of(id("extendedae", switch (rank) {
                 case DAMAGED -> "entro_budding_hardly";
                 case CHIPPED -> "entro_budding_half";
                 case FLAWED -> "entro_budding_mostly";
-                case FLAWLESS -> "entro_budding_fully";
+                case FULLY -> "entro_budding_fully";
+                case FLAWLESS -> throw new IllegalStateException("ExtendedAE has no permanent native heart");
             }));
         };
     }

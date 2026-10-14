@@ -1,7 +1,6 @@
 # Crystal Cave — contrat de préparation et mécanique vérifiée
 
-Statut : décisions utilisateur conservées ; intégration non implémentée, génération
-non activée. Ce document poursuit le chantier Crystal Cave existant et ne remplace
+Statut : premier cycle du modèle à cinq rangs implémenté pour les familles GeOre IOE existantes ; cave et nouvelles familles non générées. Ce document poursuit le chantier Crystal Cave existant et ne remplace
 pas les contrats Nether, IE, Budding ou météorites par des hypothèses implicites.
 La validation visuelle/client demeure non prouvée.
 
@@ -89,16 +88,18 @@ Draconium, Glowstone ou améthyste. Aucun taux de loot IOE n'est déduit de cet 
 
 ### Différence avec l'implémentation IOE actuelle
 
-`GeOreBuddingBlock` utilise une tentative 1/5 et une usure 1/12 ; les rangs sont
+Avant ce cycle, `GeOreBuddingBlock` utilisait une tentative 1/5 et une usure 1/12 ; les rangs étaient
 DAMAGED/CHIPPED/FLAWED/FLAWLESS. FLAWLESS est permanent et réservé aux Motherlodes.
 Les cœurs épuisés deviennent le stockage propre à leur famille. Certus utilise
 les blocs natifs AE2. Remplacer quelques constantes ne suffit donc pas à appliquer
 ExtendedAE à tous les buddings : mapping des phases, identité des blocs, restauration,
 Jade, sauvegardes et traitement des blocs natifs doivent être explicités.
 
-**Aucune équivalence `fully = flawless` n'est décidée.** La nouvelle cible est
-acceptée ; son interaction avec la permanence Flawless et les anciens rangs reste
-à décider avant migration. Les règles Nether et Entro réservé à IE sont conservées.
+**Décision résolue : quatre rangs usurables puis un cinquième Flawless permanent.**
+Confirmation utilisateur « c'est ça », message `01a13b6f-6a6e-70ba-bee1-95d780921357`
+du même fil vocal. FULLY reste distinct de FLAWLESS. Dans IOE :
+`FULLY → FLAWED → CHIPPED → DAMAGED → stockage de famille`, avec FLAWLESS hors usure.
+Les anciens identifiants et ordinals sont conservés ; FULLY est ajouté, sans migration. Les règles Nether et Entro réservé à IE sont conservées.
 Réutiliser une mécanique ExtendedAE pour d'autres minéraux n'autorise pas une
 famille IOE Entro ni la génération naturelle de ses cristaux.
 
@@ -159,10 +160,9 @@ propres conditions. Pas d'extraction d'assets tiers pour fabriquer les nouvelles
 
 ## Décisions encore indispensables à l'implémentation
 
-1. **Phases vs rangs** : conserver une exception Flawless permanente, ou changer
-   cette propriété selon ExtendedAE ? Comment associer les quatre phases aux rangs
-   existants et à la restauration ? Ce point est une contradiction concrète entre
-   l'ancienne mécanique et la cible nouvelle, pas une demande de réautoriser les familles.
+1. **Restauration future** : le modèle quatre usurables + Flawless permanent est
+   décidé et implémenté pour les 13 familles existantes. Le plafond de restauration
+   FLAWED et les recettes existantes restent inchangés ; aucune recette FULLY ajoutée.
 2. **Portée native** : « tous nos buddings » inclut-il la modification des blocs
    natifs AE2/GeOre/vanilla hors IOE, ou les variantes IOE seulement ? Préserver par
    défaut leurs registres et les météorites ; ne pas migrer les anciens mondes.
@@ -178,14 +178,35 @@ propres conditions. Pas d'extraction d'assets tiers pour fabriquer les nouvelles
 
 Proposition technique, non appliquée : séparer dans l'implémentation la taille du
 cristal, la phase d'usure du cœur et la qualité du site ; employer des noms Jade
-sans ambiguïté et réutiliser la persistance existante. Attendre la décision Flawless
-avant de modifier des blocs sauvegardables. Ne créer aucun test isolé d'un modèle
+sans ambiguïté et réutiliser la persistance existante. Conserver les anciens identifiants des blocs sauvegardés et ne pas migrer les chunks. Ne créer aucun test isolé d'un modèle
 inventé pour donner l'impression que cette décision est déjà prise.
 
-## Validation de ce cycle
+## Premier cycle d'implémentation du modèle à cinq rangs
 
-Cycle documentaire : vérification des registres/source/licence, inspection statique
-des JAR et contrôle des chemins/empreintes. Aucun code runtime, asset, recette,
-réglage de génération, budget ou test ajouté. CI du commit exact suivie sur PR64,
-sans l'interpréter comme qualification des familles non implémentées. Production
-OFF, aucun profil/serveur nouveau, aucun monde ancien modifié, aucun chargement forcé.
+Les 13 familles GeOre IOE enregistrent désormais cinq blocs/items distincts (65) :
+13 `fully_budding_<famille>` ajoutés aux 52 identités conservées. FULLY affiche un
+modèle avec moins de fractures que FLAWED, distinct du Flawless intact, et une
+traduction EN/FR. Jade lit son rang réel sans le confondre avec la qualité du site.
+La persistance de provenance reste inchangée : elle ne stocke pas de rang initial.
+
+La croissance des cœurs IOE suit les paramètres vérifiés ExtendedAE : tentative
+1/3, usure 1/10 après croissance, quatre étapes d'usure ; Flawless permanent est
+l'exception explicitement approuvée. Les produits GeOre et stockages finaux restent
+ceux du contrat de chaque famille. FULLY suit la règle de récolte déjà établie des
+rangs usurables : lui-même avec Silk Touch, rang inférieur FLAWED sinon. Aucun
+rendement de cristal, nouvelle recette ou récompense des nouvelles familles inventé.
+Flawless conserve sa récolte historique en FLAWED, jamais en item permanent.
+
+Les budgets/placements existants n'ajoutent pas FULLY naturellement. Aucune fréquence
+Crystal Cave, aucun cœur Fluix/Draconium/Glowstone/améthyste enregistré dans ce cycle.
+Les quatre rangs natifs Certus sont énumérés séparément ; aucune tentative de trouver
+un faux `ae2:fully_budding_quartz`. Les observations ExtendedAE associent fully à
+FULLY et ne déclarent plus un cœur natif permanent qui n'existe pas.
+
+GameTests adaptés : croissance, faces, eau, blocage, usure et permanence sur les
+blocs réels, comparaison aux quatre phases ExtendedAE lorsque ce mod est chargé,
+65 identités/items, récolte/restauration existantes, Jade avec rechargement des
+métadonnées. Tests unitaires de compatibilité des quatre anciennes identités,
+chaîne complète et séparation des phases natives. Validation des 65 modèles et
+ressources. Résultats exacts consignés dans la PR, sans qualification visuelle.
+Production OFF, aucun profil/serveur nouveau, ancien monde modifié ou chargement forcé.
