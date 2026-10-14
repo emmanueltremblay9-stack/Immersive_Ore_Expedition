@@ -512,3 +512,28 @@ reads are 3377 + 20 + 2 = 3399, with the unchanged shared budget. Existing basel
 profile and production gate remain unchanged; external generation pack stays out
 of the normal JAR. Automated same-profile process persistence does not prove client
 rendering or player streaming. Exact-source CI must establish the outcome.
+
+## New-world activation prerequisite: player-ticket loading — 2026-10-14
+
+Written owner approval authorizes activation for newly created worlds and merging
+PR63 only after essential qualification, with existing saves excluded. No release.
+Before changing world selection or opening the automatic gate, the existing full
+CI profile now observes the known natural 60% candidate through a mock connected
+server player's actual chunk tickets, moving 0.22 blocks/tick at view distance four.
+The IOE fixture makes no direct neighborhood load or chunk-ticket request and
+injects no freshness receipts. It calls the unchanged dispatcher every tick and
+records the FULL neighbor count when the candidate is first admitted, its terminal
+outcome, and duplicate refusal after all 25 neighbors eventually become available.
+
+This is a controlled server-side player simulation, not visual client acceptance.
+The observation can pass while activation_qualified is false: a recorded refusal
+is evidence of an activation blocker, not a successful natural placement. The
+workflow runs this one-test fresh fixture in the SAME existing full profile before
+the existing 75-test/restart sequence. Only after its Java process has terminated
+and its reported world path/source match does the script archive that execution's
+world under build/tmp, outside the profile. It does not delete or open any unknown
+save, add a profile, install a server, or transfer the CI restart permit.
+
+Production remains closed until this prerequisite and new-world selection/mutation
+guards are qualified. Existing terrain-selection gates, budgets and contracts are
+unchanged. Exact-source CI must supply the observation and activation decision.

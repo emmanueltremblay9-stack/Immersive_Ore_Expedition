@@ -39,6 +39,26 @@ require(os.environ.get('GITHUB_ACTIONS')=='true','Hosted GitHub Actions only')
 identity={key:os.environ[env] for key,env in [('run','GITHUB_RUN_ID'),('attempt','GITHUB_RUN_ATTEMPT'),('sha','GITHUB_SHA')]}
 root.mkdir(parents=True,exist_ok=True);evidence.mkdir(parents=True,exist_ok=True)
 require(not any(p.name in ('level.dat','level.dat_old') or p.suffix=='.mca' for p in root.rglob('*')),'Existing save refused before fresh launch')
+# Observe a separate NEW CI fixture first in the same existing profile. Preserve it
+# outside the profile after its process exits; never reopen or delete a player save.
+stream_report=module/'build/reports/ioe/player-streaming.json'
+archive=module/'build/tmp/ioe-player-streaming-world'
+require(not stream_report.exists() and not archive.exists(),'Streaming evidence already exists')
+command=['gradle','--no-daemon','-PioeIncludeIeRuntime=true','-PioeDepth32Prototype=true',
+         '-PioePlayerStreamingQualification=true','runFullRuntimeGameTestServer']
+with (evidence/'streaming.log').open('w') as log:
+    process=subprocess.Popen(command,cwd=module,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+    for line in process.stdout:print(line,end='',flush=True);log.write(line)
+    require(process.wait()==0,'Player streaming observation failed')
+stream=json.loads(stream_report.read_text())
+require(stream['source']==identity['sha'] and Path(stream['world'])==(root/'world').resolve(),'Unknown streaming fixture')
+try:os.kill(stream['pid'],0)
+except ProcessLookupError:pass
+else:raise RuntimeError('Streaming producer still alive')
+require((root/'world/level.dat').is_file(),'Streaming world not saved')
+archive.parent.mkdir(parents=True,exist_ok=True)
+(root/'world').rename(archive)
+print('IOE streaming fixture process stopped and its own world archived outside the unchanged profile; activation_qualified='+str(stream['activation_qualified']),flush=True)
 session=dict(schema=1,phase='fresh',root=str(root.resolve()),nonce=secrets.token_hex(32),**identity)
 session_path=evidence/'session.json'
 with session_path.open('x') as f:json.dump(session,f)

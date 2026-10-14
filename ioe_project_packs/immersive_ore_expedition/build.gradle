@@ -36,6 +36,8 @@ neoForge {
                 systemProperty "ioe.depth32Pack", project.file("prototype/depth32").absolutePath
             }
             systemProperty "ioe.expectDomumRuntime", "true"
+            if (providers.gradleProperty("ioePlayerStreamingQualification").isPresent())
+                systemProperty "neoforge.enabledGameTestNamespaces", "ioe_streaming"
             if (providers.gradleProperty('ioeDepth32RestartPhase').isPresent()) {
                 def restartPhase = providers.gradleProperty('ioeDepth32RestartPhase').get()
                 systemProperty "ioe.depth32RestartPhase", restartPhase
