@@ -35,7 +35,7 @@ public final class NetherPlayerStreamingGameTests {
             NetherSitePlanner.Candidate c,ChunkPos chunk,int elapsed,
             NetherPlacementCoordinator.Result recorded,int countAtAdmission,int admissionTick) {
         // Position advances at ordinary walking speed; vanilla player tracking owns all tickets.
-        double x=Math.min(c.x()+64,c.x()-320+elapsed*0.22);
+        double x=Math.min(c.x(),c.x()-320+elapsed*0.22);
         player.setPos(x,100,c.z());level.getChunkSource().move(player);
         int count=loaded(level,chunk);
         var result=NetherNaturalTrigger.dispatch(level).get(chunk.toLong());
