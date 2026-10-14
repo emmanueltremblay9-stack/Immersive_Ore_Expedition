@@ -574,3 +574,12 @@ no work for five ticks, bounded at 1000 ticks. It does not force unloads or muta
 internal maps. The existing consolidated CI job also has a 30-minute ceiling so
 a shutdown stall cannot remain unbounded. This is a fixture correction, not a
 claim to fix a production save defect. Its own exact-source CI remains required.
+
+The first cleanup criterion was too broad: pinned ChunkMap.hasWork includes retained
+loaded chunk holders as well as queued work. Both e34ce61 CI observations completed
+but that assertion failed after 1000 ticks; both processes then stopped, so no
+complete CI success is claimed for e34ce61. Cleanup now preserves the observed
+1000 paced ticks of settling and requires an empty player list, zero pending main
+chunk tasks and no light work for five consecutive ticks, with a 1200-tick ceiling.
+It does not claim every retained chunk is unloaded. Actual process exit remains
+mandatory before archiving or launching the regression world.

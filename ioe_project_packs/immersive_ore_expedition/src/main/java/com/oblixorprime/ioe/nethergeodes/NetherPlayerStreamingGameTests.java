@@ -11,7 +11,7 @@ import java.nio.file.*;
 @GameTestHolder("ioe_streaming")
 @PrefixGameTestTemplate(false)
 public final class NetherPlayerStreamingGameTests {
-    @GameTest(template="streaming_empty",templateNamespace="ioe_streaming",timeoutTicks=4000)
+    @GameTest(template="streaming_empty",templateNamespace="ioe_streaming",timeoutTicks=4200)
     public static void playerTicketsReachKnownCandidate(GameTestHelper helper) {
         var level=helper.getLevel().getServer().getLevel(Level.NETHER);
         helper.assertTrue(NetherDepth32Prototype.requested() && level.getSeed()==0 && level.getMinBuildHeight()==-32,"Expected fresh depth32 fixture");
@@ -84,13 +84,14 @@ public final class NetherPlayerStreamingGameTests {
         long until=System.nanoTime()+50_000_000L;
         for(long remaining;(remaining=until-System.nanoTime())>0;)
             java.util.concurrent.locks.LockSupport.parkNanos(remaining);
-        boolean idle=!level.getChunkSource().chunkMap.hasWork();
+        boolean idle=level.players().isEmpty() && level.getChunkSource().getPendingTasksCount()==0
+                && !level.getChunkSource().getLightEngine().hasLightWork();
         int consecutive=idle ? idleTicks+1 : 0;
-        if(consecutive>=5) {
-            com.mojang.logging.LogUtils.getLogger().info("IOE player streaming cleanup: ticks={} idleTicks={} chunkMapWork=false loadedChunks={}",elapsed,consecutive,level.getChunkSource().getLoadedChunksCount());
+        if(elapsed>=1000 && consecutive>=5) {
+            com.mojang.logging.LogUtils.getLogger().info("IOE player streaming cleanup: ticks={} idleTicks={} pendingTasks=0 lightWork=false players=0 loadedChunks={}",elapsed,consecutive,level.getChunkSource().getLoadedChunksCount());
             helper.succeed();return;
         }
-        helper.assertTrue(elapsed<1000,"Player fixture did not drain after removing player");
+        helper.assertTrue(elapsed<1200,"Player fixture tasks did not settle after removing player");
         helper.runAfterDelay(1,()->drain(helper,level,elapsed+1,consecutive));
     }
 }
