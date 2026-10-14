@@ -9,7 +9,8 @@ import java.util.*;
 final class NetherPlacementCoordinator {
     static final int LEASE_TICKS = 20;
     // Bounded first-generation preparation, distinct from the immediate commit lease.
-    // Qualification records actual ages; no clock renewal and no disk restoration.
+    // Two paced CI observations required oldest identities aged 387/394 ticks.
+    // 800 is the next 100-tick bound above twice that observed maximum; no renewal/restoration.
     static final int PREPARATION_TICKS = 800;
     static final int MAX_LEASES = 256;
     static final int MAX_CHECKS = NetherSitePlanner.MAX_PROBES;

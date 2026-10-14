@@ -621,3 +621,26 @@ The runtime jar carries depth32 only inside a nested pack, not global vanilla da
 Hosted tests will check identity, pre-registry selection, bounds and restart identity;
 client GUI flow and visual acceptance remain unproved. This is preparation/test work,
 not production activation, merge or publication.
+
+
+Bound measurement at source d3ac1474d1d0cf290e629ee5a5646c1f321f945c:
+push CI 38537070875 and PR CI 38537076431 both completed successfully. The SAME
+natural progressive route committed at elapsed 1660/1667, with 25/25 FULL neighbors,
+candidate ages 241/248 and oldest retained window identities aged 387/394 ticks.
+No IOE forced load, receipt injection, terrain edit or terminal replay was used.
+The retained ceiling is 800 ticks: the next 100-tick bound above twice the observed
+maximum 394 (788 rounded upward). This is a bounded variability margin for the
+measured route, not a guarantee for all seeds, walking paths or hardware. Expired
+preparation still loses its permission. These are d3ac147 measurements, NOT results
+of the subsequent identity/registry/resource-verification changes. Their exact-source
+CI remains required. The later 073839d test-source compile failure (counter assertion
+before declaration) is corrected; no success is claimed for that superseded source.
+
+World identity now also receives a check at ServerAboutToStart, before loadLevel:
+selected pack, minY=-32, dimension height=288 and logical height=160 must agree.
+Incompatible settings fail before terrain creation, and marked existing saves that
+lost their selected pack cannot silently switch generation. Production remains closed.
+Qualification now selects the nested runtime pack through the actual mod resource
+path, identical to the prepared production path; the external prototype path remains
+only the existing CI scope/provenance anchor. Client creation/recreation GUI flows
+remain unqualified and must not be inferred from the server-side tests.

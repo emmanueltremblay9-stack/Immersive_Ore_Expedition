@@ -23,6 +23,8 @@ final class NetherPlacementRuntime {
     }
     static void register() {
         if (!REGISTERED.compareAndSet(false, true)) return;
+        NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.server.ServerAboutToStartEvent event) ->
+                NetherWorldActivation.verifyBeforeLevels(event.getServer()));
         NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::load);
         NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::unload);
         NeoForge.EVENT_BUS.addListener(NetherPlacementRuntime::placed);

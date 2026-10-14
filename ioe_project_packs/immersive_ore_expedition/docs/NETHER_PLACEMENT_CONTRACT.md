@@ -648,3 +648,11 @@ server-turn admission/capture/commit, then are discarded. Ordinary explicit leas
 remain 20 ticks. All revalidation, read/write budgets and invalidation rules remain.
 The ceiling and accepted progressive placement require measurement in the existing
 CI fixture; no production activation or merge is implied by this amendment.
+
+
+The 800-tick ceiling is retained after both paced progressive observations at
+source d3ac147: oldest retained window identities were 387 and 394 ticks at actual
+COMMITTED admission. Twice the measured maximum is 788; rounding to 800 supplies
+a bounded margin. This does not promise all future generation schedules fit.
+The admission turn also waits past same-tick Load identities. No permission survives
+its original preparation deadline, invalidation, disk reload or server restart.

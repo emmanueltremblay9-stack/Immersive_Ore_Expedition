@@ -20,7 +20,8 @@ public final class NetherWorldActivation {
     private static final Set<PackRepository> SOURCES = Collections.newSetFromMap(new WeakHashMap<>());
     private static final Set<PackRepository> SELECTED_BEFORE_REGISTRIES = Collections.newSetFromMap(new WeakHashMap<>());
     record Identity(UUID id, int schema, int depth) { }
-    private record Binding(Path root, Identity identity) { }
+    private record Binding(Path root, Identity identity, boolean existing) { }
+    private static final Set<net.minecraft.server.MinecraftServer> VERIFIED_SERVERS = Collections.newSetFromMap(new WeakHashMap<>());
     private NetherWorldActivation() { }
     private static boolean routingEnabled() { return PRODUCTION_ENABLED || NetherDepth32Prototype.requested(); }
 
@@ -29,8 +30,9 @@ public final class NetherWorldActivation {
         if (!routingEnabled()) return;
         try {
             Path root = world.toRealPath();
+            boolean existing = existingTerrain(root);
             Identity identity = selectIdentity(root);
-            WORLDS.put(repository, new Binding(root, identity));
+            WORLDS.put(repository, new Binding(root, identity, existing));
             if (identity != null) addPack(repository);
         } catch (IOException e) { throw new IllegalStateException("Cannot establish IOE world identity", e); }
     }
@@ -38,12 +40,7 @@ public final class NetherWorldActivation {
     static Identity selectIdentity(Path root) throws IOException {
         Path marker = root.resolve(MANIFEST);
         if (Files.exists(marker)) return readIdentity(marker);
-        try (var paths = Files.walk(root)) {
-            if (paths.anyMatch(path -> Files.isRegularFile(path) && (
-                    path.getFileName().toString().equals("level.dat")
-                    || path.getFileName().toString().equals("level.dat_old")
-                    || path.getFileName().toString().endsWith(".mca")))) return null;
-        }
+        if (existingTerrain(root)) return null;
         var identity = new Identity(UUID.randomUUID(), 1, 32);
         var json = new JsonObject();
         json.addProperty("world_id", identity.id().toString());
@@ -51,6 +48,14 @@ public final class NetherWorldActivation {
         json.addProperty("pack_id", PACK_ID);
         Files.writeString(marker, json.toString(), StandardOpenOption.CREATE_NEW);
         return identity;
+    }
+    private static boolean existingTerrain(Path root) throws IOException {
+        try (var paths = Files.walk(root)) {
+            return paths.anyMatch(path -> Files.isRegularFile(path) && (
+                    path.getFileName().toString().equals("level.dat")
+                    || path.getFileName().toString().equals("level.dat_old")
+                    || path.getFileName().toString().endsWith(".mca")));
+        }
     }
     static Identity readIdentity(Path marker) throws IOException {
         try {
@@ -73,6 +78,8 @@ public final class NetherWorldActivation {
                 if (selected) throw new IllegalStateException("IOE pack selected on an unmarked existing save");
                 return;
             }
+            if (binding.existing() && !selected)
+                throw new IllegalStateException("Existing IOE world lost its selected generation pack; no migration");
             if (safeMode) throw new IllegalStateException("Depth32 world requires its generation pack");
             addPack(repository);
         } else if (initMode && !safeMode) {
@@ -95,10 +102,9 @@ public final class NetherWorldActivation {
     }
     private static void addPack(PackRepository repository) {
         if (!SOURCES.add(repository)) return;
-        Path root = NetherDepth32Prototype.requested()
-                ? Path.of(System.getProperty("ioe.depth32Pack")).toAbsolutePath()
-                : net.neoforged.fml.ModList.get().getModFileById("immersive_ore_expedition")
-                    .getFile().findResource("packs", "ioe_depth32");
+        // Hosted qualification exercises the same nested resources shipped in the runtime jar.
+        Path root = net.neoforged.fml.ModList.get().getModFileById("immersive_ore_expedition")
+                .getFile().findResource("packs", "ioe_depth32");
         var pack = Pack.readMetaAndCreate(new PackLocationInfo(PACK_ID,
                 Component.literal("IOE new-world Nether depth 32"),PackSource.BUILT_IN,Optional.empty()),
                 BuiltInPackSource.fromName(info -> new PathPackResources(info, root)),
@@ -106,10 +112,26 @@ public final class NetherWorldActivation {
         if (pack == null) throw new IllegalStateException("IOE generation pack missing");
         repository.addPackFinder(consumer -> consumer.accept(pack));
     }
+    /** Runs before loadLevel: a marker must never turn an incompatible saved registry into depth32. */
+    public static synchronized void verifyBeforeLevels(net.minecraft.server.MinecraftServer server) {
+        if (!routingEnabled()) return;
+        var binding = WORLDS.get(server.getPackRepository());
+        if (binding == null || binding.identity() == null) return;
+        boolean selected = server.getWorldData().getDataConfiguration().dataPacks().getEnabled().contains(PACK_ID);
+        var dimension = server.registryAccess().registryOrThrow(net.minecraft.core.registries.Registries.DIMENSION_TYPE)
+                .getHolderOrThrow(net.minecraft.world.level.dimension.BuiltinDimensionTypes.NETHER).value();
+        if (!selected || dimension.minY()!=-32 || dimension.height()!=288 || dimension.logicalHeight()!=160)
+            throw new IllegalStateException("IOE generation identity does not match loaded world settings; refusing before level creation");
+        VERIFIED_SERVERS.add(server);
+        com.mojang.logging.LogUtils.getLogger().info("IOE world identity verified before level creation: {}", binding.identity().id());
+    }
+    static synchronized boolean verifiedBeforeLevels(net.minecraft.server.MinecraftServer server) {
+        return VERIFIED_SERVERS.contains(server);
+    }
     static synchronized Optional<UUID> identity(ServerLevel level) {
         var server = level.getServer();
         var binding = WORLDS.get(server.getPackRepository());
-        if (binding == null || binding.identity() == null) return Optional.empty();
+        if (binding == null || binding.identity() == null || !VERIFIED_SERVERS.contains(server)) return Optional.empty();
         if (!server.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize().equals(binding.root())) return Optional.empty();
         if (!server.getWorldData().getDataConfiguration().dataPacks().getEnabled().contains(PACK_ID)) return Optional.empty();
         if (level.getMinBuildHeight()!=-32 || level.getMaxBuildHeight()!=256) return Optional.empty();

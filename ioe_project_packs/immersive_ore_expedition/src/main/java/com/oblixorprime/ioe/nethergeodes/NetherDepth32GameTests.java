@@ -20,6 +20,7 @@ public final class NetherDepth32GameTests {
             helper.assertTrue(level.getMinBuildHeight()==0,"Normal Nether minimum changed");
             helper.succeed();return;
         }
+        helper.assertTrue(NetherWorldActivation.verifiedBeforeLevels(level.getServer()),"World identity was not checked before level creation");
         helper.assertTrue(NetherWorldActivation.identity(level).isPresent(),"New-world generation identity missing");
         helper.assertTrue(NetherWorldActivation.selectedBeforeRegistries(level.getServer().getPackRepository()),"Pack was not selected before registries");
         helper.assertTrue(level.getMinBuildHeight()==-32 && level.getMaxBuildHeight()==256,"Prototype pack not active or upper boundary changed");
