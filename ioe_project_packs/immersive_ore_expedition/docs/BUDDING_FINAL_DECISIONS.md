@@ -251,3 +251,11 @@ Les identités existantes, stockages, recettes, récoltes existantes et budgets 
 préservés. Le rang ajouté FULLY suit la récolte canonique usurable (Silk Touch :
 lui-même ; sinon FLAWED). Aucune recette ni sélection naturelle de FULLY ajoutée.
 Les règles AE2 natives, Entro/IE et Nether ne sont pas modifiées.
+
+### Améthyste — profil A, PR64
+
+Profil A validé par « Pr64 IOE A » le 14 octobre 2026 à 22:27 UTC. Cinq cœurs IOE
+améthyste appliquent la chaîne usurable et l'exception Flawless permanente déjà
+approuvées. Récoltes des cœurs selon les règles IOE ; épuisement en
+`minecraft:amethyst_block`. Produits et récoltes des cristaux vanilla inchangés.
+Aucune recette de cœur ni distribution naturelle ajoutée. Voir le contrat Crystal Cave.

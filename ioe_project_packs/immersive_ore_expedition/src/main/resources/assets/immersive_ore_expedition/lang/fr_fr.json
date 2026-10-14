@@ -144,5 +144,10 @@
   "block.immersive_ore_expedition.fully_budding_lead": "Plomb bourgeonnant complet",
   "block.immersive_ore_expedition.fully_budding_nickel": "Nickel bourgeonnant complet",
   "block.immersive_ore_expedition.fully_budding_silver": "Argent bourgeonnant complet",
-  "block.immersive_ore_expedition.fully_budding_uranium": "Uranium bourgeonnant complet"
+  "block.immersive_ore_expedition.fully_budding_uranium": "Uranium bourgeonnant complet",
+  "block.immersive_ore_expedition.damaged_budding_amethyst": "Améthyste bourgeonnant endommagé",
+  "block.immersive_ore_expedition.chipped_budding_amethyst": "Améthyste bourgeonnant ébréché",
+  "block.immersive_ore_expedition.flawed_budding_amethyst": "Améthyste bourgeonnant imparfait",
+  "block.immersive_ore_expedition.fully_budding_amethyst": "Améthyste bourgeonnant complet",
+  "block.immersive_ore_expedition.flawless_budding_amethyst": "Améthyste bourgeonnant sans défaut"
 }

@@ -17,7 +17,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-/** Pre-register stable identities by loaded dependencies; activate only after validating real registry blocks. */
+/** Shared registry for IOE GeOre and vanilla-backed hearts. Pre-register stable identities by loaded dependencies; activate only after validating real registry blocks. */
 public final class IoeGeOreBuddingBlocks {
     private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ImmersiveOreExpeditionMod.MODID);
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(ImmersiveOreExpeditionMod.MODID);
@@ -48,7 +48,7 @@ public final class IoeGeOreBuddingBlocks {
     public static boolean resourcesPresent(BuddingResourceFamily family, Predicate<String> loaded,
                                             Predicate<ResourceLocation> present, Predicate<ResourceLocation> growthCompatible) {
         return family.dependenciesPresent(loaded) && present.test(family.storageBlockId())
-                && present.test(family.pocketBlockId()) && family.growthProductIds().stream().allMatch(growthCompatible);
+                && (family.kind() != BuddingResourceFamily.Kind.GEORE || present.test(family.pocketBlockId())) && family.growthProductIds().stream().allMatch(growthCompatible);
     }
 
     public static boolean available(BuddingResourceFamily family) {

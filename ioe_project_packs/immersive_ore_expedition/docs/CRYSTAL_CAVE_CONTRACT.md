@@ -107,7 +107,7 @@ famille IOE Entro ni la génération naturelle de ses cristaux.
 
 | Ressource approuvée | Disponible et forme réelle | Travail requis |
 | --- | --- | --- |
-| Améthyste | `minecraft:budding_amethyst`, `small_amethyst_bud`, `medium_amethyst_bud`, `large_amethyst_bud`, `amethyst_cluster`, `amethyst_block` (tous minecraft) ; item `minecraft:amethyst_shard` | Le vanilla fournit un seul cœur, pas quatre phases d'usure. Adapter/créer les cinq phases IOE confirmées, sans changer arbitrairement les géodes vanilla. |
+| Améthyste | `minecraft:budding_amethyst`, `small_amethyst_bud`, `medium_amethyst_bud`, `large_amethyst_bud`, `amethyst_cluster`, `amethyst_block` (tous minecraft) ; item `minecraft:amethyst_shard` | Le vanilla fournit un seul cœur, pas quatre phases d'usure. Cinq cœurs IOE implémentés avec profil A ; cristaux et géodes vanilla inchangés. |
 | Quartz | `geore:budding_quartz`, `geore:small_quartz_bud`, `medium_quartz_bud`, `large_quartz_bud`, `quartz_cluster` (préfixe geore) | Produits disponibles, adaptation des phases requise ; distinct du Certus. |
 | Certus | `ae2:damaged_budding_quartz`, `chipped_budding_quartz`, `flawed_budding_quartz`, `flawless_budding_quartz` ; quatre produits natifs | Quatre rangs déjà disponibles, mais mécanique AE2 distincte. Préserver météorites/progression AE2 tant qu'aucun traitement natif précis n'est décidé. |
 | Diamant/redstone/lapis/émeraude | Familles IOE existantes à cinq rangs ; `geore:small_<famille>_bud`, `medium_<famille>_bud`, `large_<famille>_bud`, `<famille>_cluster` | Réutiliser les familles existantes ; ne pas doubler les registres. |
@@ -167,7 +167,7 @@ propres conditions. Pas d'extraction d'assets tiers pour fabriquer les nouvelles
    natifs AE2/GeOre/vanilla hors IOE, ou les variantes IOE seulement ? Préserver par
    défaut leurs registres et les météorites ; ne pas migrer les anciens mondes.
 3. **Produits et épuisement** : produits finaux exacts et quantités de récolte,
-   Silk Touch/Fortune, stockage final des nouvelles familles et de l'améthyste.
+   Silk Touch/Fortune, stockage final des familles Fluix/Draconium/Glowstone. Le profil A améthyste est désormais approuvé.
    Le quartz final d'ExtendedAE ne doit pas devenir automatiquement le résidu universel.
 4. **Budgets cave** : total et répartition par famille/qualité, phases initiales,
    clusters préexistants, densité Glowstone, plage Y, biomes, fréquence et espacement.
@@ -198,7 +198,7 @@ rendement de cristal, nouvelle recette ou récompense des nouvelles familles inv
 Flawless conserve sa récolte historique en FLAWED, jamais en item permanent.
 
 Les budgets/placements existants n'ajoutent pas FULLY naturellement. Aucune fréquence
-Crystal Cave, aucun cœur Fluix/Draconium/Glowstone/améthyste enregistré dans ce cycle.
+Crystal Cave ni cœur Fluix/Draconium/Glowstone enregistré dans ce premier cycle ; le cycle améthyste suivant est décrit ci-dessous.
 Les quatre rangs natifs Certus sont énumérés séparément ; aucune tentative de trouver
 un faux `ae2:fully_budding_quartz`. Les observations ExtendedAE associent fully à
 FULLY et ne déclarent plus un cœur natif permanent qui n'existe pas.
@@ -210,3 +210,38 @@ métadonnées. Tests unitaires de compatibilité des quatre anciennes identités
 chaîne complète et séparation des phases natives. Validation des 65 modèles et
 ressources. Résultats exacts consignés dans la PR, sans qualification visuelle.
 Production OFF, aucun profil/serveur nouveau, ancien monde modifié ou chargement forcé.
+
+## Améthyste — profil A approuvé et implémenté
+
+Validation utilisateur du 14 octobre 2026 à 22:27 UTC : « Pr64 IOE A », message
+`Sentinel_4d0d913a968c8191831bc29dfcfe7479`, en réponse au choix proposé à 21:13 UTC.
+Cette décision remplace la question de récolte/résidu améthyste, sans modifier les
+choix encore ouverts pour Fluix/Draconium/Glowstone ou les budgets de cave.
+
+Cinq blocs/items IOE distincts : `damaged_budding_amethyst`,
+`chipped_budding_amethyst`, `flawed_budding_amethyst`, `fully_budding_amethyst`,
+`flawless_budding_amethyst`, sous `immersive_ore_expedition:`. Les 65 identités
+antérieures sont préservées ; 14 familles IOE et 70 cœurs sont désormais définis.
+L'améthyste utilise uniquement des ressources Minecraft, sans nouvelle dépendance.
+
+Chaîne d'usure et chances identiques au moteur IOE existant : FULLY → FLAWED →
+CHIPPED → DAMAGED → `minecraft:amethyst_block`, avec Flawless permanent. Récolte
+des cœurs : usurable lui-même avec Silk Touch, rang inférieur sinon, stockage
+pour DAMAGED ; Flawless donne toujours le cœur FLAWED. Les cristaux produits sont
+les quatre blocs vanilla exacts : small/medium/large_amethyst_bud et amethyst_cluster.
+Leurs tables vanilla (dont Silk Touch et Fortune) ne sont ni copiées ni modifiées.
+`minecraft:budding_amethyst` conserve son comportement et sa récolte vide.
+
+La famille conserve une identité de ressource `minecraft:amethyst`. Jade affiche
+Minecraft, le rang courant et uniquement la provenance de site réellement enregistrée.
+Le bloc vanilla natif n'est pas adopté comme cœur IOE. L'enregistrement et la
+validation des ressources réutilisent le moteur commun ; le chemin de placement
+GeOre n'accepte pas cette famille et aucune politique de poche n'est créée.
+Aucune recette de cœur améthyste, notamment FULLY, et aucune distribution naturelle
+ne sont ajoutées. Les modèles et traductions EN/FR couvrent les cinq rangs.
+
+Tests adaptés : croissance/usure partagées incluant l'améthyste, cinq identités et
+récoltes réelles des cœurs, blocs/loots vanilla conservés, absence de recettes,
+validation de dépendances/ressources et exclusion du sélecteur de matériau GeOre,
+Jade et rechargement de provenance existants. Validation statique de 70 modèles.
+CI au commit exact consignée dans PR64 ; aucune preuve visuelle/client déduite.

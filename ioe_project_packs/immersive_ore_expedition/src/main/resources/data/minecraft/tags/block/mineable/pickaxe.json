@@ -260,6 +260,26 @@
     {
       "id": "immersive_ore_expedition:fully_budding_uranium",
       "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_amethyst",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_amethyst",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_amethyst",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_amethyst",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_amethyst",
+      "required": false
     }
   ]
 }

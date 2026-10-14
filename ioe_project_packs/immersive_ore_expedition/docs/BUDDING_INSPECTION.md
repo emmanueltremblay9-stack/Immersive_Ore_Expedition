@@ -80,3 +80,11 @@ existing node metadata reload. No saved rank field or old-world migration is add
 Native Certus still exposes its four actual AE2 blocks; native ExtendedAE fully
 is not a permanent Flawless. Entro remains excluded from IOE generated-node Jade
 provenance. This does not constitute visual/client acceptance.
+
+## Amethyst profile A
+
+The five IOE amethyst hearts use resource identity `minecraft:amethyst` and display
+family Minecraft in Jade. Current rank and existing saved provenance are handled
+by the shared provider; native `minecraft:budding_amethyst` remains outside IOE
+node recognition. The existing Jade runtime check includes all five amethyst ranks
+and metadata reload. This is not visual acceptance or proof of natural generation.

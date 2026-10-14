@@ -50,7 +50,7 @@ public class GeOreBuddingBlock extends Block {
         }
     }
 
-    /** Missing or incompatible GeOre products stop growth; never substitute another mineral. */
+    /** Missing or incompatible growth products stop growth; never substitute another mineral. */
     static Optional<BlockState> nextGrowth(BuddingResourceFamily family, BlockState neighbor, Direction direction) {
         List<Block> products = family.growthProductIds().stream()
                 .map(id -> BuiltInRegistries.BLOCK.getOptional(id).orElse(null)).toList();

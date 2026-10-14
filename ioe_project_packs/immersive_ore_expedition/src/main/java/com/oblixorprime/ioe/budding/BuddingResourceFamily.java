@@ -21,7 +21,8 @@ public enum BuddingResourceFamily {
     GEORE_SILVER(Kind.GEORE, "silver"),
     GEORE_URANIUM(Kind.GEORE, "uranium"),
     CERTUS_QUARTZ(Kind.CERTUS, "certus_quartz"),
-    ENTROIZED_FLUIX(Kind.EXTENDED_AE, "entroized_fluix");
+    ENTROIZED_FLUIX(Kind.EXTENDED_AE, "entroized_fluix"),
+    AMETHYST(Kind.VANILLA, "amethyst");
 
     private final Kind kind;
     private final String key;
@@ -39,9 +40,19 @@ public enum BuddingResourceFamily {
         return key;
     }
 
+    public String displayFamily() {
+        return switch (kind) {
+            case GEORE -> "GeOre";
+            case CERTUS -> "AE2";
+            case EXTENDED_AE -> "ExtendedAE";
+            case VANILLA -> "Minecraft";
+        };
+    }
+
     public String dependencyModId() {
         return switch (kind) {
             case GEORE -> "geore";
+            case VANILLA -> "minecraft";
             case CERTUS -> "ae2";
             case EXTENDED_AE -> "extendedae";
         };
@@ -51,6 +62,7 @@ public enum BuddingResourceFamily {
         return switch (kind) {
             case GEORE -> requiresImmersiveEngineering() ? id("immersiveengineering", "storage_" + key) : id("minecraft", key + "_block");
             case CERTUS, EXTENDED_AE -> id("ae2", "quartz_block");
+            case VANILLA -> id("minecraft", "amethyst_block");
         };
     }
 
@@ -62,7 +74,7 @@ public enum BuddingResourceFamily {
     }
 
     public boolean dependenciesPresent(java.util.function.Predicate<String> loaded) {
-        return kind == Kind.GEORE && loaded.test("ae2") && loaded.test("geore")
+        return kind == Kind.VANILLA || kind == Kind.GEORE && loaded.test("ae2") && loaded.test("geore")
                 && (!requiresImmersiveEngineering() || loaded.test("immersiveengineering"));
     }
 
@@ -83,6 +95,12 @@ public enum BuddingResourceFamily {
                     id("geore", "large_" + key + "_bud"),
                     id("geore", key + "_cluster")
             );
+            case VANILLA -> List.of(
+                    id("minecraft", "small_amethyst_bud"),
+                    id("minecraft", "medium_amethyst_bud"),
+                    id("minecraft", "large_amethyst_bud"),
+                    id("minecraft", "amethyst_cluster")
+            );
             case CERTUS -> List.of(
                     id("ae2", "small_quartz_bud"),
                     id("ae2", "medium_quartz_bud"),
@@ -101,7 +119,7 @@ public enum BuddingResourceFamily {
     public Optional<ResourceLocation> observedNativeBuddingId(BuddingRank rank) {
         Objects.requireNonNull(rank, "rank");
         return switch (kind) {
-            case GEORE -> Optional.empty();
+            case GEORE, VANILLA -> Optional.empty();
             case CERTUS -> rank == BuddingRank.FULLY ? Optional.empty()
                     : Optional.of(id("ae2", rank.path() + "_budding_quartz"));
             case EXTENDED_AE -> rank == BuddingRank.FLAWLESS ? Optional.empty()
@@ -132,6 +150,7 @@ public enum BuddingResourceFamily {
     public enum Kind {
         GEORE,
         CERTUS,
-        EXTENDED_AE
+        EXTENDED_AE,
+        VANILLA
     }
 }

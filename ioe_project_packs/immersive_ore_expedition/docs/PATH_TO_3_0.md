@@ -684,3 +684,20 @@ conservés. Nouvelles familles et distributions Crystal Cave encore non impléme
 Les tests adaptés et leur CI au head exact sont consignés dans le reçu PR64 ;
 les résultats du commit documentaire 949e716 ne prouvent pas ce nouveau code.
 Production OFF, aucun ancien monde modifié ; qualification visuelle non prouvée.
+
+
+## PR64 — améthyste profil A
+
+Reprise vérifiée sur le head local/distant `4e91a618df696de20be8584f5b45b922ee2a63b1`,
+checkout propre, PR64 brouillon. La validation utilisateur « Pr64 IOE A »
+(`Sentinel_4d0d913a968c8191831bc29dfcfe7479`, 14 octobre 2026 22:27 UTC) autorise
+les cœurs récupérables IOE, produits/récoltes vanilla et résidu amethyst_block.
+
+Cinq cœurs améthyste ajoutés par le moteur partagé : 14 familles/70 cœurs définis,
+65 identités antérieures conservées. Native budding/cristaux et leurs loots non
+remplacés ; aucune recette de cœur ou distribution naturelle ajoutée. Jade affiche
+Minecraft et réutilise la provenance persistante existante. Tests de croissance,
+récolte/registre, dépendances, exclusion du placement GeOre et Jade adaptés.
+Le reçu PR64 distingue la nouvelle CI exacte de la qualification du head précédent.
+Production OFF ; garde-fous Nether inchangés ; aucune installation, migration,
+fusion ou publication. Validation visuelle/client toujours non prouvée.
