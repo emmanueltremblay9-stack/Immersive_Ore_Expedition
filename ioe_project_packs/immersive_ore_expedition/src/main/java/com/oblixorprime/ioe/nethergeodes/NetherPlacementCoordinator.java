@@ -8,6 +8,9 @@ import java.util.*;
 /** First-load capabilities, consumed by an immediate server-thread transaction, never restored from disk. */
 final class NetherPlacementCoordinator {
     static final int LEASE_TICKS = 20;
+    // Bounded first-generation preparation, distinct from the immediate commit lease.
+    // Qualification records actual ages; no clock renewal and no disk restoration.
+    static final int PREPARATION_TICKS = 800;
     static final int MAX_LEASES = 256;
     static final int MAX_CHECKS = NetherSitePlanner.MAX_PROBES;
     static final int MAX_WRITES = 4_096;
@@ -59,7 +62,7 @@ final class NetherPlacementCoordinator {
             return Collections.unmodifiableMap(copy);
         }
     }
-    private record Lease(Object identity, int born, boolean dispatched) { }
+    private record Lease(Object identity, int born, boolean dispatched, int admittedTick) { }
     private final Map<Long, Lease> leases = new HashMap<>();
     private final Map<Object, Boolean> seen = new WeakHashMap<>();
 
@@ -74,14 +77,15 @@ final class NetherPlacementCoordinator {
             leases.remove(chunk);
             return;
         }
-        leases.put(chunk, new Lease(identity, tick, false));
+        leases.put(chunk, new Lease(identity, tick, false, -1));
     }
     /** At most MAX_LEASES entries; no new capability, ticket or retained queue is created. */
     synchronized List<ChunkPos> takeNaturalCandidates(long seed, int tick) {
         return takeNaturalCandidates(seed, tick, ignored -> true);
     }
-    /** Readiness delays only first admission, within the ORIGINAL lease; no retry or renewal. */
+    /** Readiness delays only first admission, within the ORIGINAL preparation lifetime; no retry or renewal. */
     synchronized List<ChunkPos> takeNaturalCandidates(long seed, int tick, java.util.function.Predicate<ChunkPos> ready) {
+        prune(tick);
         var result = new ArrayList<ChunkPos>();
         for (long key : new TreeSet<>(leases.keySet())) {
             var lease = leases.get(key);
@@ -89,21 +93,40 @@ final class NetherPlacementCoordinator {
             var chunk = new ChunkPos(key);
             var candidate = NetherSitePlanner.candidate(seed, Math.floorDiv(chunk.x, 16), Math.floorDiv(chunk.z, 16));
             if ((candidate.x() >> 4) != chunk.x || (candidate.z() >> 4) != chunk.z) continue;
-            // At the last fresh tick dispatch even an incomplete neighborhood, so refusal is terminal.
-            if (tick - lease.born() < LEASE_TICKS - 1 && !ready.test(chunk)) continue;
-            leases.put(key, new Lease(lease.identity(), lease.born(), true));
+            // Incomplete preparation is not an attempt and never consumes a durable claim.
+            if (!ready.test(chunk)) continue;
+            // Only retained, unrevoked first-generation identities acquire authority for THIS turn.
+            // Older read-only neighbors do not acquire a receipt. No born tick is changed.
+            for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++) {
+                long neighbor = ChunkPos.asLong(chunk.x + x, chunk.z + z);
+                var pending = leases.get(neighbor);
+                if (pending != null && tick - pending.born() > 0)
+                    leases.put(neighbor, new Lease(pending.identity(), pending.born(), pending.dispatched(), tick));
+            }
+            leases.put(key, new Lease(lease.identity(), lease.born(), true, tick));
             result.add(chunk);
         }
         return List.copyOf(result);
     }
+    synchronized int preparationAge(long chunk, int tick) {
+        var lease = leases.get(chunk);
+        return lease == null ? -1 : tick - lease.born();
+    }
+    synchronized void endNaturalAdmission(ChunkPos chunk) {
+        // The dispatcher owns this single turn. Discard all preparation identities in its window.
+        for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++)
+            leases.remove(ChunkPos.asLong(chunk.x + x, chunk.z + z));
+    }
     synchronized void invalidate(long chunk) { leases.remove(chunk); }
     private void prune(int tick) {
-        leases.values().removeIf(lease -> tick - lease.born() < 0 || tick - lease.born() >= LEASE_TICKS);
+        leases.values().removeIf(lease -> tick - lease.born() < 0 || tick - lease.born() >= PREPARATION_TICKS);
     }
     private boolean fresh(Host host, long chunk) {
         var lease = leases.get(chunk);
         int age = lease == null ? -1 : host.tick() - lease.born();
-        return age > 0 && age < LEASE_TICKS && host.loadedChunk(chunk) == lease.identity();
+        return age > 0 && age < PREPARATION_TICKS
+                && (age < LEASE_TICKS || lease.admittedTick() == host.tick())
+                && host.loadedChunk(chunk) == lease.identity();
     }
     synchronized boolean hasFreshReceipt(Host host, long chunk) {
         host.requireServerThread();

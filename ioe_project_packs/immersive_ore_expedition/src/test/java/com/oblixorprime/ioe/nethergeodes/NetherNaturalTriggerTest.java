@@ -38,13 +38,26 @@ final class NetherNaturalTriggerTest {
         assertEquals(java.util.List.of(chunk),coordinator.takeNaturalCandidates(17,19,ignored->true));
         assertTrue(coordinator.takeNaturalCandidates(17,20,ignored->true).isEmpty());
     }
-    @Test void readinessNeverExtendsOriginalLeaseOrRestoresInvalidatedReceipt() {
+    @Test void delayedReadinessDispatchesOnceWithinBoundWithoutRenewingBirth() {
+        var coordinator = new NetherPlacementCoordinator();
+        var candidate = NetherSitePlanner.candidate(17,2,2);
+        var chunk = new ChunkPos(candidate.x()>>4,candidate.z()>>4);
+        coordinator.observe(chunk.toLong(),new Object(),true,10);
+        for(int tick=11;tick<400;tick++) assertTrue(coordinator.takeNaturalCandidates(17,tick,ignored->false).isEmpty());
+        assertEquals(java.util.List.of(chunk), coordinator.takeNaturalCandidates(17,400,ignored->true));
+        assertEquals(390, coordinator.preparationAge(chunk.toLong(),400));
+        assertTrue(coordinator.takeNaturalCandidates(17,401,ignored->true).isEmpty());
+        coordinator.endNaturalAdmission(chunk);
+        assertEquals(-1, coordinator.preparationAge(chunk.toLong(),401));
+    }
+    @Test void preparationExpiryNeverRenewsOrRestoresInvalidatedReceipt() {
         var coordinator=new NetherPlacementCoordinator();
         var candidate=NetherSitePlanner.candidate(17,2,2);
         var chunk=new ChunkPos(candidate.x()>>4,candidate.z()>>4);
         coordinator.observe(chunk.toLong(),new Object(),true,10);
         for(int tick=11;tick<29;tick++)assertTrue(coordinator.takeNaturalCandidates(17,tick,ignored->false).isEmpty());
-        assertEquals(java.util.List.of(chunk),coordinator.takeNaturalCandidates(17,29,ignored->false));
+        assertTrue(coordinator.takeNaturalCandidates(17,29,ignored->false).isEmpty());
+        assertTrue(coordinator.takeNaturalCandidates(17,10+NetherPlacementCoordinator.PREPARATION_TICKS,ignored->true).isEmpty());
         assertTrue(coordinator.takeNaturalCandidates(17,30,ignored->true).isEmpty());
         var invalidated=new NetherPlacementCoordinator();
         invalidated.observe(chunk.toLong(),new Object(),true,10);

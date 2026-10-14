@@ -36,7 +36,11 @@ final class NetherNaturalTrigger {
         NetherPlacementRuntime.host(level).requireServerThread();
         var results = new LinkedHashMap<Long, NetherPlacementCoordinator.Result>();
         for (var chunk : candidates) {
-            results.put(chunk.toLong(), NetherNaturalAdmission.attempt(level, chunk));
+            try {
+                results.put(chunk.toLong(), NetherNaturalAdmission.attempt(level, chunk));
+            } finally {
+                NetherPlacementRuntime.coordinator(level).endNaturalAdmission(chunk);
+            }
         }
         return Map.copyOf(results);
     }

@@ -634,3 +634,17 @@ Controlled FULL 5x5 loading remains artificial. A separate small GameTest verifi
 vanilla falling/stable gravel behavior. Exact CI and actual placements belong in
 the PR63 receipt, not inferred from PLANNED. Production remains disabled; no new
 server/profile, merge, release or installation is authorized.
+
+
+## Authorized bounded pre-admission preparation — 2026-10-14
+
+Owner instruction: adjust ticks to necessity, preserving first-generation identities,
+no forced loading and no replay. This amends the preceding 20-tick deadline only
+for natural pre-admission preparation. Retain up to 256 identities for at most 800
+ticks from their original Load event; no renewal. Availability checks are metadata
+only. Incomplete preparation does not create a durable attempt. When the complete
+74x74 read window is FULL, retained unrevoked identities can authorize the same
+server-turn admission/capture/commit, then are discarded. Ordinary explicit leases
+remain 20 ticks. All revalidation, read/write budgets and invalidation rules remain.
+The ceiling and accepted progressive placement require measurement in the existing
+CI fixture; no production activation or merge is implied by this amendment.

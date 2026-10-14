@@ -583,3 +583,25 @@ complete CI success is claimed for e34ce61. Cleanup now preserves the observed
 chunk tasks and no light work for five consecutive ticks, with a 1200-tick ceiling.
 It does not claim every retained chunk is unloaded. Actual process exit remains
 mandatory before archiving or launching the regression world.
+
+
+## Authorized bounded preparation — 2026-10-14
+
+The owner explicitly authorized adjusting the tick bound as necessary after review
+of the 20-tick incompatibility. Work remains modifications/tests on draft PR63 only;
+merge and publication are forbidden. A preparation retains the original new-load
+identity, never renews its birth tick and never persists across reload/restart.
+All 25 FULL neighbors must be available before admission. Only that admission turn
+can spend the retained identities; ordinary explicit transactions keep their 20-tick
+lease. Unload, repeated/disk load, identity replacement, player break/entity place,
+capacity denial and expiry still deny writing. Terminal admitted attempts never retry.
+
+The initial qualification ceiling is 800 ticks (40 seconds at nominal tick rate).
+Prior evidence had all neighbors by elapsed 1800 versus candidate load near 1419:
+381 ticks, plus up to 64/0.22 = 291 ticks across the four-chunk preparation window
+at this fixture's walking speed, totals 672; 800 provides a bounded margin without
+claiming a universal loading guarantee. The revised SAME player-ticket fixture
+records first complete neighborhood and candidate/oldest retained identity ages.
+It now requires COMMITTED on unmodified natural terrain, not merely a recorded
+refusal. This provisional ceiling must be reviewed against those exact-source
+measurements before activation is called qualified. No new server/profile is added.
