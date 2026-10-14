@@ -9,9 +9,10 @@ final class NetherNaturalAdmission {
     private NetherNaturalAdmission() { }
 
     record Report(NetherPlacementCoordinator.Result result, String plannerStatus, int worldReads,
-                  int connectedColumns, int plannedWrites, java.util.List<BlockPos> committedShoreMarkers) {
+                  int connectedColumns, int plannedWrites, java.util.List<BlockPos> committedShoreMarkers,
+                  int oldestWritePreparationAge) {
         Report(NetherPlacementCoordinator.Result result,String plannerStatus,int worldReads,int connectedColumns,int plannedWrites) {
-            this(result,plannerStatus,worldReads,connectedColumns,plannedWrites,java.util.List.of());
+            this(result,plannerStatus,worldReads,connectedColumns,plannedWrites,java.util.List.of(),-1);
         }
         Report { committedShoreMarkers=java.util.List.copyOf(committedShoreMarkers); }
     }
@@ -49,6 +50,9 @@ final class NetherNaturalAdmission {
                             ? NetherPlacementCoordinator.Result.BUDGET : NetherPlacementCoordinator.Result.PLAN_REJECTED;
                 } else {
                     // Acquisition and placement share the same server turn and global budget.
+                    int oldestWriteAge = outcome.plan().writes().keySet().stream()
+                            .mapToInt(pos -> NetherPlacementRuntime.coordinator(level).preparationAge(
+                                    new ChunkPos(pos).toLong(), host.tick())).max().orElse(-1);
                     var placed = NetherPlacementRuntime.commitPrepared(level, outcome.plan(), admission);
                     // Read-only evidence from the actual committed plan; no additional terrain scan or write.
                     var markers=placed==NetherPlacementCoordinator.Result.COMMITTED
@@ -56,7 +60,7 @@ final class NetherNaturalAdmission {
                                 .filter(entry->entry.getValue().is(net.minecraft.world.level.block.Blocks.BLACKSTONE))
                                 .map(entry->entry.getKey().immutable()).toList()
                             : java.util.List.<BlockPos>of();
-                    return new Report(placed, plannerStatus, capture.reads, connectedColumns, outcome.plan().writes().size(),markers);
+                    return new Report(placed, plannerStatus, capture.reads, connectedColumns, outcome.plan().writes().size(),markers,oldestWriteAge);
                 }
             }
         } catch (NetherSnapshotDiagnostic.Aborted failure) {

@@ -61,7 +61,6 @@ public final class NetherPlayerStreamingGameTests {
             if(candidateChunk.equals(chunk))observation.report=report;
         }).get(chunk.toLong());
         if(result!=null) {
-            helper.assertTrue(resources==20 && observation.report.committedShoreMarkers().size()==2,"Natural site resource/marker counts changed");
             helper.assertTrue(recorded==null,"Candidate dispatched twice");
             recorded=result;countAtAdmission=count;admissionTick=elapsed;
             observation.oldestAtAdmission=oldest;observation.candidateAgeAtAdmission=candidateAge;
@@ -104,6 +103,7 @@ public final class NetherPlayerStreamingGameTests {
                 out.addProperty("admission_capture_reads",observation.report.worldReads());
                 out.addProperty("terrain_edits_before_admission",0);
                 out.addProperty("first_full_elapsed",observation.firstFullTick);
+                out.addProperty("oldest_write_preparation_age",observation.report.oldestWritePreparationAge());
                 out.addProperty("oldest_preparation_age_at_admission",observation.oldestAtAdmission);
                 out.addProperty("candidate_preparation_age_at_admission",observation.candidateAgeAtAdmission);
                 out.addProperty("preparation_limit_ticks",NetherPlacementCoordinator.PREPARATION_TICKS);

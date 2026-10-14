@@ -31,6 +31,25 @@ final class NetherWorldActivationTest {
             assertEquals(value,Files.readString(marker));
         }
     }
+    @Test void boundOldSaveCannotSelectPackEvenWithInitModeOrEditedPackList() throws Exception {
+        Files.writeString(root.resolve("level.dat"),"old save");
+        String previous=System.getProperty("ioe.depth32Prototype");
+        try {
+            System.setProperty("ioe.depth32Prototype","true");
+            var repository=new net.minecraft.server.packs.repository.PackRepository();
+            NetherWorldActivation.bind(repository,root);
+            NetherWorldActivation.beforeRegistries(repository,net.minecraft.world.level.WorldDataConfiguration.DEFAULT,true,false);
+            assertTrue(repository.getAvailableIds().isEmpty());
+            assertFalse(Files.exists(root.resolve(NetherWorldActivation.MANIFEST)));
+            var selected=new net.minecraft.world.level.WorldDataConfiguration(
+                    new net.minecraft.world.level.DataPackConfig(java.util.List.of(NetherWorldActivation.PACK_ID),java.util.List.of()),
+                    net.minecraft.world.flag.FeatureFlags.DEFAULT_FLAGS);
+            assertThrows(IllegalStateException.class,()->NetherWorldActivation.beforeRegistries(repository,selected,true,false));
+            assertThrows(IllegalStateException.class,()->NetherWorldActivation.beforeRegistries(repository,selected,false,false));
+        } finally {
+            if(previous==null)System.clearProperty("ioe.depth32Prototype");else System.setProperty("ioe.depth32Prototype",previous);
+        }
+    }
     @Test void twoNewWorldsNeverShareAnIdentity() throws Exception {
         var other=Files.createDirectory(root.resolve("other"));
         assertNotEquals(NetherWorldActivation.selectIdentity(root).id(),NetherWorldActivation.selectIdentity(other).id());
