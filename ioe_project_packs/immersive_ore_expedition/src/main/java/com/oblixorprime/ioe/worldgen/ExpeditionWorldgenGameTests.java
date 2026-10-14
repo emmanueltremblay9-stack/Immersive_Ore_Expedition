@@ -1,5 +1,8 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.budding.BuddingSitePlan;
+import com.oblixorprime.ioe.budding.BuddingRank;
+import com.oblixorprime.ioe.budding.IronBuddingBlock;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -1227,6 +1230,23 @@ public final class ExpeditionWorldgenGameTests {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void minerCampDryProductionPath(GameTestHelper helper) {
+        proveDryProductionPath(helper, DRY_SEED, false);
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void drySeedRewardCommitsOnceThroughProduction(GameTestHelper helper) {
+        long seed = 0;
+        while (true) {
+            RandomSource random = RandomSource.create(seed);
+            SiteQuality quality = SiteQualityRoll.DEFAULT.roll(random);
+            long planSeed = random.nextLong();
+            if (com.oblixorprime.ioe.budding.DrySiteReward.roll(quality, RandomSource.create(planSeed ^ 0x53454544L))) break;
+            seed++;
+        }
+        proveDryProductionPath(helper, seed, true);
+    }
+
+    private static void proveDryProductionPath(GameTestHelper helper, long seed, boolean assertReward) {
         ServerLevel level = helper.getLevel();
         ExpeditionLocatorService.index(level).clear();
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(64, 24, 64)));
@@ -1237,7 +1257,7 @@ public final class ExpeditionWorldgenGameTests {
                 Optional.empty(),
                 level,
                 level.getChunkSource().getGenerator(),
-                RandomSource.create(DRY_SEED),
+                RandomSource.create(seed),
                 requestedOrigin,
                 NoneFeatureConfiguration.INSTANCE
         );
@@ -1268,15 +1288,134 @@ public final class ExpeditionWorldgenGameTests {
                         .anyMatch(site -> site.pos().equals(requestedOrigin)
                                 && site.quality().filter(quality -> quality == SiteQuality.DRY).isPresent()),
                 "The locator did not retain the final Dry quality");
-        helper.assertFalse(containsAnyProductiveResourceBlock(
-                        level,
-                        testChunk,
-                        requestedOrigin,
-                        ExpeditionSiteType.MINER_CAMP
-                ),
-                "The Dry production path placed a productive resource block");
+        RandomSource dryRandom = RandomSource.create(seed);
+        SiteQualityRoll.DEFAULT.roll(dryRandom);
+        int expectedResidues = com.oblixorprime.ioe.budding.DryPocketRoll.forSite(dryRandom.nextLong());
+        int residues = 0;
+        var ironResidue = BuiltInRegistries.BLOCK.getOptional(ResourceLocation.parse("geore:iron_block")).orElseThrow();
+        for (BlockPos pos : BlockPos.betweenClosed(testChunk.getMinBlockX(), 0, testChunk.getMinBlockZ(),
+                testChunk.getMaxBlockX(), 47, testChunk.getMaxBlockZ())) {
+            if (level.getBlockState(pos).is(ironResidue)) residues++;
+            helper.assertFalse(level.getBlockState(pos).getBlock() instanceof com.oblixorprime.ioe.budding.GeOreBuddingBlock,
+                    "DRY production must never create an active node");
+        }
+        helper.assertTrue(residues == expectedResidues, "DRY production changed its single deterministic residual draw");
         assertSealedSurfaceHatch(helper, level, requestedOrigin, ExpeditionSiteType.MINER_CAMP);
+        if (assertReward) {
+            var neutralSeed = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse("ae2cs:resonating_seed")).orElseThrow();
+            java.util.function.IntSupplier count = () -> {
+                int total = 0;
+                for (BlockPos pos : BlockPos.betweenClosed(testChunk.getMinBlockX(), 0, testChunk.getMinBlockZ(),
+                        testChunk.getMaxBlockX(), 47, testChunk.getMaxBlockZ())) {
+                    if (level.getBlockEntity(pos) instanceof net.minecraft.world.Container container) {
+                        for (int slot = 0; slot < container.getContainerSize(); slot++) {
+                            var item = container.getItem(slot);
+                            if (item.is(neutralSeed)) total += item.getCount();
+                        }
+                    }
+                }
+                return total;
+            };
+            helper.assertTrue(count.getAsInt() == 1, "Winning DRY site must contain exactly one neutral seed");
+            helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level, testChunk).confirmedSites() == 0,
+                    "A confirmed DRY site must not commit twice");
+            helper.assertTrue(count.getAsInt() == 1, "Reconfirmation or reopening duplicated the neutral seed");
+        }
         helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 300)
+    public static void ironProductionFeatureConfirmsCanonicalNodes(GameTestHelper helper) {
+        if (!ModList.get().isLoaded("immersiveengineering")) {
+            helper.succeed();
+            return;
+        }
+        ServerLevel level = helper.getLevel();
+        ExpeditionLocatorService.index(level).clear();
+        ChunkPos chunk = new ChunkPos(helper.absolutePos(new BlockPos(64, 24, 64)));
+        BlockPos origin = new BlockPos(chunk.getMinBlockX() + 4, 41, chunk.getMinBlockZ() + 6);
+        fillTestChunk(level, chunk);
+        long seed = 0;
+        while (SiteQualityRoll.DEFAULT.roll(RandomSource.create(seed)) != SiteQuality.NORMAL) seed++;
+        BiomeMineResourceProfile profile = testIronProfile(level);
+        boolean staged = new ExpeditionSiteFeature(ExpeditionSiteType.MINER_CAMP,
+                (ignoredLevel, ignoredPos) -> new BiomeMineResourceProfile.Resolution(
+                        Optional.of(profile), BiomeMineResourceProfile.Failure.NONE)).place(
+                new FeaturePlaceContext<>(Optional.empty(), level, level.getChunkSource().getGenerator(),
+                        RandomSource.create(seed), origin, NoneFeatureConfiguration.INSTANCE));
+        helper.assertTrue(staged, "Iron Feature.place did not stage its plan");
+        helper.assertTrue(countIronHearts(level, chunk) == 0, "Iron hearts leaked before confirmation");
+        var confirmation = IoePendingExpeditionSites.confirmLoadedChunk(level, chunk);
+        helper.assertTrue(confirmation.confirmedSites() == 1, "Iron production transaction was not confirmed");
+        SiteQuality quality = ExpeditionLocatorService.index(level).sites().stream()
+                .filter(site -> site.pos().equals(origin)).findFirst().orElseThrow().quality().orElseThrow();
+        BuddingSitePlan expected = BuddingSitePlan.forQuality(quality, RandomSource.create(0), 0);
+        helper.assertTrue(countIronHearts(level, chunk) == expected.nodeRanks().size(),
+                "Confirmed Iron production nodes differ from the final locator quality");
+        var committed = ExpeditionLocatorService.index(level).sites().stream()
+                .filter(site -> site.pos().equals(origin)).findFirst().orElseThrow();
+        helper.assertTrue(committed.buddingNodes().size() == expected.nodeRanks().size()
+                        && committed.buddingNodes().stream().allMatch(node -> node.initialOre() == expected.oreBlocksPerNode()),
+                "Production commit did not retain the actual node metadata");
+        helper.succeed();
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 400)
+    public static void everyGeOreProfileCommitsItsOwnFamilyAndDryBudget(GameTestHelper helper) {
+        var level = helper.getLevel();
+        long productiveSeed = 0;
+        while (SiteQualityRoll.DEFAULT.roll(RandomSource.create(productiveSeed)) != SiteQuality.NORMAL) productiveSeed++;
+        for (var family : com.oblixorprime.ioe.budding.BuddingResourceFamily.values()) {
+            if (family.kind() != com.oblixorprime.ioe.budding.BuddingResourceFamily.Kind.GEORE) continue;
+            for (boolean dry : new boolean[]{false, true}) {
+                ExpeditionLocatorService.index(level).clear();
+                ChunkPos chunk = new ChunkPos(helper.absolutePos(new BlockPos(128 + family.ordinal() * 128, 24, dry ? 256 : 128)));
+                BlockPos origin = new BlockPos(chunk.getMinBlockX() + 4, 41, chunk.getMinBlockZ() + 6);
+                fillTestChunk(level, chunk);
+                var definitionId = ResourceLocation.fromNamespaceAndPath(ImmersiveOreExpeditionMod.MODID, family.key());
+                var definition = level.registryAccess().registryOrThrow(BiomeMineResourceDefinition.REGISTRY_KEY)
+                        .getOptional(definitionId).orElseThrow();
+                var profile = new BiomeMineResourceProfile(ResourceLocation.parse("minecraft:plains"), definitionId, definition, 1);
+                long seed = dry ? DRY_SEED : productiveSeed;
+                boolean staged = new ExpeditionSiteFeature(ExpeditionSiteType.MINER_CAMP,
+                        (ignoredLevel, ignoredPos) -> new BiomeMineResourceProfile.Resolution(Optional.of(profile),
+                                BiomeMineResourceProfile.Failure.NONE)).place(new FeaturePlaceContext<>(Optional.empty(), level,
+                        level.getChunkSource().getGenerator(), RandomSource.create(seed), origin, NoneFeatureConfiguration.INSTANCE));
+                boolean expected = dry || ModList.get().isLoaded("immersiveengineering")
+                        && com.oblixorprime.ioe.budding.IoeGeOreBuddingBlocks.available(family);
+                helper.assertTrue(staged == expected, "Unexpected family activation: " + family + " dry=" + dry);
+                if (!expected) continue;
+                helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level, chunk).confirmedSites() == 1,
+                        "Family transaction failed: " + family + " dry=" + dry);
+                var committed = ExpeditionLocatorService.index(level).sites().stream().filter(site -> site.pos().equals(origin))
+                        .findFirst().orElseThrow();
+                var random = RandomSource.create(seed);
+                SiteQualityRoll.DEFAULT.roll(random);
+                int expectedOre = dry ? com.oblixorprime.ioe.budding.DryPocketRoll.forSite(random.nextLong())
+                        : BuddingSitePlan.forQuality(committed.quality().orElseThrow(), RandomSource.create(0), 0).totalOreBlocks();
+                long count = 0;
+                var ore = BuiltInRegistries.BLOCK.getOptional(family.pocketBlockId()).orElseThrow();
+                for (BlockPos pos : BlockPos.betweenClosed(chunk.getMinBlockX(), 0, chunk.getMinBlockZ(),
+                        chunk.getMaxBlockX(), 47, chunk.getMaxBlockZ())) if (level.getBlockState(pos).is(ore)) count++;
+                helper.assertTrue(count == expectedOre, "Production residual/node ore count changed: " + family);
+                helper.assertTrue(dry ? committed.buddingNodes().isEmpty()
+                                : !committed.buddingNodes().isEmpty() && committed.buddingNodes().stream()
+                                        .allMatch(node -> node.family().equals(family.identity())),
+                        "Wrong committed family identity: " + family);
+                helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level, chunk).confirmedSites() == 0,
+                        "Reconfirmation duplicated a family site");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static long countIronHearts(ServerLevel level, ChunkPos chunk) {
+        long count = 0;
+        for (BlockPos pos : BlockPos.betweenClosed(chunk.getMinBlockX(), 0, chunk.getMinBlockZ(),
+                chunk.getMaxBlockX(), 47, chunk.getMaxBlockZ())) {
+            if (level.getBlockState(pos).getBlock() instanceof IronBuddingBlock) count++;
+        }
+        return count;
     }
 
     @GameTest(template = TEMPLATE, timeoutTicks = 300)
@@ -1407,6 +1546,24 @@ public final class ExpeditionWorldgenGameTests {
 
     @GameTest(template = TEMPLATE, timeoutTicks = 200)
     public static void ieCommitFailuresRunFullChainBeforeLocator(GameTestHelper helper) {
+        proveCommitFallbackChain(helper, false);
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void ironCommitFailuresRemoveFlawlessBeforeLocator(GameTestHelper helper) {
+        proveCommitFallbackChain(helper, true);
+    }
+
+    @GameTest(template = TEMPLATE, timeoutTicks = 200)
+    public static void certusCommitFailuresRemoveFlawlessBeforeLocator(GameTestHelper helper) {
+        proveCommitFallbackChain(helper, false, true);
+    }
+
+    private static void proveCommitFallbackChain(GameTestHelper helper, boolean iron) {
+        proveCommitFallbackChain(helper, iron, false);
+    }
+
+    private static void proveCommitFallbackChain(GameTestHelper helper, boolean iron, boolean certus) {
         if (!ModList.get().isLoaded("immersiveengineering")) {
             helper.succeed();
             return;
@@ -1416,30 +1573,45 @@ public final class ExpeditionWorldgenGameTests {
         BlockPos origin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
         BiomeMineResourceProfile profile = testIronProfile(level);
-        ExpeditionSiteBlockPlan motherPlan = structureOnlyPlan(
-                ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
-                origin,
-                SiteQuality.MOTHERLODE,
-                83L
-        );
-        ExpeditionSiteBlockPlan richPlan = structureOnlyPlan(
-                ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
-                origin,
-                SiteQuality.RICH,
-                89L
-        );
-        ExpeditionSiteBlockPlan normalPlan = structureOnlyPlan(
-                ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
-                origin,
-                SiteQuality.NORMAL,
-                97L
-        );
-        ExpeditionSiteBlockPlan poorPlan = structureOnlyPlan(
-                ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
-                origin,
-                SiteQuality.POOR,
-                101L
-        );
+        if (certus) {
+            var id = ResourceLocation.parse("immersive_ore_expedition:certus");
+            var definition = level.registryAccess().registryOrThrow(BiomeMineResourceDefinition.REGISTRY_KEY).getOptional(id).orElseThrow();
+            profile = new BiomeMineResourceProfile(ResourceLocation.parse("minecraft:plains"), id, definition, 1);
+        }
+        BuddingSitePlan motherBudget;
+        long seed = 0;
+        do {
+            motherBudget = BuddingSitePlan.forQuality(
+                    SiteQuality.MOTHERLODE, RandomSource.create(seed++), 0);
+        } while (!motherBudget.nodeRanks().contains(BuddingRank.FLAWLESS));
+        ExpeditionSiteBlockPlan motherPlan = certus
+                ? CertusBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget, 83L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.MOTHERLODE))
+                : iron
+                ? IronBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget, 83L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.MOTHERLODE))
+                : structureOnlyPlan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin, SiteQuality.MOTHERLODE, 83L);
+        ExpeditionSiteBlockPlan richPlan = certus
+                ? CertusBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget.downgradeTo(SiteQuality.RICH, 0), 89L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.RICH))
+                : iron
+                ? IronBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget.downgradeTo(SiteQuality.RICH, 0), 89L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.RICH))
+                : structureOnlyPlan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin, SiteQuality.RICH, 89L);
+        ExpeditionSiteBlockPlan normalPlan = certus
+                ? CertusBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget.downgradeTo(SiteQuality.NORMAL, 0), 97L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.NORMAL))
+                : iron
+                ? IronBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget.downgradeTo(SiteQuality.NORMAL, 0), 97L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.NORMAL))
+                : structureOnlyPlan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin, SiteQuality.NORMAL, 97L);
+        ExpeditionSiteBlockPlan poorPlan = certus
+                ? CertusBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget.downgradeTo(SiteQuality.POOR, 0), 101L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.POOR))
+                : iron
+                ? IronBuddingSitePlans.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin,
+                        motherBudget.downgradeTo(SiteQuality.POOR, 0), 101L, ProspectorCampContext.vanillaFallback(origin, SiteQuality.POOR))
+                : structureOnlyPlan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE, origin, SiteQuality.POOR, 101L);
         AtomicInteger commits = new AtomicInteger();
         AtomicInteger rollbacks = new AtomicInteger();
         AtomicInteger fallbackCommits = new AtomicInteger();
@@ -1521,6 +1693,19 @@ public final class ExpeditionWorldgenGameTests {
                         .allMatch(entry -> level.getBlockState(entry.getKey()).getBlock()
                                 == entry.getValue().getBlock()),
                 "The final world blocks do not match the Direct pipeline");
+        if (iron || certus) {
+            helper.assertTrue(motherPlan.blocks().keySet().stream().noneMatch(pos ->
+                            com.oblixorprime.ioe.budding.BuddingBlockIdentity.of(level.getBlockState(pos).getBlock())
+                                    .map(block -> block.rank() == BuddingRank.FLAWLESS).orElse(false)),
+                    "Failed Motherlode left a Flawless block after transactional fallback");
+        }
+        if (iron || certus) {
+            var indexed = ExpeditionLocatorService.index(level).sites().stream()
+                    .filter(site -> site.pos().equals(origin)).findFirst().orElseThrow();
+            helper.assertTrue(indexed.buddingNodes().size() == 3
+                    && indexed.buddingNodes().stream().allMatch(node -> node.count() == 3 && node.initialOre() == 4),
+                    "Fallback published stale Motherlode node metadata");
+        }
         helper.assertTrue(ExpeditionLocatorService.index(level).sites().stream()
                         .anyMatch(site -> site.pos().equals(origin)
                                 && site.quality().filter(quality -> quality == SiteQuality.POOR).isPresent()),
@@ -1636,9 +1821,8 @@ public final class ExpeditionWorldgenGameTests {
 
     private static void proveFeaturePlacement(GameTestHelper helper, ExpeditionSiteType type) {
         ServerLevel level = helper.getLevel();
-        if (type == ExpeditionSiteType.MINER_CAMP) {
-            ExpeditionLocatorService.index(level).clear();
-        }
+        // Template origins can share a chunk: each feature assertion needs a clean locator as well as terrain.
+        ExpeditionLocatorService.index(level).clear();
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
         BlockPos origin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
@@ -1655,9 +1839,7 @@ public final class ExpeditionWorldgenGameTests {
 
         if (type.naturalSurfaceSite()) {
             RandomSource expectationRandom = RandomSource.create(PRODUCTIVE_SEED);
-            SiteQuality expectedQuality = (type == ExpeditionSiteType.MINER_CAMP
-                    ? SiteQualityRoll.DEFAULT
-                    : new SiteQualityRoll(0, 25, 45, 17, 3)).roll(expectationRandom);
+            SiteQuality expectedQuality = SiteQualityRoll.DEFAULT.roll(expectationRandom);
             ExpeditionSiteBlockPlan preview = structureOnlyPlan(
                     type,
                     origin,
@@ -1710,8 +1892,13 @@ public final class ExpeditionWorldgenGameTests {
         if (type.naturalSurfaceSite()) {
             helper.assertTrue(containsBlock(level, testChunk, Blocks.LADDER),
                     type.id() + " did not place a connected mineshaft ladder");
-            helper.assertFalse(containsAnyProductiveResourceBlock(level, testChunk, origin, type),
-                    type.id() + " placed a forbidden free ore node or artificial geode");
+            boolean canonicalProfile = BiomeMineResourceProfile.resolve(level, origin).profile()
+                    .flatMap(profile -> com.oblixorprime.ioe.budding.BuddingResourceFamily.fromGeOreMaterial(profile.profileName()))
+                    .map(com.oblixorprime.ioe.budding.IoeGeOreBuddingBlocks::available).orElse(false);
+            if (!canonicalProfile) {
+                helper.assertFalse(containsAnyProductiveResourceBlock(level, testChunk, origin, type),
+                        type.id() + " placed resources from an unsupported canonical family");
+            }
             if (type == ExpeditionSiteType.MINER_CAMP || type == ExpeditionSiteType.BURIED_SURVEY_MARKER) {
                 assertSealedSurfaceHatch(helper, level, origin, type);
             }
@@ -1768,11 +1955,31 @@ public final class ExpeditionWorldgenGameTests {
         helper.succeed();
     }
 
-    private static void fillTestChunk(ServerLevel level, ChunkPos chunk) {
+    @GameTest(template = TEMPLATE, timeoutTicks = 100)
+    public static void featureFixtureClearsPriorSurfaceAndUndergroundWrites(GameTestHelper helper) {
+        var level = helper.getLevel();
+        ChunkPos chunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
+        for (int y : new int[]{2, 41, 55}) {
+            level.setBlock(new BlockPos(chunk.getMinBlockX() + 4, y, chunk.getMinBlockZ() + 6),
+                    Blocks.LADDER.defaultBlockState(), 2);
+        }
+        fillTestChunk(level, chunk);
+        for (int y : new int[]{2, 41, 55}) {
+            helper.assertTrue(level.getBlockState(new BlockPos(chunk.getMinBlockX() + 4, y, chunk.getMinBlockZ() + 6)).isAir(),
+                    "Previous fixture write survived outside the platform");
+        }
+        helper.assertTrue(level.getBlockState(new BlockPos(chunk.getMinBlockX() + 4, 40, chunk.getMinBlockZ() + 6)).is(Blocks.STONE),
+                "Fixture did not retain its controlled platform");
+        helper.succeed();
+    }
+
+    static void fillTestChunk(ServerLevel level, ChunkPos chunk) {
         for (int x = chunk.getMinBlockX(); x <= chunk.getMaxBlockX(); x++) {
-            for (int y = 4; y <= 40; y++) {
+            for (int y = 0; y <= 63; y++) {
                 for (int z = chunk.getMinBlockZ(); z <= chunk.getMaxBlockZ(); z++) {
-                    level.setBlock(new BlockPos(x, y, z), Blocks.STONE.defaultBlockState(), 2);
+                    // Clear previous surface structures too; assertions inspect above the Y=40 platform.
+                    level.setBlock(new BlockPos(x, y, z),
+                            (y >= 4 && y <= 40 ? Blocks.STONE : Blocks.AIR).defaultBlockState(), 2);
                 }
             }
         }

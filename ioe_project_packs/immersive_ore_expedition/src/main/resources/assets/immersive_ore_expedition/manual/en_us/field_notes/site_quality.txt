@@ -1,0 +1,13 @@
+Site Quality and Resource Frequency
+Two different questions
+"The ground owes us nothing. The best engineer learns to recognize when there is nothing worth taking."
+<br><br>
+IOE uses five site qualities: DRY, POOR, NORMAL, RICH and MOTHERLODE. They describe the resource allocation of a particular site, not how often that resource occurs across the world.
+<br><br>
+A DRY site has no active IOE Budding nodes. Residual material depends on the resource's own rules; it is not a guaranteed reward. Productive Budding sites receive increasing node and surrounding-material budgets from POOR through MOTHERLODE. Not every resource uses Budding nodes.
+<br><br>
+A rare resource can occur in a Motherlode. That does not make the resource common. Biome selection, terrain suitability and successful placement determine which sites exist; the quality roll is a separate step and is not a per-chunk discovery probability.
+<br><br>
+A Budding block's rank describes that individual growth block. It must not be confused with the quality assigned to the whole site.
+<br><br>
+The visible size of an entrance or clue is not a quality measurement. These general classifications do not reveal the quality of an unexamined site.

@@ -1,6 +1,6 @@
 package com.oblixorprime.ioe.expeditionlocator;
 
-import com.oblixorprime.ioe.core.SiteQuality;
+import com.oblixorprime.ioe.budding.BuddingBlockIdentity;
 import com.oblixorprime.ioe.worldgen.IoeWorldgenFeatureKeys;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -29,7 +29,6 @@ public final class ExpeditionLocatorReindexer {
             (long) SITE_DEDUPLICATION_RADIUS_BLOCKS * SITE_DEDUPLICATION_RADIUS_BLOCKS;
     private static final int SIGNATURE_HORIZONTAL_RADIUS = 12;
     private static final int SIGNATURE_VERTICAL_RADIUS = 8;
-    private static final String SOURCE = "bounded_admin_reindex_mine_signature";
 
     private ExpeditionLocatorReindexer() {
     }
@@ -107,8 +106,8 @@ public final class ExpeditionLocatorReindexer {
                                         recoveredEntry.pos(),
                                         recoveredEntry.anchorId(),
                                         null,
-                                        SiteQuality.NORMAL,
-                                        SOURCE,
+                                        null,
+                                        ExpeditionSite.RECOVERED_MINE_SOURCE,
                                         ExpeditionSitePlacementState.PROVEN,
                                         null
                                 ));
@@ -145,6 +144,8 @@ public final class ExpeditionLocatorReindexer {
     }
 
     private static boolean isGrowthSource(BlockState state) {
+        if (BuddingBlockIdentity.isCanonical(state.getBlock())) return true;
+        // Preserve recovery of legacy sites; this does not authorize new Entro budding generation.
         ResourceLocation id = BuiltInRegistries.BLOCK.getKey(state.getBlock());
         String namespace = id.getNamespace();
         String path = id.getPath();

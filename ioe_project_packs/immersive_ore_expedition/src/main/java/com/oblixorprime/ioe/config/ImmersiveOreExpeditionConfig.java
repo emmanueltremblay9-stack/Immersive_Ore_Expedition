@@ -296,7 +296,7 @@ public final class ImmersiveOreExpeditionConfig {
             .comment("Keep false to prevent random geodes in ordinary netherrack.")
             .define("netherGeodes.subLavaGeodes.allowRandomNetherGeodes", DEFAULT_ALLOW_RANDOM_NETHER_GEODES);
     private static final ModConfigSpec.IntValue NETHER_LAVA_SAMPLE_RADIUS = BUILDER
-            .comment("Minimum radius represented by lava lake sample reports.")
+            .comment("Legacy scalar sample radius only; does not configure the canonical exact 74x74 Nether lake window.")
             .defineInRange("netherGeodes.lavaLakeAnchor.lavaSampleRadius", DEFAULT_LAVA_SAMPLE_RADIUS, 1, 512);
     private static final ModConfigSpec.DoubleValue NETHER_MINIMUM_LAVA_COVERAGE = BUILDER
             .comment("Minimum lava coverage ratio needed to treat a sample as a giant lake.")

@@ -1,0 +1,23 @@
+{
+  "immersive_ore_expedition:field_notes": {
+    "entry_list": [
+      "immersive_ore_expedition:field_notes/expedition_principles",
+      "immersive_ore_expedition:field_notes/site_quality",
+      "immersive_ore_expedition:field_notes/formations_and_reserves"
+    ]
+  },
+  "immersive_ore_expedition:surface_evidence": {
+    "entry_list": [
+      "immersive_ore_expedition:surface_evidence/tiny_vertical_mine_entrance",
+      "immersive_ore_expedition:surface_evidence/collapsed_shaft",
+      "immersive_ore_expedition:surface_evidence/miner_camp",
+      "immersive_ore_expedition:surface_evidence/buried_survey_marker"
+    ]
+  },
+  "immersive_ore_expedition:underground_expeditions": {
+    "entry_list": [
+      "immersive_ore_expedition:underground_expeditions/mineshaft_connector",
+      "immersive_ore_expedition:underground_expeditions/ore_load_chamber"
+    ]
+  }
+}

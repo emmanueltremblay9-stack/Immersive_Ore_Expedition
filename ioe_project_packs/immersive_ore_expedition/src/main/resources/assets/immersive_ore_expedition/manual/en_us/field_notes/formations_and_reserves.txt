@@ -1,0 +1,13 @@
+Physical Formations and IE Reserves
+Two distinct resources at a site
+"We do not conquer the underground by removing everything we find. We learn its structure, understand its resources, and take what our machines can use."
+<br><br>
+Physical formations are blocks in the world. Where supported, they include surrounding mineral material and Budding growth blocks. Extracting a block and preserving a productive growth block are different choices; native crystal growth and processing remain owned by their respective mods.
+<br><br>
+An Immersive Engineering mineral reserve is different. It is a finite industrial deposit recorded separately from the visible terrain. It is not a chamber filled with a matching quantity of ore blocks.
+<br><br>
+IE's Core Sample Drill provides prospecting information. Its Excavator performs industrial extraction, with composition and depletion governed by the actual mineral reserve. Use the native IE manual entries for those machines.
+<br><br>
+A physical formation and an IE reserve can coexist at an IOE site. Counting visible nodes does not measure the industrial reserve, and mining those blocks is not the same operation as excavating the reserve.
+<br><br>
+Identify which system your evidence describes before planning extraction. A surface clue alone does not establish a valuable reserve or its remaining quantity.

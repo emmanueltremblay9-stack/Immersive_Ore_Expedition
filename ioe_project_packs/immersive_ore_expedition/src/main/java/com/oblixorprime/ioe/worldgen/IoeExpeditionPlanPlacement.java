@@ -30,6 +30,12 @@ final class IoeExpeditionPlanPlacement {
         Objects.requireNonNull(level, "level");
         Objects.requireNonNull(plan, "plan");
         try {
+            // Staging does not freeze native structure metadata. Recheck the existing camp policy for
+            // every application, including lower-tier fallbacks, before reading/writing terrain.
+            if (plan.requestedFeatureId().equals(IoeWorldgenFeatureKeys.MINER_CAMP)
+                    && ExpeditionSiteFeature.collidesWithStructure(level, plan)) {
+                return Optional.empty();
+            }
             for (BlockPos pos : plan.blocks().keySet()) {
                 if (!canWrite(level, pos)) {
                     return Optional.empty();
@@ -149,6 +155,15 @@ final class IoeExpeditionPlanPlacement {
                     BlockState current = level.getBlockState(pos);
                     if (current.equals(previous.getValue()) || !current.equals(target)) {
                         continue;
+                    }
+                    ExpeditionBlockEntityPayload payload = plan.blockEntityPayloads().get(pos);
+                    if (payload != null && payload.hasLootTable()
+                            && level.getBlockEntity(pos) instanceof RandomizableContainerBlockEntity container) {
+                        // Removing a chest normally unpacks and drops its loot. This container belongs to
+                        // the uncommitted plan (pre-existing block entities are rejected by canWrite).
+                        container.setLootTable(null);
+                        container.clearContent();
+                        container.setChanged();
                     }
                     boolean changed = level.setBlock(pos, previous.getValue(), BLOCK_UPDATE_FLAGS);
                     if (!changed && !level.getBlockState(pos).equals(previous.getValue())) {

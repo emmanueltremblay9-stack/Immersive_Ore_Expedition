@@ -68,6 +68,19 @@ Un seul tirage à `7,77 %` est effectué pour le site :
 
 Le Flawless remplace un Flawed ; il ne crée pas un huitième node. Un fallback de `MOTHERLODE` vers une qualité inférieure doit supprimer toute sélection Flawless.
 
+### Application non rétroactive aux météorites AE2 — décision du 2026-10-09, 04:26 UTC
+
+Les Flawless natifs non autorisés sont remplacés par des Flawed natifs uniquement
+dans les nouveaux chunks. Les météorites restent générées par AE2. Aucun retrogen
+ni changement des blocs des chunks déjà générés n'est effectué : les anciens
+Flawless peuvent donc subsister hors Motherlode. Les nouveaux cœurs IOE autorisés
+restent protégés par leur transaction de placement.
+
+Les nodes Certus productifs utilisent `ae2:quartz_block` autour des cœurs, aux
+quantités 4/5/6/7. Le DRY Certus contient 0–5 blocs de ce même matériau ; le DRY
+Entro est une exception sans résidu physique. La seed neutre indépendante de 10 %
+est conservée pour les deux profils. Entro reste réservé à l'extraction IE.
+
 ## 4. Mécanique AE2 reproduite par les variantes GeOre
 
 Les variantes GeOre fournies par IOE reproduisent la mécanique réelle des Budding de la version AE2 chargée. IOE ne doit pas en créer une approximation fondée sur une ancienne documentation.
@@ -87,7 +100,7 @@ DAMAGED
 bloc minéral de stockage correspondant
 ```
 
-Lorsqu'un Budding non Flawless déclenche la condition native de dégradation pendant la croissance, il descend exactement d'un rang. Le Budding `DAMAGED` devient le bloc minéral de stockage de sa famille lorsqu'il est épuisé.
+Lorsqu'un Budding non Flawless déclenche la condition native de dégradation pendant la croissance, il descend exactement d'un rang. Le Budding `DAMAGED` devient le bloc minéral de stockage de sa famille lorsqu'il est épuisé. Décision utilisateur confirmée le 2026-10-09 : stockage ordinaire Minecraft pour coal, copper, diamond, emerald, gold, iron, lapis et redstone ; `immersiveengineering:storage_<matériau>` pour aluminum, lead, nickel, silver et uranium. IE reste optionnel : ses cinq familles nécessitent sa présence et leurs blocs exacts, sans remplacement silencieux.
 
 Exemple Iron :
 
@@ -123,6 +136,8 @@ Un site `DRY` contient :
 0 à 5 blocs de minerai résiduel
 10 % de chance de contenir 1 ae2cs:resonating_seed
 ```
+
+Décision utilisateur confirmée le 2026-10-09 : la quantité résiduelle est un entier uniforme de 0 à 5 inclus, tiré une seule fois de manière déterministe pour toute la poche. Ce tirage est indépendant de celui de la seed à 10 %. Il ne crée aucun node actif.
 
 La Resonating Seed reste neutre et ne contient aucune identité minérale. Avec un poids `DRY` de 10 %, la probabilité brute combinée est `10 % × 10 % = 1 %` avant les autres rejets du worldgen.
 
