@@ -23,7 +23,7 @@ final class BuddingWearRuntimeChecks {
             Block heart = IoeGeOreBuddingBlocks.block(family, rank);
             Block nativeHeart = BuddingResourceFamily.ENTROIZED_FLUIX.observedNativeBuddingId(rank)
                     .flatMap(BuiltInRegistries.BLOCK::getOptional).orElse(null);
-            for (Direction direction : Direction.values()) for (int stage = 0; stage < 8; stage++) {
+            for (Direction direction : Direction.values()) for (int stage = 0; stage < 9; stage++) {
                 for (int growth : new int[]{0, 1}) for (int decay : new int[]{0, 1}) {
                     level.setBlockAndUpdate(pos, heart.defaultBlockState());
                     for (Direction face : Direction.values()) level.setBlockAndUpdate(pos.relative(face), Blocks.STONE.defaultBlockState());
@@ -31,7 +31,7 @@ final class BuddingWearRuntimeChecks {
                     level.setBlockAndUpdate(pos.relative(direction), before);
                     var random = new Draws(growth, direction.ordinal(), decay);
                     heart.defaultBlockState().randomTick(level, pos, random);
-                    boolean grows = growth == 0 && (stage < 4 || stage == 6);
+                    boolean grows = growth == 0 && (stage < 4 || stage == 6 || stage == 8);
                     List<Integer> bounds = growth != 0 ? List.of(3)
                             : grows && rank != BuddingRank.FLAWLESS ? List.of(3, 6, 10) : List.of(3, 6);
                     helper.assertTrue(random.bounds.equals(bounds), "Wrong random draws: " + family + "/" + rank + "/" + stage);
@@ -45,9 +45,9 @@ final class BuddingWearRuntimeChecks {
                     };
                     helper.assertTrue(level.getBlockState(pos).is(expected), "Wrong wear transition: " + family + "/" + rank);
                     BlockState after = level.getBlockState(pos.relative(direction));
-                    if (grows) helper.assertTrue(after.is(BuiltInRegistries.BLOCK.getOptional(family.growthProductIds().get(stage == 6 ? 0 : stage)).orElseThrow())
+                    if (grows) helper.assertTrue(after.is(BuiltInRegistries.BLOCK.getOptional(family.growthProductIds().get(stage == 6 ? 0 : stage == 8 ? 1 : stage)).orElseThrow())
                                     && after.getValue(AmethystClusterBlock.FACING) == direction
-                                    && after.getValue(AmethystClusterBlock.WATERLOGGED) == (stage == 6), "Wrong growth product/orientation/waterlogging");
+                                    && after.getValue(AmethystClusterBlock.WATERLOGGED) == (stage == 6 || stage == 8), "Wrong growth product/orientation/waterlogging");
                     else helper.assertTrue(after.equals(before), "Blocked or mature crystal changed");
                     if (nativeHeart != null) {
                         level.setBlockAndUpdate(nativePos, nativeHeart.defaultBlockState());
@@ -65,7 +65,7 @@ final class BuddingWearRuntimeChecks {
                         BlockState nativeAfter = level.getBlockState(nativePos.relative(direction));
                         helper.assertTrue(after.getValues().equals(nativeAfter.getValues()), "Loaded ExtendedAE properties differ");
                         if (grows) helper.assertTrue(nativeAfter.is(BuiltInRegistries.BLOCK.getOptional(
-                                BuddingResourceFamily.ENTROIZED_FLUIX.growthProductIds().get(stage == 6 ? 0 : stage)).orElseThrow()), "Loaded ExtendedAE stage differs");
+                                BuddingResourceFamily.ENTROIZED_FLUIX.growthProductIds().get(stage == 6 ? 0 : stage == 8 ? 1 : stage)).orElseThrow()), "Loaded ExtendedAE stage differs");
                     }
                 }
             }
@@ -75,9 +75,9 @@ final class BuddingWearRuntimeChecks {
         if (stage == 0) return Blocks.AIR.defaultBlockState();
         if (stage == 5) return Blocks.STONE.defaultBlockState();
         if (stage == 6) return Blocks.WATER.defaultBlockState();
-        return BuiltInRegistries.BLOCK.getOptional(family.growthProductIds().get(stage == 7 ? 0 : stage - 1)).orElseThrow().defaultBlockState()
+        return BuiltInRegistries.BLOCK.getOptional(family.growthProductIds().get(stage >= 7 ? 0 : stage - 1)).orElseThrow().defaultBlockState()
                 .setValue(AmethystClusterBlock.FACING, stage == 7 ? direction.getOpposite() : direction)
-                .setValue(AmethystClusterBlock.WATERLOGGED, false);
+                .setValue(AmethystClusterBlock.WATERLOGGED, stage == 8);
     }
     private static final class Draws extends LegacyRandomSource {
         private final int[] draws;
@@ -87,7 +87,8 @@ final class BuddingWearRuntimeChecks {
         @Override public int nextInt(int bound) {
             bounds.add(bound);
             if (index >= draws.length) throw new AssertionError("Unexpected random draw");
-            return Math.floorMod(draws[index++], bound);
+            if (draws[index] < 0 || draws[index] >= bound) throw new AssertionError("Invalid scripted draw");
+            return draws[index++];
         }
     }
 }

@@ -16,7 +16,7 @@ La validation visuelle/client demeure non prouvée.
   L'absence d'un fournisseur natif ne remet plus en question cette création.
 - Cible demandée : mécanique ExtendedAE appliquée à tous nos buddings, avec un
   bloc distinct pour chaque phase de budding. La correspondance aux rangs IOE
-  doit être résolue explicitement : croissance des cristaux, usure du cœur et
+  est définie ci-dessous : croissance des cristaux, usure du cœur et
   qualité du site sont trois notions différentes.
 - Les autres cristaux repérés restent des candidats, pas des ajouts autorisés.
 
@@ -107,10 +107,10 @@ famille IOE Entro ni la génération naturelle de ses cristaux.
 
 | Ressource approuvée | Disponible et forme réelle | Travail requis |
 | --- | --- | --- |
-| Améthyste | `minecraft:budding_amethyst`, `small_amethyst_bud`, `medium_amethyst_bud`, `large_amethyst_bud`, `amethyst_cluster`, `amethyst_block` (tous minecraft) ; item `minecraft:amethyst_shard` | Le vanilla fournit un seul cœur, pas quatre phases d'usure. Adapter/créer les phases IOE après mapping, sans changer arbitrairement les géodes vanilla. |
+| Améthyste | `minecraft:budding_amethyst`, `small_amethyst_bud`, `medium_amethyst_bud`, `large_amethyst_bud`, `amethyst_cluster`, `amethyst_block` (tous minecraft) ; item `minecraft:amethyst_shard` | Le vanilla fournit un seul cœur, pas quatre phases d'usure. Adapter/créer les cinq phases IOE confirmées, sans changer arbitrairement les géodes vanilla. |
 | Quartz | `geore:budding_quartz`, `geore:small_quartz_bud`, `medium_quartz_bud`, `large_quartz_bud`, `quartz_cluster` (préfixe geore) | Produits disponibles, adaptation des phases requise ; distinct du Certus. |
 | Certus | `ae2:damaged_budding_quartz`, `chipped_budding_quartz`, `flawed_budding_quartz`, `flawless_budding_quartz` ; quatre produits natifs | Quatre rangs déjà disponibles, mais mécanique AE2 distincte. Préserver météorites/progression AE2 tant qu'aucun traitement natif précis n'est décidé. |
-| Diamant/redstone/lapis/émeraude | Familles IOE existantes à quatre rangs ; `geore:small_<famille>_bud`, `medium_<famille>_bud`, `large_<famille>_bud`, `<famille>_cluster` | Réutiliser les familles existantes ; ne pas doubler les registres. |
+| Diamant/redstone/lapis/émeraude | Familles IOE existantes à cinq rangs ; `geore:small_<famille>_bud`, `medium_<famille>_bud`, `large_<famille>_bud`, `<famille>_cluster` | Réutiliser les familles existantes ; ne pas doubler les registres. |
 | Fluix | `ae2:fluix_block` est un bloc ; `ae2:fluix_crystal` est un item | Cœurs à phases et cristaux de croissance Fluix à intégrer/créer : aucun fournisseur identifié dans les JAR inspectés. **Pas Entro.** |
 | Draconium | Source Draconic Evolution : `draconicevolution:end_draconium_ore`, `draconium_block` ; item `draconium_dust` (même namespace) | Fournisseur confirmé, JAR absent de l'inventaire cloud. Cœurs/cristaux à intégrer/créer ; version dépendance et produit final à fixer. Awakened non ajouté. |
 | Glowstone | `minecraft:glowstone` bloc et `minecraft:glowstone_dust` item | Cœurs à phases et produits cristallins à intégrer/créer. La création est autorisée ; la quantité de poussière par récolte ne l'est pas encore. |
