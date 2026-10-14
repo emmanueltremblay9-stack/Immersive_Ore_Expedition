@@ -91,7 +91,7 @@ IOE applies an original event-level restriction when the separately installed ad
 - Source revision inspected: `90005ee29839fb9fa83bbe6544919c722f8b0dc6`
 - License: GNU LGPL version 3
 
-IOE references `extendedae:entro_crystal` as a rare Immersive Engineering mineral-mix output. PR64 also implements the verified ExtendedAE growth timing and four wearing-heart phases independently for existing IOE GeOre families, with the owner-approved permanent Flawless exception; see `docs/CRYSTAL_CAVE_CONTRACT.md` for immutable source links. It creates no ExtendedAE geode or budding-heart formation. No ExtendedAE Java source, model, texture, sound, recipe, language file, loot table, or generated resource is copied into IOE.
+IOE references `extendedae:entro_crystal` as a rare Immersive Engineering mineral-mix output. PR64 also independently implements the verified ExtendedAE growth timing and four wearing-heart phases for existing IOE GeOre families, with the owner-approved permanent Flawless exception; see `docs/CRYSTAL_CAVE_CONTRACT.md` for immutable source links. It creates no ExtendedAE geode or budding-heart formation. No ExtendedAE Java source, model, texture, sound, recipe, language file, loot table, or generated resource is copied into IOE.
 
 ## Immersive Engineering
 
