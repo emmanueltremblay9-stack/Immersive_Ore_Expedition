@@ -11,7 +11,7 @@ import java.nio.file.*;
 @GameTestHolder("ioe_streaming")
 @PrefixGameTestTemplate(false)
 public final class NetherPlayerStreamingGameTests {
-    @GameTest(template="streaming_empty",templateNamespace="ioe_streaming",timeoutTicks=3000)
+    @GameTest(template="streaming_empty",templateNamespace="ioe_streaming",timeoutTicks=4000)
     public static void playerTicketsReachKnownCandidate(GameTestHelper helper) {
         var level=helper.getLevel().getServer().getLevel(Level.NETHER);
         helper.assertTrue(NetherDepth32Prototype.requested() && level.getSeed()==0 && level.getMinBuildHeight()==-32,"Expected fresh depth32 fixture");
@@ -72,10 +72,25 @@ public final class NetherPlayerStreamingGameTests {
                 com.mojang.logging.LogUtils.getLogger().info("IOE player streaming observation complete: {}",out);
             } catch(Exception e) {throw new IllegalStateException(e);}
             level.removePlayerImmediately(player,net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
-            helper.succeed();return;
+            drain(helper,level,0,0);return;
         }
         helper.assertTrue(elapsed<2800,"Player stream did not complete: neighbors="+count+" result="+recorded);
         var saved=recorded;int savedCount=countAtAdmission,savedTick=admissionTick;
         helper.runAfterDelay(1,()->observe(helper,level,player,c,chunk,elapsed+1,saved,savedCount,savedTick));
+    }
+    private static void drain(GameTestHelper helper,ServerLevel level,int elapsed,int idleTicks) {
+        // Continue ordinary server ticks while player tickets and asynchronous generation drain.
+        // Never save/close synchronously with outstanding generation work.
+        long until=System.nanoTime()+50_000_000L;
+        for(long remaining;(remaining=until-System.nanoTime())>0;)
+            java.util.concurrent.locks.LockSupport.parkNanos(remaining);
+        boolean idle=!level.getChunkSource().chunkMap.hasWork();
+        int consecutive=idle ? idleTicks+1 : 0;
+        if(consecutive>=5) {
+            com.mojang.logging.LogUtils.getLogger().info("IOE player streaming cleanup: ticks={} idleTicks={} chunkMapWork=false loadedChunks={}",elapsed,consecutive,level.getChunkSource().getLoadedChunksCount());
+            helper.succeed();return;
+        }
+        helper.assertTrue(elapsed<1000,"Player fixture did not drain after removing player");
+        helper.runAfterDelay(1,()->drain(helper,level,elapsed+1,consecutive));
     }
 }

@@ -560,3 +560,17 @@ It never renews the birth tick or queues new authority. At age 19 (last fresh ti
 it dispatches even if incomplete, preserving terminal refusal. Invalidated receipts
 stay invalid. The paced fixture is rerun to determine whether this bounded wait is
 sufficient; no success or production activation is inferred from the correction.
+
+The corrected scheduler at source 84162e8100aef7961f8fcf362992bc90d4eb8217
+passed push CI 38504162518 (701 JUnit; 75 baseline, one streaming observation,
+75 full-runtime and one restart GameTest). The streaming admission waited until
+elapsed tick 1438, but only 15/25 neighbors were FULL: TERRAIN_CHANGED remained
+terminal, with all 25 subsequently available. Activation is still unqualified.
+
+A separate fixture shutdown issue was observed in a superseded run: assertions
+completed, then shutdown stalled at Saving worlds. Cleanup now removes the fake
+player and waits through ordinary paced ticks until the Nether ChunkMap reports
+no work for five ticks, bounded at 1000 ticks. It does not force unloads or mutate
+internal maps. The existing consolidated CI job also has a 30-minute ceiling so
+a shutdown stall cannot remain unbounded. This is a fixture correction, not a
+claim to fix a production save defect. Its own exact-source CI remains required.
