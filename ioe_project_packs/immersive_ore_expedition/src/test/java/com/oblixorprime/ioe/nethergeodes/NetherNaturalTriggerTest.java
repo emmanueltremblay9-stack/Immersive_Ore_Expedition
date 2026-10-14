@@ -46,6 +46,8 @@ final class NetherNaturalTriggerTest {
         for(int tick=11;tick<400;tick++) assertTrue(coordinator.takeNaturalCandidates(17,tick,ignored->false).isEmpty());
         assertEquals(java.util.List.of(chunk), coordinator.takeNaturalCandidates(17,400,ignored->true));
         assertEquals(390, coordinator.preparationAge(chunk.toLong(),400));
+        assertTrue(coordinator.beginNaturalAdmission(chunk,400));
+        assertFalse(coordinator.beginNaturalAdmission(chunk,401));
         assertTrue(coordinator.takeNaturalCandidates(17,401,ignored->true).isEmpty());
         coordinator.endNaturalAdmission(chunk);
         assertEquals(-1, coordinator.preparationAge(chunk.toLong(),401));

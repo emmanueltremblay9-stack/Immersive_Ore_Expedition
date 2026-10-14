@@ -644,3 +644,11 @@ Qualification now selects the nested runtime pack through the actual mod resourc
 path, identical to the prepared production path; the external prototype path remains
 only the existing CI scope/provenance anchor. Client creation/recreation GUI flows
 remain unqualified and must not be inferred from the server-side tests.
+
+
+Admission grants are scoped to the immediate dispatcher call, separately from
+candidate selection. On return they are revoked; the finished candidate and
+consumed write identities cannot be reused. Unused neighboring preparations keep
+their original birth dates and revocation state, so one refused candidate does not
+silently discard a distinct neighboring region's preparation. Unit coverage checks
+this cleanup boundary and rejects starting a selected candidate in a different tick.

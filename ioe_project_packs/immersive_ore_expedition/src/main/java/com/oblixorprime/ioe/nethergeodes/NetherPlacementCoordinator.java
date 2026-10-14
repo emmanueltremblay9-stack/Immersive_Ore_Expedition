@@ -63,7 +63,7 @@ final class NetherPlacementCoordinator {
             return Collections.unmodifiableMap(copy);
         }
     }
-    private record Lease(Object identity, int born, boolean dispatched, int admittedTick) { }
+    private record Lease(Object identity, int born, int dispatchedTick, int admittedTick) { }
     private final Map<Long, Lease> leases = new HashMap<>();
     private final Map<Object, Boolean> seen = new WeakHashMap<>();
 
@@ -78,7 +78,7 @@ final class NetherPlacementCoordinator {
             leases.remove(chunk);
             return;
         }
-        leases.put(chunk, new Lease(identity, tick, false, -1));
+        leases.put(chunk, new Lease(identity, tick, -1, -1));
     }
     /** At most MAX_LEASES entries; no new capability, ticket or retained queue is created. */
     synchronized List<ChunkPos> takeNaturalCandidates(long seed, int tick) {
@@ -90,7 +90,7 @@ final class NetherPlacementCoordinator {
         var result = new ArrayList<ChunkPos>();
         for (long key : new TreeSet<>(leases.keySet())) {
             var lease = leases.get(key);
-            if (lease.dispatched() || tick - lease.born() <= 0) continue;
+            if (lease.dispatchedTick() >= 0 || tick - lease.born() <= 0) continue;
             var chunk = new ChunkPos(key);
             var candidate = NetherSitePlanner.candidate(seed, Math.floorDiv(chunk.x, 16), Math.floorDiv(chunk.z, 16));
             if ((candidate.x() >> 4) != chunk.x || (candidate.z() >> 4) != chunk.z) continue;
@@ -102,15 +102,7 @@ final class NetherPlacementCoordinator {
                 if (neighbor != null && neighbor.born() == tick) loadingThisTick = true;
             }
             if (loadingThisTick) continue; // Never spend any Load callback's same-tick identity.
-            // Only retained, unrevoked first-generation identities acquire authority for THIS turn.
-            // Older read-only neighbors do not acquire a receipt. No born tick is changed.
-            for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++) {
-                long neighbor = ChunkPos.asLong(chunk.x + x, chunk.z + z);
-                var pending = leases.get(neighbor);
-                if (pending != null && tick - pending.born() > 0)
-                    leases.put(neighbor, new Lease(pending.identity(), pending.born(), pending.dispatched(), tick));
-            }
-            leases.put(key, new Lease(lease.identity(), lease.born(), true, tick));
+            leases.put(key, new Lease(lease.identity(), lease.born(), tick, -1));
             result.add(chunk);
         }
         return List.copyOf(result);
@@ -119,10 +111,28 @@ final class NetherPlacementCoordinator {
         var lease = leases.get(chunk);
         return lease == null ? -1 : tick - lease.born();
     }
+    synchronized boolean beginNaturalAdmission(ChunkPos chunk, int tick) {
+        prune(tick);
+        var candidate = leases.get(chunk.toLong());
+        if (candidate == null || candidate.dispatchedTick() != tick || tick - candidate.born() <= 0) return false;
+        for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++) {
+            long key = ChunkPos.asLong(chunk.x + x, chunk.z + z);
+            var pending = leases.get(key);
+            if (pending != null && tick - pending.born() > 0)
+                leases.put(key, new Lease(pending.identity(), pending.born(), pending.dispatchedTick(), tick));
+        }
+        return true;
+    }
     synchronized void endNaturalAdmission(ChunkPos chunk) {
-        // The dispatcher owns this single turn. Discard all preparation identities in its window.
-        for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++)
-            leases.remove(ChunkPos.asLong(chunk.x + x, chunk.z + z));
+        // Revoke this immediate call's grant, preserving unused neighboring preparations.
+        // Their original birth dates and revocations remain unchanged; writes consume their own leases.
+        for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++) {
+            long key = ChunkPos.asLong(chunk.x + x, chunk.z + z);
+            var pending = leases.get(key);
+            if (pending != null)
+                leases.put(key, new Lease(pending.identity(), pending.born(), pending.dispatchedTick(), -1));
+        }
+        leases.remove(chunk.toLong());
     }
     synchronized void invalidate(long chunk) { leases.remove(chunk); }
     private void prune(int tick) {

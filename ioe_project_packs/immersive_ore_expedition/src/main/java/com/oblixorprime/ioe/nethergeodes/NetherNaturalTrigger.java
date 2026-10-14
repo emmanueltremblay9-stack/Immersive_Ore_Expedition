@@ -47,6 +47,7 @@ final class NetherNaturalTrigger {
         var results = new LinkedHashMap<Long, NetherPlacementCoordinator.Result>();
         for (var chunk : candidates) {
             try {
+                NetherPlacementRuntime.coordinator(level).beginNaturalAdmission(chunk, level.getServer().getTickCount());
                 var report = NetherNaturalAdmission.attemptDetailed(level, chunk);
                 results.put(chunk.toLong(), report.result());
                 observer.accept(chunk, report);

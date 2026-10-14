@@ -52,7 +52,7 @@ final class NetherPlacementCoordinatorTest {
         public boolean reserveReads(int count) { return budget.acquire(tick, count); }
     }
     @Test void naturalPreparationAuthorizesOnlySameTurnAndOriginalUnrevokedIdentities() {
-        for(int scenario=0;scenario<5;scenario++) {
+        for(int scenario=0;scenario<6;scenario++) {
             var f=new Fixture(false);
             var c=NetherSitePlanner.candidate(17,2,2);
             var a=new BlockPos(c.x(),30,c.z()); var b=a.east(16);
@@ -64,6 +64,12 @@ final class NetherPlacementCoordinatorTest {
             if(scenario==2)f.coordinator.invalidate(key(b));
             if(scenario==3)f.coordinator.observe(key(b),f.chunks.get(key(b)),false,99);
             assertEquals(List.of(new ChunkPos(a)),f.coordinator.takeNaturalCandidates(17,100,ignored->true));
+            assertTrue(f.coordinator.beginNaturalAdmission(new ChunkPos(a),100));
+            if(scenario==5) {
+                f.coordinator.endNaturalAdmission(new ChunkPos(a));
+                assertEquals(100,f.coordinator.preparationAge(key(b),100));
+                assertFalse(f.coordinator.hasFreshReceipt(f,key(b)));
+            }
             if(scenario==1)f.tick++;
             if(scenario==4)f.chunks.put(key(b),new Object());
             var p=new Plan(a,Map.of(a,ROCK,b,ROCK),Map.of(a,ORE,b,ORE));
