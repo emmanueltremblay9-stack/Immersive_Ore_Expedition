@@ -40,7 +40,9 @@ public final class NetherPlayerStreamingGameTests {
             NetherPlacementCoordinator.Result recorded,int countAtAdmission,int admissionTick) {
         // GameTestServer runs without normal tick pacing. Give asynchronous terrain workers
         // the same nominal 50 ms between observations; this fixture owns no chunk tickets.
-        java.util.concurrent.locks.LockSupport.parkNanos(50_000_000L);
+        long until=System.nanoTime()+50_000_000L;
+        for(long remaining;(remaining=until-System.nanoTime())>0;)
+            java.util.concurrent.locks.LockSupport.parkNanos(remaining);
         // Position advances at ordinary walking speed; vanilla player tracking owns all tickets.
         double x=Math.min(c.x(),c.x()-320+elapsed*0.22);
         player.setPos(x,100,c.z());level.getChunkSource().move(player);
