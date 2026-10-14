@@ -19,10 +19,14 @@ final class NetherNaturalTrigger {
 
     // Explicit integration-test entry. Uses only the same real lifecycle coordinator as production.
     static Map<Long, NetherPlacementCoordinator.Result> dispatch(ServerLevel level) {
+        return dispatch(level, (chunk, report) -> { });
+    }
+    static Map<Long, NetherPlacementCoordinator.Result> dispatch(ServerLevel level,
+            java.util.function.BiConsumer<net.minecraft.world.level.ChunkPos, NetherNaturalAdmission.Report> observer) {
         NetherPlacementRuntime.host(level).requireServerThread();
         if (!NetherWorldActivation.permits(level)) return Map.of();
         return dispatchCandidates(level, NetherPlacementRuntime.coordinator(level)
-                .takeNaturalCandidates(level.getSeed(), level.getServer().getTickCount(), chunk -> neighborhoodReady(level, chunk)));
+                .takeNaturalCandidates(level.getSeed(), level.getServer().getTickCount(), chunk -> neighborhoodReady(level, chunk)), observer);
     }
 
     private static boolean neighborhoodReady(ServerLevel level, net.minecraft.world.level.ChunkPos chunk) {
@@ -34,11 +38,18 @@ final class NetherNaturalTrigger {
 
     static Map<Long, NetherPlacementCoordinator.Result> dispatchCandidates(ServerLevel level,
                                                                           java.util.List<net.minecraft.world.level.ChunkPos> candidates) {
+        return dispatchCandidates(level, candidates, (chunk, report) -> { });
+    }
+    private static Map<Long, NetherPlacementCoordinator.Result> dispatchCandidates(ServerLevel level,
+            java.util.List<net.minecraft.world.level.ChunkPos> candidates,
+            java.util.function.BiConsumer<net.minecraft.world.level.ChunkPos, NetherNaturalAdmission.Report> observer) {
         NetherPlacementRuntime.host(level).requireServerThread();
         var results = new LinkedHashMap<Long, NetherPlacementCoordinator.Result>();
         for (var chunk : candidates) {
             try {
-                results.put(chunk.toLong(), NetherNaturalAdmission.attempt(level, chunk));
+                var report = NetherNaturalAdmission.attemptDetailed(level, chunk);
+                results.put(chunk.toLong(), report.result());
+                observer.accept(chunk, report);
             } finally {
                 NetherPlacementRuntime.coordinator(level).endNaturalAdmission(chunk);
             }

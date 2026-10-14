@@ -50,6 +50,18 @@ final class NetherNaturalTriggerTest {
         coordinator.endNaturalAdmission(chunk);
         assertEquals(-1, coordinator.preparationAge(chunk.toLong(),401));
     }
+    @Test void newlyFullNeighborWaitsOneTickAndPreparationHasAnExclusiveDeadline() {
+        var candidate=NetherSitePlanner.candidate(17,2,2);
+        var chunk=new ChunkPos(candidate.x()>>4,candidate.z()>>4);
+        var coordinator=new NetherPlacementCoordinator();
+        coordinator.observe(chunk.toLong(),new Object(),true,0);
+        coordinator.observe(ChunkPos.asLong(chunk.x+1,chunk.z),new Object(),true,100);
+        assertTrue(coordinator.takeNaturalCandidates(17,100,ignored->true).isEmpty());
+        assertEquals(java.util.List.of(chunk),coordinator.takeNaturalCandidates(17,101,ignored->true));
+        var last=new NetherPlacementCoordinator();
+        last.observe(chunk.toLong(),new Object(),true,0);
+        assertEquals(java.util.List.of(chunk),last.takeNaturalCandidates(17,NetherPlacementCoordinator.PREPARATION_TICKS-1,ignored->true));
+    }
     @Test void preparationExpiryNeverRenewsOrRestoresInvalidatedReceipt() {
         var coordinator=new NetherPlacementCoordinator();
         var candidate=NetherSitePlanner.candidate(17,2,2);

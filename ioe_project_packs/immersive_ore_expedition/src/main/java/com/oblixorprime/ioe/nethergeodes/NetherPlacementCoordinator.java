@@ -95,6 +95,12 @@ final class NetherPlacementCoordinator {
             if ((candidate.x() >> 4) != chunk.x || (candidate.z() >> 4) != chunk.z) continue;
             // Incomplete preparation is not an attempt and never consumes a durable claim.
             if (!ready.test(chunk)) continue;
+            boolean loadingThisTick = false;
+            for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++) {
+                var neighbor = leases.get(ChunkPos.asLong(chunk.x + x, chunk.z + z));
+                if (neighbor != null && neighbor.born() == tick) loadingThisTick = true;
+            }
+            if (loadingThisTick) continue; // Never spend any Load callback's same-tick identity.
             // Only retained, unrevoked first-generation identities acquire authority for THIS turn.
             // Older read-only neighbors do not acquire a receipt. No born tick is changed.
             for (int z = -2; z <= 2; z++) for (int x = -2; x <= 2; x++) {

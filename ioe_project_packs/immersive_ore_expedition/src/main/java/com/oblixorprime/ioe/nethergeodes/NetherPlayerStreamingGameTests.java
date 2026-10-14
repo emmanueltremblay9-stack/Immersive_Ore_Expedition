@@ -13,6 +13,7 @@ import java.nio.file.*;
 public final class NetherPlayerStreamingGameTests {
     private static final class PreparationObservation {
         int firstFullTick = -1, oldestAtAdmission = -1, candidateAgeAtAdmission = -1;
+        NetherNaturalAdmission.Report report;
     }
     @GameTest(template="streaming_empty",templateNamespace="ioe_streaming",timeoutTicks=4200)
     public static void playerTicketsReachKnownCandidate(GameTestHelper helper) {
@@ -56,8 +57,11 @@ public final class NetherPlayerStreamingGameTests {
         for(int dz=-2;dz<=2;dz++)for(int dx=-2;dx<=2;dx++)
             oldest=Math.max(oldest,coordinator.preparationAge(ChunkPos.asLong(chunk.x+dx,chunk.z+dz),tick));
         int candidateAge=coordinator.preparationAge(chunk.toLong(),tick);
-        var result=NetherNaturalTrigger.dispatch(level).get(chunk.toLong());
+        var result=NetherNaturalTrigger.dispatch(level,(candidateChunk,report)->{
+            if(candidateChunk.equals(chunk))observation.report=report;
+        }).get(chunk.toLong());
         if(result!=null) {
+            helper.assertTrue(resources==20 && observation.report.committedShoreMarkers().size()==2,"Natural site resource/marker counts changed");
             helper.assertTrue(recorded==null,"Candidate dispatched twice");
             recorded=result;countAtAdmission=count;admissionTick=elapsed;
             observation.oldestAtAdmission=oldest;observation.candidateAgeAtAdmission=candidateAge;
@@ -68,6 +72,23 @@ public final class NetherPlayerStreamingGameTests {
             var ledger=level.getDataStorage().computeIfAbsent(NetherPlacementLedger.FACTORY,NetherPlacementLedger.NAME);
             helper.assertTrue(ledger.resultAt(origin).orElseThrow().equals(recorded.name()),"Terminal outcome missing");
             helper.assertTrue(NetherNaturalAdmission.attempt(level,chunk)==NetherPlacementCoordinator.Result.DUPLICATE,"Later neighborhood permits reroll");
+            var host=NetherPlacementRuntime.host(level);
+            var savedLedger=ledger.save(new net.minecraft.nbt.CompoundTag(),level.registryAccess());
+            int resources=0;
+            for(var tag:savedLedger.getList("attempts",net.minecraft.nbt.Tag.TAG_COMPOUND)) {
+                var entry=(net.minecraft.nbt.CompoundTag)tag;
+                if(!BlockPos.of(entry.getLong("origin")).equals(origin))continue;
+                for(var resource:entry.getList("resources",net.minecraft.nbt.Tag.TAG_COMPOUND)) {
+                    var pos=BlockPos.of(((net.minecraft.nbt.CompoundTag)resource).getLong("pos"));
+                    helper.assertTrue(host.reserveReads(1),"Streaming resource verification budget exhausted");
+                    helper.assertTrue(ledger.preserves(pos,host.read(pos)),"Committed resource missing or provenance lost");
+                    resources++;
+                }
+            }
+            for(var marker:observation.report.committedShoreMarkers()) {
+                helper.assertTrue(host.reserveReads(1),"Streaming marker verification budget exhausted");
+                helper.assertTrue(host.read(marker).is(net.minecraft.world.level.block.Blocks.BLACKSTONE),"Committed shore marker missing");
+            }
             try {
                 var out=new com.google.gson.JsonObject();
                 out.addProperty("source",System.getenv("GITHUB_SHA"));out.addProperty("pid",ProcessHandle.current().pid());
@@ -76,6 +97,12 @@ public final class NetherPlayerStreamingGameTests {
                 out.addProperty("selected_before_registries",NetherWorldActivation.selectedBeforeRegistries(level.getServer().getPackRepository()));
                 out.addProperty("candidate_x",c.x());out.addProperty("candidate_z",c.z());out.addProperty("admission_elapsed",admissionTick);
                 out.addProperty("full_neighbors_at_admission",countAtAdmission);out.addProperty("full_neighbors_final",count);
+                out.addProperty("verified_resources",resources);
+                out.addProperty("verified_shore_markers",observation.report.committedShoreMarkers().size());
+                out.addProperty("planned_writes",observation.report.plannedWrites());
+                out.addProperty("connected_columns",observation.report.connectedColumns());
+                out.addProperty("admission_capture_reads",observation.report.worldReads());
+                out.addProperty("terrain_edits_before_admission",0);
                 out.addProperty("first_full_elapsed",observation.firstFullTick);
                 out.addProperty("oldest_preparation_age_at_admission",observation.oldestAtAdmission);
                 out.addProperty("candidate_preparation_age_at_admission",observation.candidateAgeAtAdmission);
@@ -87,6 +114,7 @@ public final class NetherPlayerStreamingGameTests {
                 var path=Depth32RestartPermit.module().resolve("build/reports/ioe/player-streaming.json");Files.createDirectories(path.getParent());Files.writeString(path,out.toString(),StandardOpenOption.CREATE_NEW);
                 com.mojang.logging.LogUtils.getLogger().info("IOE player streaming observation complete: {}",out);
             } catch(Exception e) {throw new IllegalStateException(e);}
+            helper.assertTrue(resources==20 && observation.report.committedShoreMarkers().size()==2,"Natural site resource/marker counts changed");
             helper.assertTrue(recorded==NetherPlacementCoordinator.Result.COMMITTED,"Natural progressive placement rejected: "+recorded);
             level.removePlayerImmediately(player,net.minecraft.world.entity.Entity.RemovalReason.DISCARDED);
             drain(helper,level,0,0);return;
