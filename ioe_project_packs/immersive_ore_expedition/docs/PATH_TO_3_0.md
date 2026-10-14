@@ -652,3 +652,22 @@ consumed write identities cannot be reused. Unused neighboring preparations keep
 their original birth dates and revocation state, so one refused candidate does not
 silently discard a distinct neighboring region's preparation. Unit coverage checks
 this cleanup boundary and rejects starting a selected candidate in a different tick.
+
+
+## Crystal Cave — préparation de PR64, 2026-10-14
+
+État distant re-vérifié : PR63 fusionnée, main `53cea49a2636939356c0bd2a8ce11c07a27f23af`.
+La CI postmerge 38542822224 est verte ; ses 709 JUnit et 152 GameTests restent
+propres à cette source, pas aux familles Crystal Cave futures. Production OFF.
+Les anciennes mentions PR63 brouillon ci-dessus restent historiques.
+
+La cible Crystal Cave inclut désormais explicitement améthyste et la création ou
+l'intégration de Budding Fluix, Draconium et Glowstone, avec un bloc par phase et
+la mécanique ExtendedAE. Voir [contrat de préparation](CRYSTAL_CAVE_CONTRACT.md)
+et [inventaire cloud limité](CRYSTAL_CAVE_CLOUD_INVENTORY.json). L'usure fully→mostly→half→hardly
+d'ExtendedAE n'est ni la croissance small→medium→large→cluster ni une qualité de site ;
+fully s'use, contrairement au Flawless permanent actuel. Mapping, portée native,
+produits et budgets nécessitent décision avant implémentation. Aucun comportement
+modifié dans ce cycle documentaire, aucune famille fictivement déclarée terminée.
+La CI du successeur documentaire ne transforme pas le JAR PR63 en implémentation
+Crystal Cave ; reçu exact sur la PR. Validation client/visuelle toujours non prouvée.

@@ -226,3 +226,16 @@ Flawless du site : 1 / 1
 ## Règle canonique finale
 
 **IOE utilise cinq qualités de site : DRY, POOR, NORMAL, RICH et MOTHERLODE. Les Budding utilisent les quatre rangs natifs d'AE2 : DAMAGED, CHIPPED, FLAWED et FLAWLESS. Les variantes GeOre sont de véritables blocs IOE préenregistrés qui reproduisent la mécanique réelle de dégradation et de restauration d'AE2. Tous les Flawless sont exclusivement générés dans les Motherlodes : aucune recette ni machine ne peut les fabriquer. Un site DRY possède 10 % de chance de contenir une Resonating Seed neutre, utilisée avec un Purified Resonating Crystal et un bloc de stockage minéral pour créer le premier rang Damaged dans l'Aggregator.**
+
+
+## Cible ultérieure Crystal Cave — demande utilisateur du 14 octobre
+
+La demande d'appliquer la mécanique ExtendedAE à tous nos buddings et de fournir
+un bloc par phase est confirmée, ainsi que l'améthyste et les familles à intégrer
+ou créer Fluix, Draconium, Glowstone. Le [contrat Crystal Cave](CRYSTAL_CAVE_CONTRACT.md)
+distingue cette cible de l'implémentation actuelle décrite ci-dessus. ExtendedAE
+use ses quatre phases, y compris fully ; aucune équivalence avec Flawless n'est
+implicite. La permanence Flawless, le mapping/restauration et la portée native
+restent à résoudre avant changement runtime. Les budgets de cave mixte ne sont
+pas déduits des budgets monofamille. Entro reste réservé à IE ; les contrats Nether
+et météorites ne changent pas par cet amendement de préparation.
