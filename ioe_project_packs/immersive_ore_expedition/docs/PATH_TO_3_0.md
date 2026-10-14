@@ -550,3 +550,13 @@ elapsed before asynchronous terrain workers completed the final neighborhood. Th
 run is not a representative walking qualification. The observation now pauses
 50 ms per fixture tick (hosted CI only), preserving real worker progress and the
 unchanged 20-tick lease. No engine timing or production budget is modified.
+
+The paced observation at source d6bd8c1231878f419232e89b718a5f5b33df6a52
+(PR run 38502850852) reached the known candidate with 13/25 FULL neighbors and
+returned TERRAIN_CHANGED; all 25 later loaded but replay was correctly refused.
+A bounded scheduler correction now waits for all 25 FULL neighbors before FIRST
+admission, using only existing lease entries and getChunkNow metadata queries.
+It never renews the birth tick or queues new authority. At age 19 (last fresh tick),
+it dispatches even if incomplete, preserving terminal refusal. Invalidated receipts
+stay invalid. The paced fixture is rerun to determine whether this bounded wait is
+sufficient; no success or production activation is inferred from the correction.

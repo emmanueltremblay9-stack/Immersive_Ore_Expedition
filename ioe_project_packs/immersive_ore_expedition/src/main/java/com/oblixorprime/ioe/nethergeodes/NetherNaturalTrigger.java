@@ -21,7 +21,14 @@ final class NetherNaturalTrigger {
     static Map<Long, NetherPlacementCoordinator.Result> dispatch(ServerLevel level) {
         NetherPlacementRuntime.host(level).requireServerThread();
         return dispatchCandidates(level, NetherPlacementRuntime.coordinator(level)
-                .takeNaturalCandidates(level.getSeed(), level.getServer().getTickCount()));
+                .takeNaturalCandidates(level.getSeed(), level.getServer().getTickCount(), chunk -> neighborhoodReady(level, chunk)));
+    }
+
+    private static boolean neighborhoodReady(ServerLevel level, net.minecraft.world.level.ChunkPos chunk) {
+        // Metadata-only, loaded-only readiness for the canonical 74x74 window. Never generate/ticket.
+        for (int z=-2;z<=2;z++) for(int x=-2;x<=2;x++)
+            if(level.getChunkSource().getChunkNow(chunk.x+x,chunk.z+z)==null) return false;
+        return true;
     }
 
     static Map<Long, NetherPlacementCoordinator.Result> dispatchCandidates(ServerLevel level,

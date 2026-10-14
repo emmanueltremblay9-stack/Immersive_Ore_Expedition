@@ -78,6 +78,10 @@ final class NetherPlacementCoordinator {
     }
     /** At most MAX_LEASES entries; no new capability, ticket or retained queue is created. */
     synchronized List<ChunkPos> takeNaturalCandidates(long seed, int tick) {
+        return takeNaturalCandidates(seed, tick, ignored -> true);
+    }
+    /** Readiness delays only first admission, within the ORIGINAL lease; no retry or renewal. */
+    synchronized List<ChunkPos> takeNaturalCandidates(long seed, int tick, java.util.function.Predicate<ChunkPos> ready) {
         var result = new ArrayList<ChunkPos>();
         for (long key : new TreeSet<>(leases.keySet())) {
             var lease = leases.get(key);
@@ -85,6 +89,8 @@ final class NetherPlacementCoordinator {
             var chunk = new ChunkPos(key);
             var candidate = NetherSitePlanner.candidate(seed, Math.floorDiv(chunk.x, 16), Math.floorDiv(chunk.z, 16));
             if ((candidate.x() >> 4) != chunk.x || (candidate.z() >> 4) != chunk.z) continue;
+            // At the last fresh tick dispatch even an incomplete neighborhood, so refusal is terminal.
+            if (tick - lease.born() < LEASE_TICKS - 1 && !ready.test(chunk)) continue;
             leases.put(key, new Lease(lease.identity(), lease.born(), true));
             result.add(chunk);
         }
