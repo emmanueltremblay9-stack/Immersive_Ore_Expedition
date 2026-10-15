@@ -21,6 +21,36 @@ import java.util.List;
 @PrefixGameTestTemplate(false)
 public final class AmethystBuddingGameTests {
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void growthDoesNotLoadAnAbsentNeighbor(GameTestHelper helper) {
+        var level = helper.getLevel();
+        // Exercise the real tick entry point against an absent chunk, without placing
+        // a block there (placement itself would request the chunk).
+        var absent = new BlockPos(20_000_000, 64, 20_000_000);
+        helper.assertTrue(!level.hasChunkAt(absent), "Negative-test chunk must be absent");
+        helper.assertTrue(IoeGeOreBuddingBlocks.available(BuddingResourceFamily.AMETHYST),
+                "Vanilla-backed family required for non-vacuous coverage");
+        for (BuddingResourceFamily family : BuddingResourceFamily.values()) {
+            if (!IoeGeOreBuddingBlocks.available(family)) continue;
+            for (BuddingRank rank : BuddingRank.values()) {
+                int[] draws = {0};
+                var random = new net.minecraft.world.level.levelgen.LegacyRandomSource(0) {
+                    @Override public int nextInt(int bound) {
+                        int expected = draws[0]++ == 0 ? 3 : 6;
+                        if (draws[0] > 2 || bound != expected)
+                            throw new AssertionError("Absent neighbor must not draw wear");
+                        return 0; // Growth attempt, DOWN: same absent chunk.
+                    }
+                };
+                var state = IoeGeOreBuddingBlocks.block(family, rank).defaultBlockState();
+                state.randomTick(level, absent, random);
+                helper.assertTrue(draws[0] == 2, "Growth and direction must precede the loaded-chunk guard");
+                helper.assertTrue(!level.hasChunkAt(absent), "Budding tick loaded an absent chunk");
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
     public static void fiveRecoverableHeartsKeepVanillaProductsAndDoNotAddRecipes(GameTestHelper helper) {
         var family = BuddingResourceFamily.AMETHYST;
         var level = helper.getLevel();

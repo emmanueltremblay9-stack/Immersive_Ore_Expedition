@@ -167,7 +167,9 @@ propres conditions. Pas d'extraction d'assets tiers pour fabriquer les nouvelles
    natifs AE2/GeOre/vanilla hors IOE, ou les variantes IOE seulement ? Préserver par
    défaut leurs registres et les météorites ; ne pas migrer les anciens mondes.
 3. **Produits et épuisement** : produits finaux exacts et quantités de récolte,
-   Silk Touch/Fortune, stockage final des familles Fluix/Draconium/Glowstone. Le profil A améthyste est désormais approuvé.
+   Silk Touch/Fortune, stockage final des familles Fluix/Draconium. Pour Glowstone,
+   la mécanique commune est confirmée ; seul le profil de récolte des cristaux
+   reste indéterminé (voir réconciliation ci-dessous). Le profil A améthyste est approuvé.
    Le quartz final d'ExtendedAE ne doit pas devenir automatiquement le résidu universel.
 4. **Budgets cave** : total et répartition par famille/qualité, phases initiales,
    clusters préexistants, densité Glowstone, plage Y, biomes, fréquence et espacement.
@@ -245,3 +247,39 @@ récoltes réelles des cœurs, blocs/loots vanilla conservés, absence de recett
 validation de dépendances/ressources et exclusion du sélecteur de matériau GeOre,
 Jade et rechargement de provenance existants. Validation statique de 70 modèles.
 CI au commit exact consignée dans PR64 ; aucune preuve visuelle/client déduite.
+
+
+## Réconciliation Glowstone — décision vocale retrouvée le 15 octobre
+
+Le message `01a13d3d-1027-76e8-92a5-198b72c3ae3d` demande que Glowstone
+suive les mêmes règles que les autres familles IOE. La proposition spéciale
+« aucun drop immature / quatre poussières matures / Fortune améthyste » n'est
+pas approuvée. Le message `01a13f24-ab7f-7654-a28b-0effd54eba6f` autorise la
+poursuite des travaux déterminés ; il ne fixe pas de nouveaux rendements.
+
+La mécanique commune est acquise : cinq cœurs, FULLY → FLAWED → CHIPPED →
+DAMAGED → stockage de famille, Flawless permanent, tentative 1/3 et usure 1/10,
+récolte des cœurs usurables avec Silk Touch ou rang inférieur sans Silk Touch,
+Flawless récolté en FLAWED. Elle réutilise le moteur existant, sans second moteur.
+Le principe du stockage de famille désigne le bloc ordinaire Glowstone ; aucune
+exception d'usure ou récompense spéciale n'est introduite.
+
+Le seul profil de données encore non déterminé pour rendre les cristaux Glowstone
+récoltables est leur produit de récolte et sa table (quantité et enchantements).
+Les familles existantes délèguent ces données à leurs fournisseurs : GeOre utilise
+notamment des shards propres aux familles, l'améthyste ses loots vanilla. La règle
+commune ne transforme pas quatre shards en quatre poussières. Ne pas traiter
+cette lacune comme un veto sur les corrections du moteur partagé ; ne pas livrer
+non plus des cristaux sans loot, ce qui imposerait silencieusement zéro récolte.
+Les recettes et budgets de cave restent hors de ce cycle.
+
+Correction indépendante du moteur : une tentative dirigée vers un chunk absent
+s'arrête avant sa lecture et avant le tirage d'usure. Un GameTest appelle le vrai
+randomTick avec une destination absente, pour chaque famille/rang disponible,
+et vérifie l'absence de chargement et de tirage d'usure. Les tests existants
+conservent la comparaison ExtendedAE lorsque les voisins sont chargés.
+
+La piste AE2CS communiquée à la révision `62cfb60d5d9e2c760855e5edd0d6fae77b7bfb60`
+(`fluix_mother_rock`, quatre stades, produit `purified_fluix_crystal`) est un
+candidat distinct du Fluix AE2 ordinaire, pas une intégration approuvée. L'ancien
+inventaire des JAR inspectés ne permet pas de conclure qu'aucun fournisseur existe.

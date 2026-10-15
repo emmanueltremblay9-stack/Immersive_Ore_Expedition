@@ -259,3 +259,11 @@ améthyste appliquent la chaîne usurable et l'exception Flawless permanente dé
 approuvées. Récoltes des cœurs selon les règles IOE ; épuisement en
 `minecraft:amethyst_block`. Produits et récoltes des cristaux vanilla inchangés.
 Aucune recette de cœur ni distribution naturelle ajoutée. Voir le contrat Crystal Cave.
+
+### Glowstone — mécanique commune confirmée
+
+La décision vocale `01a13d3d-1027-76e8-92a5-198b72c3ae3d` confirme le moteur
+commun IOE pour Glowstone et rejette le profil spécial proposé de quatre poussières.
+Les cinq rangs/usure/récupération des cœurs ne sont plus une question ouverte.
+Le produit et la table de récolte des cristaux ne sont pas universels dans IOE ;
+voir la réconciliation du contrat Crystal Cave. Aucun profil spécial implémenté.

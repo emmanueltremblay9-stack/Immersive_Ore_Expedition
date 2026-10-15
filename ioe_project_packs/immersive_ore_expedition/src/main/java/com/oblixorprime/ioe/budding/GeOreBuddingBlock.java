@@ -38,6 +38,10 @@ public class GeOreBuddingBlock extends Block {
         }
         Direction direction = Direction.values()[random.nextInt(6)];
         BlockPos target = pos.relative(direction);
+        // A growth attempt must not request or generate an unloaded neighboring chunk.
+        if (!level.hasChunkAt(target)) {
+            return;
+        }
         Optional<BlockState> next = nextGrowth(family, level.getBlockState(target), direction);
         if (next.isEmpty()) {
             return;

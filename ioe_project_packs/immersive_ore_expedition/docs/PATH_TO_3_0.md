@@ -701,3 +701,19 @@ récolte/registre, dépendances, exclusion du placement GeOre et Jade adaptés.
 Le reçu PR64 distingue la nouvelle CI exacte de la qualification du head précédent.
 Production OFF ; garde-fous Nether inchangés ; aucune installation, migration,
 fusion ou publication. Validation visuelle/client toujours non prouvée.
+
+
+## PR64 — réconciliation Glowstone et voisin absent
+
+Reprise sur le head local/distant propre `e7f02eec00270c4d662e1c2e953ac521a97be959`.
+La décision vocale Glowstone impose le moteur commun, pas le profil spécial
+quatre poussières. Le contrat précise désormais la seule lacune de récolte des
+cristaux ; ce choix ne bloque plus les travaux indépendants. AE2CS Fluix purifié
+reste un candidat distinct sans dépendance ajoutée.
+
+Correctif partagé : ne pas lire/générer un chunk voisin absent lors de randomTick,
+ni tirer l'usure dans ce cas. GameTest sur l'entrée runtime réelle pour les familles
+et rangs disponibles ; validation exacte à consigner dans PR64. Les 14 checks
+verts de e7f02ee restent la preuve de la source précédente seulement.
+Production OFF ; aucune famille/recette/distribution nouvelle ni modification des
+budgets, read sets, déduplication ou anciens chunks. Visuel/client non prouvé.
