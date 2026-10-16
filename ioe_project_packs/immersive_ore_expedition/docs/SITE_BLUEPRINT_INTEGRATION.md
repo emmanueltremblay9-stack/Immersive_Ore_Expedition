@@ -271,7 +271,8 @@ through staggered, backed ladder wells. West landings use feet Y=3/9/14 and east
 landings Y=4/10/15; the upper west alcove has its own supported step. Three real
 crossbars connect the rails at low, middle and high levels. Rock remains between
 them. Native stone stairs handle the small height offsets without mandatory jumps;
-three-high clearance and two-wide circulation remain required.
+three-high clearance and two-wide circulation remain required. Every stair writes
+its own stone support instead of relying on existing terrain.
 
 A has three crossbars. B replaces only the middle one with an ascent to a two-wide,
 off-center landing and a descent to the east rail. C divides only the lower bar
@@ -300,3 +301,10 @@ jobs (baseline 38911681369/38911688246; current pack 38911681025/38911687823),
 716 JUnit and 88+88 GameTests per stack, streaming/restart, 2,482 cells maximum
 over 6,480 fixtures. Its non-installed 472-class JAR SHA256 is
 `a709d07f03b52c4eb0395d5fb7d88ee06aeb94b0c316b86abe03ff7d7d74a3dc`.
+
+The first BP-37 CI at `43d31b3` found an inaccessible N7 in B: its rising middle
+bar obstructed the old flat approach. The fixed node/mask is retained, and a
+two-wide terminal descent now joins its Y=9 front to the raised landing. Both
+pure and composed route tests had rejected the defect; no failed run is treated
+as qualification. Foreign-edit compensation now also requires every other owned
+cell to be restored, and every stair requires explicit support and clearance.

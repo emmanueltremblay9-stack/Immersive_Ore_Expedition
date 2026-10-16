@@ -58,6 +58,10 @@ final class CatalogueRails {
             room(air,4,4,10,6,7);
             room(air,5,8,11,6,7);
             room(air,9,12,10,6,7);
+            // N7 keeps its original Y=9 front, reached by a terminal descent from the landing.
+            room(air,6,7,11,8,8);
+            room(air,6,7,10,9,9);
+            room(air,4,7,9,10,10);
         } else {
             room(air,3,6,9,6,7);
             room(air,7,12,10,6,7);
@@ -87,6 +91,8 @@ final class CatalogueRails {
             stairs(blocks,base,5,5,10,6,7,Direction.EAST);
             floor(blocks,base,6,7,10,6,7);
             stairs(blocks,base,8,8,10,6,7,Direction.WEST);
+            stairs(blocks,base,6,7,10,8,8,Direction.NORTH);
+            stairs(blocks,base,6,7,9,9,9,Direction.NORTH);
         } else stairs(blocks,base,7,7,9,6,7,Direction.EAST);
         return blocks;
     }
@@ -107,7 +113,9 @@ final class CatalogueRails {
             blocks.put(base.offset(x,y,z),Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING,facing));
     }
     private static void stairs(Map<BlockPos,BlockState> blocks,BlockPos base,int x1,int x2,int y,int z1,int z2,Direction facing) {
-        for(int x=x1;x<=x2;x++) for(int z=z1;z<=z2;z++)
+        for(int x=x1;x<=x2;x++) for(int z=z1;z<=z2;z++) {
+            blocks.put(base.offset(x,y-1,z),Blocks.STONE.defaultBlockState());
             blocks.put(base.offset(x,y,z),Blocks.STONE_STAIRS.defaultBlockState().setValue(StairBlock.FACING,facing));
+        }
     }
 }

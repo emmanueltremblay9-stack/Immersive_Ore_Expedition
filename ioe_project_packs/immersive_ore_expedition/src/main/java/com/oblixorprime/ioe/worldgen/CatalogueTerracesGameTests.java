@@ -33,6 +33,10 @@ public final class CatalogueTerracesGameTests {
                 Direction facing = entry.getValue().getValue(LadderBlock.FACING);
                 helper.assertTrue(solid(geometry, entry.getKey().relative(facing.getOpposite())), "Unbacked ladder");
             }
+            for (var entry : geometry.entrySet()) if (entry.getValue().is(Blocks.STONE_STAIRS)) {
+                helper.assertTrue(solid(geometry,entry.getKey().below()),"Stair relies on unplanned terrain support");
+                helper.assertTrue(stand(geometry,entry.getKey().above()),"Stair lost three-high clearance");
+            }
             for (int nodes : new int[]{0,3,4,5,7}) {
                 var composed = new LinkedHashMap<>(geometry);
                 if (nodes > 0) composed.putAll(CatalogueTerraces.nodes(center, Blocks.IRON_ORE.defaultBlockState(),
@@ -124,6 +128,9 @@ public final class CatalogueTerracesGameTests {
             again.rollback(level);
             helper.assertTrue(level.getBlockState(foreign).is(Blocks.DIAMOND_BLOCK),
                     "Compensation overwrote a foreign stair replacement");
+            helper.assertTrue(geometry.keySet().stream().filter(p -> !p.equals(foreign))
+                    .allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
+                    "Foreign stair edit prevented compensation of owned cells");
             level.setBlockAndUpdate(foreign,Blocks.STONE.defaultBlockState());
         }
         }
