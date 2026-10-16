@@ -266,17 +266,8 @@ public final class CatalogueTerracesGameTests {
             var origin = new BlockPos(chunk.getMinBlockX()+4,41,chunk.getMinBlockZ()+9);
             ExpeditionWorldgenGameTests.fillTestChunk(level,chunk);
             if (type == ExpeditionSiteType.MINER_CAMP) {
-                var fixtureRandom = net.minecraft.util.RandomSource.create(planSeed);
-                var fixtureCenter = new BlockPos(chunk.getMinBlockX()+7,
-                        origin.getY()-20-fixtureRandom.nextInt(9),chunk.getMinBlockZ()+7);
-                var bounds = ExpeditionSiteFeature.expandedPlanBounds(
-                        CatalogueTerraces.geometry(fixtureCenter,variant).keySet());
-                // BP-14's west shell reaches local X=0. The collision margin therefore
-                // needs west-neighbor metadata, even though every write stays in this chunk.
-                // Allocate only the controlled fixture's metadata halo; production must not load it.
-                for (int cx=Math.floorDiv(bounds.minX(),16);cx<=Math.floorDiv(bounds.maxX(),16);cx++)
-                    for (int cz=Math.floorDiv(bounds.minZ(),16);cz<=Math.floorDiv(bounds.maxZ(),16);cz++)
-                        level.getChunk(cx,cz);
+                // Prepare only this controlled fixture's halo; production still refuses absent metadata.
+                var bounds = ExpeditionWorldgenGameTests.prepareCatalogueCampMetadata(level,origin,seed);
                 helper.assertFalse(LoadedStructureCollision.blocksPlacement(level,bounds),
                         "Catalogue fixture metadata is unavailable or overlaps a structure: " + variant);
             }

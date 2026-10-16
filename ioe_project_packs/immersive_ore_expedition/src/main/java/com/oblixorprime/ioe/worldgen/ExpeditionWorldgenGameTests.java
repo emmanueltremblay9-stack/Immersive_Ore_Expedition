@@ -1249,6 +1249,7 @@ public final class ExpeditionWorldgenGameTests {
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(64, 24, 64)));
         BlockPos requestedOrigin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
+        prepareCatalogueCampMetadata(level, requestedOrigin, seed);
 
         FeaturePlaceContext<NoneFeatureConfiguration> context = new FeaturePlaceContext<>(
                 Optional.empty(),
@@ -1335,6 +1336,7 @@ public final class ExpeditionWorldgenGameTests {
         long seed = 0;
         while (SiteQualityRoll.DEFAULT.roll(RandomSource.create(seed)) != SiteQuality.NORMAL) seed++;
         BiomeMineResourceProfile profile = testIronProfile(level);
+        prepareCatalogueCampMetadata(level, origin, seed);
         boolean staged = new ExpeditionSiteFeature(ExpeditionSiteType.MINER_CAMP,
                 (ignoredLevel, ignoredPos) -> new BiomeMineResourceProfile.Resolution(
                         Optional.of(profile), BiomeMineResourceProfile.Failure.NONE)).place(
@@ -1374,6 +1376,9 @@ public final class ExpeditionWorldgenGameTests {
                         .getOptional(definitionId).orElseThrow();
                 var profile = new BiomeMineResourceProfile(ResourceLocation.parse("minecraft:plains"), definitionId, definition, 1);
                 long seed = dry ? DRY_SEED : productiveSeed;
+                var bounds = prepareCatalogueCampMetadata(level, origin, seed);
+                helper.assertFalse(LoadedStructureCollision.blocksPlacement(level, bounds),
+                        "Family fixture lacks collision metadata: " + family + " dry=" + dry);
                 boolean staged = new ExpeditionSiteFeature(ExpeditionSiteType.MINER_CAMP,
                         (ignoredLevel, ignoredPos) -> new BiomeMineResourceProfile.Resolution(Optional.of(profile),
                                 BiomeMineResourceProfile.Failure.NONE)).place(new FeaturePlaceContext<>(Optional.empty(), level,
@@ -1968,6 +1973,21 @@ public final class ExpeditionWorldgenGameTests {
         helper.assertTrue(level.getBlockState(new BlockPos(chunk.getMinBlockX() + 4, 40, chunk.getMinBlockZ() + 6)).is(Blocks.STONE),
                 "Fixture did not retain its controlled platform");
         helper.succeed();
+    }
+
+    /** Allocate the exact metadata halo of a controlled positive fixture, never from production. */
+    static net.minecraft.world.level.levelgen.structure.BoundingBox prepareCatalogueCampMetadata(
+            ServerLevel level, BlockPos origin, long seed) {
+        RandomSource random = RandomSource.create(seed);
+        SiteQualityRoll.DEFAULT.roll(random);
+        RandomSource shape = RandomSource.create(random.nextLong());
+        ChunkPos chunk = new ChunkPos(origin);
+        BlockPos center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-20-shape.nextInt(9),chunk.getMinBlockZ()+7);
+        var variant = CatalogueTerraces.Variant.values()[shape.nextInt(CatalogueTerraces.Variant.values().length)];
+        var bounds = ExpeditionSiteFeature.expandedPlanBounds(CatalogueTerraces.geometry(center,variant).keySet());
+        for (int cx=Math.floorDiv(bounds.minX(),16);cx<=Math.floorDiv(bounds.maxX(),16);cx++)
+            for (int cz=Math.floorDiv(bounds.minZ(),16);cz<=Math.floorDiv(bounds.maxZ(),16);cz++) level.getChunk(cx,cz);
+        return bounds;
     }
 
     static void fillTestChunk(ServerLevel level, ChunkPos chunk) {

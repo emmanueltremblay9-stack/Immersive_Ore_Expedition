@@ -699,3 +699,11 @@ as are the north/east arms. The north endpoint is offset to the east, while the
 fixed north mineral alcove remains a recess of the vestibule. B's outer return
 follows that endpoint. No mineral position, mask, budget or write cap is changed.
 The new exact-source tests replace the unqualified candidate's runs.
+
+The initial BP-31 candidate 2686f4f also failed the positive GeOre-family fixture
+for DRY Aluminum. With 39 forms, DRY seed 2 selects BP-24 A (ordinal 30), whose
+west root requires neighboring collision metadata. The catalogue fixture already
+prepared this halo; the older family fixtures did not. A shared test-only helper
+now prepares the exact selected geometry's metadata halo for positive camp tests.
+The absent-neighbor negative test and production fail-closed/no-load checks remain
+unchanged. Initial candidate matrix maximum was 2,497; no success is transferred.
