@@ -139,7 +139,8 @@ coordinates are not imposed on the current final layout. This implementation kee
 canonical rewards. Its upper east-west gallery is at feet Y=15 and its lower
 north-south gallery at Y=3. The lateral route passes the unchanged middle alcoves
 at Y=9, with the same backed links. Rock is explicitly written at X/Z=6–8,
-Y=6–13 to keep the axes separated even when the source terrain contains a void.
+Y=8–9 as a two-block horizontal diaphragm to keep the axes separated even when
+the source terrain contains a void; the lower roof and upper floor remain intact.
 No extra resources, rolls, rooms, containers or new gameplay are introduced.
 
 `CatalogueCrossing` supplies its own air volume; the canonical shell, node masks,
@@ -162,3 +163,11 @@ Qualified predecessor BP-05 A/B/C: `768e8c48b61c030d57c58aa6afb5fb686dc70b00`,
 and restart. Maximum 2,482 cells over 2,160 fixtures. Its non-installed JAR has
 470 classes and SHA256 `26149d8a06056f87b44b6283fc22744e2df99c6a263f8158326abbaff3a892a5`.
 Those results do not qualify the BP-16 successor.
+
+
+BP-16 first CI finding at `7042ac8`: 83 of 84 minimal GameTests passed;
+the expanded composed-plan test measured 2,514 cells for a Motherlode camp.
+The correction reduces the redundant eight-layer central fill to the catalogue's
+horizontal diaphragm, two blocks thick. It preserves the axes, supported routes,
+all seven node masks, survey room and surface functions. The 2,500-cell cap and
+its failing assertion remain unchanged; the corrected source requires fresh CI.

@@ -251,7 +251,7 @@ public final class CatalogueTerracesGameTests {
                 "Upper east-west gallery is not supported and three-high");
         for (int z = 3; z <= 11; z++) helper.assertTrue(stand(geometry,new BlockPos(7,3,z)),
                 "Lower north-south gallery is not supported and three-high");
-        for (int y = 6; y <= 13; y++) for (int x = 6; x <= 8; x++) for (int z = 6; z <= 8; z++)
+        for (int y = 8; y <= 9; y++) for (int x = 6; x <= 8; x++) for (int z = 6; z <= 8; z++)
             helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Crossing diaphragm was perforated");
         helper.assertTrue(reachable(geometry,CatalogueTerraces.ENTRANCE).contains(new BlockPos(7,3,7)),
                 "The lateral connection does not reach the lower axis");

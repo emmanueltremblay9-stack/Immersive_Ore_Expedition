@@ -21,7 +21,9 @@ par pile et streaming/reprise ; maximum 2 482 sur 2 160 plans. JAR non installé
 Cycle suivant : BP-16 A (catalogue 002), deux galeries croisées en hauteur avec
 noyau séparateur et liaison latérale. Enveloppe, entrée et sept repères minéraux
 actuels conservés ; seules géométrie et ancre de circulation médiane changent.
-Matrice portée à 2 880 plans et 16 placements réels. La preuve au commit exact
+Matrice portée à 2 880 plans et 16 placements réels. Le premier run a détecté
+2 514 cellules ; le remplissage central est compacté en diaphragme de deux blocs,
+sans enlever de fonction ni relever le plafond de 2 500. La preuve au commit exact
 reste suivie dans PR64, sans transfert du reçu précédent. Carte de couverture :
 4 variantes implémentées, 116 restantes ; qualification distincte.
 Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation

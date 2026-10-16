@@ -39,7 +39,7 @@ final class CatalogueCrossing {
         var blocks = CatalogueTerraces.finish(center,air);
         var base = CatalogueTerraces.base(center);
         // Explicit rock separates both axes, including when the source terrain contains a void.
-        for (int y = 6; y <= 13; y++) for (int x = 6; x <= 8; x++)
+        for (int y = 8; y <= 9; y++) for (int x = 6; x <= 8; x++)
             for (int z = 6; z <= 8; z++) blocks.put(base.offset(x,y,z),Blocks.STONE.defaultBlockState());
         return blocks;
     }
