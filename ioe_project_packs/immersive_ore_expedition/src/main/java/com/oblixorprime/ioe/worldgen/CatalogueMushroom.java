@@ -29,10 +29,15 @@ final class CatalogueMushroom {
         var air = new LinkedHashSet<BlockPos>();
         for(var cell:cap) {
             for(int y=9;y<=11;y++) air.add(cell.atY(y));
-            for(int y=15;y<=17;y++) air.add(cell.atY(y));
-            if(lobes && !splitCap.contains(cell)) for(int y=12;y<=14;y++) air.add(cell.atY(y));
+            if(!lobes) for(int y=15;y<=17;y++) air.add(cell.atY(y));
         }
-        if(lobes) for(var cell:splitCap) for(int y=15;y<=17;y++) air.add(cell.atY(y));
+        if(lobes) {
+            for(var cell:splitCap) for(int y=15;y<=17;y++) air.add(cell.atY(y));
+            // Open views separate the lobes on both sides of their supported isthmus.
+            // Do not excavate the full cap's unused upper shoulders in this variant.
+            well(air,4,5,7,8,12,17);
+            well(air,9,11,8,8,12,17);
+        }
         // A broad walkable base and upper underside surround a narrower, non-walkable
         // viewing waist. The single stem remains exposed on every side through it.
         room(air,5,10,3,4,9);

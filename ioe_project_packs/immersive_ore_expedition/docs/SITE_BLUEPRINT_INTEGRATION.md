@@ -766,3 +766,10 @@ shoulders and tapers the intermediate viewing space around the exposed single
 stem. Walkable base/underside routes, upper cap, B's slit and C's isthmus remain;
 no main passage is narrowed. The 2,500-cell guard, fixed masks and rewards are
 unchanged. New exact-source CI is required; the failed candidate is not qualified.
+
+
+BP-26 follow-up: ca30d42 reduced the matrix maximum to 2,573 cells; only the
+composed-cap test still failed, on C/Motherlode camp. C now excavates the upper
+faces of its two lobes and the actual separating views beside the isthmus,
+instead of the full cap's unused upper shoulders. Supported routes, underside,
+fixed masks and the production cap remain unchanged. Exact CI required again.
