@@ -1,0 +1,50 @@
+name: TesT play2 compatibility
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  current-pack:
+    name: Current pack qualification (not distributable)
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: ioe_project_packs/immersive_ore_expedition
+    env:
+      # Qualification-only admission. Distributed properties stay unchanged until green.
+      ORG_GRADLE_PROJECT_ae2cs_version_range: '[1.2.1]'
+      ORG_GRADLE_PROJECT_domum_version_range: '[1.0.236-snapshot]'
+      ORG_GRADLE_PROJECT_extendedae_version_range: '[1.21-2.2.41-neoforge]'
+      ORG_GRADLE_PROJECT_ae2_runtime_version: '19.2.18'
+      ORG_GRADLE_PROJECT_ae2cs_modrinth_version: 'taIhgdOA'
+      ORG_GRADLE_PROJECT_geore_modrinth_version: '73hXLxdm'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.8'
+      - name: Unit tests and current core runtime
+        run: gradle --no-daemon clean test -PioeDepth32Prototype=true runGameTestServer
+      - name: Exact current artifacts and public ABI
+        run: |
+          python3 scripts/stage_ci_runtime_mods.py --manifest ci/runtime-mods-test-play2.json
+          python3 scripts/verify_pack_compatibility.py --manifest ci/runtime-mods-test-play2.json
+          python3 scripts/verify_current_core_runtime.py
+      - name: Current complete runtime and restart behavior
+        run: python3 scripts/qualify_depth32_restart.py
+      - name: Reports only (qualification metadata must not be distributed)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-play2-qualification-reports
+          path: |
+            ioe_project_packs/immersive_ore_expedition/build/reports/**
+            ioe_project_packs/immersive_ore_expedition/build/test-results/**
+            ioe_project_packs/immersive_ore_expedition/run/gametest-full/runtime-mods-evidence.json

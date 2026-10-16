@@ -759,24 +759,24 @@ Routage de production Nether OFF ; sites Overworld activés par défaut ; contra
 Aucune installation/fusion/publication ; validation visuelle non prouvée.
 
 
-## TesT play2 — qualification préalable des intégrations Domum/Jade
+## TesT play2 — qualification des versions actuelles
 
-Reprise vérifiée sur 4a968c3730cb9f43e48478d45424f7099081fd8a, checkout propre.
-Le propriétaire demande de préserver Domum 1.0.234-snapshot et Jade 15.10.5+neoforge.
-Les JAR de distribution téléchargés pour inspection correspondent exactement aux
-SHA256 transmis du PC (538f8364…372c et 067bb4b0…e92d). Les signatures appelées par
-DomumOrnamentumAdapter, IoeJadePlugin et IoeBuddingProvider sont présentes, y compris
-le constructeur public MaterialTextureData(Map). Aucun changement métier/API n'est
-nécessaire d'après cette inspection ; le comportement doit encore être qualifié.
+L’inventaire propriétaire de 08:02 UTC remplace les anciennes cibles Domum/Jade.
+Cibles : AE2CS 1.2.1, Domum 1.0.236-snapshot, ExtendedAE 1.21-2.2.41-neoforge,
+Jade 15.10.6, AE2 19.2.18 et GeOre 6.2.4. Les quatre SHA256 fournis sont
+vérifiés sur les distributions officielles. Voir TEST_PLAY2_COMPATIBILITY.md.
 
-Première phase : bornes distribuées anciennes conservées, overrides étroits utilisés
-uniquement par le script de qualification CI avec les JAR cibles épinglés/hachés.
-Contrôle JVM public des descripteurs avant lancement, tests Domum placement/NBT/loot
-et Jade enregistrement/tooltip/provenance ; absence de Jade désormais bloquante
-dans la configuration complète. Les compilations conservent les API précédentes
-pour exercer la liaison binaire avec les nouveaux JAR. Aucun succès annoncé avant
-CI au commit exact. L'élargissement d'admission vient après cette preuve.
+Reprise vérifiée sur 9923ba62704ccec0308e3042e3763c806d1d4c07, branche existante
+PR64. La qualification précédente a échoué sur un descripteur Jade incorrect dans
+le vérificateur (IComponentProvider, pas IBlockComponentProvider) ; contrôle corrigé.
+Aucune preuve de succès transférée aux nouveaux JAR.
 
-Aucun changement gameplay/génération : Overworld actif par défaut, Nether fermé,
-OreGuard indépendant, retrogen désactivé. Pas de travail sur le PC, de modification
-des mods tiers, de nettoyage MineColonies, d'installation, fusion ou publication.
+Phase préalable : baseline complète restaurée (Domum 1.0.231/Jade 15.10.6), job
+courant séparé avec admission temporaire exacte, compilation sur API antérieures,
+contrôle ABI et GameTests complets/restart. Bornes distribuées encore inchangées.
+Aucun JAR du job temporaire n’est distribué. Admission définitive après preuve CI.
+
+Overworld actif par défaut, Nether fermé, OreGuard indépendant, retrogen désactivé.
+Aucune modification gameplay, PC, mods tiers, MineColonies, installation, fusion ou
+publication. Thunderbolt déjà installé sur PC, aucun ajout requis par ce patch.
+Validation visuelle/client non prouvée.

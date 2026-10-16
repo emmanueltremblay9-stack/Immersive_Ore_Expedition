@@ -83,17 +83,17 @@
     },
     {
       "mod_id": "domum_ornamentum",
-      "filename": "domum-ornamentum-1.0.234-snapshot-main.jar",
-      "url": "https://ldtteam.jfrog.io/ldtteam/modding/com/ldtteam/domum-ornamentum/1.0.234-snapshot/domum-ornamentum-1.0.234-snapshot-main.jar",
-      "sha512": "7c6ebdd08ca95e445724f1b87f00d18b9f6a72166696d02f0af2d4f97326fe95096ff0d62effbf1f99076fb10f6f92be86c792005b984433f8e66099f8b5a878",
-      "sha256": "538f8364299d06a9e75252b4e6f63d8b3b520c38debd72d0ff97ba14e6cc372c"
+      "filename": "domum-ornamentum-1.0.231-main.jar",
+      "url": "https://ldtteam.jfrog.io/ldtteam/modding/com/ldtteam/domum-ornamentum/1.0.231/domum-ornamentum-1.0.231-main.jar",
+      "sha512": "483061574a8452ce6b5b25779431540fc4e444123a987633546b290e9beb03ce094d0bdb80f28fb1dbc2317fd91d1dfbde1c4c0619dbf124768744cb8bc6ea35",
+      "sha256": "04c0c902bdbcbd48e38bee5a323907ae0b7b7db4ff4a3e4da7c45334b65610a1"
     },
     {
       "mod_id": "jade",
-      "filename": "Jade-1.21.1-NeoForge-15.10.5.jar",
-      "url": "https://cdn.modrinth.com/data/nvQzSEkH/versions/yd8FKCmx/Jade-1.21.1-NeoForge-15.10.5.jar",
-      "sha512": "678b998677a3d73f98f82dac4093893bfc8a3c2335ec627b4147811c381a040475decdb8db31cc3cbe600abb5a7a6dedcd356eed0ba471af0becdcf49bf5b137",
-      "sha256": "067bb4b007e1d6f6b79f0afe99c91252aa825472b99a76d33a60d24442f9e92d"
+      "filename": "Jade-1.21.1-NeoForge-15.10.6.jar",
+      "url": "https://cdn.modrinth.com/data/nvQzSEkH/versions/eYz2YBGT/Jade-1.21.1-NeoForge-15.10.6.jar",
+      "sha512": "dad9755dce8d85d914fc4df2baa0211f13e5839a71c1925fdd01f69081a95e30a2934e6273f8b01f0169adebe7a9dae57a8d904de0c4cb36dc17369bb474f0f2",
+      "sha256": "276f1f65a20d04f536989c4f311949d770b52c440c23c2b904a08860f3c93810"
     }
   ]
 }

@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Verify exact TesT play2 JARs and public JVM descriptors before hosted runtime qualification."""
-import hashlib,json,re,subprocess
+import argparse,hashlib,json,re,subprocess
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
-manifest=json.loads((root/'ci/runtime-mods.json').read_text())
+parser=argparse.ArgumentParser()
+parser.add_argument('--manifest',default='ci/runtime-mods.json')
+args=parser.parse_args()
+manifest=json.loads((root/args.manifest).read_text())
 material='com/ldtteam/domumornamentum/client/model/data/MaterialTextureData'
 checks={
  'domum_ornamentum':{
@@ -13,7 +16,7 @@ checks={
  'jade':{
   'snownee.jade.api.IWailaPlugin':[('register','(Lsnownee/jade/api/IWailaCommonRegistration;)V'),('registerClient','(Lsnownee/jade/api/IWailaClientRegistration;)V')],
   'snownee.jade.api.IWailaCommonRegistration':[('registerBlockDataProvider','(Lsnownee/jade/api/IServerDataProvider;Ljava/lang/Class;)V')],
-  'snownee.jade.api.IWailaClientRegistration':[('registerBlockComponent','(Lsnownee/jade/api/IBlockComponentProvider;Ljava/lang/Class;)V')],
+  'snownee.jade.api.IWailaClientRegistration':[('registerBlockComponent','(Lsnownee/jade/api/IComponentProvider;Ljava/lang/Class;)V')],
   'snownee.jade.api.IServerDataProvider':[('appendServerData','(Lnet/minecraft/nbt/CompoundTag;Lsnownee/jade/api/Accessor;)V')],
   'snownee.jade.api.IComponentProvider':[('appendTooltip','(Lsnownee/jade/api/ITooltip;Lsnownee/jade/api/Accessor;Lsnownee/jade/api/config/IPluginConfig;)V')],
   'snownee.jade.impl.WailaCommonRegistration':[('instance','()Lsnownee/jade/impl/WailaCommonRegistration;'),('getBlockNBTProviders','(Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/block/entity/BlockEntity;)Ljava/util/List;')],
