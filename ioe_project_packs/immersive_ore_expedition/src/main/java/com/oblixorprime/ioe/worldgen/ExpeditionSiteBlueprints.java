@@ -259,8 +259,6 @@ public final class ExpeditionSiteBlueprints {
                 int shaftDepth = depth-4;
                 addShaft(builder, origin, shaftDepth);
                 connectorEnd = origin.below(shaftDepth);
-                roomCenters.add(addGalleryLevel(builder, origin.below(8), direction,
-                        zDirectionTowardChunkCenter(origin), GalleryTheme.SURVEY));
                 var geometry = CatalogueTerraces.geometry(chamberCenter,split);
                 geometry.forEach(builder::put);
                 CatalogueTerraces.access(chamberCenter,connectorEnd,geometry).forEach(builder::put);

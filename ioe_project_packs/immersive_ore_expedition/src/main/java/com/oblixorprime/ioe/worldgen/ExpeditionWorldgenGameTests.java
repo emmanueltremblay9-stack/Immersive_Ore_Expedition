@@ -143,8 +143,8 @@ public final class ExpeditionWorldgenGameTests {
             )), type.id() + " did not plan exactly one surface clue, connector, and chamber");
             helper.assertTrue(plan.oreBlockCount() == 0L && plan.oreNodeCount() == 0,
                     type.id() + " embedded a forbidden free resource in its structural chamber");
-            helper.assertTrue(plan.roomCenters().size() == 4,
-                    type.id() + " did not retain the survey room and three catalogue terraces");
+            helper.assertTrue(plan.roomCenters().size() == 3,
+                    type.id() + " did not create the three catalogue terraces");
             assertRoomReachability(helper, plan);
             helper.assertTrue(plan.blocks().values().stream().anyMatch(state -> state.is(Blocks.CARTOGRAPHY_TABLE)),
                     type.id() + " did not create a survey room or village supply desk");
@@ -468,7 +468,7 @@ public final class ExpeditionWorldgenGameTests {
     }
 
     private static int expectedRoomCount(SiteQuality quality) {
-        return 4; // Survey room plus three quality-independent terraces.
+        return 3; // The catalogue replaces the old quality-dependent underground rooms.
 
     }
 

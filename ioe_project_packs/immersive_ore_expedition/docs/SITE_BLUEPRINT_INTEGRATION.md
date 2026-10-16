@@ -46,18 +46,21 @@ two-wide ladder. The total surface-to-chamber depth still uses the existing
 20–28 draw; configured anchor-distance limits remain unchanged. Shaft roof cells
 are reopened only along the original shaft, and no node coordinate is moved.
 
-The existing survey room is retained. The old quality-dependent lower rooms and
-vault are replaced by the three catalogue terraces, so all qualities now have
-four room centers including the survey room. Surface camps, clues, containers,
-Domum payloads and their budgets continue through the existing composers.
+The old underground survey room, quality-dependent rooms and vault are replaced
+by the three catalogue terraces; all qualities have three room centers. The
+catalogue module replaces that underground assembly rather than stacking another
+room above it. Surface camps, clues, workstations, containers, Domum payloads and
+their budgets continue through the existing composers.
 
 The existing 2,500-cell composed-plan regression ceiling is not raised. It is now
 also checked by `Feature.place`, together with build height, before staging the
 main plan and its fallbacks. An oversized plan is refused, never partially placed
 or repaired by a reward reroll. The first composed run detected a RICH camp at 2,558 cells. The correction
 removes its obsolete connector stub and trims unused terrace corners, without
-changing the ceiling, masks, rewards or surface camp. Runtime tests must establish
-that the corrected admitted fixtures fit; a sparse chamber by itself is not proof of the complete budget.
+changing the ceiling, masks, rewards or surface camp. The expanded all-depth
+matrix then found a 2,563-cell Motherlode camp. Removing the old additional survey
+room from the catalogue path completes the replacement of the old underground
+assembly. Runtime tests must establish that the corrected admitted fixtures fit; a sparse chamber by itself is not proof of the complete budget.
 DRY residues can occupy ordinary stone in the new floor, while excluding the
 central cache marker and existing payloads. Counts and independent lotteries stay
 with the existing DRY implementation.
