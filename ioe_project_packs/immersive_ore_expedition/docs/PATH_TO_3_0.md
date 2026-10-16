@@ -221,6 +221,22 @@ N3 rejoint le tablier par un court escalier et le puits est dessert seulement
 les niveaux médian/haut. Nouvelle qualification exacte requise, sans relever
 le plafond ni revendiquer une preuve runtime depuis une estimation statique.
 
+### BP-34 qualifié ; cycle suivant BP-40 A/B/C
+
+BP-34 accepté sur 798da98cb632cb386812a89d3f7a5568cdcc6d28 : 16 jobs verts, 716 JUnit et 121+121
+GameTests par pile, streaming/reprise ; 41 040 plans, 228 placements réels,
+maximum 2494. JAR non installé :
+0f6d60e271bd1639605fa010b9910dce2db37d6e0d2316fddff5a0c76a00b621.
+
+BP-40 : traverse oblique ancrée au sol et au plafond opposé ; B fenêtre
+médiane encadrée, C deux attaches hautes depuis un pied unique. Parcours
+latéraux soutenus, sans escalade implicite. Tests de continuité des tranches,
+retours et coupure isolée de fenêtre. Masques et fonctions conservés.
+Couverture 60/120 implémentées, 60 restantes ; 43 200 plans et 240 placements.
+Qualification exacte à suivre sans transfert de preuves. Plafond 2 500
+inchangé ; pas de PC, installation, fusion, publication ou activation Nether.
+Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

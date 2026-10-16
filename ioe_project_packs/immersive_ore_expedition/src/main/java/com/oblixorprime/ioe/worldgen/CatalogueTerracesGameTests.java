@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isArch()) assertArchSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isTraverse()) assertTraverseSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isArch()) assertArchSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isBipyramid()) assertBipyramidSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isBell()) assertBellSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isHourglass()) assertHourglassSignatures(helper,plan.blocks(),base,variant);
@@ -289,10 +290,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isArch()) assertArchSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isTraverse()) assertTraverseSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isArch()) assertArchSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isBipyramid()) assertBipyramidSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isBell()) assertBellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isHourglass()) assertHourglassSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -1652,6 +1654,76 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(blocks.get(base.offset(8,5,5)).isAir()
                 && blocks.get(base.offset(3,5,5)).is(Blocks.STONE)
                 && blocks.get(base.offset(10,5,5)).is(Blocks.STONE),"Two rooted piers no longer frame the lower arch");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void traverseKeepsAnObliqueRootedAxisAndSupportedFlankReturns(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.TRAVERSE,
+                CatalogueTerraces.Variant.TRAVERSE_WINDOW,CatalogueTerraces.Variant.TRAVERSE_FORK}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertTraverseSignatures(helper,g,BlockPos.ZERO,variant);
+            for(int y=2;y<=18;y++) {
+                int x=y<=5?5:y<=7?5:y<=12?6:8;
+                int z=y<=7?5:y<=12?6:y<=14?7:8;
+                helper.assertTrue(g.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Diagonal bar lost its continuous rooted outer band");
+                if(y>2) {
+                    int px=y-1<=5?5:y-1<=7?5:y-1<=12?6:8;
+                    int pz=y-1<=7?5:y-1<=12?6:y-1<=14?7:8;
+                    helper.assertTrue(g.get(new BlockPos(x,y-1,z)).is(Blocks.STONE)
+                            && x>=px && z>=pz,"Adjacent diagonal slices lost their load-bearing overlap");
+                }
+            }
+            for(int x=8;x<=9;x++) for(int z=4;z<=9;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)),"Lower route no longer goes around the rooted foot");
+            for(int x=10;x<=11;x++) for(int z=4;z<=9;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,9,z)),"Middle outside flank lost its two-wide passage");
+            var top=new BlockPos(7,15,7);
+            for(var end:java.util.List.of(new BlockPos(8,3,8),new BlockPos(7,9,5),new BlockPos(3,15,12)))
+                helper.assertTrue(reachable(g,top).contains(end) && reachable(g,end).contains(top),
+                        "Oblique bar requires climbing an unprepared rock face");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void traverseMiddleWindowRetainsItsFrameAndUpperForkRetainsOneFoot(GameTestHelper helper) {
+        var window=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.TRAVERSE_WINDOW);
+        for(int x=7;x<=8;x++) for(int z=6;z<=7;z++) {
+            helper.assertTrue(stand(window,new BlockPos(x,9,z)),"Middle window lost supported clearance");
+            for(int y:new int[]{8,12}) helper.assertTrue(window.get(new BlockPos(x,y,z)).is(Blocks.STONE),
+                    "Middle window removed its lower or upper frame");
+        }
+        var cut=new LinkedHashMap<>(window);
+        for(int y:new int[]{6,12}) {
+            closeWell(cut,3,4,6,7,y);closeWell(cut,11,12,4,5,y);
+        }
+        closeWell(cut,3,4,6,7,9);closeWell(cut,10,11,6,7,9);
+        var north=new BlockPos(7,9,5);var south=new BlockPos(7,9,8);
+        helper.assertTrue(reachable(cut,north).contains(south) && reachable(cut,south).contains(north),
+                "Window depends on outside or vertical bypasses");
+        closeWell(cut,7,8,6,7,9);
+        helper.assertTrue(!reachable(cut,north).contains(south) && !reachable(cut,south).contains(north),
+                "Window cut retained an unintended middle crossing");
+        var fork=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.TRAVERSE_FORK);
+        for(int y=15;y<=18;y++) for(int z=8;z<=9;z++) {
+            for(int x:new int[]{7,8,11,12}) helper.assertTrue(fork.get(new BlockPos(x,y,z)).is(Blocks.STONE),
+                    "Fork lost one of its two ceiling attachments");
+            if(y<18) for(int x=9;x<=10;x++) helper.assertTrue(fork.get(new BlockPos(x,y,z)).isAir(),
+                    "Fork no longer separates its two upper branches");
+        }
+        for(int x=7;x<=12;x++) for(int z=6;z<=7;z++)
+            helper.assertTrue(stand(fork,new BlockPos(x,15,z)),"Upper fork lost its separate supported front flank");
+        helper.succeed();
+    }
+
+    private static void assertTraverseSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                                 BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(7,10,6)).isAir()
+                == (variant==CatalogueTerraces.Variant.TRAVERSE_WINDOW),"Diagonal middle window changed");
+        helper.assertTrue(blocks.get(base.offset(10,16,8)).isAir()
+                == (variant==CatalogueTerraces.Variant.TRAVERSE_FORK),"Diagonal upper fork changed");
+        helper.assertTrue(blocks.get(base.offset(5,2,5)).is(Blocks.STONE)
+                && blocks.get(base.offset(8,18,8)).is(Blocks.STONE),"Diagonal bar lost its floor or ceiling root");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
