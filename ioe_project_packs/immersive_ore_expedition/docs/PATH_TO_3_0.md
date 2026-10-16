@@ -30,13 +30,16 @@ par pile, streaming/reprise ; maximum 2 482 sur 6 480 plans. JAR non installé :
 BP-37 A/B/C `8332c19` est qualifié : 16 jobs verts, 716 JUnit, 90+90 GameTests
 par pile et streaming/reprise ; maximum 2 482 sur 8 640 plans. JAR non installé :
 `d7d94ed7d3e411a29adc7f4b613f7a0114176dda0673cf8a2cb217d380d7df94`.
-Cycle suivant : BP-03 A/B/C, trois poches arrondies en chaîne avec deux cols
-décalés ; poche médiane scindée en deux niveaux (B), satellite sans récompense (C).
-Enveloppe, sept positions, masques, fonctions, qualités et plafond restent fixes.
-Matrice de 10 800 plans, 60 placements réels ; tests des coupures de cols, de la
-subdivision, du satellite, des masques et de la compensation. Qualification exacte
-suivie dans PR64, sans transfert des preuves précédentes. Carte : 15 variantes
-implémentées, 105 restantes ; deux familles du catalogue 001 et une de chaque autre.
+BP-03 A/B/C `82a9e16` est qualifié : 16 jobs verts, 716 JUnit, 92+92 GameTests
+par pile et streaming/reprise ; maximum 2 488 sur 10 800 plans. JAR non installé :
+`5320a99af024ad1bc4a3681512b982a120ba05d66ca53df91d90055a312de91f`.
+Cycle suivant : BP-23 A/B/C, deux boucles verticales décalées autour de deux
+noyaux, jonction centrale soutenue, retour extérieur B et fente inférieure C.
+Enveloppe, positions, masques, qualités, récompenses, fonctions et plafond conservés.
+Matrice de 12 960 plans, 72 placements réels ; coupures des quatre bras, de J,
+du retour et de la fente, compensation et édition étrangère. Qualification exacte
+suivie dans PR64, sans transfert des preuves précédentes. Carte : 18 variantes
+implémentées, 102 restantes ; deux familles des catalogues 001/003 et une de 002/004.
 Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation
 Nether, fusion ou publication. Le runtime installé reste `382e0b4` ; le reçu
 ci-dessous est distinct du nouveau travail de génération.

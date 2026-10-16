@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 35 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 34 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-03, BP-05, BP-16, BP-27 or BP-37 A/B/C using one fifteen-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-03, BP-05, BP-16, BP-23, BP-27 or BP-37 A/B/C using one eighteen-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -120,7 +120,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | --- | --- | --- | --- |
 | 001 | BP-01–BP-10 | BP-03 and BP-05 A/B/C | All A/B/C of the other eight families (24) |
 | 002 | BP-11–BP-20 | BP-16 A/B/C | All A/B/C of the other nine families (27) |
-| 003 | BP-21–BP-30 | BP-27 A/B/C | All A/B/C of the other nine families (27) |
+| 003 | BP-21–BP-30 | BP-23 and BP-27 A/B/C | All A/B/C of the other eight families (24) |
 | 004 | BP-31–BP-40 | BP-37 A/B/C | All A/B/C of the other nine families (27) |
 
 A future family must pass the same route/node-mask/complete-budget qualification
@@ -367,3 +367,41 @@ two-wide entrance now leads to a 2×2 terminal floor, retaining its distinct roc
 separation and optional attachment. All three main lobes, mineral alcoves and
 functions are unchanged. The 2,500-cell assertion and production cap remain fixed;
 that failed run is not a qualification receipt.
+
+## BP-23 A/B/C: two offset loops and a real central junction
+
+Catalogue 003 contributes the asymmetric vertical eight. Its upper loop extends
+south, its lower loop north, around distinct explicit rock cores. Four backed
+vertical arms meet at a supported 3×4 central landing J at feet Y=9; J is never
+an open fall shaft. Main passages and ladder routes are two-wide and three-high.
+Terminal mineral approaches fit around the unchanged masks; no route requires
+mining a heart or its peripheral rock. The fixed envelope, E and seven positions
+remain authoritative over the proposed catalogue coordinates.
+
+A connects the two circuits only at J. B adds an exterior backed return from the
+lower western arm to the upper western arm, bypassing J without merging the
+cores. C cuts one two-wide passage through the lower core; the upper core remains
+closed. The lower ordinary crossing and this local slit remain separated by rock.
+Core blocks are explicit in the plan, so an existing terrain cavity cannot silently
+remove the intended rock mass. Existing fluid/protection/chunk checks still apply.
+
+New tests close either/both upper arms and either/both lower arms, check J's floor
+and clearance, and cut J to distinguish B's exterior return. Cutting that return
+as well must separate the circuits again. With J and the ordinary lower crossing
+blocked, only C must retain a route through the lower core; cutting the slit too
+must disconnect it. All cuts are tested in both travel directions. Common masks,
+all qualities, DRY rewards, room functions, placement and compensation remain
+covered, including idempotence and preservation of a foreign route-block edit.
+
+The matrix now contains 12,960 plans (9 depths × 18 forms × 4 accesses × 4 anchors
+× 5 qualities) and 72 real generator placement/commit/dedup pairs. The composed
+2,500-cell ceiling is unchanged. Coverage: 18/120 implemented, 102 pending;
+catalogues 001/003 each have two families, 002/004 each one. Exact-source CI and
+JAR identity remain separate qualification evidence in PR64. No installation,
+merge, release or Nether activation; client/visual acceptance NOT_PERFORMED.
+
+Accepted BP-03 predecessor: `82a9e16be7db690497617558f009fe2d428814ee`, 16 green
+jobs (baseline 38923332852/38923345024; current pack 38923333228/38923345099),
+716 JUnit and 92+92 GameTests per stack plus streaming/restart. Maximum 2,488
+cells over 10,800 fixtures; non-installed JAR, 474 classes, SHA256
+`5320a99af024ad1bc4a3681512b982a120ba05d66ca53df91d90055a312de91f`.

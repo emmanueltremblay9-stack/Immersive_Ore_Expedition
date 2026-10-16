@@ -120,17 +120,17 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || variant.isEight() && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
             helper.assertTrue(level.getBlockState(foreign).is(Blocks.DIAMOND_BLOCK),
-                    "Compensation overwrote a foreign stair replacement");
+                    "Compensation overwrote a foreign route replacement");
             helper.assertTrue(geometry.keySet().stream().filter(p -> !p.equals(foreign))
                     .allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
-                    "Foreign stair edit prevented compensation of owned cells");
+                    "Foreign route edit prevented compensation of owned cells");
             level.setBlockAndUpdate(foreign,Blocks.STONE.defaultBlockState());
         }
         }
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isPearls()) assertPearlSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isEight()) assertEightSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isPearls()) assertPearlSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isRails()) assertRailsSignatures(helper,plan.blocks(),base,variant);
                     else {
                     helper.assertTrue(plan.blocks().getOrDefault(base.offset(5,8,8),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%forms==2),
@@ -269,10 +270,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isPearls()) assertPearlSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isEight()) assertEightSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isPearls()) assertPearlSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else assertRailsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
             } else {
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(5,8,8)).isAir()==(variant==CatalogueTerraces.Variant.SPLIT),
@@ -572,6 +574,86 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.PEARLS_SATELLITE),"Satellite changed during composition");
         helper.assertTrue(blocks.getOrDefault(base.offset(10,15,8),Blocks.STONE.defaultBlockState()).is(Blocks.STONE)
                 == (variant==CatalogueTerraces.Variant.PEARLS_SATELLITE),"Satellite lost its separating rock");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void eightLoopsUseFourSupportedArmsAndCentralJunction(GameTestHelper helper) {
+        for(var variant : new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.EIGHT,
+                CatalogueTerraces.Variant.EIGHT_RETURN,CatalogueTerraces.Variant.EIGHT_SLIT}) {
+            var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertEightSignatures(helper,geometry,BlockPos.ZERO,variant);
+            for(int x=6;x<=8;x++) for(int z=6;z<=9;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"J became a fall shaft or lost clearance");
+            for(int mask=0;mask<4;mask++) {
+                var upper = new LinkedHashMap<>(geometry);
+                if((mask&1)!=0) closeWell(upper,2,3,6,7,12);
+                if((mask&2)!=0) closeWell(upper,11,12,4,5,12);
+                var junction = new BlockPos(7,9,7);
+                helper.assertTrue(reachable(upper,CatalogueTerraces.ENTRANCE).contains(junction)==(mask!=3)
+                        && reachable(upper,junction).contains(CatalogueTerraces.ENTRANCE)==(mask!=3),
+                        "Upper loop lost an arm or gained a bypass: " + variant + " mask=" + mask);
+                if(variant!=CatalogueTerraces.Variant.EIGHT_RETURN) {
+                    var lower = new LinkedHashMap<>(geometry);
+                    if((mask&1)!=0) closeWell(lower,2,3,10,11,6);
+                    if((mask&2)!=0) closeWell(lower,11,12,8,9,6);
+                    var low = new BlockPos(3,3,4);
+                    helper.assertTrue(reachable(lower,junction).contains(low)==(mask!=3)
+                            && reachable(lower,low).contains(junction)==(mask!=3),
+                            "Lower loop lost an arm or gained a bypass: " + variant + " mask=" + mask);
+                }
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void eightReturnAndSlitHaveOnlyTheirIntendedBypasses(GameTestHelper helper) {
+        for(var variant : new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.EIGHT,
+                CatalogueTerraces.Variant.EIGHT_RETURN,CatalogueTerraces.Variant.EIGHT_SLIT}) {
+            var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var cut = new LinkedHashMap<>(geometry);
+            for(int x=6;x<=8;x++) for(int z=6;z<=9;z++) for(int y=9;y<=11;y++)
+                cut.put(new BlockPos(x,y,z),Blocks.STONE.defaultBlockState());
+            var high = new BlockPos(3,15,12); var low = new BlockPos(3,3,4);
+            boolean returning = variant==CatalogueTerraces.Variant.EIGHT_RETURN;
+            helper.assertTrue(reachable(cut,high).contains(low)==returning
+                    && reachable(cut,low).contains(high)==returning,"Unexpected connection outside J: " + variant);
+            if(returning) {
+                var closed = new LinkedHashMap<>(cut);
+                closeWell(closed,2,3,4,5,6);
+                helper.assertTrue(!reachable(closed,high).contains(low) && !reachable(closed,low).contains(high),
+                        "B exterior return is not its only bypass of J");
+            }
+            // With J blocked, the lower northern bar and C's slit are independently observable.
+            for(int y=3;y<=5;y++) for(int z=4;z<=5;z++)
+                cut.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+            var east = new BlockPos(11,3,4);
+            boolean slit = variant==CatalogueTerraces.Variant.EIGHT_SLIT;
+            helper.assertTrue(reachable(cut,low).contains(east)==slit && reachable(cut,east).contains(low)==slit,
+                    "Lower core slit is missing or shared by another variant");
+            if(slit) {
+                for(int y=3;y<=5;y++) for(int z=7;z<=8;z++)
+                    cut.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+                helper.assertTrue(!reachable(cut,low).contains(east) && !reachable(cut,east).contains(low),
+                        "C added an unintended second lower shortcut");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
+        for(int x=x1;x<=x2;x++) for(int z=z1;z<=z2;z++)
+            blocks.put(new BlockPos(x,y,z),Blocks.STONE.defaultBlockState());
+    }
+    private static void assertEightSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(7,4,7)).isAir()
+                == (variant==CatalogueTerraces.Variant.EIGHT_SLIT),"Lower eight core changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(2,6,4),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.EIGHT_RETURN),"Exterior return changed");
+        helper.assertTrue(blocks.get(base.offset(7,9,7)).isAir() && blocks.get(base.offset(7,8,7)).is(Blocks.STONE),
+                "Eight junction lost its supported floor");
+        helper.assertTrue(blocks.get(base.offset(7,13,9)).is(Blocks.STONE),"Upper eight core was perforated");
     }
 
     private static boolean open(Map<BlockPos, BlockState> blocks, BlockPos p) {
