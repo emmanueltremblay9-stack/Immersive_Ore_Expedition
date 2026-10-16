@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 28 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 27 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-14, BP-16, BP-23, BP-24, BP-27, BP-35 or BP-37 A/B/C using one thirty-six-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-14, BP-16, BP-23, BP-24, BP-27, BP-31, BP-35 or BP-37 A/B/C using one thirty-nine-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -121,7 +121,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | 001 | BP-01–BP-10 | BP-02, BP-03, BP-05, BP-06 and BP-10 A/B/C | All A/B/C of the other five families (15) |
 | 002 | BP-11–BP-20 | BP-14 and BP-16 A/B/C | All A/B/C of the other eight families (24) |
 | 003 | BP-21–BP-30 | BP-23, BP-24 and BP-27 A/B/C | All A/B/C of the other seven families (21) |
-| 004 | BP-31–BP-40 | BP-35 and BP-37 A/B/C | All A/B/C of the other eight families (24) |
+| 004 | BP-31–BP-40 | BP-31, BP-35 and BP-37 A/B/C | All A/B/C of the other seven families (21) |
 
 A future family must pass the same route/node-mask/complete-budget qualification
 before activation. A proposed outline alone does not authorize resource changes,
@@ -658,3 +658,36 @@ Accepted BP-24 source 33d7d3fd5f20fb04599c12f00c9b0543892f2860: 16 successful jo
 105 minimal + 105 complete GameTests per stack plus streaming/restart; maximum
 2,500 cells over 23,760 plans. Its JAR SHA256 is
 30d8c8176bd7d98b8f14224accdab9fbbacf7dbe5fe5437c40a4c8c9b8a2b7cb. These are predecessor proofs only.
+
+
+## BP-31 A/B/C: six directions around a hollow vestibule
+
+A five-high hollow vestibule connects four unequal lateral arms and two backed
+vertical arms. Its central circulation remains air, not a solid pillar. Fixed
+mineral alcoves attach to those routes; the west/south alcove is a wall recess,
+not a seventh arm. Both vertical arms have supported landings. The lower room
+anchor follows its actual landing. The upper cache and all survey functions remain.
+
+A has no exterior return between lateral destinations. B adds a staggered diagonal
+connection between the north and east arms, around the north wall of the upper
+shaft. C instead moves the upper shaft to the eastern corner, bends its route,
+and adds a supported observation landing with a rock sill and a two-high viewing
+opening toward the vestibule. It does not require a fall into the central room.
+
+The proposed dimensions/node sectors are normalized to the existing FINAL envelope
+and fixed masks. Quality/rank order, budgets and independent lotteries are unchanged.
+Specific tests verify returns from all six endpoints to the hollow vestibule,
+cut the straight/corner upper links independently, and check C's supported view.
+A north-neck cut leaves only B's diagonal return; cutting that return isolates
+the endpoint in both directions. Shared generator/mask/quality/DRY/compensation
+checks include all earlier forms. Production never force-loads metadata.
+
+Coverage: 39/120 implemented, 81 pending. Expanded matrix: 28,080 composed plans
+and 156 real placement/commit/dedup pairs. The 2,500-cell cap is unchanged; exact
+qualification is pending at this new source. No installation, merge, publication
+or Nether activation. Client/visual qualification remains NOT_PERFORMED.
+
+Accepted BP-35 source 8cda8fb3b227e7cffc3d6497b4692ccb1aeb4ae1: 16 successful jobs, 716 JUnit,
+107 minimal + 107 complete GameTests per stack plus streaming/restart; maximum
+2,488 cells over 25,920 plans. Its JAR SHA256 is
+60785441781d6b2e916c11e0e51881011c121dceefe7b6bfdaabe1240020cbc9. These remain predecessor proofs only.

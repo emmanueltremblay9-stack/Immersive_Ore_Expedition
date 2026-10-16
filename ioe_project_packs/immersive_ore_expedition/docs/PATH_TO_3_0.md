@@ -95,6 +95,20 @@ Couverture 36/120, 84 restantes. Qualification exacte à suivre dans PR64 sans
 transférer les preuves précédentes. Plafond 2 500 inchangé ; aucun accès PC,
 installation, fusion, publication ou activation Nether. Visuel/client non prouvé.
 
+### BP-35 qualifié ; cycle suivant BP-31 A/B/C
+
+BP-35 accepté sur 8cda8fb3b227e7cffc3d6497b4692ccb1aeb4ae1 : 16 jobs verts,
+716 JUnit et 107+107 GameTests par pile, streaming/reprise ; 25 920 plans,
+144 placements réels, maximum 2488.
+JAR non installé, SHA256 60785441781d6b2e916c11e0e51881011c121dceefe7b6bfdaabe1240020cbc9.
+
+Suite autorisée : BP-31 A/B/C, vestibule creux à six directions, retour diagonal
+B et bras haut coudé C avec palier et fenêtre protégée. Masques, positions,
+fonctions, accès et budgets conservés ; 28 080 plans et 156 placements réels.
+Couverture 39/120, 81 restantes. Qualification exacte à suivre dans PR64 sans
+transfert des preuves précédentes. Plafond 2 500 inchangé ; aucun accès PC,
+installation, fusion, publication ou activation Nether. Visuel/client non prouvé.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
