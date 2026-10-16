@@ -21,15 +21,24 @@ existing world. Its loaded-chunk/admission/provenance protections remain in forc
 this is not retrogen of old chunks. Source defaults, effective configs and datapacks
 must be recorded separately. See [activation scopes](SERVER_CONFIG_EXAMPLES.md).
 
-**Current qualification hold (16 October):** the owner thread reports the `dc3bfa7`
-JAR independently hashed on PC as
-`60bf6e86e0aaa6df75612d388c4e8a1e79cf0a8f2439b66bc1437a89af85261e`.
-This is a reported PC receipt, not a hash recomputed by the cloud executor, and it
-does not qualify a later documentation commit's artifact. Installation is suspended
-because required GeOre is absent and adding it awaits an answer. Do not repeat
-that request, install anything, or create another profile/server under this runbook.
-The following manual steps are conditional procedures for a separately authorized
-and dependency-complete environment, not instructions to proceed now.
+**Current installed candidate (16 October, 09:10 UTC):** the owner thread confirms
+that the approved installer installed source `382e0b469358a7c9f32a3988632cd66c770f04c8`,
+JAR SHA256 `35feaf9658fb4e0b43ea3710633989f3d49adc88c9e47dbdc5d40d21067b9644`,
+into the existing Prism **1.21.1 TesT play 2** instance with one active IOE provider.
+The previous dc3bfa7 JAR was backed up; 148 other mods and 243 configs are unchanged.
+GeOre 6.2.4 is present, natural generation TRUE and retrogen FALSE are preserved.
+No world was launched. The old missing-GeOre installation hold is obsolete.
+
+Installation is complete: do not repeat it or create a new profile/server. The next
+missing evidence is client qualification of these already installed bytes, not
+another automated study. This receipt does not authorize any user-world operation.
+The following steps require a separately authorized world/scenario and responsible
+operator; no client/visual PASS follows from installation or hosted CI.
+
+For that authorized observation, record fresh launch logs, actual loaded versions
+and effective configs, Jade display/interaction (rank distinct from site quality),
+the implemented SITE_LOCATED/field-notes interaction, and save/exit/reopen behavior.
+Do not activate Nether/prototype gates, retrogen, or historical proof datapacks.
 
 Hosted GameTests validate automated scenarios in CI. They are not a manual client launch, dedicated-server smoke, newly generated world observation, or visual worldgen proof. Record each manual activity independently as `NOT_PERFORMED`, `PASS`, or `FAIL` and preserve a fresh `latest.log` plus observation details when it is run.
 
@@ -50,7 +59,7 @@ Hosted GameTests validate automated scenarios in CI. They are not a manual clien
 
 ## Client World-Entry Smoke
 
-1. Install the release jar into a controlled Minecraft 1.21.1 / NeoForge client profile.
+1. Verify the exact already-installed qualified JAR and dependency inventory in the existing authorized Minecraft 1.21.1 / NeoForge profile; do not reinstall it as part of this check.
 2. Start the client with a fresh log.
 3. Enter or create a test world.
 4. Confirm the mod loads without a crash.

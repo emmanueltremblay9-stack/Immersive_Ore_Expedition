@@ -1,5 +1,54 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
+## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
+
+Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
+branche `codex/crystal-cave-contract`, PR64 ouverte en brouillon à la reprise.
+SHA256 du JAR : `35feaf9658fb4e0b43ea3710633989f3d49adc88c9e47dbdc5d40d21067b9644`.
+Le hash est recalculé sur les octets conservés dans ce workspace ; le constat
+PC ci-dessous est transmis par le fil propriétaire, sans accès PC depuis ce cycle.
+
+L’installateur approuvé a installé ces octets à **09:10 UTC** dans Prism
+**1.21.1 TesT play 2** : un seul fournisseur IOE actif ; ancien JAR `dc3bfa7`
+(SHA256 `60bf6e86e0aaa6df75612d388c4e8a1e79cf0a8f2439b66bc1437a89af85261e`)
+sauvegardé ; **148 autres mods et 243 configurations inchangés**.
+Génération naturelle TRUE et retrogen FALSE préservés. **Aucun monde lancé**.
+Installation terminée : ne pas la répéter. Aucun résultat client/visuel n’en découle.
+
+Relecture distante : quatre runs réussis, **16 jobs verts**, tous liés au head
+runtime ci-dessus : baseline [push 38874735369](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/38874735369)
+et [PR 38874741675](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/38874741675),
+versions actuelles [push 38874735466, tentative 2](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/38874735466/attempts/2)
+et [PR 38874741658](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/38874741658).
+Chaque pile : 716 JUnit sans échec/erreur/ignoré, 78 GameTests minimaux et 78 complets,
+plus streaming et redémarrage séparés. JAR : 467 classes et métadonnées vérifiées.
+
+### Prochain écart essentiel, sans nouvelle fonctionnalité inventée
+
+La qualification client du **candidat déjà installé** reste NOT_PERFORMED :
+chargement avec journal frais, rendu/interactions Jade, progression SITE_LOCATED
+et manuel, sauvegarde/sortie/reprise. Voir le [runbook actuel](SMOKE_VALIDATION.md).
+La présente reprise n’autorise aucune opération sur les mondes utilisateur, aucun
+nouveau serveur/profil ou installation ; un responsable et un scénario de monde
+explicitement autorisé sont nécessaires avant cette observation. Ne pas convertir
+les succès CI en preuve client, ni relancer les études Nether déjà clôturées.
+
+La revue bornée de la feuille de route, des contrats et du gate source n’a pas
+identifié de nouvelle régression de code démontrée à corriger dans ce cycle.
+Les décisions de produits Fluix/Draconium et budgets de cave restent ouvertes dans
+CRYSTAL_CAVE_CONTRACT.md ; elles ne sont pas une autorisation d’implémentation.
+Nether conserve 74×74, LOWEST de la colonne candidate sans fallback, budgets partagés,
+read set/revalidation, nouveaux chunks uniquement, aucun chargement forcé,
+déduplication persistante et compensation best-effort ROLLBACK_INCOMPLETE.
+`NetherWorldActivation.PRODUCTION_ENABLED=false` reste inchangé ; activation,
+fusion PR64 et publication nécessitent leurs décisions distinctes.
+
+Ce changement est un **successeur documentaire**, pas un nouveau candidat runtime.
+Aucun code, dépendance, configuration, datapack ou octet du JAR installé n’est modifié.
+Validation documentaire ciblée uniquement, CI de ce successeur NOT_PERFORMED
+(`[skip ci]` pour ne pas répéter la qualification achevée). Son commit et le reçu
+distant sont résolus dans Git/PR64 ; les 16 succès restent attribués à `382e0b4`.
+
 ## Correction de portée d'activation — 16 octobre 2026
 
 Les mentions globales « Production OFF » des bilans PR64 étaient incorrectes.
@@ -20,9 +69,10 @@ Preuve transmise par le fil propriétaire : le JAR de `dc3bfa7` a été récupé
 haché indépendamment sur PC, SHA256
 `60bf6e86e0aaa6df75612d388c4e8a1e79cf0a8f2439b66bc1437a89af85261e`.
 Ce hash est attribué à cette source, pas au présent successeur documentaire ;
-il n'a pas été recalculé dans ce workspace cloud. Installation suspendue : GeOre
-obligatoire absent, ajout en attente de réponse. Aucune nouvelle demande ni action
-sur le PC. Qualification client/visuelle toujours non prouvée.
+il n'a pas été recalculé dans ce workspace cloud. Ce JAR a été installé à 06:25 UTC
+avec GeOre 6.2.4, puis sauvegardé lors du remplacement autorisé de 09:10 UTC décrit
+ci-dessus. L'ancien motif « GeOre absent / installation suspendue » est périmé.
+Qualification client/visuelle toujours non prouvée.
 
 La CI de ce successeur et le reçu distant exact sont consignés dans PR64 ; les
 14 checks verts de `dc3bfa7` restent identifiés séparément.
