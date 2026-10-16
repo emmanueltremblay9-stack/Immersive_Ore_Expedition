@@ -35,7 +35,7 @@ public final class CatalogueTerracesGameTests {
             }
             for (var entry : geometry.entrySet()) if (entry.getValue().is(Blocks.STONE_STAIRS)) {
                 helper.assertTrue(solid(geometry,entry.getKey().below()),"Stair relies on unplanned terrain support");
-                helper.assertTrue(stand(geometry,entry.getKey().above()),"Stair lost three-high clearance");
+                helper.assertTrue(stand(geometry,entry.getKey().above()),"Stair lost three-high clearance: " + variant + " " + entry.getKey());
             }
             for (int nodes : new int[]{0,3,4,5,7}) {
                 var composed = new LinkedHashMap<>(geometry);

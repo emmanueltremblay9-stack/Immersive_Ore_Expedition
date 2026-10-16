@@ -308,3 +308,10 @@ two-wide terminal descent now joins its Y=9 front to the raised landing. Both
 pure and composed route tests had rejected the defect; no failed run is treated
 as qualification. Foreign-edit compensation now also requires every other owned
 cell to be restored, and every stair requires explicit support and clearance.
+
+The second pass at `9ab7d8a` restored N7 but rejected a high stair under N3's
+reserved rock and measured 2,597 composed cells in the largest C/camp fixture.
+The upper step is moved north of that immutable mask. Unused third/fourth gallery
+lanes and alcove margins are trimmed while retaining two-wide rails, every branch,
+all three crossbars, the split lower route and every room function. A/C also keep
+a two-wide bypass around N7's back mask. The cap remains 2,500; no test is relaxed.

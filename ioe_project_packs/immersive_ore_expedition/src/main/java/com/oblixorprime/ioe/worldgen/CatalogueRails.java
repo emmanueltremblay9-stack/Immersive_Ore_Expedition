@@ -19,34 +19,36 @@ final class CatalogueRails {
         boolean fork = variant == CatalogueTerraces.Variant.RAILS_FORK;
         var air = new LinkedHashSet<BlockPos>();
         // Both rails rise toward +Z, using offset backed wells and real landings.
-        room(air,2,6,3,3,5);
+        room(air,2,4,3,3,5);
         room(air,2,5,9,4,10);
-        room(air,2,5,14,6,9);
-        room(air,10,12,4,4,8);
-        room(air,10,12,10,4,9);
-        room(air,10,12,15,4,12);
+        room(air,2,5,14,6,7);
+        room(air,11,12,4,4,8);
+        room(air,11,12,10,4,9);
+        room(air,11,12,15,4,12);
         well(air,2,3,4,5,3,11);
         well(air,2,3,6,7,9,16);
         well(air,11,12,4,5,4,12);
         well(air,11,12,8,9,10,17);
         // Upper crossbar and entry branch: only this crossbar connects the upper rails.
         room(air,4,12,15,11,12);
-        room(air,4,5,15,10,10);
+        room(air,4,5,15,8,9);
+        room(air,5,7,15,9,10);
         room(air,2,5,15,11,12);
         room(air,6,7,15,1,11);
         // Fixed middle alcoves are terminal branches, not extra inter-rail crossings.
         room(air,3,8,9,4,5);
-        room(air,8,12,9,11,12);
+        room(air,8,11,9,11,12);
         room(air,8,12,10,9,9);
         room(air,8,9,10,10,10);
         // Lower east alcove stays at Y=3 despite the east rail's Y=4 landing.
-        room(air,8,12,3,11,12);
+        room(air,8,11,3,11,12);
         room(air,8,9,3,10,12);
         if (fork) {
-            room(air,3,5,3,4,9);
+            room(air,4,5,3,4,9);
             room(air,5,8,3,4,5);
             room(air,5,8,3,8,9);
-            room(air,9,12,4,4,9);
+            room(air,9,12,4,4,5);
+            room(air,9,12,4,8,9);
         } else {
             room(air,3,6,3,4,5);
             room(air,7,12,4,4,5);
@@ -65,6 +67,7 @@ final class CatalogueRails {
         } else {
             room(air,3,6,9,6,7);
             room(air,7,12,10,6,7);
+            room(air,5,6,9,8,10);
         }
         var blocks = CatalogueTerraces.finish(center,air,false);
         var base = CatalogueTerraces.base(center);
@@ -76,7 +79,8 @@ final class CatalogueRails {
         floor(blocks,base,11,11,9,4,5);
         ladder(blocks,base,12,8,9,10,15,Direction.WEST);
         floor(blocks,base,11,11,14,8,9);
-        stairs(blocks,base,4,5,14,10,10,Direction.SOUTH);
+        stairs(blocks,base,4,5,14,8,8,Direction.SOUTH);
+        floor(blocks,base,4,5,14,9,9);
         floor(blocks,base,4,5,14,11,12);
         stairs(blocks,base,8,9,9,10,10,Direction.NORTH);
         if (fork) {
