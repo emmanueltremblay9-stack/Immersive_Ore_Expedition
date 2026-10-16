@@ -47,7 +47,7 @@ final class CatalogueSlab {
         room(air,11,12,9,4,9);
         room(air,5,12,9,8,9);
         room(air,9,12,9,11,12);
-        room(air,9,10,9,8,12);
+        room(air,8,9,9,8,12);
         well(air,7,10,6,7,9,11);
         room(air,6,7,15,1,4);
         room(air,10,12,15,4,5);
@@ -61,7 +61,7 @@ final class CatalogueSlab {
         floor(blocks,base,11,12,8,4,9);
         floor(blocks,base,5,12,8,8,9);
         floor(blocks,base,9,12,8,11,12);
-        floor(blocks,base,9,10,8,8,12);
+        floor(blocks,base,8,9,8,8,12);
         for(int z=6;z<=7;z++) for(int y=3;y<=15;y++) {
             if(y>=9) {
                 blocks.put(base.offset(2,y,z),Blocks.STONE.defaultBlockState());
@@ -77,12 +77,12 @@ final class CatalogueSlab {
         // The rear L-shaped view has one open viewing face and a safe bypass to the west.
         for(int x=7;x<=8;x++) if(!third)
             blocks.put(base.offset(x,15,9),Blocks.STONE.defaultBlockState());
-        if(third) for(int x=7;x<=8;x++) {
+        if(third) for(int z=10;z<=11;z++) {
             for(int y=9;y<=15;y++) {
-                blocks.put(base.offset(x,y,12),Blocks.STONE.defaultBlockState());
-                blocks.put(base.offset(x,y,11),Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING,Direction.NORTH));
+                blocks.put(base.offset(6,y,z),Blocks.STONE.defaultBlockState());
+                blocks.put(base.offset(7,y,z),Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING,Direction.EAST));
             }
-            blocks.put(base.offset(x,14,10),Blocks.STONE.defaultBlockState());
+            blocks.put(base.offset(8,14,z),Blocks.STONE.defaultBlockState());
         }
         if(joined) floor(blocks,base,7,8,14,6,7);
         blocks.put(center.below(),Blocks.CALCITE.defaultBlockState());

@@ -1033,3 +1033,13 @@ routes and exposed stem faces instead of unused cap corners; an unused lower
 pocket north of the peripheral descent is removed. Width/return/stem tests are
 unchanged, as are the upper cap, B's slit, C's isthmus, rewards and 2,500-cell guard.
 New exact-source CI is required.
+
+
+### BP-36 — supported N2 approach
+
+Review of the first candidate found that the rear descent's backing occupied
+one cell of the N2 approach turn. B now places its rear ladder on the western
+rim (X7, backing X6), with the landing at X8. The N2 branch uses X8/9 and its
+full two-wide turn stays open. Explicit support/clearance assertions cover the
+branch and landing. The rear L-shaped view, fixed masks and budgets remain;
+qualification must use the corrected source, not e4ab137.

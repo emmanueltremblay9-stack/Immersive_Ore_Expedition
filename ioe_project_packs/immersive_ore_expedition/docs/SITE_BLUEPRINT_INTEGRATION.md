@@ -807,3 +807,13 @@ Predecessor BP-26 source 116aac3dbd6f98e509cd04ee5d729afe74bd73c2: 16 successful
 111 minimal + 111 complete GameTests per stack plus streaming/restart; maximum
 2494 cells over 30,240 plans. JAR SHA256
 e57ceff931766dcdebfb10bd42de59c011796f25aa89e4c1f1ba065c0fac23d5. These proofs do not qualify BP-36.
+
+
+### BP-36 — supported N2 approach
+
+Review of the first candidate found that the rear descent's backing occupied
+one cell of the N2 approach turn. B now places its rear ladder on the western
+rim (X7, backing X6), with the landing at X8. The N2 branch uses X8/9 and its
+full two-wide turn stays open. Explicit support/clearance assertions cover the
+branch and landing. The rear L-shaped view, fixed masks and budgets remain;
+qualification must use the corrected source, not e4ab137.

@@ -1291,6 +1291,10 @@ public final class CatalogueTerracesGameTests {
                         "East descent lost its two-wide upper approach");
             }
             var cut=new LinkedHashMap<>(geometry);
+            for(int x=8;x<=9;x++) for(int z=8;z<=12;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"N2 approach narrowed beside the rear descent");
+            for(int x=9;x<=10;x++) for(int z=11;z<=12;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"N2 turn lost its two-wide supported landing");
             closeWell(cut,3,5,6,7,12);
             closeWell(cut,11,13,6,8,12);
             boolean third=variant==CatalogueTerraces.Variant.SLAB_THIRD;
@@ -1349,7 +1353,7 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.SLAB_JOINED),"Long joined opening changed");
         helper.assertTrue(blocks.get(base.offset(4,12,6)).isAir()
                 && blocks.get(base.offset(11,12,6)).isAir()
-                && blocks.get(base.offset(7,12,10)).isAir(),"Three slab opening contours lost their views");
+                && blocks.get(base.offset(8,12,10)).isAir(),"Three slab opening contours lost their views");
         helper.assertTrue(blocks.get(base.offset(9,12,11)).isAir()
                 && blocks.get(base.offset(9,12,10)).is(Blocks.STONE),"Rear opening lost its distinct L-shaped contour");
         helper.assertTrue(blocks.get(base.offset(11,12,7)).isAir()
