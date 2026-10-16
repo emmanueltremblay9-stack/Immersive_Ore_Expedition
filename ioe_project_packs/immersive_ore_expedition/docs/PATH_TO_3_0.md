@@ -968,3 +968,15 @@ ExtendedAE 2.2.41 ; Jade/AE2/GeOre inchangés. Overrides d’admission supprimé
 contrôles Maven et installateur ajoutés. Le commit final et son JAR sont soumis
 à une nouvelle CI exacte ; reçu source/artefact distinct dans PR64. Aucun changement
 métier, PC, installation, fusion ou publication. Visuel/client toujours non prouvé.
+
+
+### BP-31 — complete-runtime fixture correction
+
+At ea22bd7, the baseline PR complete runtime rejected the positive
+`certusAndEntroFeatureTransactions` fixture for `entroized_fluix POOR`.
+The catalogue matrix itself stayed within 2,497 cells. The special-profile
+fixture and generic positive MINER_CAMP fixture now explicitly prepare and
+check the same exact geometry metadata halo as the GeOre/catalogue fixtures.
+The separate missing-neighbor test still requires rejection without forced
+loads. Production guards, geometry, rewards and the 2,500-cell cap are unchanged.
+This correction needs a new exact-source CI; ea22bd7 is not qualified.

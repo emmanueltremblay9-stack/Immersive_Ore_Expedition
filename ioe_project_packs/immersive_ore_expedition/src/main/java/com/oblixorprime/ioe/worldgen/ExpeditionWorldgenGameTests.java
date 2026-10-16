@@ -1828,6 +1828,12 @@ public final class ExpeditionWorldgenGameTests {
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
         BlockPos origin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
+        if (type == ExpeditionSiteType.MINER_CAMP) {
+            var bounds = prepareCatalogueCampMetadata(level, origin, PRODUCTIVE_SEED);
+            helper.assertFalse(LoadedStructureCollision.blocksPlacement(level, bounds),
+                    "Positive camp fixture metadata is unavailable or overlaps a structure");
+        }
+
 
         FeaturePlaceContext<NoneFeatureConfiguration> context = new FeaturePlaceContext<>(
                 Optional.empty(),

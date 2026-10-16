@@ -140,6 +140,9 @@ public final class CertusBuddingGameTests {
                 var random = RandomSource.create(seed);
                 SiteQualityRoll.DEFAULT.roll(random);
                 long planSeed = random.nextLong();
+                var bounds = ExpeditionWorldgenGameTests.prepareCatalogueCampMetadata(level, origin, seed);
+                helper.assertFalse(LoadedStructureCollision.blocksPlacement(level, bounds),
+                        "Special-profile fixture metadata is unavailable or overlaps a structure: " + profileName + " " + requested);
                 boolean staged = new ExpeditionSiteFeature(ExpeditionSiteType.MINER_CAMP,
                         (ignoredLevel, ignoredPos) -> new BiomeMineResourceProfile.Resolution(Optional.of(profile), BiomeMineResourceProfile.Failure.NONE)).place(
                         new FeaturePlaceContext<>(Optional.empty(), level, level.getChunkSource().getGenerator(),

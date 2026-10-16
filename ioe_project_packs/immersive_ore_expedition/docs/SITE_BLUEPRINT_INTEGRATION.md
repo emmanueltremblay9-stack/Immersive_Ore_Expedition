@@ -711,3 +711,15 @@ unchanged. Initial candidate matrix maximum was 2,497; no success is transferred
 B's relocated north-east return keeps staggered two-wide turns, rather than a
 rectangular corner. Both the offset turn and the full eastern segment have
 explicit support/clearance assertions before the independent cut tests.
+
+
+### BP-31 — complete-runtime fixture correction
+
+At ea22bd7, the baseline PR complete runtime rejected the positive
+`certusAndEntroFeatureTransactions` fixture for `entroized_fluix POOR`.
+The catalogue matrix itself stayed within 2,497 cells. The special-profile
+fixture and generic positive MINER_CAMP fixture now explicitly prepare and
+check the same exact geometry metadata halo as the GeOre/catalogue fixtures.
+The separate missing-neighbor test still requires rejection without forced
+loads. Production guards, geometry, rewards and the 2,500-cell cap are unchanged.
+This correction needs a new exact-source CI; ea22bd7 is not qualified.
