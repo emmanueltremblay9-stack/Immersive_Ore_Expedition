@@ -1,5 +1,19 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
+## Nouvelle tranche autorisée — catalogues GOV 001–004
+
+Mandat courant : intégrer les variantes des quatre catalogues au générateur,
+référence GOV `60d1c9453aaf91f1e90a6ba113f106ac51238cf9`, sur la branche existante
+PR64. La précédente conclusion « seul le client reste » ne clôt pas ce nouveau mandat.
+Première tranche : composeur voxel BP-05 A/C et trois GameTests hébergés ; voir
+[SITE_BLUEPRINT_INTEGRATION.md](SITE_BLUEPRINT_INTEGRATION.md) pour les hashes,
+la portée et le conflit concret entre support d'échelle et masque N3.
+Routage naturel inchangé tant que le raccord et le plan complet ne sont pas validés.
+Ce n'est ni 40 familles ni 120 variantes actives. CI de cette nouvelle source à
+vérifier dans PR64 ; aucun ancien succès n'est transféré. Aucun accès PC, aucune
+activation Nether, fusion ou publication. Le reçu d'installation ci-dessous reste
+un historique distinct du nouveau travail de géométrie.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
