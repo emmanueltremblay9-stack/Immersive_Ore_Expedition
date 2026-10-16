@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. The remaining 39 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 38 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects A/B/C using one three-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-05 A/B/C or BP-16 A using one four-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -77,20 +77,20 @@ Its separate CI JAR SHA256 is
 That receipt does not qualify the subsequent natural-routing changes described
 above. Their exact source and final CI receipt are recorded separately in PR64.
 
-Added integration tests cover all three shapes, four access types, all qualities,
-source-chunk containment including negative coordinates, all three variants at all nine
+Added integration tests cover all four shapes, four access types, all qualities,
+source-chunk containment including negative coordinates, all four variants at all nine
 approved depths, unchanged depth and
 anchor bounds, complete-plan size, three-high supported routes to all alcoves,
 all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
-`Feature.place` staging/commit/deduplication for all three variants at all four accesses.
+`Feature.place` staging/commit/deduplication for all four variants at all four accesses.
 The existing GeOre/Certus runtime tests additionally exercise ranks, fallbacks,
 Jade metadata, persistence, compensation and actual resource-profile admission.
 
 No new server/profile, PC operation, Nether activation, merge or publication is
 part of this work. The installed `382e0b4` provenance remains separate. Client
-visual qualification remains NOT_PERFORMED. This slice implements three of 120 described
-variants, not completion of the four catalogues. Runtime qualification of B must
-be attributed to its own subsequent source, not to the A/C receipt below.
+visual qualification remains NOT_PERFORMED. This slice implements four of 120 described
+variants, not completion of the four catalogues. Runtime qualification of each successor must
+be attributed to its own source, not to a predecessor receipt.
 
 
 ## Qualified predecessor and current qualification boundary
@@ -119,7 +119,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
 | 001 | BP-01–BP-10 | BP-05 A/B/C | BP-01–04 and BP-06–10 A/B/C (27) |
-| 002 | BP-11–BP-20 | None | All A/B/C (30) |
+| 002 | BP-11–BP-20 | BP-16 A | BP-16 B/C and all A/B/C of the other nine families (29) |
 | 003 | BP-21–BP-30 | None | All A/B/C (30) |
 | 004 | BP-31–BP-40 | None | All A/B/C (30) |
 
@@ -128,3 +128,37 @@ before activation. A proposed outline alone does not authorize resource changes,
 larger write limits, loading extra chunks or removing the survey room. If a
 specific family cannot fit those contracts, record the precise geometric or
 functional conflict before asking for a product decision.
+
+
+## Next family: BP-16 A crossing, with unchanged mineral layout
+
+Catalogue 002's BP-16 A provides the topology: two axes crossing in plan view,
+separated vertically by rock, connected on a flank. Its proposed node/entry
+coordinates are not imposed on the current final layout. This implementation keeps
+15×19×15, E=(7,15,1), the exact seven existing node masks, quality ordering and
+canonical rewards. Its upper east-west gallery is at feet Y=15 and its lower
+north-south gallery at Y=3. The lateral route passes the unchanged middle alcoves
+at Y=9, with the same backed links. Rock is explicitly written at X/Z=6–8,
+Y=6–13 to keep the axes separated even when the source terrain contains a void.
+No extra resources, rolls, rooms, containers or new gameplay are introduced.
+
+`CatalogueCrossing` supplies its own air volume; the canonical shell, node masks,
+backed links and cache marker use the existing shared finalizer. The middle room
+anchor moves into the lateral route because the center is now solid rock. This
+changes a circulation anchor, not a node, resource count or quality decision.
+The survey room, surface camp and overhead raccord remain unchanged.
+
+The deterministic matrix expands to 2,880 plans (9 depths × 4 forms × 4 accesses
+× 4 anchors × 5 qualities), plus 16 real generator placement/commit/dedup pairs.
+A dedicated test verifies both supported axes and the solid diaphragm, then
+severs the single lateral link and requires the lower axis to become unreachable.
+The common tests still verify every node face, count, route, rollback and DRY
+reward on every implemented geometry. The required CI is hosted, on both stacks;
+its exact source and final receipt are recorded in PR64. No local runtime is run.
+
+Qualified predecessor BP-05 A/B/C: `768e8c48b61c030d57c58aa6afb5fb686dc70b00`,
+16 successful jobs (baseline 38899947396/38899956408; current pack
+38899947682/38899956448), 716 JUnit and 83+83 GameTests per stack, plus streaming
+and restart. Maximum 2,482 cells over 2,160 fixtures. Its non-installed JAR has
+470 classes and SHA256 `26149d8a06056f87b44b6283fc22744e2df99c6a263f8158326abbaff3a892a5`.
+Those results do not qualify the BP-16 successor.

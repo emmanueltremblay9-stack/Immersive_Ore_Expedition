@@ -15,10 +15,15 @@ blocs de largeur, avec son échelle soutenue, pour respecter ce plafond.
 Le raccord A/C `724e8d6` a 16 jobs verts, 716 JUnit et 83+83 GameTests par pile,
 plus streaming/reprise ; maximum composé 2 474 sur 1 440 plans, local conservé.
 Son JAR non installé a le SHA256 `8ae0701673502ce7b7bc1d407225a9f2fa0b9e984e9f2e80b39ed3266eb4aa2e`.
-Cycle suivant : ajout de BP-05 B (éventail autour d'un vide commun), matrice portée
-à 2 160 plans. Les preuves A/C ne qualifient pas ce successeur ; sa CI exacte est
-suivie dans PR64. La carte de couverture couvre explicitement les quatre catalogues
-(3 variantes implémentées, 117 restantes ; qualification distincte).
+BP-05 A/B/C `768e8c4` est qualifié : 16 jobs verts, 716 JUnit, 83+83 GameTests
+par pile et streaming/reprise ; maximum 2 482 sur 2 160 plans. JAR non installé :
+`26149d8a06056f87b44b6283fc22744e2df99c6a263f8158326abbaff3a892a5`.
+Cycle suivant : BP-16 A (catalogue 002), deux galeries croisées en hauteur avec
+noyau séparateur et liaison latérale. Enveloppe, entrée et sept repères minéraux
+actuels conservés ; seules géométrie et ancre de circulation médiane changent.
+Matrice portée à 2 880 plans et 16 placements réels. La preuve au commit exact
+reste suivie dans PR64, sans transfert du reçu précédent. Carte de couverture :
+4 variantes implémentées, 116 restantes ; qualification distincte.
 Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation
 Nether, fusion ou publication. Le runtime installé reste `382e0b4` ; le reçu
 ci-dessous est distinct du nouveau travail de génération.

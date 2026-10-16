@@ -122,12 +122,12 @@ public final class CatalogueTerracesGameTests {
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 400)
     public static void naturalCataloguePlansKeepBudgetsRoutesAndDryRewards(GameTestHelper helper) {
         var shapes = new java.util.LinkedHashMap<Integer,Long>();
-        for (long seed = 0; seed < 10000 && shapes.size() < 27; seed++) {
+        for (long seed = 0; seed < 10000 && shapes.size() < 36; seed++) {
             var random = net.minecraft.util.RandomSource.create(seed);
             int depth = random.nextInt(9);
-            shapes.putIfAbsent(depth*3+random.nextInt(3),seed);
+            shapes.putIfAbsent(depth*4+random.nextInt(4),seed);
         }
-        helper.assertTrue(shapes.size() == 27, "All three variants at every approved depth must be selectable");
+        helper.assertTrue(shapes.size() == 36, "All four variants at every approved depth must be selectable");
         int largest = 0;
         String largestContext = "";
         for (var shape : shapes.entrySet()) for (var type : ExpeditionSiteType.naturalSurfaceSites()) {
@@ -160,10 +160,12 @@ public final class CatalogueTerracesGameTests {
                             && plan.blocks().get(survey.offset(direction,-2,zDirection)).is(Blocks.COBWEB),
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
-                    helper.assertTrue(plan.blocks().get(base.offset(5,8,8)).isAir() == (shape.getKey()%3==2),
+                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(5,8,8),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%4==2),
                             "Quality or resource composition changed structural variant");
-                    helper.assertTrue(plan.blocks().get(base.offset(8,8,9)).isAir() == (shape.getKey()%3==1),
+                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(8,8,9),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%4==1),
                             "Quality or composition changed the shared-void variant");
+                    helper.assertTrue(plan.blocks().get(base.offset(7,9,7)).is(Blocks.STONE) == (shape.getKey()%4==3),
+                            "Crossing lost its solid central separation");
                     var reached = reachable(plan.blocks(),plan.connectorEnd());
                     for (BlockPos heart : CatalogueTerraces.HEARTS) {
                         helper.assertTrue(reached.contains(base.offset(heart).south()),
@@ -210,7 +212,7 @@ public final class CatalogueTerracesGameTests {
                 planSeed = random.nextLong();
                 var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
                 shapeRandom.nextInt(9);
-                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextInt(3)==variant.ordinal()) {
+                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextInt(4)==variant.ordinal()) {
                     found = true; break;
                 }
             }
@@ -234,9 +236,30 @@ public final class CatalogueTerracesGameTests {
                     "Committed natural blocks do not contain the selected structural variant");
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(8,8,9)).isAir()
                     == (variant==CatalogueTerraces.Variant.FAN), "Committed shared-void signature changed");
+            helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(7,9,7)).is(Blocks.STONE)
+                    == (variant==CatalogueTerraces.Variant.CROSSING), "Committed crossing separation changed");
             helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level,chunk).confirmedSites()==0,
                     "Natural catalogue transaction replayed");
         }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void crossingKeepsSeparateAxesAndOneLateralConnection(GameTestHelper helper) {
+        var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.CROSSING);
+        for (int x = 3; x <= 11; x++) helper.assertTrue(stand(geometry,new BlockPos(x,15,7)),
+                "Upper east-west gallery is not supported and three-high");
+        for (int z = 3; z <= 11; z++) helper.assertTrue(stand(geometry,new BlockPos(7,3,z)),
+                "Lower north-south gallery is not supported and three-high");
+        for (int y = 6; y <= 13; y++) for (int x = 6; x <= 8; x++) for (int z = 6; z <= 8; z++)
+            helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Crossing diaphragm was perforated");
+        helper.assertTrue(reachable(geometry,CatalogueTerraces.ENTRANCE).contains(new BlockPos(7,3,7)),
+                "The lateral connection does not reach the lower axis");
+        var severed = new LinkedHashMap<>(geometry);
+        for (int x = 11; x <= 12; x++) for (int z = 6; z <= 7; z++)
+            severed.put(new BlockPos(x,12,z),Blocks.STONE.defaultBlockState());
+        helper.assertTrue(!reachable(severed,CatalogueTerraces.ENTRANCE).contains(new BlockPos(7,3,7)),
+                "A second connection bypassed the single lateral route");
         helper.succeed();
     }
 
