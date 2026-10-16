@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isAxial()) assertAxialSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isMushroom()) assertMushroomSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isAxial()) assertAxialSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isChimney()) assertChimneySignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isTeeth()) assertTeethSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isComb()) assertCombSignatures(helper,plan.blocks(),base,variant);
@@ -283,10 +284,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isAxial()) assertAxialSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isMushroom()) assertMushroomSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isAxial()) assertAxialSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isChimney()) assertChimneySignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isTeeth()) assertTeethSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isComb()) assertCombSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -1193,6 +1195,71 @@ public final class CatalogueTerracesGameTests {
                 == (variant!=CatalogueTerraces.Variant.AXIAL_BENT),"Straight upper arm changed");
         helper.assertTrue(blocks.getOrDefault(base.offset(12,14,8),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
                 == (variant==CatalogueTerraces.Variant.AXIAL_BENT),"Bent upper arm changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void mushroomStemSupportsTheCapAndBothFacesRemainAccessible(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.MUSHROOM,
+                CatalogueTerraces.Variant.MUSHROOM_SLIT,CatalogueTerraces.Variant.MUSHROOM_LOBES}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertMushroomSignatures(helper,geometry,BlockPos.ZERO,variant);
+            for(int x=7;x<=8;x++) for(int z=6;z<=7;z++) for(int y=2;y<=11;y++)
+                helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Single rooted stem was cut or mineralized");
+            var top=new BlockPos(7,15,7); var below=new BlockPos(7,9,9); var bottom=new BlockPos(5,3,7);
+            for(var end:java.util.List.of(below,bottom)) helper.assertTrue(reachable(geometry,top).contains(end)
+                    && reachable(geometry,end).contains(top),"Cap top/underside/base lacks a supported return");
+            for(int x=6;x<=10;x++) for(int z=8;z<=9;z++) helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),
+                    "Route beneath the cap narrowed or lost headroom");
+            for(int x=5;x<=6;x++) for(int z=6;z<=7;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,3,z)),"West base route narrowed beside the stem");
+            for(int x=9;x<=10;x++) for(int z=6;z<=7;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,3,z)),"East base route narrowed beside the stem");
+            for(int x=6;x<=10;x++) for(int z=4;z<=5;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,3,z)),"North base route narrowed beside the stem");
+            var cut=new LinkedHashMap<>(geometry);
+            closeWell(cut,12,13,6,7,12);
+            boolean slit=variant==CatalogueTerraces.Variant.MUSHROOM_SLIT;
+            helper.assertTrue(reachable(cut,top).contains(below)==slit && reachable(cut,below).contains(top)==slit,
+                    "Cap has an uncontracted second descent");
+            if(slit) {
+                closeWell(cut,5,6,5,6,12);
+                helper.assertTrue(!reachable(cut,top).contains(below) && !reachable(cut,below).contains(top),
+                        "Radial slit gained another vertical route");
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void mushroomLobesKeepTheirRockIsthmusAndLowerPassage(GameTestHelper helper) {
+        var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.MUSHROOM_LOBES);
+        for(int x=6;x<=8;x++) for(int y=12;y<=14;y++)
+            helper.assertTrue(geometry.get(new BlockPos(x,y,8)).is(Blocks.STONE),"Two cap lobes lost the shared isthmus");
+        for(int x=4;x<=5;x++) for(int y=12;y<=14;y++)
+            helper.assertTrue(geometry.get(new BlockPos(x,y,7)).isAir(),"Cap split was filled into the full plateau");
+        for(int x=6;x<=7;x++) for(int z=7;z<=9;z++)
+            helper.assertTrue(stand(geometry,new BlockPos(x,15,z)),"Lobe isthmus turn is not supported and two-wide");
+        var rear=CatalogueTerraces.HEARTS.get(2).south(); var front=CatalogueTerraces.HEARTS.get(4).south();
+        helper.assertTrue(reachable(geometry,rear).contains(front) && reachable(geometry,front).contains(rear),
+                "Cap lobes are not connected initially");
+        var cut=new LinkedHashMap<>(geometry);
+        for(int x=6;x<=8;x++) for(int y=15;y<=17;y++) cut.put(new BlockPos(x,y,8),Blocks.STONE.defaultBlockState());
+        helper.assertTrue(!reachable(cut,rear).contains(front) && !reachable(cut,front).contains(rear),
+                "Two lobes have an extra upper bridge or rear descent");
+        helper.assertTrue(reachable(cut,new BlockPos(6,9,8)).contains(new BlockPos(10,9,8))
+                && reachable(cut,new BlockPos(10,9,8)).contains(new BlockPos(6,9,8)),
+                "Cutting the upper isthmus removed the separate lower passage");
+        helper.succeed();
+    }
+
+    private static void assertMushroomSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                                 BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(5,12,5)).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.MUSHROOM_SLIT),"Radial slit descent changed");
+        helper.assertTrue(blocks.get(base.offset(4,13,7)).isAir()
+                == (variant==CatalogueTerraces.Variant.MUSHROOM_LOBES),"Cap lobe separation changed");
+        helper.assertTrue(blocks.get(base.offset(7,6,6)).is(Blocks.STONE)
+                && blocks.get(base.offset(8,13,6)).is(Blocks.STONE),"Rooted stem/cap connection changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {

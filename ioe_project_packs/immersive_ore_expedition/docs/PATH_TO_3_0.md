@@ -127,6 +127,20 @@ now prepares the exact selected geometry's metadata halo for positive camp tests
 The absent-neighbor negative test and production fail-closed/no-load checks remain
 unchanged. Initial candidate matrix maximum was 2,497; no success is transferred.
 
+### BP-31 qualifié ; cycle suivant BP-26 A/B/C
+
+BP-31 accepté sur 05d8587fdd77e367b9f43bb8e7d1489e8f8f3670 : 16 jobs verts,
+716 JUnit et 109+109 GameTests par pile, streaming/reprise ; 28 080 plans,
+156 placements réels, maximum 2497.
+JAR non installé, SHA256 57461f20eb775238abdf7e47b736eec465c06916df2f8afd76fc7c3649352983.
+
+Suite autorisée : BP-26 A/B/C, pied rocheux enraciné et chapeau visitable,
+fente radiale B avec descente et deux lobes C avec isthme/passage inférieur.
+Masques, positions, accès, fonctions et budgets conservés ; 30 240 plans et
+168 placements réels. Couverture 42/120, 78 restantes. Qualification exacte à
+suivre dans PR64 sans transfert de preuves. Plafond 2 500 inchangé ; aucun accès
+PC, installation, fusion, publication ou activation Nether. Visuel/client non prouvé.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
