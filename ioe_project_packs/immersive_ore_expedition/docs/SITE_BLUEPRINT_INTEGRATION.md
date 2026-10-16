@@ -897,14 +897,14 @@ e40f2f24586ccae8b9f86c55f76fd8d2205795ada5c8964cb366bbb245c019f2. These proofs d
 Two continuous host-rock piers of unequal thickness frame a three-high lower
 crossing. Oriented stairs raise the deck from the west support to the east.
 A retains both solid piers; B opens a small supported window in the thick pier
-with two short stair approaches and a separate lower bypass; C splits the
+at the lower crossing level with a separate lower bypass; C splits the
 upper deck into two two-wide bands around a slit, reunited at both ends.
 
-Fixed N3 uses a separate backed middle-to-upper flank connection, preserving
+Fixed N3 uses a short supported upper stair approach, preserving
 its mineral mask and full approach headroom. The cache marker stays on the
 flat deck; surface access, survey room, budgets and rewards remain unchanged.
 Tests check rooted frames, stair orientation and returns, lower clearance,
-B's isolated window cut with lower bypass retained, and C's independent band
+B's isolated level-window cut with lower bypass retained, and C's independent band
 cuts after isolating the main descents. Shared generator/mask/DRY/cache/
 persistence/ownership-safe rollback coverage remains.
 Coverage 57/120 implemented, 63 pending; 41,040 composed plans and 228 actual
@@ -916,3 +916,11 @@ Predecessor BP-20 source 3c853032c01a856c7646a9f5d07511d28cf7f250: 16 successful
 119 minimal + 119 complete GameTests per stack plus streaming/restart; maximum
 2499 over 38,880 plans. JAR SHA256
 3877fbfb495279817340b266c8d0859afc625308f211f4197ad3c2240a5f0330. These proofs do not qualify BP-34.
+
+BP-34 budget correction: the first candidate 70bca21 measured 2,828 cells
+and failed the unchanged cap. Unused viewing shoulders are removed; B's window
+is at the lower crossing level, retaining its frame and independent bypass.
+N3 joins the upper deck by a short stair approach instead of a full extra
+shaft; the east ladder serves middle/upper routes. The north middle shoulder
+is narrowed around its actual connection. New exact-source CI is required;
+static footprint estimates are not runtime proof.

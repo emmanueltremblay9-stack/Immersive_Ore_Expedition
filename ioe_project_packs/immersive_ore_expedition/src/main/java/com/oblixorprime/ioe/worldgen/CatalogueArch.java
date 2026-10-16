@@ -19,14 +19,14 @@ final class CatalogueArch {
         // Keep the arch opening tall; trim unused front/rear viewing shoulders.
         well(air,7,9,5,6,3,13);
         room(air,8,9,3,4,8);
-        room(air,3,12,3,7,8);
+        room(air,3,9,3,7,8);
         room(air,3,6,3,3,4);
         room(air,2,4,3,7,8);
         // Supported west bypass keeps N1 independent of B's local window.
         room(air,1,2,3,4,8);
         room(air,8,9,3,8,12);
         room(air,9,12,3,11,12);
-        room(air,6,12,9,4,5);
+        room(air,7,10,9,4,5);
         room(air,8,9,9,4,9);
         room(air,5,12,9,7,8);
         room(air,5,6,9,8,11);
@@ -39,22 +39,14 @@ final class CatalogueArch {
         room(air,6,7,15,1,4);
         room(air,11,12,15,7,8);
         room(air,2,4,13,7,8);
-        well(air,5,6,10,11,9,17);
+        room(air,5,6,15,8,12);
         room(air,5,6,15,11,12);
         room(air,3,5,15,11,12);
         well(air,1,2,7,8,3,15);
-        well(air,12,13,7,8,3,17);
-        if(window) {
-            room(air,1,9,3,9,10);
-            room(air,4,5,5,3,8);
-            for(int z:new int[]{3,7}) {
-                room(air,6,6,4,z,z+1);
-                room(air,7,8,3,z,z+1);
-            }
-        }
+        well(air,12,13,7,8,9,17);
         var blocks=CatalogueTerraces.finish(center,air,false);
         var base=CatalogueTerraces.base(center);
-        floor(blocks,base,6,12,8,4,5);
+        floor(blocks,base,7,10,8,4,5);
         floor(blocks,base,8,9,8,4,9);
         floor(blocks,base,5,12,8,7,8);
         floor(blocks,base,5,6,8,8,11);
@@ -76,20 +68,14 @@ final class CatalogueArch {
             blocks.put(base.offset(x,y,6),Blocks.AIR.defaultBlockState());
         ladder(blocks,base,1,0,7,8,3,13,Direction.EAST);
         floor(blocks,base,2,2,12,7,8);
-        ladder(blocks,base,13,14,7,8,3,15,Direction.WEST);
+        ladder(blocks,base,13,14,7,8,9,15,Direction.WEST);
         floor(blocks,base,12,12,8,7,8);
         floor(blocks,base,12,12,14,7,8);
-        ladder(blocks,base,6,7,10,11,9,15,Direction.WEST);
-        floor(blocks,base,5,5,14,10,11);
-        if(window) {
-            for(int x=4;x<=5;x++) for(int y=5;y<=7;y++) for(int z=5;z<=6;z++)
-                blocks.put(base.offset(x,y,z),Blocks.AIR.defaultBlockState());
-            for(int z:new int[]{3,7}) {
-                floor(blocks,base,4,5,4,z,z+1);
-                stairs(blocks,base,5,4,z,z+1,Direction.WEST);
-                stairs(blocks,base,6,3,z,z+1,Direction.WEST);
-            }
-        }
+        stairs(blocks,base,5,14,9,9,Direction.SOUTH);
+        floor(blocks,base,6,6,14,8,12);
+        floor(blocks,base,5,5,14,10,12);
+        if(window) for(int x=4;x<=5;x++) for(int y=3;y<=5;y++) for(int z=5;z<=6;z++)
+            blocks.put(base.offset(x,y,z),Blocks.AIR.defaultBlockState());
         blocks.put(center.below(),Blocks.CALCITE.defaultBlockState());
         return blocks;
     }

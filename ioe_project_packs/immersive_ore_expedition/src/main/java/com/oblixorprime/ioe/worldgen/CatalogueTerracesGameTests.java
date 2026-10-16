@@ -1616,16 +1616,16 @@ public final class CatalogueTerracesGameTests {
     public static void archPierWindowAndForkedDeckHaveIndependentCutSets(GameTestHelper helper) {
         var window=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.ARCH_WINDOW);
         for(int x=4;x<=5;x++) for(int z=3;z<=8;z++)
-            helper.assertTrue(stand(window,new BlockPos(x,5,z)),"Pier window lacks a two-wide supported local crossing");
+            helper.assertTrue(stand(window,new BlockPos(x,3,z)),"Pier window lacks a two-wide supported local crossing");
         var cut=new LinkedHashMap<>(window);
-        closeWell(cut,6,6,3,4,4);closeWell(cut,6,6,7,8,4);
-        var front=new BlockPos(4,5,4);var back=new BlockPos(4,5,7);
+        closeWell(cut,3,3,3,4,3);closeWell(cut,6,6,3,4,3);
+        var front=new BlockPos(4,3,4);var back=new BlockPos(4,3,7);
         helper.assertTrue(reachable(cut,front).contains(back) && reachable(cut,back).contains(front),
                 "Pier window depends on its lower bypass");
-        closeWell(cut,4,5,5,6,5);
+        closeWell(cut,4,5,5,6,3);
         helper.assertTrue(!reachable(cut,front).contains(back) && !reachable(cut,back).contains(front),
                 "Pier window cut retained an unintended crossing through its frame");
-        var lowWest=new BlockPos(3,3,4);var lowEast=new BlockPos(8,3,7);
+        var lowWest=new BlockPos(2,3,6);var lowEast=new BlockPos(8,3,7);
         helper.assertTrue(reachable(cut,lowWest).contains(lowEast) && reachable(cut,lowEast).contains(lowWest),
                 "Pier window cut removed the separate lower arch route");
         var fork=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.ARCH_FORK);
@@ -1645,7 +1645,7 @@ public final class CatalogueTerracesGameTests {
 
     private static void assertArchSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
                                              BlockPos base,CatalogueTerraces.Variant variant) {
-        helper.assertTrue(blocks.get(base.offset(4,6,5)).isAir()
+        helper.assertTrue(blocks.get(base.offset(4,4,5)).isAir()
                 == (variant==CatalogueTerraces.Variant.ARCH_WINDOW),"Thick pier window changed");
         helper.assertTrue(blocks.get(base.offset(8,14,6)).isAir()
                 == (variant==CatalogueTerraces.Variant.ARCH_FORK),"Forked deck slit changed");

@@ -207,13 +207,19 @@ maximum 2499. JAR non installé :
 3877fbfb495279817340b266c8d0859afc625308f211f4197ad3c2240a5f0330.
 
 BP-34 : deux appuis continus inégaux, tablier montant par escaliers orientés,
-passage inférieur distinct ; B fenêtre à approches en marches, C tablier en
+passage inférieur distinct ; B fenêtre au niveau bas, C tablier en
 deux bandes autour d'une fente. Liaison latérale N3 séparée et masques fixes
 préservés. Tests d'appuis, retours, dégagements et coupures indépendantes.
 Couverture 57/120 implémentées, 63 restantes ; 41 040 plans et 228 placements.
 Qualification exacte à suivre sans transfert de preuves. Plafond 2 500
 inchangé ; pas de PC, installation, fusion, publication ou activation Nether.
 Validation visuelle/client non prouvée.
+
+Correction BP-34 : 70bca21 dépasse le plafond (2 828 cellules). Les volumes
+de vue sont réduits, la fenêtre B garde un contournement bas indépendant,
+N3 rejoint le tablier par un court escalier et le puits est dessert seulement
+les niveaux médian/haut. Nouvelle qualification exacte requise, sans relever
+le plafond ni revendiquer une preuve runtime depuis une estimation statique.
 
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
