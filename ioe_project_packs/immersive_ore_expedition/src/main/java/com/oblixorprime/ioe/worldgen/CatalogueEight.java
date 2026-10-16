@@ -21,8 +21,8 @@ final class CatalogueEight {
         room(air,6,7,15,1,7);
         room(air,3,6,15,6,7);
         room(air,5,6,15,6,12);
-        room(air,5,12,15,11,12);
-        room(air,11,12,15,4,12);
+        room(air,5,12,15,9,10);
+        room(air,11,12,15,4,10);
         room(air,3,6,15,11,12);
         // Four arms meet in J; its floor stays closed, without a central fall shaft.
         room(air,6,7,9,6,9);

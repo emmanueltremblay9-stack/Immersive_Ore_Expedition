@@ -413,3 +413,10 @@ J retains a two-wide, four-long supported floor; unused third-lane/terminal marg
 are removed. Tests now assert every block of both compact cores, along with the
 unchanged arm cuts, route clearance and 2,500-cell limit. No mineral position,
 function or connection is removed; that failed run is not qualification evidence.
+
+The next pass at `8dc9bc6` retained all route/mask/compensation checks but still
+measured 2,522 cells. The upper circuit's southern traverse moves from Z=11–12
+to Z=9–10, and its east side ends there. N3's fixed terminal branch still reaches
+Z=12 on the west. Both full-width traverses are now explicitly tested for support
+and three-high clearance; no arm, node or room function is removed. Upper/lower
+circuits remain offset in Z around their distinct cores, within the same envelope.
