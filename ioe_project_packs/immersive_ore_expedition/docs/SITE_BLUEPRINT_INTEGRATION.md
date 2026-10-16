@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 31 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 30 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-16, BP-23, BP-27 or BP-37 A/B/C using one twenty-seven-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-14, BP-16, BP-23, BP-27 or BP-37 A/B/C using one thirty-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -119,7 +119,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
 | 001 | BP-01–BP-10 | BP-02, BP-03, BP-05, BP-06 and BP-10 A/B/C | All A/B/C of the other five families (15) |
-| 002 | BP-11–BP-20 | BP-16 A/B/C | All A/B/C of the other nine families (27) |
+| 002 | BP-11–BP-20 | BP-14 and BP-16 A/B/C | All A/B/C of the other eight families (24) |
 | 003 | BP-21–BP-30 | BP-23 and BP-27 A/B/C | All A/B/C of the other eight families (24) |
 | 004 | BP-31–BP-40 | BP-37 A/B/C | All A/B/C of the other nine families (27) |
 
@@ -523,3 +523,41 @@ Accepted BP-06 predecessor: `6c47363207ee78b19921df94cd224d5af22dca13`, 16 green
 98 minimal + 98 complete GameTests per stack plus streaming/restart; maximum
 2,499 over 17,280 plans. JAR SHA256
 `7f9d00ed6c2eda7c1238414c1c756d7b59be9c46f14bf88b0bfd33ef82aee16f`. These results do not qualify BP-10.
+
+
+## BP-14 A/B/C: parallel grooves and an offset collector
+
+Three tall, parallel grooves have unequal widths, lengths and vertical extents.
+The left roof rises toward its rear alcove; the central floor starts higher and
+its roof ends lower; the right floor steps down toward the rear shaft. Shelves
+and backed ladders serve every mineral front. The collector crosses the left
+lamina to the south, crosses the right one to the north, and rises one block on
+two-wide stairs. The upper entrance reaches only the left groove; rock separates
+it from the central roof and from the right upper shelf.
+
+A connects the grooves only through the collector. B opens a low window through
+the left/central lamina, with two-wide east-facing stairs up to the central floor.
+C retains a 2×3×2 central rock massif and moves the descent to its side; a two-wide
+bottom detour reconnects the interrupted groove. Its outer wall prevents a new
+connection into the right groove. No reward or extra resource occupies the bottom
+detour or the ladder supports. The left upper exit has a plain-rock route beside
+the reserved mineral periphery, and the lower room anchor remains in the N1 pocket.
+
+Tests cut each collector connection in both directions; only B retains a left/
+central route, and cutting its low window removes that last route. C's massif is
+checked cell by cell; after excluding the upper descent, cutting the bottom detour
+separates the interrupted floor while all seven mineral fronts remain reachable
+from the entrance. Shared stair clearance/support, widths, masks, actual placement
+and ownership-safe idempotent compensation checks include all new forms.
+
+Coverage: 30/120 implemented, 90 pending. The matrix contains 21,600 composed
+plans and 120 real placement/commit/dedup pairs. Exact-source CI remains required;
+these fixture counts are not predecessor proofs. The 2,500-cell cap, functions,
+quality/rank ordering, rewards and independent lotteries remain unchanged.
+No PC operation, installation, merge, release or Nether activation.
+Client/visual qualification remains NOT_PERFORMED.
+
+Accepted BP-10 predecessor: a9b3ad273fe2ba89fb5c84e8d585ee1db836e961, 16 green jobs, 716 JUnit,
+100 minimal + 100 complete GameTests per stack plus streaming/restart; maximum
+2,499 over 19,440 plans. JAR SHA256
+8aa9a9671d3c2c50f1ab5fb283eeda31a2f584c566f3dfcd607c74c6ae43f933. These results do not qualify BP-14.

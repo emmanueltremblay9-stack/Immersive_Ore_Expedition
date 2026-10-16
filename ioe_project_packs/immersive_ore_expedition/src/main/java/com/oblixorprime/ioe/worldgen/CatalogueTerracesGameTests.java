@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isCells()) assertCellSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isComb()) assertCombSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isCells()) assertCellSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isRoots()) assertRootsSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isBayonet()) assertBayonetSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isEight()) assertEightSignatures(helper,plan.blocks(),base,variant);
@@ -273,10 +274,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isCells()) assertCellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isComb()) assertCombSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isCells()) assertCellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isRoots()) assertRootsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isBayonet()) assertBayonetSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isEight()) assertEightSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -871,6 +873,72 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.CELLS_DIAGONAL),"Diagonal pocket neck changed");
         helper.assertTrue(blocks.get(base.offset(2,10,10)).isAir() && blocks.get(base.offset(13,10,10)).isAir(),
                 "Middle pockets lost their irregular side volumes");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void combGroovesMeetOnlyAtTheOffsetCollector(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.COMB,
+                CatalogueTerraces.Variant.COMB_WINDOW,CatalogueTerraces.Variant.COMB_DIVIDED}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertCombSignatures(helper,geometry,BlockPos.ZERO,variant);
+            for(int x=5;x<=6;x++) for(int z=8;z<=10;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"Left collector narrowed");
+            for(int x=11;x<=13;x++) for(int z=6;z<=9;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,10,z)),"Right collector lost its raised supported floor");
+            var left=CatalogueTerraces.HEARTS.get(6).south();
+            var middle=CatalogueTerraces.HEARTS.get(5).south();
+            var right=CatalogueTerraces.HEARTS.get(1).south();
+            var cut=new LinkedHashMap<>(geometry);
+            for(int y=9;y<=11;y++) for(int z=8;z<=11;z++) cut.put(new BlockPos(5,y,z),Blocks.STONE.defaultBlockState());
+            boolean window=variant==CatalogueTerraces.Variant.COMB_WINDOW;
+            helper.assertTrue(reachable(cut,left).contains(middle)==window && reachable(cut,middle).contains(left)==window,
+                    "Left groove gained a connection outside the collector/window");
+            if(window) {
+                for(int y=3;y<=5;y++) for(int z=9;z<=10;z++) cut.put(new BlockPos(5,y,z),Blocks.STONE.defaultBlockState());
+                helper.assertTrue(!reachable(cut,left).contains(middle) && !reachable(cut,middle).contains(left),
+                        "Lower window is not the only bypass");
+            }
+            var rightCut=new LinkedHashMap<>(geometry);
+            for(int y=9;y<=12;y++) for(int z=4;z<=5;z++) rightCut.put(new BlockPos(8,y,z),Blocks.STONE.defaultBlockState());
+            helper.assertTrue(!reachable(rightCut,middle).contains(right) && !reachable(rightCut,right).contains(middle),
+                    "Right groove gained a second attachment outside the stepped collector");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void combDividedGrooveUsesItsSupportedSideDetour(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.COMB,
+                CatalogueTerraces.Variant.COMB_WINDOW,CatalogueTerraces.Variant.COMB_DIVIDED}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            boolean divided=variant==CatalogueTerraces.Variant.COMB_DIVIDED;
+            if(divided) for(int x=6;x<=7;x++) for(int y=6;y<=8;y++) for(int z=6;z<=7;z++)
+                helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Central massif lost its solid volume");
+            var cut=new LinkedHashMap<>(geometry);
+            closeWell(cut,8,9,7,8,7);
+            var north=new BlockPos(7,4,5); var south=new BlockPos(7,4,10);
+            helper.assertTrue(reachable(cut,north).contains(south) && reachable(cut,south).contains(north),
+                    "Bottom groove cannot be explored in both directions");
+            for(int x=8;x<=9;x++) for(int y=4;y<=6;y++) cut.put(new BlockPos(x,y,8),Blocks.STONE.defaultBlockState());
+            helper.assertTrue(reachable(cut,north).contains(south)==!divided
+                    && reachable(cut,south).contains(north)==!divided,"Split groove does not depend on its lateral detour");
+            var reached=reachable(cut,CatalogueTerraces.ENTRANCE);
+            for(var heart:CatalogueTerraces.HEARTS)
+                helper.assertTrue(reached.contains(heart.south()),"Sterile detour cut removed access to a mineral alcove");
+        }
+        helper.succeed();
+    }
+
+    private static void assertCombSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                             BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(6,3,9),Blocks.STONE.defaultBlockState()).is(Blocks.STONE_STAIRS)
+                == (variant==CatalogueTerraces.Variant.COMB_WINDOW),"Low intergroove window changed");
+        helper.assertTrue(blocks.get(base.offset(6,6,6)).is(Blocks.LADDER)
+                == (variant!=CatalogueTerraces.Variant.COMB_DIVIDED),"Central groove descent changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(9,6,7),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.COMB_DIVIDED),"Side detour changed");
+        helper.assertTrue(blocks.get(base.offset(8,9,4)).is(Blocks.STONE_STAIRS)
+                && stand(blocks,base.offset(9,10,4)),"Collector lost its level change");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {

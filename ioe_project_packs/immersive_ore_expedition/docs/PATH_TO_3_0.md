@@ -42,12 +42,15 @@ JAR non installé : `10d830bd1ca97ef4506e2ea301e2b7800b2539597bba4e516fa2ccfa825
 BP-06 A/B/C `6c47363` est qualifié : 16 jobs verts, 716 JUnit,
 98+98 GameTests par pile et streaming/reprise ; maximum 2499 sur 17 280 plans.
 JAR non installé : `7f9d00ed6c2eda7c1238414c1c756d7b59be9c46f14bf88b0bfd33ef82aee16f`.
-Cycle suivant : BP-10 A/B/C, sept poches et huit liaisons de référence, deux
-boucles A, épine médiane B et connexion haute/médiane supplémentaire C.
+BP-10 A/B/C a9b3ad2 est qualifié : 16 jobs verts, 716 JUnit,
+100+100 GameTests par pile et streaming/reprise ; maximum 2499 sur 19 440 plans.
+JAR non installé : 8aa9a9671d3c2c50f1ab5fb283eeda31a2f584c566f3dfcd607c74c6ae43f933.
+Cycle suivant : BP-14 A/B/C, trois rainures parallèles à hauteurs différentes,
+collecteur décalé avec escalier, fenêtre basse B et massif avec détour C.
 Positions, masques, budgets, récompenses et fonctions conservés. Matrice de
-19 440 plans, 108 placements réels ; coupures des cols et liaisons transversales,
-compensation idempotente avec édition étrangère. Qualification exacte à suivre
-dans PR64, sans transfert des preuves précédentes. Couverture 27/120, 93 restantes.
+21 600 plans, 120 placements réels ; coupures des connexions et du détour,
+compensation avec édition étrangère. Qualification exacte à suivre dans PR64,
+sans transfert des preuves précédentes. Couverture 30/120, 90 restantes.
 Plafond 2 500 inchangé. Aucun accès PC, activation Nether, fusion ou publication.
 Visuel/client non prouvé.
 
