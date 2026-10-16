@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isBell()) assertBellSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isBipyramid()) assertBipyramidSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isBell()) assertBellSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isHourglass()) assertHourglassSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isSlab()) assertSlabSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isMushroom()) assertMushroomSignatures(helper,plan.blocks(),base,variant);
@@ -287,10 +288,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isBell()) assertBellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isBipyramid()) assertBipyramidSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isBell()) assertBellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isHourglass()) assertHourglassSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isSlab()) assertSlabSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isMushroom()) assertMushroomSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -1507,6 +1509,73 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.BELL_WINDOW),"Pierced single-body window changed");
         helper.assertTrue(blocks.get(base.offset(9,5,6)).isAir()
                 && blocks.get(base.offset(9,6,6)).is(Blocks.STONE),"Clapper no longer stops above the floor");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void bipyramidWidensAtTheBeltBetweenDisplacedAccessibleTips(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.BIPYRAMID,
+                CatalogueTerraces.Variant.BIPYRAMID_TRUNCATED,CatalogueTerraces.Variant.BIPYRAMID_DIVIDED}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertBipyramidSignatures(helper,g,BlockPos.ZERO,variant);
+            helper.assertTrue(g.get(new BlockPos(4,10,9)).isAir() && g.get(new BlockPos(11,10,7)).isAir()
+                    && solid(g,new BlockPos(4,4,9)) && solid(g,new BlockPos(4,16,9)),
+                    "Bipyramid lost its broad belt and narrower ends");
+            helper.assertTrue(g.get(new BlockPos(6,4,8)).isAir() && g.get(new BlockPos(8,16,5)).isAir()
+                    && g.get(new BlockPos(6,7,8)).isAir() && g.get(new BlockPos(6,13,7)).isAir(),
+                    "Offset tips or continuous faceted transitions were lost");
+            var top=new BlockPos(7,15,7);var belt=new BlockPos(7,9,5);var low=new BlockPos(7,3,8);
+            for(var end:java.util.List.of(belt,low)) helper.assertTrue(reachable(g,top).contains(end)
+                    && reachable(g,end).contains(top),"Bipyramid face route lacks a supported return");
+            for(int x=6;x<=7;x++) for(int z=1;z<=7;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,15,z)),"Upper tip approach lost its two-wide support");
+            if(variant==CatalogueTerraces.Variant.BIPYRAMID_TRUNCATED)
+                for(int x=7;x<=11;x++) for(int z=8;z<=9;z++)
+                    helper.assertTrue(stand(g,new BlockPos(x,15,z)),"Truncated upper platform lost its supported surface");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void bipyramidUpperLoopAndDividedLowerFaceHaveSeparateCutSets(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.BIPYRAMID,
+                CatalogueTerraces.Variant.BIPYRAMID_TRUNCATED,CatalogueTerraces.Variant.BIPYRAMID_DIVIDED}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var top=new BlockPos(7,15,7);var belt=new BlockPos(7,9,5);var low=new BlockPos(7,3,8);
+            boolean truncated=variant==CatalogueTerraces.Variant.BIPYRAMID_TRUNCATED;
+            boolean divided=variant==CatalogueTerraces.Variant.BIPYRAMID_DIVIDED;
+            var upper=new LinkedHashMap<>(g);closeWell(upper,11,12,6,7,12);
+            helper.assertTrue(reachable(upper,top).contains(belt)==truncated
+                    && reachable(upper,belt).contains(top)==truncated,"Upper face gained or lost a vertical return");
+            if(truncated) {
+                closeWell(upper,5,6,6,7,12);
+                helper.assertTrue(!reachable(upper,top).contains(belt) && !reachable(upper,belt).contains(top),
+                        "Truncated upper face retained an extra vertical connection");
+            }
+            var lower=new LinkedHashMap<>(g);
+            if(divided) closeWell(lower,5,6,6,7,6);else closeWell(lower,2,3,6,7,6);
+            helper.assertTrue(reachable(lower,belt).contains(low)==divided
+                    && reachable(lower,low).contains(belt)==divided,"Lower face gained or lost its second passage");
+            if(divided) {
+                closeWell(lower,8,10,8,9,6);
+                helper.assertTrue(!reachable(lower,belt).contains(low) && !reachable(lower,low).contains(belt),
+                        "Divided lower face retained an unintended third connection");
+                for(int y=6;y<=8;y++) for(int z=6;z<=9;z++)
+                    helper.assertTrue(g.get(new BlockPos(7,y,z)).is(Blocks.STONE),"Lower face lost its separating rock blade");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertBipyramidSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                                  BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(11,16,9),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.BIPYRAMID_TRUNCATED),"Upper truncation changed");
+        helper.assertTrue(blocks.get(base.offset(7,7,8)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.BIPYRAMID_DIVIDED),"Divided lower face blade changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(10,6,8),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.BIPYRAMID_DIVIDED),"Unequal second lower passage changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(2,6,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                != (variant==CatalogueTerraces.Variant.BIPYRAMID_DIVIDED),"Original lower face descent changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {

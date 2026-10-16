@@ -184,6 +184,21 @@ Qualification exacte à suivre ; plafond 2 500 inchangé, aucun transfert de
 preuves. Pas de PC, installation, fusion, publication ou activation Nether.
 Validation visuelle/client non prouvée.
 
+### BP-17 qualifié ; cycle suivant BP-20 A/B/C
+
+BP-17 accepté sur e4380462931e8074b3c5bac05f52eedcfe51917b : 16 jobs verts, 716 JUnit et 117+117
+GameTests par pile, streaming/reprise ; 36 720 plans, 204 placements réels,
+maximum 2498. JAR non installé :
+e40f2f24586ccae8b9f86c55f76fd8d2205795ada5c8964cb366bbb245c019f2.
+
+BP-20 : ceinture facettée large, deux pointes décalées plus étroites ; B tronque
+la pointe haute et ajoute un retour, C divise une face basse en deux passages
+inégaux. Tests de largeur, retours et coupures séparées. Masques, fonctions,
+accès et budgets inchangés. Couverture 54/120 implémentées, 66 restantes ;
+38 880 plans et 216 placements. Qualification exacte à suivre sans transfert
+de preuves. Plafond 2 500 inchangé ; pas de PC, installation, fusion, publication
+ou activation Nether. Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

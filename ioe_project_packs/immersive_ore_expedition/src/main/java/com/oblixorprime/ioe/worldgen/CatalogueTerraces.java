@@ -11,12 +11,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-/** GOV 60d1c94, BP-02/03/05/06/10/11/14/16/17/23/24/26/27/31/35/36/37 A/B/C, geometry version 19. No quality or reward random source. */
+/** GOV 60d1c94, BP-02/03/05/06/10/11/14/16/17/20/23/24/26/27/31/35/36/37 A/B/C, geometry version 20. No quality or reward random source. */
 final class CatalogueTerraces {
     private CatalogueTerraces() { }
     enum Variant {
         ALTERNATING, FAN, SPLIT, CROSSING, CROSSING_WINDOW, CROSSING_LOOP,
-        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER, ROOTS, ROOTS_STAGED, ROOTS_JOINED, CELLS, CELLS_SPINE, CELLS_DIAGONAL, COMB, COMB_WINDOW, COMB_DIVIDED, TEETH, TEETH_WINDOW, TEETH_NOTCH, CHIMNEY, CHIMNEY_BALCONY, CHIMNEY_REAR, AXIAL, AXIAL_RETURN, AXIAL_BENT, MUSHROOM, MUSHROOM_SLIT, MUSHROOM_LOBES, SLAB, SLAB_THIRD, SLAB_JOINED, HOURGLASS, HOURGLASS_SPLIT, HOURGLASS_BALCONY, BELL, BELL_FORK, BELL_WINDOW;
+        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER, ROOTS, ROOTS_STAGED, ROOTS_JOINED, CELLS, CELLS_SPINE, CELLS_DIAGONAL, COMB, COMB_WINDOW, COMB_DIVIDED, TEETH, TEETH_WINDOW, TEETH_NOTCH, CHIMNEY, CHIMNEY_BALCONY, CHIMNEY_REAR, AXIAL, AXIAL_RETURN, AXIAL_BENT, MUSHROOM, MUSHROOM_SLIT, MUSHROOM_LOBES, SLAB, SLAB_THIRD, SLAB_JOINED, HOURGLASS, HOURGLASS_SPLIT, HOURGLASS_BALCONY, BELL, BELL_FORK, BELL_WINDOW, BIPYRAMID, BIPYRAMID_TRUNCATED, BIPYRAMID_DIVIDED;
+        boolean isBipyramid() { return this == BIPYRAMID || this == BIPYRAMID_TRUNCATED || this == BIPYRAMID_DIVIDED; }
         boolean isBell() { return this == BELL || this == BELL_FORK || this == BELL_WINDOW; }
         boolean isHourglass() { return this == HOURGLASS || this == HOURGLASS_SPLIT || this == HOURGLASS_BALCONY; }
         boolean isSlab() { return this == SLAB || this == SLAB_THIRD || this == SLAB_JOINED; }
@@ -63,6 +64,7 @@ final class CatalogueTerraces {
         if (variant.isSlab()) return CatalogueSlab.geometry(center,variant);
         if (variant.isHourglass()) return CatalogueHourglass.geometry(center,variant);
         if (variant.isBell()) return CatalogueBell.geometry(center,variant);
+        if (variant.isBipyramid()) return CatalogueBipyramid.geometry(center,variant);
         boolean split = variant == Variant.SPLIT;
         var air = new LinkedHashSet<BlockPos>();
         for (int y : new int[]{3, 9, 15}) {
