@@ -1043,3 +1043,15 @@ rim (X7, backing X6), with the landing at X8. The N2 branch uses X8/9 and its
 full two-wide turn stays open. Explicit support/clearance assertions cover the
 branch and landing. The rear L-shaped view, fixed masks and budgets remain;
 qualification must use the corrected source, not e4ab137.
+
+
+### BP-36 — composed budget failure and correction candidate
+
+f640448 reached 2,584 composed cells for MINER_CAMP/MOTHERLODE, variant B.
+The baseline minimal runtime completed 113 tests with only the composed-cap
+test failing. The correction removes an unused lower north-east shoulder and
+intermediate viewing corners, and retains a two-wide western lower route.
+The shared volumes, three openings, equipped descents, N2 turn and upper rib
+remain covered by the existing route/cut tests. The 2,500-cell cap is unchanged.
+This candidate requires new exact-source CI; 42/120 remain qualified and
+45/120 implemented until that qualification succeeds. No client proof or install.

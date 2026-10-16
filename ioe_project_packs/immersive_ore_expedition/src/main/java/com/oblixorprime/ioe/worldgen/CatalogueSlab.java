@@ -34,15 +34,17 @@ final class CatalogueSlab {
         var air = new LinkedHashSet<BlockPos>();
         for(var cell:slab) for(int y=15;y<=17;y++) air.add(cell.atY(y));
         for(var cell:holes) for(int y=9;y<=17;y++) air.add(cell.atY(y));
-        room(air,5,10,3,4,9);
-        well(air,6,9,5,8,6,8);
+        // Keep the broad lower return; omit the unused north-east shoulder.
+        room(air,5,8,3,4,7);
+        room(air,5,10,3,8,9);
+        well(air,6,8,6,8,6,8);
         well(air,12,13,6,7,3,17);
         room(air,11,12,3,6,9);
         room(air,3,6,3,4,5);
         room(air,9,12,3,11,12);
         room(air,8,9,3,8,12);
         room(air,5,12,9,4,5);
-        room(air,3,6,9,4,10);
+        room(air,3,4,9,4,10);
         room(air,3,6,9,10,11);
         room(air,11,12,9,4,9);
         room(air,5,12,9,8,9);
@@ -56,7 +58,7 @@ final class CatalogueSlab {
         for(var cell:slab) if(!holes.contains(cell)) for(int y=12;y<=14;y++)
             blocks.put(base.offset(cell.atY(y)),Blocks.STONE.defaultBlockState());
         floor(blocks,base,5,12,8,4,5);
-        floor(blocks,base,3,6,8,4,10);
+        floor(blocks,base,3,4,8,4,10);
         floor(blocks,base,3,6,8,10,11);
         floor(blocks,base,11,12,8,4,9);
         floor(blocks,base,5,12,8,8,9);
