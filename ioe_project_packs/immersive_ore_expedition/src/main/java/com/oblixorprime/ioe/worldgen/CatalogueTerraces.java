@@ -11,13 +11,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-/** GOV 60d1c94, BP-05/16/27/37 A/B/C, geometry version 6. No quality or reward random source. */
+/** GOV 60d1c94, BP-03/05/16/27/37 A/B/C, geometry version 7. No quality or reward random source. */
 final class CatalogueTerraces {
     private CatalogueTerraces() { }
     enum Variant {
         ALTERNATING, FAN, SPLIT, CROSSING, CROSSING_WINDOW, CROSSING_LOOP,
-        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK;
+        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE;
         boolean isCrossing() { return this == CROSSING || this == CROSSING_WINDOW || this == CROSSING_LOOP; }
+        boolean isPearls() { return this == PEARLS || this == PEARLS_SPLIT || this == PEARLS_SATELLITE; }
         boolean isRails() { return this == RAILS || this == RAILS_SLOPES || this == RAILS_FORK; }
         boolean isSiphon() { return this == SIPHON || this == SIPHON_SPLIT || this == SIPHON_SHOULDER; }
     }
@@ -37,6 +38,7 @@ final class CatalogueTerraces {
         if (variant.isCrossing()) return CatalogueCrossing.geometry(center,variant);
         if (variant.isSiphon()) return CatalogueSiphon.geometry(center,variant);
         if (variant.isRails()) return CatalogueRails.geometry(center,variant);
+        if (variant.isPearls()) return CataloguePearls.geometry(center,variant);
         boolean split = variant == Variant.SPLIT;
         var air = new LinkedHashSet<BlockPos>();
         for (int y : new int[]{3, 9, 15}) {

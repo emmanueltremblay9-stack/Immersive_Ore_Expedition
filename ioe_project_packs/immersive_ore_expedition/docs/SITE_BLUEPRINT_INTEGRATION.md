@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 36 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 35 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-05, BP-16, BP-27 or BP-37 A/B/C using one twelve-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-03, BP-05, BP-16, BP-27 or BP-37 A/B/C using one fifteen-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -118,7 +118,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
-| 001 | BP-01–BP-10 | BP-05 A/B/C | BP-01–04 and BP-06–10 A/B/C (27) |
+| 001 | BP-01–BP-10 | BP-03 and BP-05 A/B/C | All A/B/C of the other eight families (24) |
 | 002 | BP-11–BP-20 | BP-16 A/B/C | All A/B/C of the other nine families (27) |
 | 003 | BP-21–BP-30 | BP-27 A/B/C | All A/B/C of the other nine families (27) |
 | 004 | BP-31–BP-40 | BP-37 A/B/C | All A/B/C of the other nine families (27) |
@@ -321,3 +321,42 @@ upper west landing and C's lower east branch. The N2 landing occupies two rows;
 C's east stair moves one cell along its lower channels so the alcove junction
 retains both lanes. Unused outer alcove margins are trimmed instead of narrowing
 these turns. Mineral reservations, all destinations and rewards remain fixed.
+
+## BP-03 A/B/C: three rounded lobes in a chain
+
+Catalogue 001 contributes BP-03 around the fixed seven mineral reservations.
+Three rounded, differently sized cavities use opposite diagonal lower/upper
+footprints and an offset middle ellipse. Lower and middle roofs have raised
+central caps; the upper lobe fits below the unchanged envelope roof. Two narrow,
+offset backed necks are the only inter-level connections. Rock between the lobes
+prevents a single open view through the entire chamber. This is a closed-pocket
+chain, not a relabeling of the terrace ledges. E, dimensions, masks and rewards
+remain unchanged; the proposed catalogue coordinates are not substituted.
+
+A retains three lobes. B divides the middle lobe with rock into a west floor at
+Y=9 and an east floor at Y=10, joined by a two-wide stair opening. Short supported
+branches preserve the north-middle and east-middle nodes at their original Y=9.
+C adds a small rounded-end satellite pocket to the upper neck, separated from the
+upper lobe by rock. It contains no additional node, lottery, cache or reward and
+is not required to reach any existing mineral alcove.
+
+Dedicated tests cut each neck independently and together, checking the expected
+set of reachable upper/middle/lower alcoves. B's stair opening is cut in both
+travel directions to prove separation of its subpockets. Cutting C's attachment
+must isolate only the satellite and preserve every mineral route. Common tests
+retain the canonical masks/qualities, backed ladders, stair supports and clearance,
+ordered compensation, idempotence and foreign-edit ownership. Actual Feature
+placement verifies all fifteen forms across the four natural entrances.
+
+The matrix expands to 10,800 composed plans (9 depths × 15 forms × 4 accesses ×
+4 anchors × 5 qualities), plus 60 real placement/commit/dedup pairs. The production
+cap remains 2,500 cells. Coverage is 15/120 implemented, 105 pending; qualification
+is recorded separately at the exact head in PR64. No past success qualifies this
+new source. No installation, merge, release or Nether activation is included;
+client visual acceptance remains NOT_PERFORMED.
+
+Accepted BP-37 predecessor: `8332c198b181f8a89e875fce13aefdea98442b18`, 16 green
+jobs (baseline 38917914872/38917925322; current pack 38917914849/38917925501),
+716 JUnit and 90+90 GameTests per stack plus streaming/restart. Maximum 2,482
+cells over 8,640 fixtures; non-installed JAR, 473 classes, SHA256
+`d7d94ed7d3e411a29adc7f4b613f7a0114176dda0673cf8a2cb217d380d7df94`.

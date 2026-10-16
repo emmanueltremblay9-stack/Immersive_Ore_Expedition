@@ -267,7 +267,7 @@ public final class ExpeditionSiteBlueprints {
                 // Reopen the two original shaft cells through the overhead connector's roof.
                 restoreConnectorLadder(builder,origin,shaftDepth);
                 roomCenters.add(chamberCenter.immutable());
-                roomCenters.add(variant.isRails() ? chamberCenter.offset(-2,-6,-3) : variant.isCrossing() || variant.isSiphon()
+                roomCenters.add(variant.isPearls() ? chamberCenter.below(6).west() : variant.isRails() ? chamberCenter.offset(-2,-6,-3) : variant.isCrossing() || variant.isSiphon()
                         ? chamberCenter.below(6).north(3) : chamberCenter.below(6));
                 roomCenters.add(variant.isRails() ? chamberCenter.offset(-2,-12,-3) : variant.isSiphon()
                         ? chamberCenter.below(12).north(variant == CatalogueTerraces.Variant.SIPHON_SPLIT ? 3 : 0)

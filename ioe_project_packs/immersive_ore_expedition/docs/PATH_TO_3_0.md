@@ -27,13 +27,16 @@ par pile et streaming/reprise ; maximum 2 482 sur 4 320 plans. JAR non installé
 BP-27 A/B/C `4f0eeeb` est qualifié : 16 jobs verts, 716 JUnit, 88+88 GameTests
 par pile, streaming/reprise ; maximum 2 482 sur 6 480 plans. JAR non installé :
 `a709d07f03b52c4eb0395d5fb7d88ee06aeb94b0c316b86abe03ff7d7d74a3dc`.
-Cycle suivant : BP-37 A/B/C (catalogue 004), deux longerons montants reliés par
-trois traverses. Marches pour les décalages, palier médian à deux pentes (B),
-fourche basse (C). Enveloppe, positions minérales, fonctions et plafond restent
-fixes. Matrice de 8 640 plans et 48 placements réels ; tests des trois liaisons,
-des pentes, de la fourche, des masques et de la compensation avec édition étrangère.
-Qualification exacte suivie dans PR64, sans transfert des preuves précédentes.
-Carte : 12 variantes implémentées, 108 restantes, une famille A/B/C par catalogue.
+BP-37 A/B/C `8332c19` est qualifié : 16 jobs verts, 716 JUnit, 90+90 GameTests
+par pile et streaming/reprise ; maximum 2 482 sur 8 640 plans. JAR non installé :
+`d7d94ed7d3e411a29adc7f4b613f7a0114176dda0673cf8a2cb217d380d7df94`.
+Cycle suivant : BP-03 A/B/C, trois poches arrondies en chaîne avec deux cols
+décalés ; poche médiane scindée en deux niveaux (B), satellite sans récompense (C).
+Enveloppe, sept positions, masques, fonctions, qualités et plafond restent fixes.
+Matrice de 10 800 plans, 60 placements réels ; tests des coupures de cols, de la
+subdivision, du satellite, des masques et de la compensation. Qualification exacte
+suivie dans PR64, sans transfert des preuves précédentes. Carte : 15 variantes
+implémentées, 105 restantes ; deux familles du catalogue 001 et une de chaque autre.
 Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation
 Nether, fusion ou publication. Le runtime installé reste `382e0b4` ; le reçu
 ci-dessous est distinct du nouveau travail de génération.

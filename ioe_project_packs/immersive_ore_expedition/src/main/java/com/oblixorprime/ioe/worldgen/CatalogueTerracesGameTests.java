@@ -120,7 +120,7 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails()) {
+        if (variant.isRails() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
             var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS))
                     .findFirst().orElseThrow().getKey();
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isRails()) assertRailsSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isPearls()) assertPearlSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isRails()) assertRailsSignatures(helper,plan.blocks(),base,variant);
                     else {
                     helper.assertTrue(plan.blocks().getOrDefault(base.offset(5,8,8),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%forms==2),
                             "Quality or resource composition changed structural variant");
@@ -268,10 +269,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails()) {
+            if (variant.isRails() || variant.isPearls()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                assertRailsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isPearls()) assertPearlSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else assertRailsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
             } else {
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(5,8,8)).isAir()==(variant==CatalogueTerraces.Variant.SPLIT),
                     "Committed natural blocks do not contain the selected structural variant");
@@ -505,6 +507,71 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(blocks.getOrDefault(base.offset(6,10,6),Blocks.STONE.defaultBlockState()).is(Blocks.STONE)
                 == (variant==CatalogueTerraces.Variant.RAILS_SLOPES),"Off-center rail landing changed");
         helper.assertTrue(blocks.get(base.offset(7,15,11)).isAir(),"Upper rail crossing changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void pearlsHaveThreeRoundedLobesAndExactlyTwoNecks(GameTestHelper helper) {
+        for (var variant : new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.PEARLS,
+                CatalogueTerraces.Variant.PEARLS_SPLIT,CatalogueTerraces.Variant.PEARLS_SATELLITE}) {
+            var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertPearlSignatures(helper,geometry,BlockPos.ZERO,variant);
+            helper.assertTrue(!open(geometry,new BlockPos(2,3,12)) && !open(geometry,new BlockPos(2,15,2))
+                    && open(geometry,new BlockPos(7,3,7)),"Pearls lost their rounded, opposite diagonal footprints");
+            helper.assertTrue(solid(geometry,new BlockPos(7,7,7)) && solid(geometry,new BlockPos(7,14,7)),
+                    "Lobes merged into one vertically open chamber");
+            for(int cut=0;cut<4;cut++) {
+                var blocks = new LinkedHashMap<>(geometry);
+                if((cut&1)!=0) for(int x=11;x<=12;x++) for(int z=6;z<=7;z++)
+                    blocks.put(new BlockPos(x,13,z),Blocks.STONE.defaultBlockState());
+                if((cut&2)!=0) for(int x=2;x<=3;x++) for(int z=6;z<=7;z++)
+                    blocks.put(new BlockPos(x,7,z),Blocks.STONE.defaultBlockState());
+                var reached = reachable(blocks,CatalogueTerraces.ENTRANCE);
+                for(int i=0;i<CatalogueTerraces.HEARTS.size();i++) {
+                    boolean expected = i==2 || i==4 || (i==0 || i==3 ? cut==0 : (cut&1)==0);
+                    helper.assertTrue(reached.contains(CatalogueTerraces.HEARTS.get(i).south())==expected,
+                            "Pearl chain has a missing neck or bypass: " + variant + " cut=" + cut + " node=" + i);
+                }
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void splitPearlAndSatelliteKeepTheirOwnTopology(GameTestHelper helper) {
+        var center = new BlockPos(7,15,7);
+        var split = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.PEARLS_SPLIT);
+        for(int z=6;z<=7;z++) helper.assertTrue(split.get(new BlockPos(7,9,z)).is(Blocks.STONE_STAIRS)
+                && stand(split,new BlockPos(6,9,z)) && stand(split,new BlockPos(8,10,z)),
+                "Split pearl must connect distinct floor heights through two supported steps");
+        var cut = new LinkedHashMap<>(split);
+        for(int y=10;y<=12;y++) for(int z=6;z<=7;z++) cut.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+        var west = new BlockPos(3,9,10); var east = new BlockPos(11,9,12);
+        helper.assertTrue(!reachable(cut,west).contains(east) && !reachable(cut,east).contains(west),
+                "Split pearl has an unintended second connection");
+        var satellite = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.PEARLS_SATELLITE);
+        var tip = new BlockPos(11,15,10);
+        helper.assertTrue(reachable(satellite,CatalogueTerraces.ENTRANCE).contains(tip),"Satellite is inaccessible");
+        var separated = new LinkedHashMap<>(satellite);
+        for(int x=11;x<=12;x++) for(int y=15;y<=17;y++)
+            separated.put(new BlockPos(x,y,8),Blocks.STONE.defaultBlockState());
+        var reached = reachable(separated,CatalogueTerraces.ENTRANCE);
+        helper.assertTrue(!reached.contains(tip),"Satellite merged with the upper lobe instead of branching from its neck");
+        for(var heart : CatalogueTerraces.HEARTS)
+            helper.assertTrue(reached.contains(heart.south()),"Satellite became a required mineral route");
+        helper.succeed();
+    }
+
+    private static void assertPearlSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(7,6,7)).isAir(),"Lower pearl lost its rounded roof");
+        helper.assertTrue(blocks.get(base.offset(7,9,7)).is(Blocks.STONE_STAIRS)
+                == (variant==CatalogueTerraces.Variant.PEARLS_SPLIT),"Middle pearl subdivision changed");
+        helper.assertTrue(blocks.get(base.offset(10,9,8)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.PEARLS_SPLIT),"Middle pearl floor offset changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(11,15,10),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.PEARLS_SATELLITE),"Satellite changed during composition");
+        helper.assertTrue(blocks.getOrDefault(base.offset(10,15,8),Blocks.STONE.defaultBlockState()).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.PEARLS_SATELLITE),"Satellite lost its separating rock");
     }
 
     private static boolean open(Map<BlockPos, BlockState> blocks, BlockPos p) {
