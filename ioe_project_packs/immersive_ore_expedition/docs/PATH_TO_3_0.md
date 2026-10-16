@@ -21,16 +21,17 @@ par pile et streaming/reprise ; maximum 2 482 sur 2 160 plans. JAR non installé
 BP-16 A `2f2d16a` est qualifié : 16 jobs verts, 716 JUnit, 84+84 GameTests par
 pile et streaming/reprise ; maximum 2 487 sur 2 880 plans. JAR non installé :
 `8bcee2f6efd43fcfe8837e1066ef33ec8dfd787abe1c73f84d4653d055e5b1fa`.
-Cycle suivant : BP-16 B/C, fente visuelle protégée avec paliers décalés et boucle
-à deux liaisons opposées. Enveloppe, nodes, qualité/récompenses et fonctions du
-local conservés ; marges des galeries compactées, sols des nouveaux paliers
-explicites. Matrice portée à 4 320 plans et 24 placements réels, tests de ligne de
-vue/collision et coupures indépendantes des deux liaisons. CI exacte suivie dans
-PR64, sans transfert de preuve. Premier run B/C : maximum 2 482 ; correction du
-contexte de rayon et de l'ordre de compensation des voisins du muret. Le journal
-est défait en ordre inverse avec le contrôle exact de propriété inchangé ; un
-test protège explicitement les modifications étrangères. Couverture : 6 variantes
-implémentées, 114 restantes.
+BP-16 B/C `f5478f0` est qualifié : 16 jobs verts, 716 JUnit, 86+86 GameTests
+par pile et streaming/reprise ; maximum 2 482 sur 4 320 plans. JAR non installé :
+`b21ab05e3c15f61e90ac322e1c161434f8ac5ecce4911378d02112af654851c8`.
+Cycle suivant : BP-27 A/B/C (catalogue 003), siphon sec à passage obligatoire par
+le coude bas ; deux chenaux bas pour B, remontée à épaule décalée pour C. L'enveloppe
+actuelle et les sept positions minérales restent fixes, sans raccourci haut ni
+mécanisme hydraulique. Matrice portée à 6 480 plans et 36 placements réels ; tests
+de retour, coupure du coude, chenaux alternatifs et déport de remontée. Compensation
+ordonnée et protection des modifications étrangères conservées. Qualification
+exacte suivie dans PR64, sans transfert des preuves précédentes. Carte : 9 variantes
+implémentées, 111 restantes, dont les 30 du catalogue 004 encore en attente.
 Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation
 Nether, fusion ou publication. Le runtime installé reste `382e0b4` ; le reçu
 ci-dessous est distinct du nouveau travail de génération.

@@ -267,9 +267,11 @@ public final class ExpeditionSiteBlueprints {
                 // Reopen the two original shaft cells through the overhead connector's roof.
                 restoreConnectorLadder(builder,origin,shaftDepth);
                 roomCenters.add(chamberCenter.immutable());
-                roomCenters.add(variant.isCrossing()
+                roomCenters.add(variant.isCrossing() || variant.isSiphon()
                         ? chamberCenter.below(6).north(3) : chamberCenter.below(6));
-                roomCenters.add(chamberCenter.below(12).south(2));
+                roomCenters.add(variant.isSiphon()
+                        ? chamberCenter.below(12).north(variant == CatalogueTerraces.Variant.SIPHON_SPLIT ? 3 : 0)
+                        : chamberCenter.below(12).south(2));
                 if (quality.isProductive() && oreState != null) {
                     CatalogueTerraces.nodes(chamberCenter,oreState,oreNodeHeartState,oreBudget,requestedOreNodeCount)
                             .forEach(builder::put);

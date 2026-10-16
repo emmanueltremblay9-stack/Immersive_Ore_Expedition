@@ -122,12 +122,12 @@ public final class CatalogueTerracesGameTests {
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 400)
     public static void naturalCataloguePlansKeepBudgetsRoutesAndDryRewards(GameTestHelper helper) {
         var shapes = new java.util.LinkedHashMap<Integer,Long>();
-        for (long seed = 0; seed < 10000 && shapes.size() < 54; seed++) {
+        for (long seed = 0; seed < 10000 && shapes.size() < 81; seed++) {
             var random = net.minecraft.util.RandomSource.create(seed);
             int depth = random.nextInt(9);
-            shapes.putIfAbsent(depth*6+random.nextInt(6),seed);
+            shapes.putIfAbsent(depth*9+random.nextInt(9),seed);
         }
-        helper.assertTrue(shapes.size() == 54, "All six variants at every approved depth must be selectable");
+        helper.assertTrue(shapes.size() == 81, "All nine variants at every approved depth must be selectable");
         int largest = 0;
         String largestContext = "";
         for (var shape : shapes.entrySet()) for (var type : ExpeditionSiteType.naturalSurfaceSites()) {
@@ -160,16 +160,25 @@ public final class CatalogueTerracesGameTests {
                             && plan.blocks().get(survey.offset(direction,-2,zDirection)).is(Blocks.COBWEB),
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
-                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(5,8,8),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%6==2),
+                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(5,8,8),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%9==2),
                             "Quality or resource composition changed structural variant");
-                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(8,8,9),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%6==1),
+                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(8,8,9),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%9==1),
                             "Quality or composition changed the shared-void variant");
-                    helper.assertTrue(plan.blocks().get(base.offset(7,9,7)).is(Blocks.STONE) == (shape.getKey()%6>=3),
+                    helper.assertTrue(plan.blocks().get(base.offset(7,9,7)).is(Blocks.STONE) == (shape.getKey()%9>=3),
                             "Crossing lost its solid central separation");
                     helper.assertTrue(plan.blocks().getOrDefault(base.offset(7,8,8),Blocks.STONE.defaultBlockState()).isAir()
-                            == (shape.getKey()%6==4), "Window signature changed during composition");
+                            == (shape.getKey()%9==4), "Window signature changed during composition");
                     helper.assertTrue(plan.blocks().getOrDefault(base.offset(2,12,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
-                            == (shape.getKey()%6==5), "Loop signature changed during composition");
+                            == (shape.getKey()%9>=5), "Loop/entry-column signature changed during composition");
+                    boolean siphon = shape.getKey()%9>=6;
+                    helper.assertTrue(plan.blocks().get(base.offset(8,15,7)).is(Blocks.STONE) == siphon,
+                            "Siphon upper banks were joined");
+                    if (siphon) {
+                        helper.assertTrue(plan.blocks().get(base.offset(7,3,6)).is(Blocks.STONE) == (shape.getKey()%9==7),
+                                "Siphon elbow split changed during composition");
+                        helper.assertTrue(plan.blocks().getOrDefault(base.offset(12,12,7),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                                == (shape.getKey()%9==8), "Siphon shoulder changed during composition");
+                    }
                     var reached = reachable(plan.blocks(),plan.connectorEnd());
                     for (BlockPos heart : CatalogueTerraces.HEARTS) {
                         helper.assertTrue(reached.contains(base.offset(heart).south()),
@@ -216,7 +225,7 @@ public final class CatalogueTerracesGameTests {
                 planSeed = random.nextLong();
                 var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
                 shapeRandom.nextInt(9);
-                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextInt(6)==variant.ordinal()) {
+                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextInt(9)==variant.ordinal()) {
                     found = true; break;
                 }
             }
@@ -241,11 +250,19 @@ public final class CatalogueTerracesGameTests {
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(8,8,9)).isAir()
                     == (variant==CatalogueTerraces.Variant.FAN), "Committed shared-void signature changed");
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(7,9,7)).is(Blocks.STONE)
-                    == (variant.isCrossing()), "Committed crossing separation changed");
+                    == (variant.isCrossing() || variant.isSiphon()), "Committed bank separation changed");
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(7,8,8)).isAir()
                     == (variant==CatalogueTerraces.Variant.CROSSING_WINDOW), "Committed window signature changed");
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(2,12,6)).is(Blocks.LADDER)
-                    == (variant==CatalogueTerraces.Variant.CROSSING_LOOP), "Committed loop signature changed");
+                    == (variant==CatalogueTerraces.Variant.CROSSING_LOOP || variant.isSiphon()), "Committed loop/entry-column signature changed");
+            helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(8,15,7)).is(Blocks.STONE)
+                    == variant.isSiphon(), "Committed siphon bank separation changed");
+            if (variant.isSiphon()) {
+                helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(7,3,6)).is(Blocks.STONE)
+                        == (variant==CatalogueTerraces.Variant.SIPHON_SPLIT), "Committed siphon elbow changed");
+                helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(12,12,7)).is(Blocks.LADDER)
+                        == (variant==CatalogueTerraces.Variant.SIPHON_SHOULDER), "Committed siphon shoulder changed");
+            }
             helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level,chunk).confirmedSites()==0,
                     "Natural catalogue transaction replayed");
         }
@@ -333,6 +350,58 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(foreign.rollback(level) && level.getBlockState(guard).is(Blocks.DIAMOND_BLOCK),
                 "Ordered compensation overwrote a foreign edit");
         level.setBlockAndUpdate(guard,Blocks.STONE.defaultBlockState());
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void drySiphonsRequireTheLowerElbowInBothDirections(GameTestHelper helper) {
+        BlockPos exit = new BlockPos(11,15,4);
+        for (var variant : new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.SIPHON,
+                CatalogueTerraces.Variant.SIPHON_SPLIT,CatalogueTerraces.Variant.SIPHON_SHOULDER}) {
+            var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            helper.assertTrue(reachable(geometry,CatalogueTerraces.ENTRANCE).contains(exit)
+                    && reachable(geometry,exit).contains(CatalogueTerraces.ENTRANCE),"Siphon is not bidirectional: " + variant);
+            helper.assertTrue(geometry.values().stream().allMatch(state -> state.getFluidState().isEmpty()),
+                    "Dry siphon added a fluid");
+            var blocked = new LinkedHashMap<>(geometry);
+            for (int y = 3; y <= 5; y++) for (int z = 1; z <= 13; z++)
+                blocked.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+            helper.assertTrue(!reachable(blocked,CatalogueTerraces.ENTRANCE).contains(exit)
+                    && !reachable(blocked,exit).contains(CatalogueTerraces.ENTRANCE),
+                    "Siphon bypasses its lower elbow: " + variant);
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void siphonVariantsKeepSplitElbowAndOffsetShoulder(GameTestHelper helper) {
+        BlockPos center = new BlockPos(7,15,7);
+        BlockPos exit = new BlockPos(11,15,4);
+        var split = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.SIPHON_SPLIT);
+        for (int cut : new int[]{1,2,3}) {
+            var blocked = new LinkedHashMap<>(split);
+            for (int y = 3; y <= 5; y++) {
+                if ((cut & 1) != 0) for (int z = 4; z <= 5; z++)
+                    blocked.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+                if ((cut & 2) != 0) for (int z = 8; z <= 9; z++)
+                    blocked.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+            }
+            helper.assertTrue(reachable(blocked,CatalogueTerraces.ENTRANCE).contains(exit) == (cut != 3)
+                    && reachable(blocked,exit).contains(CatalogueTerraces.ENTRANCE) == (cut != 3),
+                    "Split elbow did not retain exactly two lower channels: " + cut);
+        }
+        var shoulder = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.SIPHON_SHOULDER);
+        var plain = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.SIPHON);
+        helper.assertTrue(shoulder.get(new BlockPos(8,9,7)).isAir()
+                && !plain.getOrDefault(new BlockPos(8,9,7),Blocks.STONE.defaultBlockState()).isAir(),
+                "C did not widen its lateral shoulder");
+        helper.assertTrue(shoulder.get(new BlockPos(12,12,7)).is(Blocks.LADDER)
+                && !shoulder.get(new BlockPos(12,12,4)).is(Blocks.LADDER),"C did not offset its upper return conduit");
+        var blocked = new LinkedHashMap<>(shoulder);
+        for (int x = 11; x <= 12; x++) for (int z = 7; z <= 8; z++)
+            blocked.put(new BlockPos(x,12,z),Blocks.STONE.defaultBlockState());
+        helper.assertTrue(!reachable(blocked,CatalogueTerraces.ENTRANCE).contains(exit),
+                "C retained a straight upper shortcut around its elbow");
         helper.succeed();
     }
 

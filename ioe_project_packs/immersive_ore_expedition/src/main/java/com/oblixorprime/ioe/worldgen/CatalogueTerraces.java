@@ -11,12 +11,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-/** GOV 60d1c94, BP-05 A/B/C and BP-16 A, geometry version 4. No quality or reward random source. */
+/** GOV 60d1c94, BP-05/16/27 A/B/C, geometry version 5. No quality or reward random source. */
 final class CatalogueTerraces {
     private CatalogueTerraces() { }
     enum Variant {
-        ALTERNATING, FAN, SPLIT, CROSSING, CROSSING_WINDOW, CROSSING_LOOP;
-        boolean isCrossing() { return ordinal() >= CROSSING.ordinal(); }
+        ALTERNATING, FAN, SPLIT, CROSSING, CROSSING_WINDOW, CROSSING_LOOP,
+        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER;
+        boolean isCrossing() { return this == CROSSING || this == CROSSING_WINDOW || this == CROSSING_LOOP; }
+        boolean isSiphon() { return this == SIPHON || this == SIPHON_SPLIT || this == SIPHON_SHOULDER; }
     }
     static final BlockPos ENTRANCE = new BlockPos(7,15,1);
     static final List<BlockPos> HEARTS = List.of(new BlockPos(3, 3, 3), new BlockPos(11, 9, 11),
@@ -32,6 +34,7 @@ final class CatalogueTerraces {
 
     static Map<BlockPos, BlockState> geometry(BlockPos center, Variant variant) {
         if (variant.isCrossing()) return CatalogueCrossing.geometry(center,variant);
+        if (variant.isSiphon()) return CatalogueSiphon.geometry(center,variant);
         boolean split = variant == Variant.SPLIT;
         var air = new LinkedHashSet<BlockPos>();
         for (int y : new int[]{3, 9, 15}) {
@@ -81,6 +84,10 @@ final class CatalogueTerraces {
 
     /** Shared canonical reservations, shell, supported links and cache marker. */
     static Map<BlockPos, BlockState> finish(BlockPos center, LinkedHashSet<BlockPos> air) {
+        return finish(center,air,true);
+    }
+
+    static Map<BlockPos, BlockState> finish(BlockPos center, LinkedHashSet<BlockPos> air, boolean standardLinks) {
         // Grow the shell around the final growth clearances as well as the main rooms.
         for (BlockPos heart : HEARTS) {
             air.remove(heart);
@@ -95,6 +102,7 @@ final class CatalogueTerraces {
             if (!air.contains(neighbor)) blocks.put(base.offset(neighbor), Blocks.STONE.defaultBlockState());
         }
         for (BlockPos p : air) blocks.put(base.offset(p), Blocks.AIR.defaultBlockState());
+        if (standardLinks) {
         for (int y = 9; y <= 15; y++) for (int z = 6; z <= 7; z++)
             blocks.put(base.offset(12,y,z), Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.WEST));
         for (int y = 3; y <= 9; y++) for (int z = 6; z <= 7; z++)
@@ -102,6 +110,7 @@ final class CatalogueTerraces {
         for (int z = 6; z <= 7; z++) {
             blocks.put(base.offset(11,14,z), Blocks.STONE.defaultBlockState());
             blocks.put(base.offset(3,8,z), Blocks.STONE.defaultBlockState());
+        }
         }
         // Reserve all seven alcoves even in DRY; quality must not choose the macroform.
         for (BlockPos heart : HEARTS) {

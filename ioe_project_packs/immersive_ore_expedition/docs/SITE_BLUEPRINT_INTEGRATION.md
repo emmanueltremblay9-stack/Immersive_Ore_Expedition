@@ -1,4 +1,4 @@
-# Catalogue geometry integration — first implementation slice
+# Catalogue geometry integration — incremental implementation
 
 Mandate: integrate varied generation from the four GOV catalogues, on the existing
 PR64 branch. Authority reference: GOV `60d1c9453aaf91f1e90a6ba113f106ac51238cf9`,
@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 38 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 37 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-05 A/B/C or BP-16 A/B/C using one six-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-05 A/B/C BP-16 A/B/C or BP-27 A/B/C using one nine-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -77,18 +77,18 @@ Its separate CI JAR SHA256 is
 That receipt does not qualify the subsequent natural-routing changes described
 above. Their exact source and final CI receipt are recorded separately in PR64.
 
-Added integration tests cover all six shapes, four access types, all qualities,
-source-chunk containment including negative coordinates, all six variants at all nine
+Added integration tests cover all nine shapes, four access types, all qualities,
+source-chunk containment including negative coordinates, all nine variants at all nine
 approved depths, unchanged depth and
 anchor bounds, complete-plan size, three-high supported routes to all alcoves,
 all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
-`Feature.place` staging/commit/deduplication for all six variants at all four accesses.
+`Feature.place` staging/commit/deduplication for all nine variants at all four accesses.
 The existing GeOre/Certus runtime tests additionally exercise ranks, fallbacks,
 Jade metadata, persistence, compensation and actual resource-profile admission.
 
 No new server/profile, PC operation, Nether activation, merge or publication is
 part of this work. The installed `382e0b4` provenance remains separate. Client
-visual qualification remains NOT_PERFORMED. This slice implements six of 120 described
+visual qualification remains NOT_PERFORMED. This slice implements nine of 120 described
 variants, not completion of the four catalogues. Runtime qualification of each successor must
 be attributed to its own source, not to a predecessor receipt.
 
@@ -120,7 +120,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | --- | --- | --- | --- |
 | 001 | BP-01–BP-10 | BP-05 A/B/C | BP-01–04 and BP-06–10 A/B/C (27) |
 | 002 | BP-11–BP-20 | BP-16 A/B/C | All A/B/C of the other nine families (27) |
-| 003 | BP-21–BP-30 | None | All A/B/C (30) |
+| 003 | BP-21–BP-30 | BP-27 A/B/C | All A/B/C of the other nine families (27) |
 | 004 | BP-31–BP-40 | None | All A/B/C (30) |
 
 A future family must pass the same route/node-mask/complete-budget qualification
@@ -222,3 +222,43 @@ foreign edits are still preserved, not force-restored. Runtime tests require all
 original stone to return, repeated rollback to succeed and a foreign guard edit
 to survive. This correction requires new exact-source CI, including the existing
 placement/persistence/failure regressions on both stacks.
+
+
+## BP-27 A/B/C: dry siphon with a mandatory lower elbow
+
+Catalogue 003 contributes the next family. Its documented topology is preserved:
+two diagonally offset ascending conduits connect only at their lower elbow.
+Neither the upper galleries nor the middle alcoves bridge the two banks. The
+proposed 25-high envelope and alternative node/entry coordinates are not adopted;
+the existing 15×19×15 envelope, E=(7,15,1), seven node positions, +Z masks, quality
+order and rewards remain fixed. Supported routes and circulation anchors are
+fitted around those fixed resources, without changing surface or survey functions.
+
+A has a single lower elbow. B divides only that elbow with a rock blade into two
+channels which rejoin at the column feet. C widens the return-side middle shoulder
+and offsets the upper return conduit in Z; it still does not connect to the entry
+bank above the bottom. All routes are dry and bidirectional. No water, swimming,
+hydraulic puzzle, additional deposit or automatic end-of-route reward is added.
+Existing fluid rejection remains applicable to source terrain.
+
+The family supplies its own ladder locations and landing floors while reusing
+the canonical reservations, shell and cache finalizer. Existing BP-05/BP-16 links
+are unchanged. The entry-side column spans all levels; the return column is either
+continuous (A/B) or split at the widened middle elbow (C). A dedicated test cuts
+the complete lower crossing and requires both directions between upper endpoints
+to become disconnected. Another cuts either/both B channels and verifies the
+alternative, then checks C's shifted upper ladder and lack of a straight bypass.
+
+The common matrix expands to 6,480 plans (9 depths × 9 forms × 4 accesses × 4
+anchors × 5 qualities), plus 36 real generator placement/commit/dedup pairs.
+It retains survey functions, canonical budgets/ranks, growth air, source-chunk
+containment, three-high supported access, DRY/cache and the 2,500-cell ceiling.
+All nine forms also pass through the existing ordered-compensation tests; the
+foreign-edit ownership check remains unchanged. Exact new-source CI and artifact
+identity are recorded in PR64; no predecessor result qualifies this successor.
+
+Accepted BP-16 B/C predecessor: `f5478f0f62cea895d45f35486406148c30f6d3c4`, 16 green
+jobs (baseline 38907833196/38907844655; current pack 38907833561/38907844705),
+716 JUnit and 86+86 GameTests per stack plus streaming/restart. Maximum 2,482
+cells over 4,320 fixtures; non-installed JAR, 471 classes, SHA256
+`b21ab05e3c15f61e90ac322e1c161434f8ac5ecce4911378d02112af654851c8`.
