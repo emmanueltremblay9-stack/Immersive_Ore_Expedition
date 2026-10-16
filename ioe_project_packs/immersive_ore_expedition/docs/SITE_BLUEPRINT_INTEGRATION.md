@@ -372,7 +372,7 @@ that failed run is not a qualification receipt.
 
 Catalogue 003 contributes the asymmetric vertical eight. Its upper loop extends
 south, its lower loop north, around distinct explicit rock cores. Four backed
-vertical arms meet at a supported 3×4 central landing J at feet Y=9; J is never
+vertical arms meet at a supported 2×4 central landing J at feet Y=9; J is never
 an open fall shaft. Main passages and ladder routes are two-wide and three-high.
 Terminal mineral approaches fit around the unchanged masks; no route requires
 mining a heart or its peripheral rock. The fixed envelope, E and seven positions
@@ -405,3 +405,11 @@ jobs (baseline 38923332852/38923345024; current pack 38923333228/38923345099),
 716 JUnit and 92+92 GameTests per stack plus streaming/restart. Maximum 2,488
 cells over 10,800 fixtures; non-installed JAR, 474 classes, SHA256
 `5320a99af024ad1bc4a3681512b982a120ba05d66ca53df91d90055a312de91f`.
+
+The first BP-23 CI at `590b4bf` passed routes, masks and compensation but rejected
+a 2,600-cell B/camp fixture. Explicit core footprints are compacted to distinct
+solid bodies (upper 3×2×2; lower 3×4×3 with the existing southeast notch and C slit).
+J retains a two-wide, four-long supported floor; unused third-lane/terminal margins
+are removed. Tests now assert every block of both compact cores, along with the
+unchanged arm cuts, route clearance and 2,500-cell limit. No mineral position,
+function or connection is removed; that failed run is not qualification evidence.

@@ -582,7 +582,13 @@ public final class CatalogueTerracesGameTests {
                 CatalogueTerraces.Variant.EIGHT_RETURN,CatalogueTerraces.Variant.EIGHT_SLIT}) {
             var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
             assertEightSignatures(helper,geometry,BlockPos.ZERO,variant);
-            for(int x=6;x<=8;x++) for(int z=6;z<=9;z++)
+            for(int x=6;x<=8;x++) for(int y=12;y<=13;y++) for(int z=8;z<=9;z++)
+                helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Upper nucleus is not a solid body");
+            for(int x=6;x<=8;x++) for(int y=3;y<=6;y++) for(int z=6;z<=8;z++) {
+                if(x==8 && z==8 || variant==CatalogueTerraces.Variant.EIGHT_SLIT && y<=5 && z>=7) continue;
+                helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Lower nucleus is not a solid body");
+            }
+            for(int x=6;x<=7;x++) for(int z=6;z<=9;z++)
                 helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"J became a fall shaft or lost clearance");
             for(int mask=0;mask<4;mask++) {
                 var upper = new LinkedHashMap<>(geometry);
@@ -612,7 +618,7 @@ public final class CatalogueTerracesGameTests {
                 CatalogueTerraces.Variant.EIGHT_RETURN,CatalogueTerraces.Variant.EIGHT_SLIT}) {
             var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
             var cut = new LinkedHashMap<>(geometry);
-            for(int x=6;x<=8;x++) for(int z=6;z<=9;z++) for(int y=9;y<=11;y++)
+            for(int x=6;x<=7;x++) for(int z=6;z<=9;z++) for(int y=9;y<=11;y++)
                 cut.put(new BlockPos(x,y,z),Blocks.STONE.defaultBlockState());
             var high = new BlockPos(3,15,12); var low = new BlockPos(3,3,4);
             boolean returning = variant==CatalogueTerraces.Variant.EIGHT_RETURN;

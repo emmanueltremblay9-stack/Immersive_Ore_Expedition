@@ -18,14 +18,14 @@ final class CatalogueEight {
         boolean slit = variant == CatalogueTerraces.Variant.EIGHT_SLIT;
         var air = new LinkedHashSet<BlockPos>();
         // Upper loop extends south; the entry branches from its western arm.
-        room(air,6,7,15,1,8);
-        room(air,3,6,15,6,8);
+        room(air,6,7,15,1,7);
+        room(air,3,6,15,6,7);
         room(air,5,6,15,6,12);
         room(air,5,12,15,11,12);
         room(air,11,12,15,4,12);
         room(air,3,6,15,11,12);
         // Four arms meet in J; its floor stays closed, without a central fall shaft.
-        room(air,6,8,9,6,9);
+        room(air,6,7,9,6,9);
         room(air,3,7,9,6,7);
         room(air,6,11,9,4,5);
         room(air,6,7,9,4,7);
@@ -34,14 +34,14 @@ final class CatalogueEight {
         room(air,7,12,9,8,9);
         // N2's fixed back mask separates this terminal branch from the western arm.
         room(air,9,10,9,9,12);
-        room(air,9,12,9,11,12);
+        room(air,9,11,9,11,12);
         // Lower loop advances north, around its own rock core.
         room(air,3,4,3,4,11);
         room(air,3,12,3,4,5);
         room(air,11,12,3,4,9);
         room(air,8,9,3,8,12);
         room(air,8,12,3,8,9);
-        room(air,8,12,3,11,12);
+        room(air,8,11,3,11,12);
         well(air,2,3,6,7,9,17);
         well(air,11,12,4,5,9,17);
         well(air,2,3,10,11,3,11);
@@ -51,9 +51,9 @@ final class CatalogueEight {
         var blocks = CatalogueTerraces.finish(center,air,false);
         var base = CatalogueTerraces.base(center);
         // Explicit cores cannot disappear when the source terrain contains a cave.
-        for(int x=6;x<=9;x++) for(int y=12;y<=14;y++) for(int z=8;z<=10;z++)
+        for(int x=6;x<=8;x++) for(int y=12;y<=13;y++) for(int z=8;z<=9;z++)
             blocks.put(base.offset(x,y,z),Blocks.STONE.defaultBlockState());
-        for(int x=5;x<=9;x++) for(int y=3;y<=7;y++) for(int z=6;z<=9;z++) {
+        for(int x=6;x<=8;x++) for(int y=3;y<=6;y++) for(int z=6;z<=8;z++) {
             if (x>=8 && z>=8 || slit && y<=5 && z>=7 && z<=8) continue;
             blocks.put(base.offset(x,y,z),Blocks.STONE.defaultBlockState());
         }
