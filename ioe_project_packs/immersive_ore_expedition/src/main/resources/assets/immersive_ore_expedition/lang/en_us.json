@@ -149,5 +149,14 @@
   "block.immersive_ore_expedition.chipped_budding_amethyst": "Chipped Budding Amethyst",
   "block.immersive_ore_expedition.flawed_budding_amethyst": "Flawed Budding Amethyst",
   "block.immersive_ore_expedition.fully_budding_amethyst": "Fully Budding Amethyst",
-  "block.immersive_ore_expedition.flawless_budding_amethyst": "Flawless Budding Amethyst"
+  "block.immersive_ore_expedition.flawless_budding_amethyst": "Flawless Budding Amethyst",
+  "block.immersive_ore_expedition.damaged_budding_glowstone": "Damaged Budding Glowstone",
+  "block.immersive_ore_expedition.chipped_budding_glowstone": "Chipped Budding Glowstone",
+  "block.immersive_ore_expedition.flawed_budding_glowstone": "Flawed Budding Glowstone",
+  "block.immersive_ore_expedition.fully_budding_glowstone": "Fully Budding Glowstone",
+  "block.immersive_ore_expedition.flawless_budding_glowstone": "Flawless Budding Glowstone",
+  "block.immersive_ore_expedition.small_glowstone_bud": "Small Glowstone Bud",
+  "block.immersive_ore_expedition.medium_glowstone_bud": "Medium Glowstone Bud",
+  "block.immersive_ore_expedition.large_glowstone_bud": "Large Glowstone Bud",
+  "block.immersive_ore_expedition.glowstone_cluster": "Glowstone Cluster"
 }

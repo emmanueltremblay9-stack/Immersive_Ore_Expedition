@@ -280,6 +280,42 @@
     {
       "id": "immersive_ore_expedition:flawless_budding_amethyst",
       "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:small_glowstone_bud",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:medium_glowstone_bud",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:large_glowstone_bud",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:glowstone_cluster",
+      "required": false
     }
   ]
 }

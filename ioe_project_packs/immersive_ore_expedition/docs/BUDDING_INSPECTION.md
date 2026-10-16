@@ -88,3 +88,12 @@ family Minecraft in Jade. Current rank and existing saved provenance are handled
 by the shared provider; native `minecraft:budding_amethyst` remains outside IOE
 node recognition. The existing Jade runtime check includes all five amethyst ranks
 and metadata reload. This is not visual acceptance or proof of natural generation.
+
+## Glowstone 2/1 — PR64
+
+Cinq cœurs Glowstone IOE et quatre stades propres à IOE, source minérale Minecraft.
+Jade distingue le rang courant de la qualité/provenance du site. Le moteur commun
+et les tests Jade avec rechargement de provenance incluent cette famille.
+La quantité récoltée ne dépend pas du rang : 2 poussières à la pioche, 1 autrement,
+Fortune commun sur la branche pioche ; Silk Touch récupère le stade exact.
+Pas de preuve visuelle déduite des modèles ou des GameTests.

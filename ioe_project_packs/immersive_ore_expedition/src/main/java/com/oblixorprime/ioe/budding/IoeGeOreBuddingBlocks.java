@@ -26,6 +26,11 @@ public final class IoeGeOreBuddingBlocks {
     private IoeGeOreBuddingBlocks() { }
 
     public static void register(IEventBus bus) {
+        // Vanilla cluster geometry/physics; owned identities and approved Glowstone loot.
+        registerGlowstoneProduct("small_glowstone_bud", 3, 4, Blocks.SMALL_AMETHYST_BUD);
+        registerGlowstoneProduct("medium_glowstone_bud", 4, 3, Blocks.MEDIUM_AMETHYST_BUD);
+        registerGlowstoneProduct("large_glowstone_bud", 5, 3, Blocks.LARGE_AMETHYST_BUD);
+        registerGlowstoneProduct("glowstone_cluster", 7, 3, Blocks.AMETHYST_CLUSTER);
         for (BuddingResourceFamily family : BuddingResourceFamily.values()) {
             if (!family.dependenciesPresent(ModList.get()::isLoaded)) continue;
             Map<BuddingRank, DeferredBlock<GeOreBuddingBlock>> ranks = new EnumMap<>(BuddingRank.class);
@@ -43,6 +48,12 @@ public final class IoeGeOreBuddingBlocks {
         }
         BLOCKS.register(bus);
         ITEMS.register(bus);
+    }
+
+    private static void registerGlowstoneProduct(String name, int height, int offset, Block template) {
+        var block = BLOCKS.register(name, () -> new AmethystClusterBlock(height, offset,
+                BlockBehaviour.Properties.ofFullCopy(template)));
+        ITEMS.registerSimpleBlockItem(name, block);
     }
 
     public static boolean resourcesPresent(BuddingResourceFamily family, Predicate<String> loaded,

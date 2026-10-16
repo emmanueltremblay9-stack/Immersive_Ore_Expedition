@@ -149,5 +149,14 @@
   "block.immersive_ore_expedition.chipped_budding_amethyst": "Améthyste bourgeonnante ébréchée",
   "block.immersive_ore_expedition.flawed_budding_amethyst": "Améthyste bourgeonnante imparfaite",
   "block.immersive_ore_expedition.fully_budding_amethyst": "Améthyste bourgeonnante complète",
-  "block.immersive_ore_expedition.flawless_budding_amethyst": "Améthyste bourgeonnante sans défaut"
+  "block.immersive_ore_expedition.flawless_budding_amethyst": "Améthyste bourgeonnante sans défaut",
+  "block.immersive_ore_expedition.damaged_budding_glowstone": "Pierre lumineuse bourgeonnante endommagée",
+  "block.immersive_ore_expedition.chipped_budding_glowstone": "Pierre lumineuse bourgeonnante ébréchée",
+  "block.immersive_ore_expedition.flawed_budding_glowstone": "Pierre lumineuse bourgeonnante imparfaite",
+  "block.immersive_ore_expedition.fully_budding_glowstone": "Pierre lumineuse bourgeonnante complète",
+  "block.immersive_ore_expedition.flawless_budding_glowstone": "Pierre lumineuse bourgeonnante sans défaut",
+  "block.immersive_ore_expedition.small_glowstone_bud": "Petit bourgeon de pierre lumineuse",
+  "block.immersive_ore_expedition.medium_glowstone_bud": "Bourgeon moyen de pierre lumineuse",
+  "block.immersive_ore_expedition.large_glowstone_bud": "Grand bourgeon de pierre lumineuse",
+  "block.immersive_ore_expedition.glowstone_cluster": "Grappe de pierre lumineuse"
 }

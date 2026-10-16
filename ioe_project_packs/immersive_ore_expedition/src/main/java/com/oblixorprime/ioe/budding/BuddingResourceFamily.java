@@ -22,7 +22,8 @@ public enum BuddingResourceFamily {
     GEORE_URANIUM(Kind.GEORE, "uranium"),
     CERTUS_QUARTZ(Kind.CERTUS, "certus_quartz"),
     ENTROIZED_FLUIX(Kind.EXTENDED_AE, "entroized_fluix"),
-    AMETHYST(Kind.VANILLA, "amethyst");
+    AMETHYST(Kind.VANILLA, "amethyst"),
+    GLOWSTONE(Kind.VANILLA, "glowstone");
 
     private final Kind kind;
     private final String key;
@@ -62,7 +63,7 @@ public enum BuddingResourceFamily {
         return switch (kind) {
             case GEORE -> requiresImmersiveEngineering() ? id("immersiveengineering", "storage_" + key) : id("minecraft", key + "_block");
             case CERTUS, EXTENDED_AE -> id("ae2", "quartz_block");
-            case VANILLA -> id("minecraft", "amethyst_block");
+            case VANILLA -> id("minecraft", this == GLOWSTONE ? "glowstone" : "amethyst_block");
         };
     }
 
@@ -88,6 +89,11 @@ public enum BuddingResourceFamily {
     }
 
     public List<ResourceLocation> growthProductIds() {
+        if (this == GLOWSTONE) return List.of(
+                id("immersive_ore_expedition", "small_glowstone_bud"),
+                id("immersive_ore_expedition", "medium_glowstone_bud"),
+                id("immersive_ore_expedition", "large_glowstone_bud"),
+                id("immersive_ore_expedition", "glowstone_cluster"));
         return switch (kind) {
             case GEORE -> List.of(
                     id("geore", "small_" + key + "_bud"),

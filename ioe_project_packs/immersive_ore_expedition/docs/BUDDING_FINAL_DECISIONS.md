@@ -267,3 +267,11 @@ commun IOE pour Glowstone et rejette le profil spécial proposé de quatre pouss
 Les cinq rangs/usure/récupération des cœurs ne sont plus une question ouverte.
 Le produit et la table de récolte des cristaux ne sont pas universels dans IOE ;
 voir la réconciliation du contrat Crystal Cave. Aucun profil spécial implémenté.
+
+### Glowstone — récolte 2/1, décision finale
+
+Le message vocal `01a14246-770a-729f-9495-94c30efb2f87` fixe 2 poussières avec
+pioche, 1 autrement. Les règles communes Fortune/Silk Touch sont conservées ;
+le détail et les cinq cœurs/quatre produits implémentés sont dans le contrat
+Crystal Cave. Le profil de récolte n'est plus en attente. Aucune recette ou
+distribution ajoutée ; rangs et budgets existants inchangés.

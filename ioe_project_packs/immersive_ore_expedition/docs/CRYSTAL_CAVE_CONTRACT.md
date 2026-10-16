@@ -168,8 +168,8 @@ propres conditions. Pas d'extraction d'assets tiers pour fabriquer les nouvelles
    défaut leurs registres et les météorites ; ne pas migrer les anciens mondes.
 3. **Produits et épuisement** : produits finaux exacts et quantités de récolte,
    Silk Touch/Fortune, stockage final des familles Fluix/Draconium. Pour Glowstone,
-   la mécanique commune est confirmée ; seul le profil de récolte des cristaux
-   reste indéterminé (voir réconciliation ci-dessous). Le profil A améthyste est approuvé.
+   la mécanique commune et la récolte 2/1 sont confirmées
+   (voir décision et implémentation ci-dessous). Le profil A améthyste est approuvé.
    Le quartz final d'ExtendedAE ne doit pas devenir automatiquement le résidu universel.
 4. **Budgets cave** : total et répartition par famille/qualité, phases initiales,
    clusters préexistants, densité Glowstone, plage Y, biomes, fréquence et espacement.
@@ -283,3 +283,35 @@ La piste AE2CS communiquée à la révision `62cfb60d5d9e2c760855e5edd0d6fae77b7
 (`fluix_mother_rock`, quatre stades, produit `purified_fluix_crystal`) est un
 candidat distinct du Fluix AE2 ordinaire, pas une intégration approuvée. L'ancien
 inventaire des JAR inspectés ne permet pas de conclure qu'aucun fournisseur existe.
+
+
+## Glowstone — récolte 2/1 approuvée et implémentée
+
+Décision vocale `01a14246-770a-729f-9495-94c30efb2f87` : « Juste commence à deux
+poussières avec pioche, puis une autrement ». Cette décision remplace la proposition
+4/2 et résout la lacune de récolte décrite plus haut. Produit : `minecraft:glowstone_dust`.
+
+Cinq cœurs IOE `damaged/chipped/flawed/fully/flawless_budding_glowstone` et quatre
+produits IOE `small/medium/large_glowstone_bud`, `glowstone_cluster`. Le moteur commun
+est réutilisé : 1/3 tentative, 1/10 usure après croissance, quatre rangs usurables,
+Flawless permanent, épuisement en `minecraft:glowstone`. Récupération des cœurs
+identique aux autres familles IOE ; aucune nouvelle recette ni distribution naturelle.
+
+Grappe mûre : base 2 poussières avec un outil du tag vanilla
+`minecraft:cluster_max_harvestables` (les six pioches vanilla), 1 autrement.
+Fortune conserve `minecraft:ore_drops` sur la branche pioche : multiples de 2,
+maximum 4/6/8 pour Fortune I/II/III ; aucun bonus sur la branche autre outil.
+Silk Touch rend le bloc du stade exact et prend priorité. Les trois stades immatures
+ne donnent rien sans Silk Touch. Les rangs/qualités ne multiplient pas le loot.
+La physique des quatre produits reprend AmethystClusterBlock, ses dimensions et
+propriétés vanilla correspondantes (faces, eau, support, lumière par stade).
+Modèles originaux à prismes, texture vanilla Glowstone référencée sans copie d'asset.
+
+Jade affiche la ressource Minecraft, le rang réel et la provenance persistante
+existante ; aucun bloc Glowstone vanilla adopté comme cœur. Tests runtime :
+croissance/usure partagée, identités/items, récolte des cœurs, 2/1, immatures, Silk
+Touch et comparaison Fortune à l'améthyste chargée avec graines explicites.
+Pas de mutation du RNG du monde pour cette comparaison. Validation statique :
+75 cœurs et quatre produits ; CI exacte consignée dans PR64.
+AE2CS Fluix purifié, Draconium et budgets de cave restent hors de ce cycle.
+Production OFF ; validation visuelle/client non prouvée.

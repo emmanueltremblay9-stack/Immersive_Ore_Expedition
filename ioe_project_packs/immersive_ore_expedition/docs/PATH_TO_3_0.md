@@ -717,3 +717,16 @@ et rangs disponibles ; validation exacte à consigner dans PR64. Les 14 checks
 verts de e7f02ee restent la preuve de la source précédente seulement.
 Production OFF ; aucune famille/recette/distribution nouvelle ni modification des
 budgets, read sets, déduplication ou anciens chunks. Visuel/client non prouvé.
+
+
+## PR64 — famille Glowstone approuvée 2/1
+
+Reprise sur le head local/distant propre cb473e39a35f46825ad8738c2a415c9e636b00c3.
+Décision `01a14246-770a-729f-9495-94c30efb2f87` : deux poussières avec pioche,
+une autrement, Fortune/Silk Touch communs conservés. Cinq cœurs et quatre produits
+Glowstone implémentés avec le moteur partagé, stockage vanilla, Jade/persistance
+existants. 15 familles / 75 cœurs ; aucune recette ou distribution naturelle ajoutée.
+Tests runtime récolte/outils/Fortune à graines fixes, croissance/usure et Jade ;
+CI exacte à consigner dans PR64, sans réutiliser les résultats cb473e3 comme preuve.
+Production OFF ; contrats Nether, anciens chunks et protections inchangés.
+Aucune installation/fusion/publication ; validation visuelle non prouvée.
