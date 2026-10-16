@@ -11,12 +11,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-/** GOV 60d1c94, BP-02/03/05/06/10/11/14/16/17/20/23/24/26/27/31/34/35/36/37/40 A/B/C, geometry version 22. No quality or reward random source. */
+/** GOV 60d1c94, BP-02/03/05/06/10/11/13/14/16/17/20/23/24/26/27/31/34/35/36/37/40 A/B/C, geometry version 23. No quality or reward random source. */
 final class CatalogueTerraces {
     private CatalogueTerraces() { }
     enum Variant {
         ALTERNATING, FAN, SPLIT, CROSSING, CROSSING_WINDOW, CROSSING_LOOP,
-        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER, ROOTS, ROOTS_STAGED, ROOTS_JOINED, CELLS, CELLS_SPINE, CELLS_DIAGONAL, COMB, COMB_WINDOW, COMB_DIVIDED, TEETH, TEETH_WINDOW, TEETH_NOTCH, CHIMNEY, CHIMNEY_BALCONY, CHIMNEY_REAR, AXIAL, AXIAL_RETURN, AXIAL_BENT, MUSHROOM, MUSHROOM_SLIT, MUSHROOM_LOBES, SLAB, SLAB_THIRD, SLAB_JOINED, HOURGLASS, HOURGLASS_SPLIT, HOURGLASS_BALCONY, BELL, BELL_FORK, BELL_WINDOW, BIPYRAMID, BIPYRAMID_TRUNCATED, BIPYRAMID_DIVIDED, ARCH, ARCH_WINDOW, ARCH_FORK, TRAVERSE, TRAVERSE_WINDOW, TRAVERSE_FORK;
+        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER, ROOTS, ROOTS_STAGED, ROOTS_JOINED, CELLS, CELLS_SPINE, CELLS_DIAGONAL, COMB, COMB_WINDOW, COMB_DIVIDED, TEETH, TEETH_WINDOW, TEETH_NOTCH, CHIMNEY, CHIMNEY_BALCONY, CHIMNEY_REAR, AXIAL, AXIAL_RETURN, AXIAL_BENT, MUSHROOM, MUSHROOM_SLIT, MUSHROOM_LOBES, SLAB, SLAB_THIRD, SLAB_JOINED, HOURGLASS, HOURGLASS_SPLIT, HOURGLASS_BALCONY, BELL, BELL_FORK, BELL_WINDOW, BIPYRAMID, BIPYRAMID_TRUNCATED, BIPYRAMID_DIVIDED, ARCH, ARCH_WINDOW, ARCH_FORK, TRAVERSE, TRAVERSE_WINDOW, TRAVERSE_FORK, NAVE, NAVE_DOUBLE, NAVE_ARCH;
+        boolean isNave() { return this == NAVE || this == NAVE_DOUBLE || this == NAVE_ARCH; }
         boolean isTraverse() { return this == TRAVERSE || this == TRAVERSE_WINDOW || this == TRAVERSE_FORK; }
         boolean isArch() { return this == ARCH || this == ARCH_WINDOW || this == ARCH_FORK; }
         boolean isBipyramid() { return this == BIPYRAMID || this == BIPYRAMID_TRUNCATED || this == BIPYRAMID_DIVIDED; }
@@ -69,6 +70,7 @@ final class CatalogueTerraces {
         if (variant.isBipyramid()) return CatalogueBipyramid.geometry(center,variant);
         if (variant.isArch()) return CatalogueArch.geometry(center,variant);
         if (variant.isTraverse()) return CatalogueTraverse.geometry(center,variant);
+        if (variant.isNave()) return CatalogueNave.geometry(center,variant);
         boolean split = variant == Variant.SPLIT;
         var air = new LinkedHashSet<BlockPos>();
         for (int y : new int[]{3, 9, 15}) {

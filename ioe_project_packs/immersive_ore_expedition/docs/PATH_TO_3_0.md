@@ -237,6 +237,22 @@ Qualification exacte à suivre sans transfert de preuves. Plafond 2 500
 inchangé ; pas de PC, installation, fusion, publication ou activation Nether.
 Validation visuelle/client non prouvée.
 
+### BP-40 qualifié ; cycle suivant BP-13 A/B/C
+
+BP-40 accepté sur 77c5e5e4f27b2ded8b8f99835fb13dafbb54a295 : 16 jobs verts, 716 JUnit et 123+123
+GameTests par pile, streaming/reprise ; 43 200 plans, 240 placements réels,
+maximum 2495. JAR non installé :
+d9a4800023df92434c1585aa376675a4624a9772b171e5f8d006847b80346602.
+
+BP-13 : nef à trois diaphragmes et fenêtres haute/médiane/basse en série ;
+B seconde fenêtre médiane haute, C arche haute dans le dernier diaphragme.
+Paliers et échelles soutenus, masques minéraux et fonctions conservés.
+Tests de retour, largeur et coupures indépendantes sans raccourci implicite.
+Couverture 63/120 implémentées, 57 restantes ; 45 360 plans et 252 placements.
+Qualification exacte à suivre sans transfert de preuves. Plafond 2 500
+inchangé ; pas de PC, installation, fusion, publication ou activation Nether.
+Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
