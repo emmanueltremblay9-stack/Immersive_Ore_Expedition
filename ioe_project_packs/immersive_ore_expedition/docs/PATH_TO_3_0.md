@@ -1062,3 +1062,10 @@ test failing among 113 current minimal GameTests. The unused upper south-east
 slab shoulder is now omitted; the north/east approach, western bypass, rear
 view, and C's two-wide rib remain. No budget, cap or route assertion is relaxed.
 A new exact-source qualification is required.
+
+
+BP-36 follow-up: 08a697f reached 2,514 cells; the composed cap was again
+the only failure among 113 baseline minimal GameTests. The remaining unused
+lower north corner and intermediate east viewing strip are removed. The
+central open column and two-wide lower connections remain. All existing
+behavioral assertions and the 2,500-cell guard are retained; exact CI required.

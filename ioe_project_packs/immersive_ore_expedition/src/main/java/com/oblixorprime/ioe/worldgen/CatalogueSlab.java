@@ -36,9 +36,9 @@ final class CatalogueSlab {
         for(var cell:slab) for(int y=15;y<=17;y++) air.add(cell.atY(y));
         for(var cell:holes) for(int y=9;y<=17;y++) air.add(cell.atY(y));
         // Keep the broad lower return; omit the unused north-east shoulder.
-        room(air,5,8,3,4,7);
+        room(air,5,8,3,6,7);
         room(air,5,10,3,8,9);
-        well(air,6,8,6,8,6,8);
+        well(air,6,7,6,8,6,8);
         well(air,12,13,6,7,3,17);
         room(air,11,12,3,6,9);
         room(air,3,6,3,4,5);
