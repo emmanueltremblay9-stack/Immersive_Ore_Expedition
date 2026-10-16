@@ -262,6 +262,21 @@ public final class CatalogueTerracesGameTests {
             var chunk = new net.minecraft.world.level.ChunkPos(helper.absolutePos(new BlockPos(512+index++*128,24,512)));
             var origin = new BlockPos(chunk.getMinBlockX()+4,41,chunk.getMinBlockZ()+9);
             ExpeditionWorldgenGameTests.fillTestChunk(level,chunk);
+            if (type == ExpeditionSiteType.MINER_CAMP) {
+                var fixtureRandom = net.minecraft.util.RandomSource.create(planSeed);
+                var fixtureCenter = new BlockPos(chunk.getMinBlockX()+7,
+                        origin.getY()-20-fixtureRandom.nextInt(9),chunk.getMinBlockZ()+7);
+                var bounds = ExpeditionSiteFeature.expandedPlanBounds(
+                        CatalogueTerraces.geometry(fixtureCenter,variant).keySet());
+                // BP-14's west shell reaches local X=0. The collision margin therefore
+                // needs west-neighbor metadata, even though every write stays in this chunk.
+                // Allocate only the controlled fixture's metadata halo; production must not load it.
+                for (int cx=Math.floorDiv(bounds.minX(),16);cx<=Math.floorDiv(bounds.maxX(),16);cx++)
+                    for (int cz=Math.floorDiv(bounds.minZ(),16);cz<=Math.floorDiv(bounds.maxZ(),16);cz++)
+                        level.getChunk(cx,cz);
+                helper.assertFalse(LoadedStructureCollision.blocksPlacement(level,bounds),
+                        "Catalogue fixture metadata is unavailable or overlaps a structure: " + variant);
+            }
             var feature = new ExpeditionSiteFeature(type,(ignoredLevel,ignoredPos) ->
                     new BiomeMineResourceProfile.Resolution(java.util.Optional.of(profile),BiomeMineResourceProfile.Failure.NONE));
             boolean staged = feature.place(new net.minecraft.world.level.levelgen.feature.FeaturePlaceContext<>(
@@ -307,6 +322,34 @@ public final class CatalogueTerracesGameTests {
             helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level,chunk).confirmedSites()==0,
                     "Natural catalogue transaction replayed");
         }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void combCampMarginRejectsMissingNeighborWithoutLoading(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var chunk = new net.minecraft.world.level.ChunkPos(1_420_000,1_420_000);
+        var west = new net.minecraft.world.level.ChunkPos(chunk.x-1,chunk.z);
+        var center = new BlockPos(chunk.getMinBlockX()+7,25,chunk.getMinBlockZ()+7);
+        var geometry = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.COMB);
+        helper.assertTrue(geometry.keySet().stream().allMatch(p -> new net.minecraft.world.level.ChunkPos(p).equals(chunk)),
+                "BP-14 writes outside its source chunk");
+        var bounds = ExpeditionSiteFeature.expandedPlanBounds(geometry.keySet());
+        helper.assertTrue(Math.floorDiv(bounds.minX(),16)==west.x,
+                "BP-14 collision margin no longer exercises the west neighbor");
+        helper.assertTrue(level.getChunkSource().getChunkNow(west.x,west.z)==null,
+                "Missing-metadata fixture is already loaded");
+        // All other metadata is explicitly available, isolating the west-neighbor refusal.
+        for (int cx=Math.floorDiv(bounds.minX(),16);cx<=Math.floorDiv(bounds.maxX(),16);cx++)
+            for (int cz=Math.floorDiv(bounds.minZ(),16);cz<=Math.floorDiv(bounds.maxZ(),16);cz++)
+                if (cx!=west.x || cz!=west.z) level.getChunk(cx,cz);
+        helper.assertTrue(LoadedStructureCollision.blocksPlacement(level,bounds),
+                "Missing west metadata was admitted");
+        helper.assertTrue(level.getChunkSource().getChunkNow(west.x,west.z)==null,
+                "Collision check force-loaded the missing neighbor");
+        level.getChunk(west.x,west.z); // Controlled fixture allocation only.
+        helper.assertFalse(LoadedStructureCollision.blocksPlacement(level,bounds),
+                "Known empty metadata still rejects the BP-14 bounds");
         helper.succeed();
     }
 

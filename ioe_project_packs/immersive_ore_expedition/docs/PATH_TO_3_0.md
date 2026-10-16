@@ -54,6 +54,17 @@ sans transfert des preuves précédentes. Couverture 30/120, 90 restantes.
 Plafond 2 500 inchangé. Aucun accès PC, activation Nether, fusion ou publication.
 Visuel/client non prouvé.
 
+### BP-14 — régression de fixture MINER_CAMP
+
+Le candidat 357792c respecte le plafond (maximum mesuré 2 494), mais son test de
+placement réel échoue sur COMB. Sa coque ouest atteint X=0 ; la marge anti-collision
+s’étend au chunk voisin dont la fixture ne préparait pas les métadonnées.
+Le test prépare désormais explicitement ce halo ; un test négatif distinct exige
+le refus du voisin absent, vérifie l’absence de chargement forcé, puis l’admission
+une fois les seules métadonnées de fixture disponibles. Aucun garde-fou de production
+ni géométrie modifié dans cette correction. Qualification du nouveau source à suivre
+sur PR64 ; les échecs précédents ne sont pas des preuves de réussite.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
