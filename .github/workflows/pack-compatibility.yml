@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   current-pack:
-    name: Current pack qualification (not distributable)
+    name: Current pack runtime qualification
     runs-on: ubuntu-latest
     timeout-minutes: 35
     defaults:
@@ -33,7 +33,7 @@ jobs:
           python3 scripts/verify_current_core_runtime.py
       - name: Current complete runtime and restart behavior
         run: python3 scripts/qualify_depth32_restart.py
-      - name: Reports only (qualification metadata must not be distributed)
+      - name: Upload current runtime qualification reports
         if: always()
         uses: actions/upload-artifact@v4
         with:

@@ -1138,7 +1138,7 @@ def validate() -> None:
     require('systemProperty "ioe.expectDomumRuntime", "true"' in build_source,
             "full-runtime GameTests can silently skip a missing pinned Domum runtime")
     require("domum_version=1.0.231" in properties_source
-            and "domum_version_range=[1.0.231,1.0.232)" in properties_source,
+            and "domum_version_range=[1.0.231,1.0.232),[1.0.236-snapshot]" in properties_source,
             "Domum version is not exactly pinned")
     require('modId="domum_ornamentum"' in metadata_source
             and 'type="optional"' in metadata_source

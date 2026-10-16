@@ -4,6 +4,7 @@ import hashlib, json, zipfile, tomllib
 from pathlib import Path
 cache = Path.home()/'.gradle/caches/modules-2/files-2.1'
 expected = {
+    'ae2wtlib': ('maven.modrinth/pNabrMMw/IQFaf9vp', '19.2.6', None),
     'ae2': ('org.appliedenergistics/appliedenergistics2/19.2.18', '19.2.18', None),
     'ae2cs': ('maven.modrinth/uJ9afomy/taIhgdOA', '1.2.1', 'fb0d921c68d43e3ff76c9da16b6e3b8ba4944849064fd42aeb27e0f9ed099dde'),
     'geore': ('maven.modrinth/Xw6zG9hl/73hXLxdm', '6.2.4', None),

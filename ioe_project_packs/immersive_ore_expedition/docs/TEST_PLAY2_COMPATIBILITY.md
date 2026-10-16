@@ -1,7 +1,7 @@
 # TesT play2 : admission et qualification
 
 Inventaire propriétaire 08:02 UTC ; remplace Domum 1.0.234/Jade 15.10.5.
-État préalable à la qualification : aucune borne distribuée élargie.
+Admission étroite ajoutée après qualification de la baseline et des versions actuelles.
 
 ## Toutes les contraintes de chargement IOE
 
@@ -12,13 +12,13 @@ Inventaire propriétaire 08:02 UTC ; remplace Domum 1.0.234/Jade 15.10.5.
 | minecraft | required / BOTH | `[1.21.1,1.22)` | 1.21.1 — admis |
 | journeymap | optional / CLIENT | `[1.21-6.0.0-beta.1,)` | Version non communiquée dans cet inventaire |
 | ae2 | required / BOTH | `[19.2.17,20)` | 19.2.18 — admis |
-| ae2cs | required / BOTH | `[1.1.12,1.2)` | 1.2.1 — refusé |
+| ae2cs | required / BOTH | `[1.1.12,1.2),[1.2.1]` | 1.2.1 — admis après qualification |
 | geore | required / BOTH | `[6.2.2,7)` | 6.2.4 — admis |
 | geore_additions | optional / BOTH | `[0,)` | Version non communiquée dans cet inventaire |
-| extendedae | optional / BOTH | `[1.21-2.2.33-neoforge]` | 1.21-2.2.41-neoforge — refusé |
+| extendedae | optional / BOTH | `[1.21-2.2.33-neoforge],[1.21-2.2.41-neoforge]` | 1.21-2.2.41-neoforge — admis après qualification |
 | immersiveengineering | optional / BOTH | `[12.4.2-194,12.5)` | Version non communiquée dans cet inventaire |
 | immersivepetroleum | optional / BOTH | `[4.4.1-37],[4.5.0-39]` | Version non communiquée dans cet inventaire |
-| domum_ornamentum | optional / BOTH | `[1.0.231,1.0.232)` | 1.0.236-snapshot — refusé |
+| domum_ornamentum | optional / BOTH | `[1.0.231,1.0.232),[1.0.236-snapshot]` | 1.0.236-snapshot — admis après qualification |
 | jade | optional / BOTH | `[15.10.6,16)` | 15.10.6 — admis |
 
 Les dépendances optionnelles imposent leur borne lorsqu’elles sont installées.
@@ -51,7 +51,8 @@ Phase 1 : CI ordinaire baseline et CI TesT play2 actuelle, mêmes sources, admis
 exacte temporaire dans le job courant seulement ; aucun artefact distribuable de ce
 job. Phase 2 seulement après succès : unions étroites des versions qualifiées,
 tests d’admission et nouvelle CI exacte, JAR avec classes/métadonnées et SHA256.
-Résultats encore en attente ; aucune compatibilité runtime annoncée sur inspection.
+Les quatre runs préalables ci-dessous ont réussi. Le commit d’admission final
+est requalifié séparément ; son reçu exact et le SHA256 du JAR sont portés par PR64.
 
 ## Licence et périmètre
 
@@ -75,3 +76,21 @@ complet baseline, est désormais résolu aussi dans le runtime minimal actuel.
 L’entrée stagée correspondante est retirée du seul manifeste actuel pour éviter
 un doublon. Aucune dépendance inconnue ni modification du PC ; qualification à
 reprendre avant toute admission distribuée.
+
+## Qualification préalable acquise
+
+Source `7929d53e580b77c95c3675a03e9abeea2ddb2edc` : baseline et versions actuelles réussies sur push/PR.
+Le rapport actuel PR confirme 715 JUnit, zéro échec/ignoré, 78 GameTests minimaux,
+78 complets et deux tests séparés streaming/redémarrage. Ces chiffres sont la
+preuve préalable, pas une attribution au commit final d’admission.
+- https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/38872689203
+- https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/38872689405
+- https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/38872697744
+- https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/38872697773
+
+Les unions ajoutent uniquement les trois versions demandées. Les versions
+intermédiaires et suivantes non qualifiées restent exclues. Les overrides temporaires
+d’admission sont retirés du job actuel : baseline et actuel utilisent désormais les
+mêmes bornes distribuées. Tests Maven/NeoForge et installateur vérifient admission
+et rejet des gaps. Les API de compilation restent anciennes ; aucun adaptateur de
+production, recette, gameplay ou génération n’a nécessité de modification.

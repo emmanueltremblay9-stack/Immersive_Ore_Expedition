@@ -780,3 +780,14 @@ Overworld actif par défaut, Nether fermé, OreGuard indépendant, retrogen dés
 Aucune modification gameplay, PC, mods tiers, MineColonies, installation, fusion ou
 publication. Thunderbolt déjà installé sur PC, aucun ajout requis par ce patch.
 Validation visuelle/client non prouvée.
+
+### Admission après qualification préalable
+
+Les quatre runs push/PR baseline/actuel du source 7929d53e580b77c95c3675a03e9abeea2ddb2edc
+ont réussi (liens dans TEST_PLAY2_COMPATIBILITY.md). AE2WTLib 19.2.6, fixture déjà
+connue, est aussi chargé dans le runtime minimal actuel pour AE2CS 1.2.1.
+Les bornes distribuées ajoutent seulement AE2CS 1.2.1, Domum 1.0.236-snapshot et
+ExtendedAE 2.2.41 ; Jade/AE2/GeOre inchangés. Overrides d’admission supprimés,
+contrôles Maven et installateur ajoutés. Le commit final et son JAR sont soumis
+à une nouvelle CI exacte ; reçu source/artefact distinct dans PR64. Aucun changement
+métier, PC, installation, fusion ou publication. Visuel/client toujours non prouvé.

@@ -1,4 +1,4 @@
-"""Qualification-only Gradle arguments; never change distributed defaults."""
+"""Current CI runtime coordinates; admission uses distributed defaults."""
 import os
 
 def arguments():
@@ -9,9 +9,6 @@ def arguments():
         raise RuntimeError('Current pack qualification is hosted CI only')
     return [
         '-PioeCurrentPackQualification=true',
-        '-Pae2cs_version_range=[1.2.1]',
-        '-Pdomum_version_range=[1.0.236-snapshot]',
-        '-Pextendedae_version_range=[1.21-2.2.41-neoforge]',
         '-Pae2_runtime_version=19.2.18',
         '-Pae2cs_modrinth_version=taIhgdOA',
         '-Pgeore_modrinth_version=73hXLxdm',
