@@ -109,6 +109,15 @@ Couverture 39/120, 81 restantes. Qualification exacte à suivre dans PR64 sans
 transfert des preuves précédentes. Plafond 2 500 inchangé ; aucun accès PC,
 installation, fusion, publication ou activation Nether. Visuel/client non prouvé.
 
+
+BP-31 review correction before qualification: candidate 2686f4f had a one-cell
+corner beside the lower shaft's backing. The west arm now enters north of that
+backing into a wider hollow vestibule; its two-wide support is asserted explicitly,
+as are the north/east arms. The north endpoint is offset to the east, while the
+fixed north mineral alcove remains a recess of the vestibule. B's outer return
+follows that endpoint. No mineral position, mask, budget or write cap is changed.
+The new exact-source tests replace the unqualified candidate's runs.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

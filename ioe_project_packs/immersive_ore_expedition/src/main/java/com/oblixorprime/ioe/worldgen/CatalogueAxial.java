@@ -17,10 +17,10 @@ final class CatalogueAxial {
         boolean diagonal = variant == CatalogueTerraces.Variant.AXIAL_RETURN;
         boolean bent = variant == CatalogueTerraces.Variant.AXIAL_BENT;
         var air = new LinkedHashSet<BlockPos>();
-        well(air,5,10,5,9,9,13);
-        room(air,6,7,9,4,5);
+        well(air,5,12,4,9,9,13);
+        room(air,10,11,9,1,4);
         room(air,10,13,9,6,7);
-        room(air,2,5,9,6,7);
+        room(air,2,5,9,4,5);
         room(air,5,6,9,9,12);
         room(air,3,6,9,10,11);
         room(air,11,12,9,6,9);
@@ -41,9 +41,8 @@ final class CatalogueAxial {
         if (bent) well(air,11,12,8,9,9,17);
         else well(air,8,9,6,7,9,17);
         if (diagonal) {
-            room(air,8,11,9,3,4);
-            room(air,10,12,9,4,5);
-            room(air,11,13,9,5,6);
+            room(air,10,13,9,1,2);
+            room(air,12,13,9,2,6);
         }
         var blocks = CatalogueTerraces.finish(center,air,false);
         var base = CatalogueTerraces.base(center);

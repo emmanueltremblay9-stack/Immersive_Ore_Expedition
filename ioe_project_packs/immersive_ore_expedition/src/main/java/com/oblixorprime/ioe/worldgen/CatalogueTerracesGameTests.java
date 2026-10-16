@@ -1140,10 +1140,16 @@ public final class CatalogueTerracesGameTests {
             var hub=new BlockPos(7,9,7);
             assertAxialSignatures(helper,geometry,BlockPos.ZERO,variant);
             for(int y=9;y<=13;y++) helper.assertTrue(geometry.get(hub.atY(y)).isAir(),"Hollow vestibule became a pillar");
-            for(var end:java.util.List.of(new BlockPos(7,9,4),new BlockPos(13,9,6),new BlockPos(2,9,6),
+            for(var end:java.util.List.of(new BlockPos(10,9,1),new BlockPos(13,9,6),new BlockPos(2,9,4),
                     new BlockPos(5,9,12),new BlockPos(7,15,7),new BlockPos(4,3,7)))
                 helper.assertTrue(reachable(geometry,hub).contains(end) && reachable(geometry,end).contains(hub),
                         "Axial direction lacks a supported return: " + end + " " + variant);
+            for(int x=2;x<=7;x++) for(int z=4;z<=5;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"West arm narrows beside the lower shaft");
+            for(int x=10;x<=11;x++) for(int z=1;z<=4;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"North arm lost its full supported width");
+            for(int x=12;x<=13;x++) for(int z=6;z<=7;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"East arm lost its full supported width");
             var cut=new LinkedHashMap<>(geometry);
             closeWell(cut,8,9,6,7,14);
             boolean bent=variant==CatalogueTerraces.Variant.AXIAL_BENT;
@@ -1169,14 +1175,14 @@ public final class CatalogueTerracesGameTests {
         for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.AXIAL,
                 CatalogueTerraces.Variant.AXIAL_RETURN,CatalogueTerraces.Variant.AXIAL_BENT}) {
             var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
-            var north=CatalogueTerraces.HEARTS.get(5).south(); var east=new BlockPos(13,9,6);
+            var north=new BlockPos(10,9,1); var east=new BlockPos(13,9,6);
             var cut=new LinkedHashMap<>(geometry);
-            for(int x=6;x<=7;x++) for(int y=9;y<=11;y++) cut.put(new BlockPos(x,y,5),Blocks.STONE.defaultBlockState());
+            for(int x=10;x<=11;x++) for(int y=9;y<=11;y++) cut.put(new BlockPos(x,y,3),Blocks.STONE.defaultBlockState());
             boolean diagonal=variant==CatalogueTerraces.Variant.AXIAL_RETURN;
             helper.assertTrue(reachable(cut,north).contains(east)==diagonal && reachable(cut,east).contains(north)==diagonal,
                     "North-east arms bypass the hub without the diagonal return");
             if(diagonal) {
-                for(int z=3;z<=4;z++) for(int y=9;y<=11;y++) cut.put(new BlockPos(10,y,z),Blocks.STONE.defaultBlockState());
+                for(int x=12;x<=13;x++) for(int y=9;y<=11;y++) cut.put(new BlockPos(x,y,3),Blocks.STONE.defaultBlockState());
                 helper.assertTrue(!reachable(cut,north).contains(east) && !reachable(cut,east).contains(north),
                         "Diagonal return gained a second bypass");
             }
@@ -1186,7 +1192,7 @@ public final class CatalogueTerracesGameTests {
 
     private static void assertAxialSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
                                               BlockPos base,CatalogueTerraces.Variant variant) {
-        helper.assertTrue(blocks.getOrDefault(base.offset(10,9,3),Blocks.STONE.defaultBlockState()).isAir()
+        helper.assertTrue(blocks.getOrDefault(base.offset(13,9,2),Blocks.STONE.defaultBlockState()).isAir()
                 == (variant==CatalogueTerraces.Variant.AXIAL_RETURN),"Diagonal north-east return changed");
         helper.assertTrue(blocks.getOrDefault(base.offset(8,14,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
                 == (variant!=CatalogueTerraces.Variant.AXIAL_BENT),"Straight upper arm changed");

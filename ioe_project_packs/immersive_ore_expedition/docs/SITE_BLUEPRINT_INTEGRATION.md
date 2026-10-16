@@ -691,3 +691,11 @@ Accepted BP-35 source 8cda8fb3b227e7cffc3d6497b4692ccb1aeb4ae1: 16 successful jo
 107 minimal + 107 complete GameTests per stack plus streaming/restart; maximum
 2,488 cells over 25,920 plans. Its JAR SHA256 is
 60785441781d6b2e916c11e0e51881011c121dceefe7b6bfdaabe1240020cbc9. These remain predecessor proofs only.
+
+BP-31 review correction before qualification: candidate 2686f4f had a one-cell
+corner beside the lower shaft's backing. The west arm now enters north of that
+backing into a wider hollow vestibule; its two-wide support is asserted explicitly,
+as are the north/east arms. The north endpoint is offset to the east, while the
+fixed north mineral alcove remains a recess of the vestibule. B's outer return
+follows that endpoint. No mineral position, mask, budget or write cap is changed.
+The new exact-source tests replace the unqualified candidate's runs.
