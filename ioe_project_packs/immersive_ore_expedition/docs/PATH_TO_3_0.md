@@ -24,14 +24,16 @@ pile et streaming/reprise ; maximum 2 487 sur 2 880 plans. JAR non installé :
 BP-16 B/C `f5478f0` est qualifié : 16 jobs verts, 716 JUnit, 86+86 GameTests
 par pile et streaming/reprise ; maximum 2 482 sur 4 320 plans. JAR non installé :
 `b21ab05e3c15f61e90ac322e1c161434f8ac5ecce4911378d02112af654851c8`.
-Cycle suivant : BP-27 A/B/C (catalogue 003), siphon sec à passage obligatoire par
-le coude bas ; deux chenaux bas pour B, remontée à épaule décalée pour C. L'enveloppe
-actuelle et les sept positions minérales restent fixes, sans raccourci haut ni
-mécanisme hydraulique. Matrice portée à 6 480 plans et 36 placements réels ; tests
-de retour, coupure du coude, chenaux alternatifs et déport de remontée. Compensation
-ordonnée et protection des modifications étrangères conservées. Qualification
-exacte suivie dans PR64, sans transfert des preuves précédentes. Carte : 9 variantes
-implémentées, 111 restantes, dont les 30 du catalogue 004 encore en attente.
+BP-27 A/B/C `4f0eeeb` est qualifié : 16 jobs verts, 716 JUnit, 88+88 GameTests
+par pile, streaming/reprise ; maximum 2 482 sur 6 480 plans. JAR non installé :
+`a709d07f03b52c4eb0395d5fb7d88ee06aeb94b0c316b86abe03ff7d7d74a3dc`.
+Cycle suivant : BP-37 A/B/C (catalogue 004), deux longerons montants reliés par
+trois traverses. Marches pour les décalages, palier médian à deux pentes (B),
+fourche basse (C). Enveloppe, positions minérales, fonctions et plafond restent
+fixes. Matrice de 8 640 plans et 48 placements réels ; tests des trois liaisons,
+des pentes, de la fourche, des masques et de la compensation avec édition étrangère.
+Qualification exacte suivie dans PR64, sans transfert des preuves précédentes.
+Carte : 12 variantes implémentées, 108 restantes, une famille A/B/C par catalogue.
 Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation
 Nether, fusion ou publication. Le runtime installé reste `382e0b4` ; le reçu
 ci-dessous est distinct du nouveau travail de génération.

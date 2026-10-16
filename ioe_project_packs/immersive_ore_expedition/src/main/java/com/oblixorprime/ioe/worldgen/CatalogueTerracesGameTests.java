@@ -7,6 +7,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LadderBlock;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
@@ -110,24 +111,35 @@ public final class CatalogueTerracesGameTests {
                 center, com.oblixorprime.ioe.core.SiteQuality.DRY, 0, null, null,
                 java.util.List.of(center), java.util.List.of(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER), geometry);
         var applied = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-        for (var entry : geometry.entrySet()) if (entry.getValue().is(Blocks.LADDER))
-            helper.assertTrue(level.getBlockState(entry.getKey()).equals(entry.getValue()), "Ladder did not survive placement");
+        for (var entry : geometry.entrySet()) if (entry.getValue().is(Blocks.LADDER) || entry.getValue().is(Blocks.STONE_STAIRS))
+            helper.assertTrue(level.getBlockState(entry.getKey()).equals(entry.getValue()), "Route support changed during placement");
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
+        if (variant.isRails()) {
+            var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS))
+                    .findFirst().orElseThrow().getKey();
+            level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
+            again.rollback(level);
+            helper.assertTrue(level.getBlockState(foreign).is(Blocks.DIAMOND_BLOCK),
+                    "Compensation overwrote a foreign stair replacement");
+            level.setBlockAndUpdate(foreign,Blocks.STONE.defaultBlockState());
+        }
         }
         helper.succeed();
     }
 
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 400)
     public static void naturalCataloguePlansKeepBudgetsRoutesAndDryRewards(GameTestHelper helper) {
+        int forms = CatalogueTerraces.Variant.values().length;
         var shapes = new java.util.LinkedHashMap<Integer,Long>();
-        for (long seed = 0; seed < 10000 && shapes.size() < 81; seed++) {
+        for (long seed = 0; seed < 10000 && shapes.size() < 9*forms; seed++) {
             var random = net.minecraft.util.RandomSource.create(seed);
             int depth = random.nextInt(9);
-            shapes.putIfAbsent(depth*9+random.nextInt(9),seed);
+            shapes.putIfAbsent(depth*forms+random.nextInt(forms),seed);
         }
-        helper.assertTrue(shapes.size() == 81, "All nine variants at every approved depth must be selectable");
+        helper.assertTrue(shapes.size() == 9*forms, "All catalogue variants at every approved depth must be selectable");
         int largest = 0;
         String largestContext = "";
         for (var shape : shapes.entrySet()) for (var type : ExpeditionSiteType.naturalSurfaceSites()) {
@@ -160,24 +172,28 @@ public final class CatalogueTerracesGameTests {
                             && plan.blocks().get(survey.offset(direction,-2,zDirection)).is(Blocks.COBWEB),
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
-                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(5,8,8),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%9==2),
+                    var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
+                    if (variant.isRails()) assertRailsSignatures(helper,plan.blocks(),base,variant);
+                    else {
+                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(5,8,8),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%forms==2),
                             "Quality or resource composition changed structural variant");
-                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(8,8,9),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%9==1),
+                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(8,8,9),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%forms==1),
                             "Quality or composition changed the shared-void variant");
-                    helper.assertTrue(plan.blocks().get(base.offset(7,9,7)).is(Blocks.STONE) == (shape.getKey()%9>=3),
+                    helper.assertTrue(plan.blocks().get(base.offset(7,9,7)).is(Blocks.STONE) == (shape.getKey()%forms>=3),
                             "Crossing lost its solid central separation");
                     helper.assertTrue(plan.blocks().getOrDefault(base.offset(7,8,8),Blocks.STONE.defaultBlockState()).isAir()
-                            == (shape.getKey()%9==4), "Window signature changed during composition");
+                            == (shape.getKey()%forms==4), "Window signature changed during composition");
                     helper.assertTrue(plan.blocks().getOrDefault(base.offset(2,12,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
-                            == (shape.getKey()%9>=5), "Loop/entry-column signature changed during composition");
-                    boolean siphon = shape.getKey()%9>=6;
+                            == (shape.getKey()%forms>=5), "Loop/entry-column signature changed during composition");
+                    boolean siphon = shape.getKey()%forms>=6;
                     helper.assertTrue(plan.blocks().get(base.offset(8,15,7)).is(Blocks.STONE) == siphon,
                             "Siphon upper banks were joined");
                     if (siphon) {
-                        helper.assertTrue(plan.blocks().get(base.offset(7,3,6)).is(Blocks.STONE) == (shape.getKey()%9==7),
+                        helper.assertTrue(plan.blocks().get(base.offset(7,3,6)).is(Blocks.STONE) == (shape.getKey()%forms==7),
                                 "Siphon elbow split changed during composition");
                         helper.assertTrue(plan.blocks().getOrDefault(base.offset(12,12,7),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
-                                == (shape.getKey()%9==8), "Siphon shoulder changed during composition");
+                                == (shape.getKey()%forms==8), "Siphon shoulder changed during composition");
+                    }
                     }
                     var reached = reachable(plan.blocks(),plan.connectorEnd());
                     for (BlockPos heart : CatalogueTerraces.HEARTS) {
@@ -225,7 +241,7 @@ public final class CatalogueTerracesGameTests {
                 planSeed = random.nextLong();
                 var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
                 shapeRandom.nextInt(9);
-                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextInt(9)==variant.ordinal()) {
+                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextInt(CatalogueTerraces.Variant.values().length)==variant.ordinal()) {
                     found = true; break;
                 }
             }
@@ -245,6 +261,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
+            if (variant.isRails()) {
+                var actual = new LinkedHashMap<BlockPos,BlockState>();
+                CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
+                assertRailsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+            } else {
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(5,8,8)).isAir()==(variant==CatalogueTerraces.Variant.SPLIT),
                     "Committed natural blocks do not contain the selected structural variant");
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(8,8,9)).isAir()
@@ -262,6 +283,7 @@ public final class CatalogueTerracesGameTests {
                         == (variant==CatalogueTerraces.Variant.SIPHON_SPLIT), "Committed siphon elbow changed");
                 helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(12,12,7)).is(Blocks.LADDER)
                         == (variant==CatalogueTerraces.Variant.SIPHON_SHOULDER), "Committed siphon shoulder changed");
+            }
             }
             helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level,chunk).confirmedSites()==0,
                     "Natural catalogue transaction replayed");
@@ -405,6 +427,69 @@ public final class CatalogueTerracesGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void railsHaveThreeRealBidirectionalCrossbars(GameTestHelper helper) {
+        for (var variant : new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.RAILS,
+                CatalogueTerraces.Variant.RAILS_SLOPES,CatalogueTerraces.Variant.RAILS_FORK}) {
+            var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertRailsSignatures(helper,geometry,BlockPos.ZERO,variant);
+            var west = new BlockPos(3,3,4);
+            var east = new BlockPos(11,4,6);
+            // Keep one crossing band at a time. Each must join both complete side rails.
+            for (int keep = -1; keep < 3; keep++) {
+                var cut = new LinkedHashMap<>(geometry);
+                for (int y=0;y<=18;y++) for (int z=0;z<=14;z++) {
+                    boolean retained = keep==0 && y>=3 && y<=6 || keep==1 && y>=9 && y<=13
+                            || keep==2 && y>=15 && y<=17;
+                    if (!retained) cut.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+                }
+                helper.assertTrue(reachable(cut,west).contains(east)==(keep>=0)
+                        && reachable(cut,east).contains(west)==(keep>=0),
+                        "Missing crossing, false overpass or extra connection: " + variant + " band=" + keep);
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void railSlopesAndLowerForkKeepTheirDistinctRoutes(GameTestHelper helper) {
+        var center = new BlockPos(7,15,7);
+        var slopes = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.RAILS_SLOPES);
+        for (int z=6;z<=7;z++) {
+            helper.assertTrue(slopes.get(new BlockPos(4,9,z)).getValue(StairBlock.FACING)==Direction.EAST
+                    && slopes.get(new BlockPos(5,10,z)).getValue(StairBlock.FACING)==Direction.EAST
+                    && slopes.get(new BlockPos(8,10,z)).getValue(StairBlock.FACING)==Direction.WEST,
+                    "B must rise then descend across a two-wide off-center landing");
+            helper.assertTrue(stand(slopes,new BlockPos(6,11,z)) && stand(slopes,new BlockPos(7,11,z)),
+                    "B landing lacks support or clearance");
+        }
+        var fork = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.RAILS_FORK);
+        for(int mask=0;mask<4;mask++) {
+            var cut = new LinkedHashMap<>(fork);
+            // Remove the upper/middle crossbars, then cut either/both lower channels.
+            for(int y=7;y<=18;y++) for(int z=0;z<=14;z++) cut.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+            for(int y=3;y<=6;y++) {
+                if((mask&1)!=0) for(int z=4;z<=5;z++) cut.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+                if((mask&2)!=0) for(int z=8;z<=9;z++) cut.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+            }
+            var west = new BlockPos(3,3,4); var east = new BlockPos(11,4,6);
+            helper.assertTrue(reachable(cut,west).contains(east)==(mask!=3)
+                    && reachable(cut,east).contains(west)==(mask!=3),"C fork did not split and rejoin");
+        }
+        helper.succeed();
+    }
+
+    private static void assertRailsSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(7,3,4),Blocks.STONE.defaultBlockState()).is(Blocks.STONE_STAIRS)
+                == (variant!=CatalogueTerraces.Variant.RAILS_FORK),"Lower rail step changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(7,3,8),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.RAILS_FORK),"Lower rail fork changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(6,10,6),Blocks.STONE.defaultBlockState()).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.RAILS_SLOPES),"Off-center rail landing changed");
+        helper.assertTrue(blocks.get(base.offset(7,15,11)).isAir(),"Upper rail crossing changed");
+    }
+
     private static boolean open(Map<BlockPos, BlockState> blocks, BlockPos p) {
         BlockState state = blocks.get(p);
         return state != null && (state.isAir() || state.is(Blocks.LADDER));
@@ -427,6 +512,15 @@ public final class CatalogueTerracesGameTests {
                 if (direction.getAxis().isVertical() && !blocks.get(p).is(Blocks.LADDER)
                         && !blocks.getOrDefault(next,Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)) continue;
                 if (stand(blocks,next) && visited.add(next)) queue.addLast(next);
+                if (!direction.getAxis().isVertical()) {
+                    var rise = blocks.getOrDefault(next,Blocks.STONE.defaultBlockState());
+                    if (rise.is(Blocks.STONE_STAIRS) && rise.getValue(StairBlock.FACING)==direction
+                            && stand(blocks,next.above()) && visited.add(next.above())) queue.addLast(next.above());
+                    var tread = blocks.getOrDefault(p.below(),Blocks.STONE.defaultBlockState());
+                    if (tread.is(Blocks.STONE_STAIRS) && tread.getValue(StairBlock.FACING)==direction.getOpposite()
+                            && open(blocks,next.above()) && stand(blocks,next.below())
+                            && visited.add(next.below())) queue.addLast(next.below());
+                }
             }
         }
         return visited;

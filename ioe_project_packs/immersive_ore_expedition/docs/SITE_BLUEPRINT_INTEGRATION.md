@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 37 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 36 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-05 A/B/C BP-16 A/B/C or BP-27 A/B/C using one nine-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-05, BP-16, BP-27 or BP-37 A/B/C using one twelve-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -121,7 +121,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | 001 | BP-01–BP-10 | BP-05 A/B/C | BP-01–04 and BP-06–10 A/B/C (27) |
 | 002 | BP-11–BP-20 | BP-16 A/B/C | All A/B/C of the other nine families (27) |
 | 003 | BP-21–BP-30 | BP-27 A/B/C | All A/B/C of the other nine families (27) |
-| 004 | BP-31–BP-40 | None | All A/B/C (30) |
+| 004 | BP-31–BP-40 | BP-37 A/B/C | All A/B/C of the other nine families (27) |
 
 A future family must pass the same route/node-mask/complete-budget qualification
 before activation. A proposed outline alone does not authorize resource changes,
@@ -262,3 +262,41 @@ jobs (baseline 38907833196/38907844655; current pack 38907833561/38907844705),
 716 JUnit and 86+86 GameTests per stack plus streaming/restart. Maximum 2,482
 cells over 4,320 fixtures; non-installed JAR, 471 classes, SHA256
 `b21ab05e3c15f61e90ac322e1c161434f8ac5ecce4911378d02112af654851c8`.
+
+## BP-37 A/B/C: rising rails and three joined crossbars
+
+Catalogue 004 now contributes BP-37, normalized to the unchanged 15×19×15,
+E and seven canonical mineral positions/masks. Both side rails rise toward +Z
+through staggered, backed ladder wells. West landings use feet Y=3/9/14 and east
+landings Y=4/10/15; the upper west alcove has its own supported step. Three real
+crossbars connect the rails at low, middle and high levels. Rock remains between
+them. Native stone stairs handle the small height offsets without mandatory jumps;
+three-high clearance and two-wide circulation remain required.
+
+A has three crossbars. B replaces only the middle one with an ascent to a two-wide,
+off-center landing and a descent to the east rail. C divides only the lower bar
+into two channels around a rock core, then rejoins them. The middle and upper bars
+remain direct. Canonical alcoves whose Y differs from a rail landing have short
+supported terminal branches; they do not become extra crossbars or new rewards.
+
+The shared route oracle admits vertical transitions only on backed ladders or
+explicit oriented stair treads, never generic one-block jumping. Dedicated tests
+remove all but each crossbar in turn and require both travel directions to work;
+removing all three must disconnect the rails. C tests either/both fork channels
+with the other crossbars blocked. B tests its two slopes, landing and clearance.
+Actual placement must retain stair/ladder states; compensation must restore the
+original stone and preserve foreign stair replacements. Existing growth masks,
+all five qualities, DRY/cache, survey functions and source chunk checks continue.
+
+The matrix now covers 8,640 plans (9 depths × 12 forms × 4 accesses × 4 anchors ×
+5 qualities), plus 48 actual Feature placement/commit/dedup pairs. The 2,500-cell
+production ceiling is unchanged. Coverage is 12/120 implemented, 108 pending;
+qualification remains distinct and is recorded against the exact source in PR64.
+No previous test result qualifies this new geometry. Client visual acceptance is
+NOT_PERFORMED; no PC operation, merge, release or Nether activation is included.
+
+Accepted BP-27 predecessor: `4f0eeeb8474348289932baff551116232cffe697`, 16 green
+jobs (baseline 38911681369/38911688246; current pack 38911681025/38911687823),
+716 JUnit and 88+88 GameTests per stack, streaming/restart, 2,482 cells maximum
+over 6,480 fixtures. Its non-installed 472-class JAR SHA256 is
+`a709d07f03b52c4eb0395d5fb7d88ee06aeb94b0c316b86abe03ff7d7d74a3dc`.
