@@ -199,6 +199,22 @@ accès et budgets inchangés. Couverture 54/120 implémentées, 66 restantes ;
 de preuves. Plafond 2 500 inchangé ; pas de PC, installation, fusion, publication
 ou activation Nether. Validation visuelle/client non prouvée.
 
+### BP-20 qualifié ; cycle suivant BP-34 A/B/C
+
+BP-20 accepté sur 3c853032c01a856c7646a9f5d07511d28cf7f250 : 16 jobs verts, 716 JUnit et 119+119
+GameTests par pile, streaming/reprise ; 38 880 plans, 216 placements réels,
+maximum 2499. JAR non installé :
+3877fbfb495279817340b266c8d0859afc625308f211f4197ad3c2240a5f0330.
+
+BP-34 : deux appuis continus inégaux, tablier montant par escaliers orientés,
+passage inférieur distinct ; B fenêtre à approches en marches, C tablier en
+deux bandes autour d'une fente. Liaison latérale N3 séparée et masques fixes
+préservés. Tests d'appuis, retours, dégagements et coupures indépendantes.
+Couverture 57/120 implémentées, 63 restantes ; 41 040 plans et 228 placements.
+Qualification exacte à suivre sans transfert de preuves. Plafond 2 500
+inchangé ; pas de PC, installation, fusion, publication ou activation Nether.
+Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
