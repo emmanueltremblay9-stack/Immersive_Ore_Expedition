@@ -71,26 +71,21 @@ public final class CatalogueTerracesGameTests {
     }
 
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
-    public static void catalogueDetectsExistingShaftConflictWithoutChangingProduction(GameTestHelper helper) {
-        // Current shaft at chunk-local (4,9): ladder (4, y,10), backing (4,y,11).
-        // BP-05 A's N3=(3,15,11) requires (4,15,11) to remain air.
-        BlockPos center = new BlockPos(7,15,7);
-        var geometry = CatalogueTerraces.geometry(center,false);
-        BlockPos shaftBacking = new BlockPos(4,15,11);
-        helper.assertTrue(geometry.get(shaftBacking).isAir(), "Conflict witness no longer describes the template");
-        helper.assertTrue(CatalogueTerraces.HEARTS.get(2).east().equals(shaftBacking), "Wrong conflict witness");
-        var existing = ExpeditionSiteBlueprints.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
+    public static void catalogueRaccordPreservesShaftAndN3(GameTestHelper helper) {
+        var plan = ExpeditionSiteBlueprints.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
                 new BlockPos(4,90,9), com.oblixorprime.ioe.core.SiteQuality.DRY, null, null,
                 net.minecraft.util.RandomSource.create(42));
-        BlockPos worldBacking = new BlockPos(4,existing.connectorEnd().getY(),11);
-        helper.assertTrue(existing.blocks().get(worldBacking.north()).is(Blocks.LADDER),
-                "Existing connector no longer puts its ladder at the conflict column");
-        helper.assertTrue(!existing.blocks().get(worldBacking).isAir(), "Existing ladder lost its backing");
-        var proposed = CatalogueTerraces.geometry(new BlockPos(7,existing.connectorEnd().getY(),7),false);
-        helper.assertTrue(proposed.get(worldBacking).isAir(), "Composed geometry no longer conflicts with existing backing");
-        // A full-box implementation alone would exceed the existing 2500-cell composed-plan test gate.
-        helper.assertTrue(15 * 19 * 15 > 2500 && geometry.size() < 15 * 19 * 15,
-                "Sparse composition must not silently replace the existing transaction envelope");
+        BlockPos formerConflict = CatalogueTerraces.base(plan.chamberCenter()).offset(4,15,11);
+        helper.assertTrue(plan.blocks().get(formerConflict).isAir(), "N3 east growth face was overwritten");
+        helper.assertTrue(plan.connectorEnd().getY() == plan.chamberCenter().getY()+4,
+                "Main shaft did not stop above the chamber roof");
+        BlockPos ladder = plan.connectorEnd().south();
+        helper.assertTrue(plan.blocks().get(ladder).is(Blocks.LADDER)
+                && solid(plan.blocks(),ladder.south()), "Main shaft lost its ladder or backing");
+        Set<BlockPos> reached = reachable(plan.blocks(),plan.connectorEnd());
+        helper.assertTrue(reached.contains(CatalogueTerraces.base(plan.chamberCenter()).offset(CatalogueTerraces.ENTRANCE)),
+                "The shaft does not reach the catalogue entrance");
+        helper.assertTrue(reached.contains(formerConflict.west().south()), "N3 is inaccessible after raccord");
         helper.succeed();
     }
 
@@ -109,6 +104,111 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 400)
+    public static void naturalCataloguePlansKeepBudgetsRoutesAndDryRewards(GameTestHelper helper) {
+        var shapes = new java.util.LinkedHashMap<Boolean,Long>();
+        for (long seed = 0; seed < 100 && shapes.size() < 2; seed++) {
+            var random = net.minecraft.util.RandomSource.create(seed);
+            random.nextInt(ExpeditionSiteBlueprints.MAX_CONNECTOR_DEPTH-ExpeditionSiteBlueprints.MIN_CONNECTOR_DEPTH+1);
+            shapes.putIfAbsent(random.nextBoolean(),seed);
+        }
+        helper.assertTrue(shapes.size() == 2, "Both structural variants must be selectable");
+        int largest = 0;
+        for (var shape : shapes.entrySet()) for (var type : ExpeditionSiteType.naturalSurfaceSites()) {
+            for (int x : new int[]{4,11}) for (int z : new int[]{6,9}) {
+                BlockPos origin = new BlockPos(x-32,90,z+48);
+                for (var quality : com.oblixorprime.ioe.core.SiteQuality.values()) {
+                    var budget = com.oblixorprime.ioe.budding.BuddingSitePlan.forQuality(quality,
+                            net.minecraft.util.RandomSource.create(101),0);
+                    var plan = quality.isProductive()
+                            ? IronBuddingSitePlans.plan(type,origin,budget,shape.getValue(),
+                                    ProspectorCampContext.vanillaFallback(origin,quality))
+                            : ExpeditionSiteBlueprints.plan(type,origin,quality,null,null,
+                                    net.minecraft.util.RandomSource.create(shape.getValue()));
+                    largest = Math.max(largest,plan.blocks().size());
+                    helper.assertTrue(plan.blocks().size() <= 2500,
+                            "Composed catalogue exceeds unchanged cap: " + type + " " + quality + " " + plan.blocks().size());
+                    helper.assertTrue(plan.blocks().keySet().stream().allMatch(p -> (p.getX()>>4)==(origin.getX()>>4)
+                            && (p.getZ()>>4)==(origin.getZ()>>4)), "Catalogue escaped source chunk");
+                    helper.assertTrue(plan.isConnectedExpeditionSite(), "Catalogue escaped anchor-distance range");
+                    helper.assertTrue(origin.getY()-plan.chamberCenter().getY() >= 20
+                            && origin.getY()-plan.chamberCenter().getY() <= 28, "Chamber depth range changed");
+                    var base = CatalogueTerraces.base(plan.chamberCenter());
+                    helper.assertTrue(plan.blocks().get(base.offset(5,8,8)).isAir() == shape.getKey(),
+                            "Quality or resource composition changed structural variant");
+                    var reached = reachable(plan.blocks(),plan.connectorEnd());
+                    for (BlockPos heart : CatalogueTerraces.HEARTS) {
+                        helper.assertTrue(reached.contains(base.offset(heart).south()),
+                                "Unreachable composed alcove: " + type + " " + quality + " " + heart);
+                        for (BlockPos offset : CatalogueTerraces.AIR)
+                            helper.assertTrue(plan.blocks().get(base.offset(heart).offset(offset)).isAir(), "Composed growth mask lost");
+                    }
+                    helper.assertTrue(plan.oreNodeHeartCount()==budget.nodeRanks().size(), "Canonical heart count changed");
+                    helper.assertTrue(plan.oreBlockCount()==budget.nodeRanks().size()+budget.totalOreBlocks(),
+                            "Canonical total changed");
+                    if (!quality.isProductive()) for (int residues = 0; residues <= 5; residues++) {
+                        var pocket = DrySitePockets.attach(plan,
+                                com.oblixorprime.ioe.budding.BuddingResourceFamily.GEORE_IRON.pocketBlockId(),residues,99);
+                        var rewarded = DrySiteRewards.attach(pocket,true,99);
+                        helper.assertTrue(rewarded.oreBlockCount()==residues && rewarded.oreNodeHeartCount()==0,
+                                "DRY residues were lost or turned into nodes");
+                        helper.assertTrue(rewarded.blockEntityPayloads().size()==plan.blockEntityPayloads().size()+1,
+                                "DRY cache overwrote an existing payload");
+                    }
+                }
+            }
+        }
+        System.out.println("IOE catalogue composed maximum planned blocks=" + largest);
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 400)
+    public static void naturalFeatureCommitsBothCatalogueVariants(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var profileId = net.minecraft.resources.ResourceLocation.parse("immersive_ore_expedition:certus");
+        var definition = level.registryAccess().registryOrThrow(BiomeMineResourceDefinition.REGISTRY_KEY)
+                .getOptional(profileId).orElseThrow();
+        var profile = new BiomeMineResourceProfile(net.minecraft.resources.ResourceLocation.parse("minecraft:plains"),
+                profileId,definition,1);
+        int index = 0;
+        for (var type : ExpeditionSiteType.naturalSurfaceSites()) for (boolean split : new boolean[]{false,true}) {
+            long seed = 0;
+            long planSeed = 0;
+            boolean found = false;
+            for (; seed < 10000; seed++) {
+                var random = net.minecraft.util.RandomSource.create(seed);
+                var quality = com.oblixorprime.ioe.core.SiteQualityRoll.DEFAULT.roll(random);
+                planSeed = random.nextLong();
+                var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
+                shapeRandom.nextInt(9);
+                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextBoolean()==split) {
+                    found = true; break;
+                }
+            }
+            helper.assertTrue(found,"No bounded deterministic fixture seed for catalogue variant");
+            var chunk = new net.minecraft.world.level.ChunkPos(helper.absolutePos(new BlockPos(512+index++*128,24,512)));
+            var origin = new BlockPos(chunk.getMinBlockX()+4,41,chunk.getMinBlockZ()+9);
+            ExpeditionWorldgenGameTests.fillTestChunk(level,chunk);
+            var feature = new ExpeditionSiteFeature(type,(ignoredLevel,ignoredPos) ->
+                    new BiomeMineResourceProfile.Resolution(java.util.Optional.of(profile),BiomeMineResourceProfile.Failure.NONE));
+            boolean staged = feature.place(new net.minecraft.world.level.levelgen.feature.FeaturePlaceContext<>(
+                    java.util.Optional.empty(),level,level.getChunkSource().getGenerator(),
+                    net.minecraft.util.RandomSource.create(seed),origin,
+                    net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration.INSTANCE));
+            helper.assertTrue(staged,"Natural catalogue Feature.place rejected " + type + " split=" + split);
+            helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level,chunk).confirmedSites()==1,
+                    "Natural catalogue transaction did not commit");
+            var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
+            int depth = 20+shapeRandom.nextInt(9);
+            var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
+            helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(5,8,8)).isAir()==split,
+                    "Committed natural blocks do not contain the selected structural variant");
+            helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level,chunk).confirmedSites()==0,
+                    "Natural catalogue transaction replayed");
+        }
         helper.succeed();
     }
 

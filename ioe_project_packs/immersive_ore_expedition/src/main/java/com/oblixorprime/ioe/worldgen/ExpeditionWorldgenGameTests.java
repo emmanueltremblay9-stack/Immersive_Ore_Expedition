@@ -143,8 +143,8 @@ public final class ExpeditionWorldgenGameTests {
             )), type.id() + " did not plan exactly one surface clue, connector, and chamber");
             helper.assertTrue(plan.oreBlockCount() == 0L && plan.oreNodeCount() == 0,
                     type.id() + " embedded a forbidden free resource in its structural chamber");
-            helper.assertTrue(plan.roomCenters().size() == 3,
-                    type.id() + " did not create the normal-quality three-room mine");
+            helper.assertTrue(plan.roomCenters().size() == 4,
+                    type.id() + " did not retain the survey room and three catalogue terraces");
             assertRoomReachability(helper, plan);
             helper.assertTrue(plan.blocks().values().stream().anyMatch(state -> state.is(Blocks.CARTOGRAPHY_TABLE)),
                     type.id() + " did not create a survey room or village supply desk");
@@ -189,7 +189,7 @@ public final class ExpeditionWorldgenGameTests {
                     helper.assertTrue(plan.roomCenters().size() == expectedRoomCount(quality),
                             quality + " planned the wrong number of expedition rooms");
                     helper.assertTrue(plan.blocks().size() <= 2_500,
-                            quality + " exceeded the 2,500-block transaction cap");
+                            quality + " exceeded the 2,500-block transaction cap: " + plan.blocks().size());
                     helper.assertTrue(surfaceSpan(plan, qualityOrigin, true) >= 12,
                             quality + " surface outpost is not wide enough");
                     helper.assertTrue(surfaceSpan(plan, qualityOrigin, false) >= 10,
@@ -468,11 +468,8 @@ public final class ExpeditionWorldgenGameTests {
     }
 
     private static int expectedRoomCount(SiteQuality quality) {
-        return switch (quality) {
-            case DRY, POOR -> 2;
-            case NORMAL, RICH -> 3;
-            case MOTHERLODE -> 4;
-        };
+        return 4; // Survey room plus three quality-independent terraces.
+
     }
 
     private static int surfaceSpan(

@@ -89,6 +89,38 @@ final class CatalogueTerraces {
         return blocks;
     }
 
+    /** Raccord above the chamber roof, then a backed descent through E. */
+    static Map<BlockPos, BlockState> access(BlockPos center, BlockPos shaftEnd,
+                                           Map<BlockPos, BlockState> chamber) {
+        if (shaftEnd.getY() != center.getY() + 4)
+            throw new IllegalArgumentException("The catalogue shaft must end above the chamber roof");
+        var air = new LinkedHashSet<BlockPos>();
+        int y = shaftEnd.getY();
+        BlockPos entry = base(center).offset(ENTRANCE);
+        for (int x = Math.min(shaftEnd.getX(), entry.getX()); x <= Math.max(shaftEnd.getX(), entry.getX()); x++)
+            for (int z = shaftEnd.getZ(); z <= shaftEnd.getZ()+1; z++)
+                for (int h = 0; h < 3; h++) air.add(new BlockPos(x,y+h,z));
+        for (int z = entry.getZ(); z <= shaftEnd.getZ()+1; z++)
+            for (int x = entry.getX()-1; x <= entry.getX(); x++)
+                for (int h = 0; h < 3; h++) air.add(new BlockPos(x,y+h,z));
+        for (int dy = entry.getY(); dy <= y+2; dy++)
+            for (int x = entry.getX()-1; x <= entry.getX(); x++) air.add(new BlockPos(x,dy,entry.getZ()));
+        var blocks = new LinkedHashMap<BlockPos, BlockState>();
+        for (BlockPos p : air) for (Direction direction : Direction.values()) {
+            BlockPos wall = p.relative(direction);
+            // Do not wall off the doorway where E meets the upper terrace.
+            if (!air.contains(wall) && !chamber.getOrDefault(wall, Blocks.STONE.defaultBlockState()).isAir())
+                blocks.put(wall, Blocks.STONE.defaultBlockState());
+        }
+        for (BlockPos p : air) blocks.put(p, Blocks.AIR.defaultBlockState());
+        for (int dy = entry.getY(); dy <= y; dy++) for (int x = entry.getX()-1; x <= entry.getX(); x++) {
+            BlockPos ladder = new BlockPos(x,dy,entry.getZ());
+            blocks.put(ladder.north(), Blocks.STONE.defaultBlockState());
+            blocks.put(ladder, Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING,Direction.SOUTH));
+        }
+        return blocks;
+    }
+
     static Map<BlockPos, BlockState> nodes(BlockPos center, BlockState ore,
                      BlockState heart, int total, int nodes) {
         int peripheral = switch (nodes) {

@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class ExpeditionSiteBlueprints {
+    static final int MAX_PLANNED_BLOCKS = 2_500;
     static final int MIN_CONNECTOR_DEPTH = 20;
     static final int MAX_CONNECTOR_DEPTH = 28;
     static final int CHAMBER_HORIZONTAL_OFFSET = 5;
@@ -244,35 +245,61 @@ public final class ExpeditionSiteBlueprints {
         BlockPos chamberCenter = origin;
         List<BlockPos> roomCenters = new ArrayList<>();
         int oreNodeCount = 0;
+        boolean catalogue = requestedType.naturalSurfaceSite() && !hasSpecialGeode
+                && (oreNodeHeartState == null || BuddingBlockIdentity.isCanonical(oreNodeHeartState.getBlock()));
 
         if (requestedType.naturalSurfaceSite()) {
             int depth = MIN_CONNECTOR_DEPTH + random.nextInt(MAX_CONNECTOR_DEPTH - MIN_CONNECTOR_DEPTH + 1);
             int direction = directionTowardChunkCenter(origin);
-            connectorEnd = addConnector(builder, origin, depth, direction, true);
-            chamberCenter = connectedChamberCenter(connectorEnd, direction, quality);
-            connectTunnelToChamber(builder, connectorEnd, direction, chamberCenter);
-            oreNodeCount = addChamber(
-                    builder,
-                    chamberCenter,
-                    quality,
-                    oreState,
-                    oreNodeHeartState,
-                    specialBuddingState,
-                    specialShellState,
-                    oreBudget,
-                    requestedOreNodeCount,
-                    requestedSpecialBuddingCount,
-                    random
-            );
-            roomCenters.add(chamberCenter.immutable());
-            roomCenters.addAll(addExpeditionGalleries(
-                    builder,
-                    origin,
-                    chamberCenter,
-                    direction,
-                    quality
-            ));
-            restoreConnectorLadder(builder, origin, depth);
+            if (catalogue) {
+                // Geometry stream only: quality, DRY and Flawless use their existing independent streams.
+                boolean split = random.nextBoolean();
+                chamberCenter = new BlockPos(Math.floorDiv(origin.getX(),16)*16+7,
+                        origin.getY()-depth, Math.floorDiv(origin.getZ(),16)*16+7);
+                int shaftDepth = depth-4;
+                connectorEnd = addConnector(builder, origin, shaftDepth, direction, false);
+                roomCenters.add(addGalleryLevel(builder, origin.below(8), direction,
+                        zDirectionTowardChunkCenter(origin), GalleryTheme.SURVEY));
+                var geometry = CatalogueTerraces.geometry(chamberCenter,split);
+                geometry.forEach(builder::put);
+                CatalogueTerraces.access(chamberCenter,connectorEnd,geometry).forEach(builder::put);
+                // Reopen the two original shaft cells through the overhead connector's roof.
+                restoreConnectorLadder(builder,origin,shaftDepth);
+                roomCenters.add(chamberCenter.immutable());
+                roomCenters.add(chamberCenter.below(6));
+                roomCenters.add(chamberCenter.below(12).south(2));
+                if (quality.isProductive() && oreState != null) {
+                    CatalogueTerraces.nodes(chamberCenter,oreState,oreNodeHeartState,oreBudget,requestedOreNodeCount)
+                            .forEach(builder::put);
+                    oreNodeCount = requestedOreNodeCount;
+                }
+            } else {
+                connectorEnd = addConnector(builder, origin, depth, direction, true);
+                chamberCenter = connectedChamberCenter(connectorEnd, direction, quality);
+                connectTunnelToChamber(builder, connectorEnd, direction, chamberCenter);
+                oreNodeCount = addChamber(
+                        builder,
+                        chamberCenter,
+                        quality,
+                        oreState,
+                        oreNodeHeartState,
+                        specialBuddingState,
+                        specialShellState,
+                        oreBudget,
+                        requestedOreNodeCount,
+                        requestedSpecialBuddingCount,
+                        random
+                );
+                roomCenters.add(chamberCenter.immutable());
+                roomCenters.addAll(addExpeditionGalleries(
+                        builder,
+                        origin,
+                        chamberCenter,
+                        direction,
+                        quality
+                ));
+                restoreConnectorLadder(builder, origin, depth);
+            }
             addSurfaceClue(builder, requestedType, origin, direction, quality, prospectorCampContext);
             components.add(requestedType.id());
             components.add(IoeWorldgenFeatureKeys.BASIC_MINESHAFT_CONNECTOR);
@@ -303,7 +330,7 @@ public final class ExpeditionSiteBlueprints {
             components.add(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER);
         }
 
-        if (oreNodeHeartState != null
+        if (!catalogue && oreNodeHeartState != null
                 && BuddingBlockIdentity.isCanonical(oreNodeHeartState.getBlock())
                 && quality.isProductive() && components.contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER)) {
             int radius = horizontalRadius(quality);

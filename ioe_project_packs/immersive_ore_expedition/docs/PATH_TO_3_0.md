@@ -5,14 +5,16 @@
 Mandat courant : intégrer les variantes des quatre catalogues au générateur,
 référence GOV `60d1c9453aaf91f1e90a6ba113f106ac51238cf9`, sur la branche existante
 PR64. La précédente conclusion « seul le client reste » ne clôt pas ce nouveau mandat.
-Première tranche : composeur voxel BP-05 A/C et trois GameTests hébergés ; voir
-[SITE_BLUEPRINT_INTEGRATION.md](SITE_BLUEPRINT_INTEGRATION.md) pour les hashes,
-la portée et le conflit concret entre support d'échelle et masque N3.
-Routage naturel inchangé tant que le raccord et le plan complet ne sont pas validés.
-Ce n'est ni 40 familles ni 120 variantes actives. CI de cette nouvelle source à
-vérifier dans PR64 ; aucun ancien succès n'est transféré. Aucun accès PC, aucune
-activation Nether, fusion ou publication. Le reçu d'installation ci-dessous reste
-un historique distinct du nouveau travail de géométrie.
+Première tranche : composeur voxel BP-05 A/C puis raccord au chemin naturel
+existant pour les quatre accès. Le puits rejoint E au-dessus du plafond, sans
+écraser N3 ; profondeur 20–28, rangs/budgets et limites de chunk conservés.
+Voir [SITE_BLUEPRINT_INTEGRATION.md](SITE_BLUEPRINT_INTEGRATION.md) pour les hashes,
+le raccord, les tests et le plafond composé inchangé de 2 500 cellules.
+Le composeur isolé `b275df0` a 16 jobs verts ; ces preuves ne sont pas transférées
+au raccord suivant, dont la CI au commit exact est suivie dans PR64.
+Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation
+Nether, fusion ou publication. Le runtime installé reste `382e0b4` ; le reçu
+ci-dessous est distinct du nouveau travail de génération.
 
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 

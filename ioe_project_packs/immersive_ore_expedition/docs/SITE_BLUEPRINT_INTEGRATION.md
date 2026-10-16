@@ -12,52 +12,71 @@ PR64 branch. Authority reference: GOV `60d1c9453aaf91f1e90a6ba113f106ac51238cf9`
 | 003 | `423064faffffdbe38f797aab5ca3593ceea73e9100ef796eee8e67713c668803` |
 | 004 | `feed853a79d9f2003a4a0ed7e6758c91815927bce0059ddc605fca6bbc33fbc8` |
 
-## Implemented bounded slice
+## Implemented first natural-generation slice
 
-`CatalogueTerraces` composes explicit voxel geometry for BP-05 A (offset terraces)
-and C (split middle terrace with bridge), in the proposed 15×19×15 envelope.
-Entry E=(7,15,1) has a supported two-wide, three-high approach.
-The three circulation levels are Y=3/9/15; two offset, backed ladder routes connect
-them. Differing footprints and the middle bridge change the actual solid/air map,
-not only rotation, palette or a seed. Only a one-block shell is written; no whole
-bounding-box fill. This is a reusable geometry composer, **not yet selected by
-natural generation**. BP-05 B and the remaining 39 families are not implemented.
+`CatalogueTerraces` composes BP-05 A (offset terraces) and C (split middle terrace
+with an open void on either side of its supported bridge), geometry version 1.
+The chamber occupies 15×19×15. Entry E=(7,15,1) and the three circulation levels
+Y=3/9/15 have supported routes; the two interior ladders have solid backing.
+The differing footprints and middle bridge change the actual solid/air map, not
+only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
+bounding-box fill. BP-05 B and the remaining 39 families are not implemented.
 
-Seven reference-A node masks are composed separately from the geometry. C retains
-them only because its alcoves remain on its two balconies. Productive compositions
-preserve 3/4/5/7 hearts and 12/20/30/49 peripheral blocks. The composer has no random
-source, quality roll, reserve roll, DRY seed roll or Flawless roll. Unused alcoves
-remain ordinary stone. No resource family or reward is added.
+The existing natural `ExpeditionSiteBlueprints` path now selects A/C using one bit
+from its isolated shape stream, after the unchanged depth draw. All four natural
+access types and all five qualities use this path for structural and canonical
+GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
+The same shape seed gives the same chamber, including on quality fallback. No
+quality, DRY residue, seed, Flawless or industrial-reserve lottery is repeated.
 
-Three hosted GameTests cover supported three-block-high player routes to every
-alcove, backed ladders, bounds, stable output, exact masks/budgets, the A/C split,
-a concrete connector conflict, and placement with idempotent compensation. These
-are not visual acceptance. Three-block clearance over the entire composed access,
-all terrain rejection paths and integration with natural placement remain gates.
+Seven separate node masks preserve 3/4/5/7 hearts and 12/20/30/49 peripheral blocks.
+The composer rejects other count/budget pairs. Existing canonical code assigns
+ranks and persisted/Jade provenance. Unused alcoves remain stone. Entro stays
+IE-only, without a new heart or physical residue. No new resource family, recipe,
+loot, biome admission, natural frequency or default switch is introduced.
 
-## Concrete integration conflict; no merge prerequisite
+## Raccord and composed-plan budget
 
-The existing source-chunk anchor may be `(4, surfaceY, 9)`. Its ladder column is
-`(4, y, 10)` with backing `(4, y, 11)` (`addConnector` and
-`restoreConnectorLadder` in `ExpeditionSiteBlueprints`). At the upper terrace,
-BP-05 A node N3 `(3,15,11)` reserves its east neighbor `(4,15,11)` as air.
-Thus direct composition overwrites either the ladder backing or the growth mask.
-The conflict is reproduced in a dedicated GameTest. Simply applying the catalogue
-last is unsafe. Current canonical node placement also assumes an ellipsoidal
-candidate band and cannot place these masks faithfully.
+The direct-merge collision was reproduced at the old chunk-local shaft anchor
+(4,y,9): ladder backing (4,y,11) conflicted with the east air face of N3=(3,15,11).
+The new route avoids that cell entirely. The main shaft ends four blocks above
+the upper terrace, traverses above the roof, then descends through E on a backed,
+two-wide ladder. The total surface-to-chamber depth still uses the existing
+20–28 draw; configured anchor-distance limits remain unchanged. Shaft roof cells
+are reopened only along the original shaft, and no node coordinate is moved.
 
-The next implementation must route the existing shaft to E=(7,15,1) without
-crossing reserved masks, or explicitly remap/revalidate the affected alcove.
-This is an engineering integration gate, not a request to merge PR64. The same
-branch remains usable. The existing 2,500-cell complete-plan regression limit
-must be measured after adding the surface and galleries: a naive full-box fill
-already has 4,275 cells before those components. No limit was raised; sparse
-geometry alone is not proof that the full plan fits. DRY floor residues and the
-floor cache also require composition against the new floors, not old ellipsoid
-coordinates. None of these checks may reroll the site's economic outcome.
+The existing survey room is retained. The old quality-dependent lower rooms and
+vault are replaced by the three catalogue terraces, so all qualities now have
+four room centers including the survey room. Surface camps, clues, containers,
+Domum payloads and their budgets continue through the existing composers.
 
-No natural selector, default, frequency, resource budget, Nether code or existing
-placement transaction was changed by this slice. No new world/server/profile,
-PC action, merge or publication. Existing installed-runtime and compatibility
-receipts remain attributed to their original source; the new CI source and results
-are recorded separately in PR64. Client visual qualification remains NOT_PERFORMED.
+The existing 2,500-cell composed-plan regression ceiling is not raised. It is now
+also checked by `Feature.place`, together with build height, before staging the
+main plan and its fallbacks. An oversized plan is refused, never partially placed
+or repaired by a reward reroll. Runtime tests must establish that the admitted
+fixtures fit; a sparse chamber by itself is not proof of the complete budget.
+DRY residues can occupy ordinary stone in the new floor, while excluding the
+central cache marker and existing payloads. Counts and independent lotteries stay
+with the existing DRY implementation.
+
+## Validation and remaining scope
+
+The isolated composer at `b275df08202b3912574bdb8ae6e45c1cd70ef155` passed 16 CI jobs,
+716 JUnit and 81 minimal + 81 full GameTests per stack, plus streaming/restart.
+Its separate CI JAR SHA256 is
+`fb60003635d4e5f681f68e64e186ff6f0d2029441175bce6b8537dd01d01cdd0`.
+That receipt does not qualify the subsequent natural-routing changes described
+above. Their exact source and final CI receipt are recorded separately in PR64.
+
+Added integration tests cover both shapes, four access types, all qualities,
+source-chunk containment including negative coordinates, unchanged depth and
+anchor bounds, complete-plan size, three-high supported routes to all alcoves,
+all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
+`Feature.place` staging/commit/deduplication for both variants at all four accesses.
+The existing GeOre/Certus runtime tests additionally exercise ranks, fallbacks,
+Jade metadata, persistence, compensation and actual resource-profile admission.
+
+No new server/profile, PC operation, Nether activation, merge or publication is
+part of this work. The installed `382e0b4` provenance remains separate. Client
+visual qualification remains NOT_PERFORMED. This slice is two of 120 described
+variants, not completion of the four catalogues.
