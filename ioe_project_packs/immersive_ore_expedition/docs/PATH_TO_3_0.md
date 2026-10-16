@@ -1109,3 +1109,15 @@ free underside; the separate between-tip window and roof-continuity tests
 remain. No geometry or budget assertion changes. The matrix aborted before
 its maximum receipt, so no cap result is claimed for this candidate.
 New exact-source CI is required.
+
+
+### BP-17 — composed-budget correction
+
+643c588 completed the signatures/routes/windows but reached 2,605 composed
+cells for the C Motherlode camp; only the cap test failed among 117 current
+minimal GameTests. Viewing space now follows the actual taper at each height,
+with faceted corners. Unused lower rear shoulders, upper north-west space and
+one upper rear edge are omitted. The free-tip crossing, exposed flanks, roof
+attachments, two-wide routes and independent window cut tests remain; flank
+probes follow the real narrowing tip. The 2,500-cell cap is unchanged.
+New exact-source CI is required, with no prior success transferred.

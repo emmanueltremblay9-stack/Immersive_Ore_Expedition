@@ -15,11 +15,19 @@ final class CatalogueBell {
         boolean fork=variant==CatalogueTerraces.Variant.BELL_FORK;
         boolean window=variant==CatalogueTerraces.Variant.BELL_WINDOW;
         var air=new LinkedHashSet<BlockPos>();
-        room(air,5,11,3,4,9);
+        room(air,5,11,3,4,7);
+        room(air,7,9,3,8,9);
         // Expose front/back and both flanks of the ceiling-rooted core.
-        well(air,fork?4:7,window?12:11,5,8,6,17);
+        for(int y=6;y<=17;y++) {
+            int left=y<=7 ? (fork?5:8) : (fork?4:7);
+            int right=y<=7 ? (window?11:10) : (!fork && !window && y<=10 ? 10 : window?12:11);
+            for(int x=left;x<=right;x++) for(int z=5;z<=8;z++) {
+                if((x==left || x==right) && (z==5 || z==8)) continue;
+                air.add(new BlockPos(x,y,z));
+            }
+        }
         room(air,3,6,3,4,5);
-        room(air,11,12,3,4,9);
+        room(air,11,12,3,4,5);
         room(air,8,9,3,8,12);
         room(air,9,12,3,11,12);
         room(air,3,12,9,4,5);
@@ -30,10 +38,10 @@ final class CatalogueBell {
         room(air,8,9,9,8,12);
         room(air,9,12,9,11,12);
         room(air,6,7,15,1,4);
-        room(air,3,13,15,4,5);
+        room(air,6,13,15,4,5);
         room(air,fork?7:6,fork?8:7,15,4,7);
         room(air,3,4,15,6,9);
-        room(air,3,8,15,8,9);
+        room(air,3,fork?8:7,15,8,9);
         room(air,5,6,15,8,12);
         room(air,3,5,15,11,12);
         well(air,3,4,6,7,3,17);
@@ -48,10 +56,10 @@ final class CatalogueBell {
         floor(blocks,base,8,9,8,8,12);
         floor(blocks,base,9,12,8,11,12);
         floor(blocks,base,6,7,14,1,4);
-        floor(blocks,base,3,13,14,4,5);
+        floor(blocks,base,6,13,14,4,5);
         floor(blocks,base,fork?7:6,fork?8:7,14,4,7);
         floor(blocks,base,3,4,14,6,9);
-        floor(blocks,base,3,8,14,8,9);
+        floor(blocks,base,3,fork?8:7,14,8,9);
         floor(blocks,base,5,6,14,8,12);
         floor(blocks,base,3,5,14,11,12);
         if(fork) {

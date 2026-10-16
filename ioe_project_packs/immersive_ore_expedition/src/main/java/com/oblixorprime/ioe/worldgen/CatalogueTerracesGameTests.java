@@ -1440,8 +1440,11 @@ public final class CatalogueTerracesGameTests {
                         "Hanging core became a pillar or blocked the three-high lower crossing");
             }
             for(int y:new int[]{6,7,10,11,16,17}) {
-                int left=variant==CatalogueTerraces.Variant.BELL_FORK?4:7;
-                int right=variant==CatalogueTerraces.Variant.BELL_WINDOW?12:11;
+                int left=y<=7 ? (variant==CatalogueTerraces.Variant.BELL_FORK?5:8)
+                        : (variant==CatalogueTerraces.Variant.BELL_FORK?4:7);
+                int right=y<=7 ? (variant==CatalogueTerraces.Variant.BELL_WINDOW?11:10)
+                        : (variant==CatalogueTerraces.Variant.BELL && y==10?10
+                        : variant==CatalogueTerraces.Variant.BELL_WINDOW?12:11);
                 helper.assertTrue(g.get(new BlockPos(left,y,6)).isAir()
                         && g.get(new BlockPos(right,y,6)).isAir(),"Clapper flank merged into a side wall");
             }
