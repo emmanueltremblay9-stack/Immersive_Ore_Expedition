@@ -25,23 +25,26 @@ final class CatalogueComb {
         room(air,6,7,15,1,7);
         room(air,5,6,15,6,12);
         room(air,2,6,15,11,12);
-        well(air,6,7,4,10,4,13);
-        well(air,11,13,4,7,10,17);
-        well(air,11,13,8,10,6,17);
-        well(air,11,13,11,12,3,17);
+        well(air,6,7,4,10,5,11);
+        well(air,12,13,4,7,10,17);
+        well(air,12,13,8,10,6,17);
         well(air,12,13,11,12,3,17);
+        room(air,11,13,3,11,12);
+        room(air,11,13,9,11,12);
+        room(air,11,13,15,4,5);
         // The collector crosses the left lamina to the south and the right one to the north.
         room(air,3,6,9,10,11);
         room(air,5,6,9,8,11);
         room(air,9,13,10,4,5);
         well(air,8,8,4,5,10,12);
-        if (window) room(air,3,6,3,9,10);
+        if (window) {
+            room(air,3,6,3,9,10);
+            well(air,5,5,9,10,4,6);
+        }
         if (divided) {
-            room(air,8,9,4,4,9);
-            room(air,6,9,4,4,5);
-            room(air,6,9,4,8,9);
-            well(air,8,9,7,8,4,11);
-            room(air,6,9,9,7,8);
+            room(air,8,9,5,4,9);
+            room(air,6,9,5,4,5);
+            room(air,6,9,5,8,9);
         }
         var blocks = CatalogueTerraces.finish(center,air,false);
         var base = CatalogueTerraces.base(center);
@@ -49,8 +52,9 @@ final class CatalogueComb {
         floor(blocks,base,2,4,14,10,12);
         floor(blocks,base,6,7,8,4,10);
         floor(blocks,base,11,12,8,11,12);
-        floor(blocks,base,11,13,14,4,12);
-        floor(blocks,base,11,13,9,4,10);
+        floor(blocks,base,12,13,14,4,12);
+        floor(blocks,base,11,11,14,4,5);
+        floor(blocks,base,12,13,9,4,10);
         for(int z=4;z<=5;z++) {
             blocks.put(base.offset(8,8,z),Blocks.STONE.defaultBlockState());
             blocks.put(base.offset(8,9,z),Blocks.STONE_STAIRS.defaultBlockState().setValue(StairBlock.FACING,Direction.EAST));
@@ -62,17 +66,16 @@ final class CatalogueComb {
         if (divided) {
             for(int x=6;x<=7;x++) for(int y=6;y<=8;y++) for(int z=6;z<=7;z++)
                 blocks.put(base.offset(x,y,z),Blocks.STONE.defaultBlockState());
-            for(int y=3;y<=8;y++) for(int z=4;z<=9;z++)
+            for(int y=4;y<=8;y++) for(int z=4;z<=9;z++)
                 blocks.put(base.offset(10,y,z),Blocks.STONE.defaultBlockState());
-            for(int y=4;y<=9;y++) for(int z=7;z<=8;z++)
-                blocks.put(base.offset(10,y,z),Blocks.STONE.defaultBlockState());
-            link(blocks,base,9,8,7,8,4,9,8,Direction.WEST);
-        } else {
-            link(blocks,base,6,7,6,7,4,9,8,Direction.EAST);
         }
+        // The common north descent leaves C's bottom interruption meaningful without a second shaft.
+        link(blocks,base,6,7,4,5,5,9,8,Direction.EAST);
         if (window) for(int z=9;z<=10;z++) {
-            blocks.put(base.offset(6,2,z),Blocks.STONE.defaultBlockState());
-            blocks.put(base.offset(6,3,z),Blocks.STONE_STAIRS.defaultBlockState().setValue(StairBlock.FACING,Direction.EAST));
+            blocks.put(base.offset(5,2,z),Blocks.STONE.defaultBlockState());
+            blocks.put(base.offset(5,3,z),Blocks.STONE_STAIRS.defaultBlockState().setValue(StairBlock.FACING,Direction.EAST));
+            blocks.put(base.offset(6,3,z),Blocks.STONE.defaultBlockState());
+            blocks.put(base.offset(6,4,z),Blocks.STONE_STAIRS.defaultBlockState().setValue(StairBlock.FACING,Direction.EAST));
         }
         return blocks;
     }

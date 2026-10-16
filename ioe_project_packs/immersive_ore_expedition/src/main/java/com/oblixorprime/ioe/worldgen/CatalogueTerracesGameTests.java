@@ -883,7 +883,7 @@ public final class CatalogueTerracesGameTests {
             assertCombSignatures(helper,geometry,BlockPos.ZERO,variant);
             for(int x=5;x<=6;x++) for(int z=8;z<=10;z++)
                 helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"Left collector narrowed");
-            for(int x=11;x<=13;x++) for(int z=6;z<=9;z++)
+            for(int x=12;x<=13;x++) for(int z=6;z<=9;z++)
                 helper.assertTrue(stand(geometry,new BlockPos(x,10,z)),"Right collector lost its raised supported floor");
             var left=CatalogueTerraces.HEARTS.get(6).south();
             var middle=CatalogueTerraces.HEARTS.get(5).south();
@@ -915,11 +915,11 @@ public final class CatalogueTerracesGameTests {
             if(divided) for(int x=6;x<=7;x++) for(int y=6;y<=8;y++) for(int z=6;z<=7;z++)
                 helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Central massif lost its solid volume");
             var cut=new LinkedHashMap<>(geometry);
-            closeWell(cut,8,9,7,8,7);
-            var north=new BlockPos(7,4,5); var south=new BlockPos(7,4,10);
+            closeWell(cut,6,7,4,5,8);
+            var north=new BlockPos(7,5,5); var south=new BlockPos(7,5,10);
             helper.assertTrue(reachable(cut,north).contains(south) && reachable(cut,south).contains(north),
                     "Bottom groove cannot be explored in both directions");
-            for(int x=8;x<=9;x++) for(int y=4;y<=6;y++) cut.put(new BlockPos(x,y,8),Blocks.STONE.defaultBlockState());
+            for(int x=8;x<=9;x++) for(int y=5;y<=7;y++) cut.put(new BlockPos(x,y,8),Blocks.STONE.defaultBlockState());
             helper.assertTrue(reachable(cut,north).contains(south)==!divided
                     && reachable(cut,south).contains(north)==!divided,"Split groove does not depend on its lateral detour");
             var reached=reachable(cut,CatalogueTerraces.ENTRANCE);
@@ -931,11 +931,12 @@ public final class CatalogueTerracesGameTests {
 
     private static void assertCombSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
                                              BlockPos base,CatalogueTerraces.Variant variant) {
-        helper.assertTrue(blocks.getOrDefault(base.offset(6,3,9),Blocks.STONE.defaultBlockState()).is(Blocks.STONE_STAIRS)
+        helper.assertTrue(blocks.getOrDefault(base.offset(5,3,9),Blocks.STONE.defaultBlockState()).is(Blocks.STONE_STAIRS)
                 == (variant==CatalogueTerraces.Variant.COMB_WINDOW),"Low intergroove window changed");
-        helper.assertTrue(blocks.get(base.offset(6,6,6)).is(Blocks.LADDER)
-                == (variant!=CatalogueTerraces.Variant.COMB_DIVIDED),"Central groove descent changed");
-        helper.assertTrue(blocks.getOrDefault(base.offset(9,6,7),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+        helper.assertTrue(blocks.get(base.offset(6,6,4)).is(Blocks.LADDER),"Central north descent changed");
+        helper.assertTrue(blocks.get(base.offset(6,6,6)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.COMB_DIVIDED),"Central groove interruption changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(8,5,7),Blocks.STONE.defaultBlockState()).isAir()
                 == (variant==CatalogueTerraces.Variant.COMB_DIVIDED),"Side detour changed");
         helper.assertTrue(blocks.get(base.offset(8,9,4)).is(Blocks.STONE_STAIRS)
                 && stand(blocks,base.offset(9,10,4)),"Collector lost its level change");

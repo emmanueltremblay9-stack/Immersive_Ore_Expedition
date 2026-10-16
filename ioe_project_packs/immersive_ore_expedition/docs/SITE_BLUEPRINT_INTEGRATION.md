@@ -537,7 +537,7 @@ it from the central roof and from the right upper shelf.
 
 A connects the grooves only through the collector. B opens a low window through
 the left/central lamina, with two-wide east-facing stairs up to the central floor.
-C retains a 2×3×2 central rock massif and moves the descent to its side; a two-wide
+C retains a 2×3×2 central rock massif beyond the common north descent; a two-wide
 bottom detour reconnects the interrupted groove. Its outer wall prevents a new
 connection into the right groove. No reward or extra resource occupies the bottom
 detour or the ladder supports. The left upper exit has a plain-rock route beside
@@ -561,3 +561,15 @@ Accepted BP-10 predecessor: a9b3ad273fe2ba89fb5c84e8d585ee1db836e961, 16 green j
 100 minimal + 100 complete GameTests per stack plus streaming/restart; maximum
 2,499 over 19,440 plans. JAR SHA256
 8aa9a9671d3c2c50f1ab5fb283eeda31a2f584c566f3dfcd607c74c6ae43f933. These results do not qualify BP-14.
+
+
+The first BP-14 source b174d38 passed the topology/mask/compensation tests but
+rejected a 2,734-cell C/camp fixture and a real A/camp placement. The right groove
+is reduced to two-wide circulation with wider terminal node alcoves; its three-wide
+raised corridor was unnecessary. The central floor moves from Y4 to Y5 and its
+roof from Y13 to Y11, retaining three-high bottom and middle routes. B uses two
+two-wide stair steps to reach that floor. C keeps the shared north descent and
+detours around its massif on the bottom level, avoiding a second vertical column.
+Its separating outer wall remains. No node, reward, survey function or required
+route is removed; all cutsets and actual placements are requalified. The cap stays
+2,500 cells. These corrections are not yet a successful qualification.
