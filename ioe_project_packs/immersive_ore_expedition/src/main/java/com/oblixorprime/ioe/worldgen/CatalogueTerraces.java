@@ -19,7 +19,7 @@ final class CatalogueTerraces {
         SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER;
         boolean isBayonet() { return this == BAYONET || this == BAYONET_SPLIT || this == BAYONET_SHOULDER; }
         boolean isCrossing() { return this == CROSSING || this == CROSSING_WINDOW || this == CROSSING_LOOP; }
-        boolean isEight() { return this == EIGHT || this == EIGHT_RETURN || this == EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER; }
+        boolean isEight() { return this == EIGHT || this == EIGHT_RETURN || this == EIGHT_SLIT; }
         boolean isPearls() { return this == PEARLS || this == PEARLS_SPLIT || this == PEARLS_SATELLITE; }
         boolean isRails() { return this == RAILS || this == RAILS_SLOPES || this == RAILS_FORK; }
         boolean isSiphon() { return this == SIPHON || this == SIPHON_SPLIT || this == SIPHON_SHOULDER; }
