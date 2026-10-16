@@ -707,3 +707,7 @@ prepared this halo; the older family fixtures did not. A shared test-only helper
 now prepares the exact selected geometry's metadata halo for positive camp tests.
 The absent-neighbor negative test and production fail-closed/no-load checks remain
 unchanged. Initial candidate matrix maximum was 2,497; no success is transferred.
+
+B's relocated north-east return keeps staggered two-wide turns, rather than a
+rectangular corner. Both the offset turn and the full eastern segment have
+explicit support/clearance assertions before the independent cut tests.

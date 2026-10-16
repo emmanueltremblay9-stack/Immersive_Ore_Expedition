@@ -41,8 +41,8 @@ final class CatalogueAxial {
         if (bent) well(air,11,12,8,9,9,17);
         else well(air,8,9,6,7,9,17);
         if (diagonal) {
-            room(air,10,13,9,1,2);
-            room(air,12,13,9,2,6);
+            room(air,11,12,9,2,3);
+            room(air,12,13,9,3,6);
         }
         var blocks = CatalogueTerraces.finish(center,air,false);
         var base = CatalogueTerraces.base(center);

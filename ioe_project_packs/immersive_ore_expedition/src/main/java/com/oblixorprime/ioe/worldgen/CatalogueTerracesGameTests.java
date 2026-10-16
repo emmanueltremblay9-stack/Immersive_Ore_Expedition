@@ -1173,6 +1173,10 @@ public final class CatalogueTerracesGameTests {
             helper.assertTrue(reachable(cut,north).contains(east)==diagonal && reachable(cut,east).contains(north)==diagonal,
                     "North-east arms bypass the hub without the diagonal return");
             if(diagonal) {
+                for(int x=11;x<=12;x++) for(int z=2;z<=3;z++)
+                    helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"Diagonal turn is not two-wide and supported");
+                for(int x=12;x<=13;x++) for(int z=3;z<=6;z++)
+                    helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"Diagonal return narrowed before the east arm");
                 for(int x=12;x<=13;x++) for(int y=9;y<=11;y++) cut.put(new BlockPos(x,y,3),Blocks.STONE.defaultBlockState());
                 helper.assertTrue(!reachable(cut,north).contains(east) && !reachable(cut,east).contains(north),
                         "Diagonal return gained a second bypass");
@@ -1183,7 +1187,7 @@ public final class CatalogueTerracesGameTests {
 
     private static void assertAxialSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
                                               BlockPos base,CatalogueTerraces.Variant variant) {
-        helper.assertTrue(blocks.getOrDefault(base.offset(13,9,2),Blocks.STONE.defaultBlockState()).isAir()
+        helper.assertTrue(blocks.getOrDefault(base.offset(13,9,3),Blocks.STONE.defaultBlockState()).isAir()
                 == (variant==CatalogueTerraces.Variant.AXIAL_RETURN),"Diagonal north-east return changed");
         helper.assertTrue(blocks.getOrDefault(base.offset(8,14,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
                 == (variant!=CatalogueTerraces.Variant.AXIAL_BENT),"Straight upper arm changed");
