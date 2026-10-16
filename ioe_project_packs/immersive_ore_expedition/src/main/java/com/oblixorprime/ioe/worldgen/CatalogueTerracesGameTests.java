@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isBayonet()) assertBayonetSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isRoots()) assertRootsSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isBayonet()) assertBayonetSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isEight()) assertEightSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isPearls()) assertPearlSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isRails()) assertRailsSignatures(helper,plan.blocks(),base,variant);
@@ -271,10 +272,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isBayonet()) assertBayonetSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isRoots()) assertRootsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isBayonet()) assertBayonetSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isEight()) assertEightSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isPearls()) assertPearlSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else assertRailsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -710,6 +712,81 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.BAYONET_SPLIT),"Middle split changed");
         helper.assertTrue(blocks.getOrDefault(base.offset(11,15,11),Blocks.STONE.defaultBlockState()).isAir()
                 == (variant==CatalogueTerraces.Variant.BAYONET_SHOULDER),"Sterile branch changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void rootsKeepTheTrunkAndEachStagedBranchNecessary(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.ROOTS,
+                CatalogueTerraces.Variant.ROOTS_STAGED,CatalogueTerraces.Variant.ROOTS_JOINED}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertRootsSignatures(helper,geometry,BlockPos.ZERO,variant);
+            for(int x=6;x<=12;x++) for(int z=4;z<=5;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,15,z)),"Upper root branch narrowed");
+            for(int x=8;x<=9;x++) for(int z=8;z<=10;z++) {
+                helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"Middle root branch narrowed");
+                helper.assertTrue(stand(geometry,new BlockPos(x,3,z)),"Lower root branch narrowed");
+            }
+            var upperCut=new LinkedHashMap<>(geometry);
+            closeWell(upperCut,6,7,6,7,13);
+            var reached=reachable(upperCut,CatalogueTerraces.ENTRANCE);
+            for(int i=0;i<CatalogueTerraces.HEARTS.size();i++)
+                helper.assertTrue(reached.contains(CatalogueTerraces.HEARTS.get(i).south())==(i==2 || i==4),
+                        "Root trunk cut left an unintended high/low connection: " + variant);
+            helper.assertTrue(!reachable(upperCut,new BlockPos(7,9,7)).contains(CatalogueTerraces.ENTRANCE),
+                    "Root trunk has a reverse bypass");
+        }
+        var staged=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.ROOTS_STAGED);
+        var middle=new BlockPos(7,9,7);
+        var west=new BlockPos(3,3,4); var east=new BlockPos(11,3,12);
+        for(int mask=0;mask<4;mask++) {
+            var cut=new LinkedHashMap<>(staged);
+            if((mask&1)!=0) closeWell(cut,2,3,6,7,6);
+            if((mask&2)!=0) closeWell(cut,11,12,8,9,6);
+            helper.assertTrue(reachable(cut,middle).contains(west)==((mask&1)==0)
+                    && reachable(cut,west).contains(middle)==((mask&1)==0),"West staged root is not an independent branch");
+            helper.assertTrue(reachable(cut,middle).contains(east)==((mask&2)==0)
+                    && reachable(cut,east).contains(middle)==((mask&2)==0),"East staged root is not an independent branch");
+            helper.assertTrue(reachable(cut,west).contains(east)==(mask==0),"Staged root ends gained a lower crossconnection");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void rootsJoinedVariantAddsExactlyOneLowerBypass(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.ROOTS,CatalogueTerraces.Variant.ROOTS_JOINED}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            for(int mask=0;mask<4;mask++) {
+                var cut=new LinkedHashMap<>(geometry);
+                if((mask&1)!=0) closeWell(cut,6,7,6,7,6);
+                if((mask&2)!=0) closeWell(cut,11,12,8,9,6);
+                boolean connected=variant==CatalogueTerraces.Variant.ROOTS_JOINED ? mask!=3 : (mask&1)==0;
+                var middle=new BlockPos(7,9,7);
+                for(var low:new BlockPos[]{new BlockPos(3,3,4),new BlockPos(11,3,12)})
+                    helper.assertTrue(reachable(cut,middle).contains(low)==connected
+                            && reachable(cut,low).contains(middle)==connected,"Root gained or lost a lower bypass: " + variant);
+            }
+            var westCut=new LinkedHashMap<>(geometry);
+            for(int x=5;x<=7;x++) for(int y=9;y<=11;y++) westCut.put(new BlockPos(x,y,9),Blocks.STONE.defaultBlockState());
+            var reached=reachable(westCut,CatalogueTerraces.ENTRANCE);
+            helper.assertTrue(!reached.contains(CatalogueTerraces.HEARTS.get(6).south()),"West terminal root gained a second attachment");
+            for(int i=0;i<6;i++) helper.assertTrue(reached.contains(CatalogueTerraces.HEARTS.get(i).south()),
+                    "West terminal cut disconnected another branch");
+        }
+        helper.succeed();
+    }
+
+    private static void assertRootsSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                              BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(6,6,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant!=CatalogueTerraces.Variant.ROOTS_STAGED),"Deep fork changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(2,6,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.ROOTS_STAGED),"West staged fork changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(12,6,8),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant!=CatalogueTerraces.Variant.ROOTS),"Lateral branch changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(7,9,10),Blocks.STONE.defaultBlockState()).is(Blocks.STONE),
+                "Terminal roots gained an unintended crossconnection");
+        helper.assertTrue(blocks.get(base.offset(5,12,6)).is(Blocks.STONE)
+                && blocks.get(base.offset(6,12,6)).is(Blocks.LADDER),"Trunk backing changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {

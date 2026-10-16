@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 33 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 32 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-16, BP-23, BP-27 or BP-37 A/B/C using one twenty-one-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-16, BP-23, BP-27 or BP-37 A/B/C using one twenty-four-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -118,7 +118,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
-| 001 | BP-01–BP-10 | BP-02, BP-03 and BP-05 A/B/C | All A/B/C of the other seven families (21) |
+| 001 | BP-01–BP-10 | BP-02, BP-03, BP-05 and BP-06 A/B/C | All A/B/C of the other six families (18) |
 | 002 | BP-11–BP-20 | BP-16 A/B/C | All A/B/C of the other nine families (27) |
 | 003 | BP-21–BP-30 | BP-23 and BP-27 A/B/C | All A/B/C of the other eight families (24) |
 | 004 | BP-31–BP-40 | BP-37 A/B/C | All A/B/C of the other nine families (27) |
@@ -461,3 +461,33 @@ explicit solid 2×2×2 body. Its lower boundary already belongs to the surroundi
 shell, so this removes two unique writes. Both loops, every route and fixed
 mineral mask remain unchanged. The upper core test checks every retained cell;
 all families and composed contexts are requalified at the new source.
+
+
+## BP-06 A/B/C: bifurcated roots
+
+The fixed mineral alcoves branch from a narrow, explicitly backed central trunk.
+A carries the trunk to the lower fork. B forks earlier: independent west/east
+lower descents lead to separate terminal roots, connected only through the middle
+junction. C retains A's deep fork and adds one east lateral connection, producing
+one cycle between the middle and lower branches. The upper trunk remains the
+only connection to the high branches. Separating rock between the middle terminal
+branches prevents an accidental additional loop. Every vertical link has a
+supported ladder, and the trunk's backing is explicit even beside a branch.
+
+Cutset tests isolate high from middle/low branches, cut each staged descent,
+check that low B terminals connect only through the middle level, and cut either
+or both C routes in both travel directions. A terminal branch cut isolates only
+its own alcove. Shared width, growth-mask, actual placement, foreign-edit ownership
+and idempotent compensation checks cover all forms. Existing functions, qualities,
+ranks, node counts and rewards remain unchanged. B's lower room anchor follows
+the western lower terminal; A/C use the actual deep-fork landing.
+
+The matrix expands to 17,280 composed plans and 96 Feature placement/commit/dedup
+pairs. Coverage: 24/120 implemented, 96 pending. The 2,500-cell guard is unchanged;
+CI must qualify the new source independently before its receipt is published.
+No installation, merge, release or Nether activation. Visual/client NOT_PERFORMED.
+
+Accepted BP-02 predecessor: `eef708fbe0d4f182346aaa0d63f7276613778dc1`, 16 green jobs, 716 JUnit,
+96 minimal + 96 complete GameTests per stack plus streaming/restart; maximum
+2,500 over 15,120 plans. JAR SHA256
+`10d830bd1ca97ef4506e2ea301e2b7800b2539597bba4e516fa2ccfa8252130d`. These results do not qualify BP-06.

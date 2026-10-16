@@ -269,7 +269,7 @@ public final class ExpeditionSiteBlueprints {
                 roomCenters.add(chamberCenter.immutable());
                 roomCenters.add(variant.isPearls() ? chamberCenter.below(6).west() : variant.isRails() ? chamberCenter.offset(-2,-6,-3) : variant.isCrossing() || variant.isSiphon()
                         ? chamberCenter.below(6).north(3) : chamberCenter.below(6));
-                roomCenters.add(variant.isBayonet() ? chamberCenter.below(12) : variant.isEight() ? chamberCenter.below(12).north(2) : variant.isRails() ? chamberCenter.offset(-2,-12,-3) : variant.isSiphon()
+                roomCenters.add(variant.isRoots() ? chamberCenter.offset(variant == CatalogueTerraces.Variant.ROOTS_STAGED ? -4 : 0,-12,variant == CatalogueTerraces.Variant.ROOTS_STAGED ? -2 : 0) : variant.isBayonet() ? chamberCenter.below(12) : variant.isEight() ? chamberCenter.below(12).north(2) : variant.isRails() ? chamberCenter.offset(-2,-12,-3) : variant.isSiphon()
                         ? chamberCenter.below(12).north(variant == CatalogueTerraces.Variant.SIPHON_SPLIT ? 3 : 0)
                         : chamberCenter.below(12).south(2));
                 if (quality.isProductive() && oreState != null) {
