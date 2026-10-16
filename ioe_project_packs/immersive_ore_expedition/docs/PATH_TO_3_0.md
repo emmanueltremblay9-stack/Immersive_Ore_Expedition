@@ -10,6 +10,8 @@ existant pour les quatre accès. Le puits rejoint E au-dessus du plafond, sans
 écraser N3 ; profondeur 20–28, rangs/budgets et limites de chunk conservés.
 Voir [SITE_BLUEPRINT_INTEGRATION.md](SITE_BLUEPRINT_INTEGRATION.md) pour les hashes,
 le raccord, les tests et le plafond composé inchangé de 2 500 cellules.
+Le local de relevé est conservé ; le puits sous son entrée est compacté à deux
+blocs de largeur, avec son échelle soutenue, pour respecter ce plafond.
 Le composeur isolé `b275df0` a 16 jobs verts ; ces preuves ne sont pas transférées
 au raccord suivant, dont la CI au commit exact est suivie dans PR64.
 Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation

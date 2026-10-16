@@ -257,7 +257,9 @@ public final class ExpeditionSiteBlueprints {
                 chamberCenter = new BlockPos(Math.floorDiv(origin.getX(),16)*16+7,
                         origin.getY()-depth, Math.floorDiv(origin.getZ(),16)*16+7);
                 int shaftDepth = depth-4;
-                addShaft(builder, origin, shaftDepth);
+                addShaft(builder, origin, shaftDepth, true);
+                roomCenters.add(addGalleryLevel(builder, origin.below(8), direction,
+                        zDirectionTowardChunkCenter(origin), GalleryTheme.SURVEY));
                 connectorEnd = origin.below(shaftDepth);
                 var geometry = CatalogueTerraces.geometry(chamberCenter,split);
                 geometry.forEach(builder::put);
@@ -425,16 +427,22 @@ public final class ExpeditionSiteBlueprints {
     }
 
     private static void addShaft(Builder builder, BlockPos top, int depth) {
+        addShaft(builder, top, depth, false);
+    }
+
+    private static void addShaft(Builder builder, BlockPos top, int depth, boolean compact) {
         for (int dy = 0; dy <= depth; dy++) {
             int y = top.getY() - dy;
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dz = -1; dz <= 1; dz++) {
+            // Keep the surface mouth; below it retain a two-wide shaft and backed ladder.
+            int minimum = compact && dy >= 4 ? 0 : -1;
+            for (int dx = minimum; dx <= 1; dx++) {
+                for (int dz = minimum; dz <= 1; dz++) {
                     builder.put(new BlockPos(top.getX() + dx, y, top.getZ() + dz), Blocks.AIR.defaultBlockState());
                 }
             }
             builder.put(new BlockPos(top.getX(), y, top.getZ() + 2), Blocks.OAK_LOG.defaultBlockState());
 
-            if (dy % 5 == 0) {
+            if (dy % 5 == 0 && (!compact || dy < 4)) {
                 builder.put(new BlockPos(top.getX() - 2, y, top.getZ() - 2), Blocks.OAK_LOG.defaultBlockState());
                 builder.put(new BlockPos(top.getX() + 2, y, top.getZ() - 2), Blocks.OAK_LOG.defaultBlockState());
                 builder.put(new BlockPos(top.getX() - 2, y, top.getZ() + 2), Blocks.OAK_LOG.defaultBlockState());

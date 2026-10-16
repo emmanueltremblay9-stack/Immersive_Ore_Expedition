@@ -139,6 +139,15 @@ public final class CatalogueTerracesGameTests {
                     helper.assertTrue(plan.isConnectedExpeditionSite(), "Catalogue escaped anchor-distance range");
                     helper.assertTrue(origin.getY()-plan.chamberCenter().getY() >= 20
                             && origin.getY()-plan.chamberCenter().getY() <= 28, "Chamber depth range changed");
+                    int direction = Math.floorMod(origin.getX(),16) <= 7 ? 1 : -1;
+                    int zDirection = Math.floorMod(origin.getZ(),16) <= 7 ? 1 : -1;
+                    BlockPos survey = origin.offset(direction*5,-8,zDirection*3);
+                    helper.assertTrue(plan.roomCenters().size()==4 && plan.roomCenters().contains(survey),
+                            "Catalogue removed the survey room");
+                    helper.assertTrue(plan.blocks().get(survey.offset(-direction,-2,-zDirection)).is(Blocks.CARTOGRAPHY_TABLE)
+                            && plan.blocks().get(survey.offset(-direction,-2,zDirection)).is(Blocks.BOOKSHELF)
+                            && plan.blocks().get(survey.offset(direction,-2,zDirection)).is(Blocks.COBWEB),
+                            "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     helper.assertTrue(plan.blocks().get(base.offset(5,8,8)).isAir() == (shape.getKey()%2==1),
                             "Quality or resource composition changed structural variant");
