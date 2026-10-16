@@ -1495,8 +1495,9 @@ public final class CatalogueTerracesGameTests {
 
     private static void assertBellSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
                                              BlockPos base,CatalogueTerraces.Variant variant) {
-        helper.assertTrue(blocks.get(base.offset(6,6,6)).is(Blocks.STONE)
-                == (variant==CatalogueTerraces.Variant.BELL_FORK),"Second hanging tip changed");
+        if(variant==CatalogueTerraces.Variant.BELL_FORK)
+            helper.assertTrue(blocks.get(base.offset(6,6,6)).is(Blocks.STONE)
+                    && blocks.get(base.offset(6,5,6)).isAir(),"Second hanging tip lost its free underside");
         helper.assertTrue(blocks.get(base.offset(8,9,6)).isAir()
                 == (variant==CatalogueTerraces.Variant.BELL_FORK),"Space between the two tips changed");
         helper.assertTrue(blocks.get(base.offset(9,9,6)).isAir()

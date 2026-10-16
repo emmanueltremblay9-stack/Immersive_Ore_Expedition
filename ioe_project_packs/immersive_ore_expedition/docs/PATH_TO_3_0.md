@@ -1098,3 +1098,14 @@ the only failure among 113 baseline minimal GameTests. The remaining unused
 lower north corner and intermediate east viewing strip are removed. The
 central open column and two-wide lower connections remain. All existing
 behavioral assertions and the 2,500-cell guard are retained; exact CI required.
+
+
+### BP-17 — distinguish a free tip from host wall in the signature
+
+4ff0ae9 failed three tests at the shared second-tip signature. X6/Y6/Z6 is
+host wall outside A/C's narrower cavity, so STONE there is not evidence of
+a second suspended tip. The signature now requires B's second tip and its
+free underside; the separate between-tip window and roof-continuity tests
+remain. No geometry or budget assertion changes. The matrix aborted before
+its maximum receipt, so no cap result is claimed for this candidate.
+New exact-source CI is required.
