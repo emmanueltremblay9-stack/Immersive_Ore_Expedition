@@ -314,12 +314,13 @@ public final class CatalogueTerracesGameTests {
                 base.getX()+7.8,base.getY()+16.8,base.getZ()+7.8);
         double allowed = level.getBlockState(guard).getCollisionShape(level,guard)
                 .move(guard.getX(),guard.getY(),guard.getZ()).collide(Direction.Axis.Z,playerBox,1.0);
-        helper.assertTrue(allowed < 1.0,"Window guard permits walking straight into the slit");
+        helper.assertTrue(allowed > 0.0 && allowed < 1.0,"Window guard permits walking straight into the slit");
         var eye = new net.minecraft.world.phys.Vec3(base.getX()+6.94,base.getY()+16.62,base.getZ()+7.99);
         var target = new net.minecraft.world.phys.Vec3(base.getX()+7.5,base.getY()+2.5,base.getZ()+8.5);
         var hit = level.clip(new net.minecraft.world.level.ClipContext(eye,target,
                 net.minecraft.world.level.ClipContext.Block.VISUAL,net.minecraft.world.level.ClipContext.Fluid.NONE,(net.minecraft.world.entity.Entity)null));
-        helper.assertTrue(hit.getBlockPos().equals(base.offset(7,2,8)),"Guarded visual slit does not reveal the lower floor");
+        helper.assertTrue(hit.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK
+                && hit.getBlockPos().equals(base.offset(7,2,8)),"Guarded visual slit does not reveal the lower floor");
         helper.assertTrue(applied.rollback(level),"Window placement did not compensate");
         helper.succeed();
     }
