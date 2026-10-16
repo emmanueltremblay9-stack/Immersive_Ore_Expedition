@@ -28,7 +28,7 @@ preserve 3/4/5/7 hearts and 12/20/30/49 peripheral blocks. The composer has no r
 source, quality roll, reserve roll, DRY seed roll or Flawless roll. Unused alcoves
 remain ordinary stone. No resource family or reward is added.
 
-Three hosted GameTests cover supported two-block-high player routes to every
+Three hosted GameTests cover supported three-block-high player routes to every
 alcove, backed ladders, bounds, stable output, exact masks/budgets, the A/C split,
 a concrete connector conflict, and placement with idempotent compensation. These
 are not visual acceptance. Three-block clearance over the entire composed access,

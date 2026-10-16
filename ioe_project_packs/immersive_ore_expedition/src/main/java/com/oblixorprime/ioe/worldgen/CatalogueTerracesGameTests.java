@@ -55,6 +55,9 @@ public final class CatalogueTerracesGameTests {
                 && !c.getOrDefault(new BlockPos(5,9,8),Blocks.STONE.defaultBlockState()).isAir(),
                 "C did not split the middle terrace");
         helper.assertTrue(c.get(new BlockPos(7,9,7)).isAir(), "C lost its bridge");
+        helper.assertTrue(a.values().stream().filter(BlockState::isAir).count()
+                        != c.values().stream().filter(BlockState::isAir).count(),
+                "Variants must differ beyond rotation/mirror, which preserve the air volume");
         helper.succeed();
     }
 
@@ -67,6 +70,15 @@ public final class CatalogueTerracesGameTests {
         BlockPos shaftBacking = new BlockPos(4,15,11);
         helper.assertTrue(geometry.get(shaftBacking).isAir(), "Conflict witness no longer describes the template");
         helper.assertTrue(CatalogueTerraces.HEARTS.get(2).east().equals(shaftBacking), "Wrong conflict witness");
+        var existing = ExpeditionSiteBlueprints.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
+                new BlockPos(4,90,9), com.oblixorprime.ioe.core.SiteQuality.DRY, null, null,
+                net.minecraft.util.RandomSource.create(42));
+        BlockPos worldBacking = new BlockPos(4,existing.connectorEnd().getY(),11);
+        helper.assertTrue(existing.blocks().get(worldBacking.north()).is(Blocks.LADDER),
+                "Existing connector no longer puts its ladder at the conflict column");
+        helper.assertTrue(!existing.blocks().get(worldBacking).isAir(), "Existing ladder lost its backing");
+        var proposed = CatalogueTerraces.geometry(new BlockPos(7,existing.connectorEnd().getY(),7),false);
+        helper.assertTrue(proposed.get(worldBacking).isAir(), "Composed geometry no longer conflicts with existing backing");
         // A full-box implementation alone would exceed the existing 2500-cell composed-plan test gate.
         helper.assertTrue(15 * 19 * 15 > 2500 && geometry.size() < 15 * 19 * 15,
                 "Sparse composition must not silently replace the existing transaction envelope");
@@ -99,7 +111,7 @@ public final class CatalogueTerracesGameTests {
         return blocks.containsKey(p) && !open(blocks,p);
     }
     private static boolean stand(Map<BlockPos, BlockState> blocks, BlockPos p) {
-        return open(blocks,p) && open(blocks,p.above())
+        return open(blocks,p) && open(blocks,p.above()) && open(blocks,p.above(2))
                 && (solid(blocks,p.below()) || blocks.get(p).is(Blocks.LADDER));
     }
     private static Set<BlockPos> reachable(Map<BlockPos, BlockState> blocks, BlockPos start) {
