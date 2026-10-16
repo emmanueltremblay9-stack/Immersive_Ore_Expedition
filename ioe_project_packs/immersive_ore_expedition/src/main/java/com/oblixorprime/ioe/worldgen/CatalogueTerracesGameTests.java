@@ -63,7 +63,8 @@ public final class CatalogueTerracesGameTests {
                 && c.get(new BlockPos(5,8,8)).isAir()
                 && c.get(new BlockPos(9,8,8)).isAir(), "C did not open voids on both sides of its bridge");
         helper.assertTrue(c.get(new BlockPos(7,9,7)).isAir()
-                && c.get(new BlockPos(7,8,7)).is(Blocks.STONE), "C lost its supported bridge");
+                && c.get(new BlockPos(7,8,7)).is(Blocks.STONE)
+                && c.get(new BlockPos(7,7,7)).isAir(), "C lost its bridge or the void beneath it");
         helper.assertTrue(a.values().stream().filter(BlockState::isAir).count()
                         != c.values().stream().filter(BlockState::isAir).count(),
                 "Variants must differ beyond rotation/mirror, which preserve the air volume");
@@ -109,14 +110,15 @@ public final class CatalogueTerracesGameTests {
 
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 400)
     public static void naturalCataloguePlansKeepBudgetsRoutesAndDryRewards(GameTestHelper helper) {
-        var shapes = new java.util.LinkedHashMap<Boolean,Long>();
-        for (long seed = 0; seed < 100 && shapes.size() < 2; seed++) {
+        var shapes = new java.util.LinkedHashMap<Integer,Long>();
+        for (long seed = 0; seed < 10000 && shapes.size() < 18; seed++) {
             var random = net.minecraft.util.RandomSource.create(seed);
-            random.nextInt(ExpeditionSiteBlueprints.MAX_CONNECTOR_DEPTH-ExpeditionSiteBlueprints.MIN_CONNECTOR_DEPTH+1);
-            shapes.putIfAbsent(random.nextBoolean(),seed);
+            int depth = random.nextInt(9);
+            shapes.putIfAbsent(depth*2+(random.nextBoolean()?1:0),seed);
         }
-        helper.assertTrue(shapes.size() == 2, "Both structural variants must be selectable");
+        helper.assertTrue(shapes.size() == 18, "Both variants at every approved depth must be selectable");
         int largest = 0;
+        String largestContext = "";
         for (var shape : shapes.entrySet()) for (var type : ExpeditionSiteType.naturalSurfaceSites()) {
             for (int x : new int[]{4,11}) for (int z : new int[]{6,9}) {
                 BlockPos origin = new BlockPos(x-32,90,z+48);
@@ -125,19 +127,20 @@ public final class CatalogueTerracesGameTests {
                             net.minecraft.util.RandomSource.create(101),0);
                     var plan = quality.isProductive()
                             ? IronBuddingSitePlans.plan(type,origin,budget,shape.getValue(),
-                                    ProspectorCampContext.vanillaFallback(origin,quality))
+                                    new ProspectorCampContext(ProspectorCampVisualFamily.TEMPERATE,shape.getValue(),false))
                             : ExpeditionSiteBlueprints.plan(type,origin,quality,null,null,
                                     net.minecraft.util.RandomSource.create(shape.getValue()));
-                    largest = Math.max(largest,plan.blocks().size());
-                    helper.assertTrue(plan.blocks().size() <= 2500,
-                            "Composed catalogue exceeds unchanged cap: " + type + " " + quality + " " + plan.blocks().size());
+                    if (plan.blocks().size() > largest) {
+                        largest = plan.blocks().size();
+                        largestContext = type + " " + quality + " depth/variant=" + shape.getKey() + " anchor=" + origin;
+                    }
                     helper.assertTrue(plan.blocks().keySet().stream().allMatch(p -> (p.getX()>>4)==(origin.getX()>>4)
                             && (p.getZ()>>4)==(origin.getZ()>>4)), "Catalogue escaped source chunk");
                     helper.assertTrue(plan.isConnectedExpeditionSite(), "Catalogue escaped anchor-distance range");
                     helper.assertTrue(origin.getY()-plan.chamberCenter().getY() >= 20
                             && origin.getY()-plan.chamberCenter().getY() <= 28, "Chamber depth range changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
-                    helper.assertTrue(plan.blocks().get(base.offset(5,8,8)).isAir() == shape.getKey(),
+                    helper.assertTrue(plan.blocks().get(base.offset(5,8,8)).isAir() == (shape.getKey()%2==1),
                             "Quality or resource composition changed structural variant");
                     var reached = reachable(plan.blocks(),plan.connectorEnd());
                     for (BlockPos heart : CatalogueTerraces.HEARTS) {
@@ -161,7 +164,8 @@ public final class CatalogueTerracesGameTests {
                 }
             }
         }
-        System.out.println("IOE catalogue composed maximum planned blocks=" + largest);
+        System.out.println("IOE catalogue composed maximum planned blocks=" + largest + " " + largestContext);
+        helper.assertTrue(largest <= 2500,"Composed catalogue exceeds unchanged cap: " + largest + " " + largestContext);
         helper.succeed();
     }
 

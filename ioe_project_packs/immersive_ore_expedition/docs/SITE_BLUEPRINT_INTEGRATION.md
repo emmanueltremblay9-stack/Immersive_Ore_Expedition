@@ -20,7 +20,8 @@ The chamber occupies 15×19×15. Entry E=(7,15,1) and the three circulation leve
 Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
-bounding-box fill. BP-05 B and the remaining 39 families are not implemented.
+bounding-box fill. Unused terrace corners are trimmed; reference node positions
+and supported routes are retained. BP-05 B and the remaining 39 families are not implemented.
 
 The existing natural `ExpeditionSiteBlueprints` path now selects A/C using one bit
 from its isolated shape stream, after the unchanged depth draw. All four natural
@@ -53,8 +54,10 @@ Domum payloads and their budgets continue through the existing composers.
 The existing 2,500-cell composed-plan regression ceiling is not raised. It is now
 also checked by `Feature.place`, together with build height, before staging the
 main plan and its fallbacks. An oversized plan is refused, never partially placed
-or repaired by a reward reroll. Runtime tests must establish that the admitted
-fixtures fit; a sparse chamber by itself is not proof of the complete budget.
+or repaired by a reward reroll. The first composed run detected a RICH camp at 2,558 cells. The correction
+removes its obsolete connector stub and trims unused terrace corners, without
+changing the ceiling, masks, rewards or surface camp. Runtime tests must establish
+that the corrected admitted fixtures fit; a sparse chamber by itself is not proof of the complete budget.
 DRY residues can occupy ordinary stone in the new floor, while excluding the
 central cache marker and existing payloads. Counts and independent lotteries stay
 with the existing DRY implementation.
@@ -69,7 +72,8 @@ That receipt does not qualify the subsequent natural-routing changes described
 above. Their exact source and final CI receipt are recorded separately in PR64.
 
 Added integration tests cover both shapes, four access types, all qualities,
-source-chunk containment including negative coordinates, unchanged depth and
+source-chunk containment including negative coordinates, both variants at all nine
+approved depths, unchanged depth and
 anchor bounds, complete-plan size, three-high supported routes to all alcoves,
 all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
 `Feature.place` staging/commit/deduplication for both variants at all four accesses.

@@ -34,6 +34,9 @@ final class CatalogueTerraces {
                     // Different, offset strata; not three identical rectangular rooms.
                     if (y == 15 && x <= 5 && z <= 7 || y == 3 && x >= 6 && z <= 6
                             || y == 9 && x >= 9 && z <= 5) continue;
+                    // Trim unused corners, retaining every node, landing and three-high route.
+                    if (y == 15 && x >= 9 && z >= 9 || y == 3 && x <= 5 && z >= 9
+                            || y == 9 && x <= 5 && z <= 4) continue;
                     if (split && y == 9 && z >= 6 && z <= 8 && (x < 6 || x > 8)) continue;
                     for (int h = 0; h < 3; h++) air.add(new BlockPos(x,y+h,z));
                 }
@@ -50,6 +53,8 @@ final class CatalogueTerraces {
         if (split) {
             // C: open voids flank a supported bridge, rather than solid corridor walls.
             for (int y = 6; y <= 11; y++) for (int x : new int[]{4,5,9,10})
+                for (int z = 6; z <= 8; z++) air.add(new BlockPos(x,y,z));
+            for (int y = 6; y <= 7; y++) for (int x = 6; x <= 8; x++)
                 for (int z = 6; z <= 8; z++) air.add(new BlockPos(x,y,z));
             // Ladder landings join the north/south balconies without adding a second bridge.
             for (int y = 9; y <= 11; y++) for (int x = 3; x <= 5; x++)

@@ -257,7 +257,8 @@ public final class ExpeditionSiteBlueprints {
                 chamberCenter = new BlockPos(Math.floorDiv(origin.getX(),16)*16+7,
                         origin.getY()-depth, Math.floorDiv(origin.getZ(),16)*16+7);
                 int shaftDepth = depth-4;
-                connectorEnd = addConnector(builder, origin, shaftDepth, direction, false);
+                addShaft(builder, origin, shaftDepth);
+                connectorEnd = origin.below(shaftDepth);
                 roomCenters.add(addGalleryLevel(builder, origin.below(8), direction,
                         zDirectionTowardChunkCenter(origin), GalleryTheme.SURVEY));
                 var geometry = CatalogueTerraces.geometry(chamberCenter,split);
@@ -409,6 +410,23 @@ public final class ExpeditionSiteBlueprints {
             int horizontalDirection,
             boolean includeBranch
     ) {
+        addShaft(builder, top, depth);
+
+        BlockPos bottom = top.below(depth);
+        for (int step = 0; step <= CHAMBER_HORIZONTAL_OFFSET; step++) {
+            int x = bottom.getX() + horizontalDirection * step;
+            carveTunnelSection(builder, new BlockPos(x, bottom.getY(), bottom.getZ()));
+            if (step > 0 && step % 3 == 0) {
+                addTunnelSupport(builder, new BlockPos(x, bottom.getY(), bottom.getZ()));
+            }
+        }
+        if (includeBranch) {
+            addDryBranch(builder, bottom.offset(horizontalDirection * 2, 0, 0));
+        }
+        return bottom;
+    }
+
+    private static void addShaft(Builder builder, BlockPos top, int depth) {
         for (int dy = 0; dy <= depth; dy++) {
             int y = top.getY() - dy;
             for (int dx = -1; dx <= 1; dx++) {
@@ -425,19 +443,6 @@ public final class ExpeditionSiteBlueprints {
                 builder.put(new BlockPos(top.getX() + 2, y, top.getZ() + 2), Blocks.OAK_LOG.defaultBlockState());
             }
         }
-
-        BlockPos bottom = top.below(depth);
-        for (int step = 0; step <= CHAMBER_HORIZONTAL_OFFSET; step++) {
-            int x = bottom.getX() + horizontalDirection * step;
-            carveTunnelSection(builder, new BlockPos(x, bottom.getY(), bottom.getZ()));
-            if (step > 0 && step % 3 == 0) {
-                addTunnelSupport(builder, new BlockPos(x, bottom.getY(), bottom.getZ()));
-            }
-        }
-        if (includeBranch) {
-            addDryBranch(builder, bottom.offset(horizontalDirection * 2, 0, 0));
-        }
-        return bottom;
     }
 
     private static void restoreConnectorLadder(Builder builder, BlockPos top, int depth) {
