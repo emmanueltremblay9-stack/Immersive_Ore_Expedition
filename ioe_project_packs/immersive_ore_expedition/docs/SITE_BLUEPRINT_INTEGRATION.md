@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 26 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 25 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-14, BP-16, BP-23, BP-24, BP-26, BP-27, BP-31, BP-35 or BP-37 A/B/C using one forty-two-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-14, BP-16, BP-23, BP-24, BP-26, BP-27, BP-31, BP-35, BP-36 or BP-37 A/B/C using one forty-five-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -77,19 +77,19 @@ Its separate CI JAR SHA256 is
 That receipt does not qualify the subsequent natural-routing changes described
 above. Their exact source and final CI receipt are recorded separately in PR64.
 
-Integration tests cover all 42 implemented shapes, four access types and all five
+Integration tests cover all 45 implemented shapes, four access types and all five
 qualities: source-chunk containment including negative coordinates, all nine
 approved depths, unchanged anchor bounds, complete-plan size, three-high
 supported routes to all alcoves,
 all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
-`Feature.place` staging/commit/deduplication for all 42 variants at all four accesses.
+`Feature.place` staging/commit/deduplication for all 45 variants at all four accesses.
 The existing GeOre/Certus runtime tests additionally exercise ranks, fallbacks,
 Jade metadata, persistence, compensation and actual resource-profile admission.
 
 No new server/profile, PC operation, Nether activation, merge or publication is
 part of this work. The installed `382e0b4` provenance remains separate. Client
-visual qualification remains NOT_PERFORMED. Current coverage is 42 of 120 described
-variants; 78 remain pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
+visual qualification remains NOT_PERFORMED. Current coverage is 45 of 120 described
+variants; 75 remain pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
 be attributed to its own source, not to a predecessor receipt.
 
 
@@ -121,7 +121,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | 001 | BP-01–BP-10 | BP-02, BP-03, BP-05, BP-06 and BP-10 A/B/C | All A/B/C of the other five families (15) |
 | 002 | BP-11–BP-20 | BP-14 and BP-16 A/B/C | All A/B/C of the other eight families (24) |
 | 003 | BP-21–BP-30 | BP-23, BP-24, BP-26 and BP-27 A/B/C | All A/B/C of the other six families (18) |
-| 004 | BP-31–BP-40 | BP-31, BP-35 and BP-37 A/B/C | All A/B/C of the other seven families (21) |
+| 004 | BP-31–BP-40 | BP-31, BP-35, BP-36 and BP-37 A/B/C | All A/B/C of the other six families (18) |
 
 A future family must pass the same route/node-mask/complete-budget qualification
 before activation. A proposed outline alone does not authorize resource changes,
@@ -781,3 +781,29 @@ routes and exposed stem faces instead of unused cap corners; an unused lower
 pocket north of the peripheral descent is removed. Width/return/stem tests are
 unchanged, as are the upper cap, B's slit, C's isthmus, rewards and 2,500-cell guard.
 New exact-source CI is required.
+
+
+## BP-36 A/B/C: one perforated slab and two shared volumes
+
+One irregular rock slab separates the upper surface from the shared lower
+volume. Three differently shaped openings preserve views between them.
+A equips two peripheral openings with backed descents; the rear opening has
+rock rims and stays a view. B equips that third opening with a supported
+ladder and landing. C joins the two side openings into a long slit while
+retaining a two-wide upper rock rib. No central stem or stack of sealed rooms.
+
+All FINAL node masks, access/cache/survey functions, independent lotteries and
+quality budgets remain unchanged. Tests cut the two side descents, verify only
+B retains the third return, then cut that last descent. C's rock rib is checked
+for support/clearance and its sole isolated upper connection is cut in both
+directions. Shared matrices retain the 2,500-cell cap and actual generator,
+metadata-refusal, persistence and ownership-safe rollback checks.
+
+Coverage: 45/120 implemented, 75 pending. Matrix: 32,400 composed plans and
+180 real placement/commit/dedup pairs. Exact-source CI still required; no
+installation, merge, publication or Nether activation. Visual/client NOT_PERFORMED.
+
+Predecessor BP-26 source 116aac3dbd6f98e509cd04ee5d729afe74bd73c2: 16 successful jobs, 716 JUnit,
+111 minimal + 111 complete GameTests per stack plus streaming/restart; maximum
+2494 cells over 30,240 plans. JAR SHA256
+e57ceff931766dcdebfb10bd42de59c011796f25aa89e4c1f1ba065c0fac23d5. These proofs do not qualify BP-36.

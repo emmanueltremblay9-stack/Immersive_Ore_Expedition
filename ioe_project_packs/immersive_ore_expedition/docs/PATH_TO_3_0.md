@@ -141,6 +141,20 @@ Masques, positions, accès, fonctions et budgets conservés ; 30 240 plans et
 suivre dans PR64 sans transfert de preuves. Plafond 2 500 inchangé ; aucun accès
 PC, installation, fusion, publication ou activation Nether. Visuel/client non prouvé.
 
+### BP-26 qualifié ; cycle suivant BP-36 A/B/C
+
+BP-26 accepté sur 116aac3dbd6f98e509cd04ee5d729afe74bd73c2 : 16 jobs verts,
+716 JUnit et 111+111 GameTests par pile, streaming/reprise ; 30 240 plans,
+168 placements réels, maximum 2494.
+JAR non installé, SHA256 e57ceff931766dcdebfb10bd42de59c011796f25aa89e4c1f1ba065c0fac23d5.
+
+Suite : BP-36 A/B/C, dalle percée de trois regards et deux volumes partagés.
+Deux descentes A, troisième descente B, fente commune et nervure supérieure C.
+Masques, accès, fonctions et budgets inchangés ; 32 400 plans et 180 placements.
+Couverture 45/120, 75 restantes. Qualification exacte à suivre, aucun transfert
+de preuves. Plafond 2 500 inchangé ; pas de PC, installation, fusion, publication
+ou activation Nether. Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
