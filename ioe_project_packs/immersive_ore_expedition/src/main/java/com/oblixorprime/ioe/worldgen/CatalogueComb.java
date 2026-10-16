@@ -18,7 +18,7 @@ final class CatalogueComb {
         boolean window = variant == CatalogueTerraces.Variant.COMB_WINDOW;
         boolean divided = variant == CatalogueTerraces.Variant.COMB_DIVIDED;
         var air = new LinkedHashSet<BlockPos>();
-        well(air,3,4,6,9,3,11);
+        well(air,3,4,6,9,3,10);
         well(air,3,4,10,12,3,17);
         well(air,1,2,11,12,3,17);
         room(air,3,4,3,4,7);
@@ -27,7 +27,7 @@ final class CatalogueComb {
         room(air,2,6,15,11,12);
         well(air,6,7,4,10,5,11);
         well(air,12,13,4,7,10,17);
-        well(air,12,13,8,10,6,17);
+        well(air,12,13,8,10,10,17);
         well(air,12,13,11,12,3,17);
         room(air,11,13,3,11,12);
         room(air,11,13,9,11,12);
@@ -66,8 +66,7 @@ final class CatalogueComb {
         if (divided) {
             for(int x=6;x<=7;x++) for(int y=6;y<=8;y++) for(int z=6;z<=7;z++)
                 blocks.put(base.offset(x,y,z),Blocks.STONE.defaultBlockState());
-            for(int y=4;y<=8;y++) for(int z=4;z<=9;z++)
-                blocks.put(base.offset(10,y,z),Blocks.STONE.defaultBlockState());
+            // finish() already supplies the continuous three-high outer wall of the side detour.
         }
         // The common north descent leaves C's bottom interruption meaningful without a second shaft.
         link(blocks,base,6,7,4,5,5,9,8,Direction.EAST);

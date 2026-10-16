@@ -914,6 +914,8 @@ public final class CatalogueTerracesGameTests {
             boolean divided=variant==CatalogueTerraces.Variant.COMB_DIVIDED;
             if(divided) for(int x=6;x<=7;x++) for(int y=6;y<=8;y++) for(int z=6;z<=7;z++)
                 helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Central massif lost its solid volume");
+            if(divided) for(int y=5;y<=7;y++) for(int z=4;z<=9;z++)
+                helper.assertTrue(geometry.get(new BlockPos(10,y,z)).is(Blocks.STONE),"Side detour lost its separating wall");
             var cut=new LinkedHashMap<>(geometry);
             closeWell(cut,6,7,4,5,8);
             var north=new BlockPos(7,5,5); var south=new BlockPos(7,5,10);

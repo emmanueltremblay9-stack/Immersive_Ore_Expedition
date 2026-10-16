@@ -573,3 +573,12 @@ detours around its massif on the bottom level, avoiding a second vertical column
 Its separating outer wall remains. No node, reward, survey function or required
 route is removed; all cutsets and actual placements are requalified. The cap stays
 2,500 cells. These corrections are not yet a successful qualification.
+
+The next BP-14 source c62e4f8 passed the other tests but still measured 2,561
+cells and rejected an A/camp placement. The unused right intermediate floor is
+raised to the existing collector floor (Y10); its rear foot remains Y3 and all
+nodes stay fixed. The left northern roof changes from Y11 to Y10, retaining N7's
+reserved upper air face and every three-high route. C's redundant outer wall
+rows below/above its three-high side wall are omitted; the shell already supplies
+that entire wall, now asserted cell by cell. No room function, alcove or mandatory
+route is removed. Full qualification restarts without raising the cap.
