@@ -11,10 +11,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-/** GOV 60d1c94, BP-05 A/B/C and BP-16 A, geometry version 3. No quality or reward random source. */
+/** GOV 60d1c94, BP-05 A/B/C and BP-16 A, geometry version 4. No quality or reward random source. */
 final class CatalogueTerraces {
     private CatalogueTerraces() { }
-    enum Variant { ALTERNATING, FAN, SPLIT, CROSSING }
+    enum Variant {
+        ALTERNATING, FAN, SPLIT, CROSSING, CROSSING_WINDOW, CROSSING_LOOP;
+        boolean isCrossing() { return ordinal() >= CROSSING.ordinal(); }
+    }
     static final BlockPos ENTRANCE = new BlockPos(7,15,1);
     static final List<BlockPos> HEARTS = List.of(new BlockPos(3, 3, 3), new BlockPos(11, 9, 11),
             new BlockPos(3, 15, 11), new BlockPos(11, 3, 11), new BlockPos(11, 15, 3),
@@ -28,7 +31,7 @@ final class CatalogueTerraces {
     static BlockPos base(BlockPos center) { return center.offset(-7, -15, -7); }
 
     static Map<BlockPos, BlockState> geometry(BlockPos center, Variant variant) {
-        if (variant == Variant.CROSSING) return CatalogueCrossing.geometry(center);
+        if (variant.isCrossing()) return CatalogueCrossing.geometry(center,variant);
         boolean split = variant == Variant.SPLIT;
         var air = new LinkedHashSet<BlockPos>();
         for (int y : new int[]{3, 9, 15}) {

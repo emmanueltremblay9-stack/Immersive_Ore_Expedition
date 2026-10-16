@@ -122,12 +122,12 @@ public final class CatalogueTerracesGameTests {
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 400)
     public static void naturalCataloguePlansKeepBudgetsRoutesAndDryRewards(GameTestHelper helper) {
         var shapes = new java.util.LinkedHashMap<Integer,Long>();
-        for (long seed = 0; seed < 10000 && shapes.size() < 36; seed++) {
+        for (long seed = 0; seed < 10000 && shapes.size() < 54; seed++) {
             var random = net.minecraft.util.RandomSource.create(seed);
             int depth = random.nextInt(9);
-            shapes.putIfAbsent(depth*4+random.nextInt(4),seed);
+            shapes.putIfAbsent(depth*6+random.nextInt(6),seed);
         }
-        helper.assertTrue(shapes.size() == 36, "All four variants at every approved depth must be selectable");
+        helper.assertTrue(shapes.size() == 54, "All six variants at every approved depth must be selectable");
         int largest = 0;
         String largestContext = "";
         for (var shape : shapes.entrySet()) for (var type : ExpeditionSiteType.naturalSurfaceSites()) {
@@ -160,12 +160,16 @@ public final class CatalogueTerracesGameTests {
                             && plan.blocks().get(survey.offset(direction,-2,zDirection)).is(Blocks.COBWEB),
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
-                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(5,8,8),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%4==2),
+                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(5,8,8),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%6==2),
                             "Quality or resource composition changed structural variant");
-                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(8,8,9),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%4==1),
+                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(8,8,9),Blocks.STONE.defaultBlockState()).isAir() == (shape.getKey()%6==1),
                             "Quality or composition changed the shared-void variant");
-                    helper.assertTrue(plan.blocks().get(base.offset(7,9,7)).is(Blocks.STONE) == (shape.getKey()%4==3),
+                    helper.assertTrue(plan.blocks().get(base.offset(7,9,7)).is(Blocks.STONE) == (shape.getKey()%6>=3),
                             "Crossing lost its solid central separation");
+                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(7,8,8),Blocks.STONE.defaultBlockState()).isAir()
+                            == (shape.getKey()%6==4), "Window signature changed during composition");
+                    helper.assertTrue(plan.blocks().getOrDefault(base.offset(2,12,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                            == (shape.getKey()%6==5), "Loop signature changed during composition");
                     var reached = reachable(plan.blocks(),plan.connectorEnd());
                     for (BlockPos heart : CatalogueTerraces.HEARTS) {
                         helper.assertTrue(reached.contains(base.offset(heart).south()),
@@ -212,7 +216,7 @@ public final class CatalogueTerracesGameTests {
                 planSeed = random.nextLong();
                 var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
                 shapeRandom.nextInt(9);
-                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextInt(4)==variant.ordinal()) {
+                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextInt(6)==variant.ordinal()) {
                     found = true; break;
                 }
             }
@@ -237,7 +241,11 @@ public final class CatalogueTerracesGameTests {
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(8,8,9)).isAir()
                     == (variant==CatalogueTerraces.Variant.FAN), "Committed shared-void signature changed");
             helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(7,9,7)).is(Blocks.STONE)
-                    == (variant==CatalogueTerraces.Variant.CROSSING), "Committed crossing separation changed");
+                    == (variant.isCrossing()), "Committed crossing separation changed");
+            helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(7,8,8)).isAir()
+                    == (variant==CatalogueTerraces.Variant.CROSSING_WINDOW), "Committed window signature changed");
+            helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(2,12,6)).is(Blocks.LADDER)
+                    == (variant==CatalogueTerraces.Variant.CROSSING_LOOP), "Committed loop signature changed");
             helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level,chunk).confirmedSites()==0,
                     "Natural catalogue transaction replayed");
         }
@@ -260,6 +268,59 @@ public final class CatalogueTerracesGameTests {
             severed.put(new BlockPos(x,12,z),Blocks.STONE.defaultBlockState());
         helper.assertTrue(!reachable(severed,CatalogueTerraces.ENTRANCE).contains(new BlockPos(7,3,7)),
                 "A second connection bypassed the single lateral route");
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void crossingLoopKeepsTwoIndependentOpposedConnections(GameTestHelper helper) {
+        var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.CROSSING_LOOP);
+        for (int cutY : new int[]{6,12}) {
+            for (int cut : new int[]{1,2,3}) {
+                var severed = new LinkedHashMap<>(geometry);
+                for (int z = 6; z <= 7; z++) {
+                    if ((cut & 1) != 0) for (int x = 11; x <= 12; x++)
+                        severed.put(new BlockPos(x,cutY,z),Blocks.STONE.defaultBlockState());
+                    if ((cut & 2) != 0) for (int x = 2; x <= 3; x++)
+                        severed.put(new BlockPos(x,cutY,z),Blocks.STONE.defaultBlockState());
+                }
+                helper.assertTrue(reachable(severed,CatalogueTerraces.ENTRANCE).contains(new BlockPos(7,3,7)) == (cut != 3),
+                        "The loop did not preserve exactly two opposed connections: y=" + cutY + " cut=" + cut);
+            }
+        }
+        for (int y = 8; y <= 9; y++) for (int x = 6; x <= 8; x++) for (int z = 6; z <= 8; z++)
+            helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Loop opened the central diaphragm");
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void crossingWindowHasSightlineGuardAndShiftedLandings(GameTestHelper helper) {
+        var center = helper.absolutePos(new BlockPos(8,20,8));
+        var base = CatalogueTerraces.base(center);
+        var geometry = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.CROSSING_WINDOW);
+        var level = helper.getLevel();
+        geometry.keySet().forEach(p -> level.setBlockAndUpdate(p,Blocks.STONE.defaultBlockState()));
+        var plan = new ExpeditionSiteBlockPlan(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER,center,center,center,
+                com.oblixorprime.ioe.core.SiteQuality.DRY,0,null,null,java.util.List.of(center),
+                java.util.List.of(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER),geometry);
+        var applied = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
+        helper.assertTrue(level.getBlockState(base.offset(12,9,8)).is(Blocks.LADDER)
+                && level.getBlockState(base.offset(2,9,5)).is(Blocks.LADDER),"Window variant lost its shifted landings");
+        for (int x = 3; x <= 11; x++) helper.assertTrue(stand(geometry,base.offset(x,15,7)),
+                "Window removed the supported upper crossing");
+        for (int y = 3; y <= 14; y++) helper.assertTrue(level.getBlockState(base.offset(7,y,8)).isAir(),
+                "Window does not expose the lower gallery");
+        BlockPos guard = base.offset(7,15,8);
+        var playerBox = new net.minecraft.world.phys.AABB(base.getX()+7.2,base.getY()+15,base.getZ()+7.2,
+                base.getX()+7.8,base.getY()+16.8,base.getZ()+7.8);
+        double allowed = level.getBlockState(guard).getCollisionShape(level,guard)
+                .move(guard.getX(),guard.getY(),guard.getZ()).collide(Direction.Axis.Z,playerBox,1.0);
+        helper.assertTrue(allowed < 1.0,"Window guard permits walking straight into the slit");
+        var eye = new net.minecraft.world.phys.Vec3(base.getX()+6.94,base.getY()+16.62,base.getZ()+7.99);
+        var target = new net.minecraft.world.phys.Vec3(base.getX()+7.5,base.getY()+2.5,base.getZ()+8.5);
+        var hit = level.clip(new net.minecraft.world.level.ClipContext(eye,target,
+                net.minecraft.world.level.ClipContext.Block.VISUAL,net.minecraft.world.level.ClipContext.Fluid.NONE,(net.minecraft.world.entity.Entity)null));
+        helper.assertTrue(hit.getBlockPos().equals(base.offset(7,2,8)),"Guarded visual slit does not reveal the lower floor");
+        helper.assertTrue(applied.rollback(level),"Window placement did not compensate");
         helper.succeed();
     }
 

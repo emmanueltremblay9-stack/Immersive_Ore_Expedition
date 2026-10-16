@@ -18,14 +18,15 @@ Son JAR non installé a le SHA256 `8ae0701673502ce7b7bc1d407225a9f2fa0b9e984e9f2
 BP-05 A/B/C `768e8c4` est qualifié : 16 jobs verts, 716 JUnit, 83+83 GameTests
 par pile et streaming/reprise ; maximum 2 482 sur 2 160 plans. JAR non installé :
 `26149d8a06056f87b44b6283fc22744e2df99c6a263f8158326abbaff3a892a5`.
-Cycle suivant : BP-16 A (catalogue 002), deux galeries croisées en hauteur avec
-noyau séparateur et liaison latérale. Enveloppe, entrée et sept repères minéraux
-actuels conservés ; seules géométrie et ancre de circulation médiane changent.
-Matrice portée à 2 880 plans et 16 placements réels. Le premier run a détecté
-2 514 cellules ; le remplissage central est compacté en diaphragme de deux blocs,
-sans enlever de fonction ni relever le plafond de 2 500. La preuve au commit exact
-reste suivie dans PR64, sans transfert du reçu précédent. Carte de couverture :
-4 variantes implémentées, 116 restantes ; qualification distincte.
+BP-16 A `2f2d16a` est qualifié : 16 jobs verts, 716 JUnit, 84+84 GameTests par
+pile et streaming/reprise ; maximum 2 487 sur 2 880 plans. JAR non installé :
+`8bcee2f6efd43fcfe8837e1066ef33ec8dfd787abe1c73f84d4653d055e5b1fa`.
+Cycle suivant : BP-16 B/C, fente visuelle protégée avec paliers décalés et boucle
+à deux liaisons opposées. Enveloppe, nodes, qualité/récompenses et fonctions du
+local conservés ; marges des galeries compactées, sols des nouveaux paliers
+explicites. Matrice portée à 4 320 plans et 24 placements réels, tests de ligne de
+vue/collision et coupures indépendantes des deux liaisons. CI exacte suivie dans
+PR64, sans transfert de preuve. Couverture : 6 variantes implémentées, 114 restantes.
 Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation
 Nether, fusion ou publication. Le runtime installé reste `382e0b4` ; le reçu
 ci-dessous est distinct du nouveau travail de génération.

@@ -25,7 +25,7 @@ only rotation, palette or seed. Only a one-block shell is written, not a 4,275-c
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
 and supported routes are retained. BP-16 A is described below; the remaining 38 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-05 A/B/C or BP-16 A using one four-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-05 A/B/C or BP-16 A/B/C using one six-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -77,18 +77,18 @@ Its separate CI JAR SHA256 is
 That receipt does not qualify the subsequent natural-routing changes described
 above. Their exact source and final CI receipt are recorded separately in PR64.
 
-Added integration tests cover all four shapes, four access types, all qualities,
-source-chunk containment including negative coordinates, all four variants at all nine
+Added integration tests cover all six shapes, four access types, all qualities,
+source-chunk containment including negative coordinates, all six variants at all nine
 approved depths, unchanged depth and
 anchor bounds, complete-plan size, three-high supported routes to all alcoves,
 all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
-`Feature.place` staging/commit/deduplication for all four variants at all four accesses.
+`Feature.place` staging/commit/deduplication for all six variants at all four accesses.
 The existing GeOre/Certus runtime tests additionally exercise ranks, fallbacks,
 Jade metadata, persistence, compensation and actual resource-profile admission.
 
 No new server/profile, PC operation, Nether activation, merge or publication is
 part of this work. The installed `382e0b4` provenance remains separate. Client
-visual qualification remains NOT_PERFORMED. This slice implements four of 120 described
+visual qualification remains NOT_PERFORMED. This slice implements six of 120 described
 variants, not completion of the four catalogues. Runtime qualification of each successor must
 be attributed to its own source, not to a predecessor receipt.
 
@@ -119,7 +119,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
 | 001 | BP-01–BP-10 | BP-05 A/B/C | BP-01–04 and BP-06–10 A/B/C (27) |
-| 002 | BP-11–BP-20 | BP-16 A | BP-16 B/C and all A/B/C of the other nine families (29) |
+| 002 | BP-11–BP-20 | BP-16 A/B/C | All A/B/C of the other nine families (27) |
 | 003 | BP-21–BP-30 | None | All A/B/C (30) |
 | 004 | BP-31–BP-40 | None | All A/B/C (30) |
 
@@ -171,3 +171,40 @@ The correction reduces the redundant eight-layer central fill to the catalogue's
 horizontal diaphragm, two blocks thick. It preserves the axes, supported routes,
 all seven node masks, survey room and surface functions. The 2,500-cell cap and
 its failing assertion remain unchanged; the corrected source requires fresh CI.
+
+
+## BP-16 B/C: guarded opening and opposed loop
+
+The next coherent cycle completes BP-16's two remaining documented topologies:
+B has an off-path visual slit and shifted landings; C has two opposed connections
+forming a loop without a central hole. Both retain the same 15×19×15 envelope,
+entry, seven node coordinates/masks, quality/reward rules and survey functions.
+The gallery margins are compacted while retaining two-wide routes and three-high
+clearance; no room function or node alcove is removed to make budget space.
+
+B opens the column (7,Y,8) beside the supported upper gallery. A stone-brick wall
+from the existing IOE structural palette guards its upper edge. East ladder
+landings shift from Z=6/7 to 7/8, west from 6/7 to 5/6, with matching backing and
+floors. The central walking slab and cache at Z=7 are preserved. An actual-level
+GameTest checks the collision guard, a visual ray to the lower floor, placement,
+shifted ladders and compensation. This is a geometric/runtime test, not client
+visual acceptance.
+
+C extends the backed east and west links through all three levels and connects
+the lower east landing to the existing lower axis. Upper-west and middle-east
+landing floors are restored explicitly where the extended shafts pass them.
+The central diaphragm stays closed. A cut-set test independently severs each
+connection at both upper and lower heights: either remaining side must still
+connect the two axes, and cutting both must disconnect them.
+
+The shared deterministic matrix now has 4,320 plans (9 depths × 6 forms × 4
+accesses × 4 anchors × 5 qualities), plus 24 real Feature commit/dedup pairs.
+All six forms retain the canonical mask/budget, three-high route, DRY, survey,
+source-chunk, height, compensation and complete 2,500-cell tests. The qualification
+boundary is the exact new source recorded in PR64, not the predecessor below.
+
+Accepted BP-16 A predecessor: `2f2d16a1baf98396628a2707c2b24dec9d324797`, 16 green
+jobs (baseline 38903350234/38903357582; current pack 38903350173/38903357570),
+716 JUnit and 84+84 GameTests per stack, plus streaming/restart; maximum 2,487
+cells over 2,880 fixtures. Its non-installed JAR contains 471 classes and has
+SHA256 `8bcee2f6efd43fcfe8837e1066ef33ec8dfd787abe1c73f84d4653d055e5b1fa`.
