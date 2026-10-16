@@ -65,3 +65,13 @@ Thunderbolt 2.0.3-beta2 est déjà installé côté PC ; aucun ajout dans ce pat
 Deux MineColonies restent un problème du pack distinct. Aucun accès PC, monde lancé,
 nettoyage, modification de sécurité ou installation. Overworld TRUE, Nether OFF,
 OreGuard indépendant et retrogen OFF conservés. Validation visuelle/client non prouvée.
+
+## Premier résultat de qualification actuelle
+
+Le job 38872340400 au commit 9e7704f compile IOE puis échoue au démarrage
+JUnit : AE2CS 1.2.1 référence de/mari_023/ae2wtlib/api/gui/Icon. Les tests ne
+sont pas comptés comme exécutés. AE2WTLib 19.2.6, déjà épinglé dans le runtime
+complet baseline, est désormais résolu aussi dans le runtime minimal actuel.
+L’entrée stagée correspondante est retirée du seul manifeste actuel pour éviter
+un doublon. Aucune dépendance inconnue ni modification du PC ; qualification à
+reprendre avant toute admission distribuée.

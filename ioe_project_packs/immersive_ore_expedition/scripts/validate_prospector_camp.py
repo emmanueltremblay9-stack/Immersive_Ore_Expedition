@@ -1284,7 +1284,7 @@ def validate() -> None:
         "160 anchor/rotation/quality collision cases, "
         "family-specific shelter geometry, two-block circulation headroom, 48-block anchor spacing, "
         "one deterministic selector, zero surface ores, "
-        "four tiered utility loot tables, optional Domum 1.0.231 API / 1.0.234-snapshot runtime contract"
+        "four tiered utility loot tables, optional Domum 1.0.231 baseline API/main contract"
     )
 
 

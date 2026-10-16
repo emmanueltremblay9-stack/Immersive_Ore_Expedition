@@ -3,10 +3,12 @@ import os
 
 def arguments():
     if os.environ.get('IOE_CURRENT_PACK_QUALIFICATION') != 'true':
-        return []
+        return [
+        '-PioeCurrentPackQualification=true',]
     if os.environ.get('GITHUB_ACTIONS') != 'true':
         raise RuntimeError('Current pack qualification is hosted CI only')
     return [
+        '-PioeCurrentPackQualification=true',
         '-Pae2cs_version_range=[1.2.1]',
         '-Pdomum_version_range=[1.0.236-snapshot]',
         '-Pextendedae_version_range=[1.21-2.2.41-neoforge]',

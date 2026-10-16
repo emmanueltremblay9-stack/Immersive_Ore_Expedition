@@ -77,12 +77,6 @@
       "sha512": "56a387a1bdaf0146c9a7e14de0aca8b6f53f25d3ba9d46255f142043387282ed9e4fa0011d309e32d9ffe5362b129c07e301226dd4ac11eda9a4f42f27c0b5d1"
     },
     {
-      "mod_id": "ae2wtlib",
-      "filename": "ae2wtlib-19.2.6.jar",
-      "url": "https://cdn.modrinth.com/data/pNabrMMw/versions/IQFaf9vp/ae2wtlib-19.2.6.jar",
-      "sha512": "d3b2a5039049826de6d41f737d2ccd630f32d2c3297d8ce1525a5d50a1d77c2faaaea96442660522c8c60e3758648d48c6f437783f8f91f484e3815b12f694ca"
-    },
-    {
       "mod_id": "domum_ornamentum",
       "filename": "domum-ornamentum-1.0.236-snapshot-main.jar",
       "url": "https://ldtteam.jfrog.io/ldtteam/modding/com/ldtteam/domum-ornamentum/1.0.236-snapshot/domum-ornamentum-1.0.236-snapshot-main.jar",
