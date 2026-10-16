@@ -1011,3 +1011,11 @@ composed-cap test still failed, on C/Motherlode camp. C now excavates the upper
 faces of its two lobes and the actual separating views beside the isthmus,
 instead of the full cap's unused upper shoulders. Supported routes, underside,
 fixed masks and the production cap remain unchanged. Exact CI required again.
+
+
+BP-26 follow-up: a9b7c6c reached 2,549 cells, now on B/Motherlode camp;
+the cap remained the only failing test. The underside now follows the supported
+routes and exposed stem faces instead of unused cap corners; an unused lower
+pocket north of the peripheral descent is removed. Width/return/stem tests are
+unchanged, as are the upper cap, B's slit, C's isthmus, rewards and 2,500-cell guard.
+New exact-source CI is required.

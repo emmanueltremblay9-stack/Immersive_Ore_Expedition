@@ -28,7 +28,6 @@ final class CatalogueMushroom {
         footprint(splitCap,6,8,7,8);
         var air = new LinkedHashSet<BlockPos>();
         for(var cell:cap) {
-            for(int y=9;y<=11;y++) air.add(cell.atY(y));
             if(!lobes) for(int y=15;y<=17;y++) air.add(cell.atY(y));
         }
         if(lobes) {
@@ -42,8 +41,9 @@ final class CatalogueMushroom {
         // viewing waist. The single stem remains exposed on every side through it.
         room(air,5,10,3,4,9);
         well(air,6,9,5,8,6,8);
+        well(air,9,10,6,7,9,11);
         room(air,3,6,3,4,5);
-        room(air,11,12,3,4,9);
+        room(air,11,12,3,6,9);
         room(air,8,9,3,8,12);
         room(air,9,12,3,11,12);
         room(air,5,12,9,4,5);
