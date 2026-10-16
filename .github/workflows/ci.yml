@@ -52,7 +52,9 @@ jobs:
         run: gradle --no-daemon -PioeDepth32Prototype=true runGameTestServer
 
       - name: Stage pinned biome and integration runtime
-        run: python3 scripts/stage_ci_runtime_mods.py
+        run: |
+          python3 scripts/stage_ci_runtime_mods.py
+          python3 scripts/verify_pack_compatibility.py
 
       - name: Run expedition worldgen GameTests with complete pinned runtime
         run: python3 scripts/qualify_depth32_restart.py
@@ -732,6 +734,20 @@ jobs:
               print(f"Compiled IOE class count: {len(compiled_mod_classes)}")
               print("No embedded jars or duplicate entries found.")
           PY
+
+      - name: Record runtime JAR identity
+        run: |
+          python3 - <<'PYHASH'
+          import hashlib,json,os
+          from pathlib import Path
+          jars=list(Path('build/libs').glob('immersive_ore_expedition-*-neoforge-1.21.1.jar'))
+          assert len(jars)==1, jars
+          jar=jars[0]
+          receipt={'source_checkout':os.environ['GITHUB_SHA'],'filename':jar.name,'sha256':hashlib.sha256(jar.read_bytes()).hexdigest()}
+          path=Path('build/reports/ioe/runtime-jar-identity.json');path.parent.mkdir(parents=True,exist_ok=True)
+          path.write_text(json.dumps(receipt,indent=2)+'\n')
+          print(json.dumps(receipt))
+          PYHASH
 
       - name: Upload final jar
         uses: actions/upload-artifact@v4

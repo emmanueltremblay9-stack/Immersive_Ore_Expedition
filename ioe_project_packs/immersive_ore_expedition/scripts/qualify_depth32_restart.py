@@ -16,7 +16,8 @@ def digest(p):
         for b in iter(lambda:f.read(65536),b''):h.update(b)
     return h.hexdigest()
 def run(phase):
-    command=['gradle','--no-daemon','-PioeIncludeIeRuntime=true','-PioeDepth32Prototype=true',
+    command=['gradle','--no-daemon','-Pdomum_version_range=[1.0.234-snapshot]',
+             '-Pjade_version_range=[15.10.5,15.10.6)','-PioeIncludeIeRuntime=true','-PioeDepth32Prototype=true',
              '-PioeDepth32RestartPhase='+phase,'runFullRuntimeGameTestServer']
     with (evidence/(phase+'.log')).open('w') as log:
         process=subprocess.Popen(command,cwd=module,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
@@ -44,7 +45,8 @@ require(not any(p.name in ('level.dat','level.dat_old') or p.suffix=='.mca' for 
 stream_report=module/'build/reports/ioe/player-streaming.json'
 archive=module/'build/tmp/ioe-player-streaming-world'
 require(not stream_report.exists() and not archive.exists(),'Streaming evidence already exists')
-command=['gradle','--no-daemon','-PioeIncludeIeRuntime=true','-PioeDepth32Prototype=true',
+command=['gradle','--no-daemon','-Pdomum_version_range=[1.0.234-snapshot]',
+             '-Pjade_version_range=[15.10.5,15.10.6)','-PioeIncludeIeRuntime=true','-PioeDepth32Prototype=true',
          '-PioePlayerStreamingQualification=true','runFullRuntimeGameTestServer']
 with (evidence/'streaming.log').open('w') as log:
     process=subprocess.Popen(command,cwd=module,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)

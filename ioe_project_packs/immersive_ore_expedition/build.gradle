@@ -36,6 +36,7 @@ neoForge {
                 systemProperty "ioe.depth32Pack", project.file("prototype/depth32").absolutePath
             }
             systemProperty "ioe.expectDomumRuntime", "true"
+            systemProperty "ioe.expectJadeRuntime", "true"
             if (providers.gradleProperty("ioePlayerStreamingQualification").isPresent())
                 systemProperty "neoforge.enabledGameTestNamespaces", "ioe_streaming"
             if (providers.gradleProperty('ioeDepth32RestartPhase').isPresent()) {
@@ -100,7 +101,8 @@ def replacementProperties = [
         geore_version_range : geore_version_range,
         ie_version_range    : ie_version_range,
         ip_version_range    : ip_version_range,
-        domum_version_range : domum_version_range
+        domum_version_range : domum_version_range,
+        jade_version_range : jade_version_range
 ]
 
 tasks.named('processResources', ProcessResources).configure {

@@ -757,3 +757,26 @@ Tests runtime récolte/outils/Fortune à graines fixes, croissance/usure et Jade
 CI exacte à consigner dans PR64, sans réutiliser les résultats cb473e3 comme preuve.
 Routage de production Nether OFF ; sites Overworld activés par défaut ; contrats Nether, anciens chunks et protections inchangés.
 Aucune installation/fusion/publication ; validation visuelle non prouvée.
+
+
+## TesT play2 — qualification préalable des intégrations Domum/Jade
+
+Reprise vérifiée sur 4a968c3730cb9f43e48478d45424f7099081fd8a, checkout propre.
+Le propriétaire demande de préserver Domum 1.0.234-snapshot et Jade 15.10.5+neoforge.
+Les JAR de distribution téléchargés pour inspection correspondent exactement aux
+SHA256 transmis du PC (538f8364…372c et 067bb4b0…e92d). Les signatures appelées par
+DomumOrnamentumAdapter, IoeJadePlugin et IoeBuddingProvider sont présentes, y compris
+le constructeur public MaterialTextureData(Map). Aucun changement métier/API n'est
+nécessaire d'après cette inspection ; le comportement doit encore être qualifié.
+
+Première phase : bornes distribuées anciennes conservées, overrides étroits utilisés
+uniquement par le script de qualification CI avec les JAR cibles épinglés/hachés.
+Contrôle JVM public des descripteurs avant lancement, tests Domum placement/NBT/loot
+et Jade enregistrement/tooltip/provenance ; absence de Jade désormais bloquante
+dans la configuration complète. Les compilations conservent les API précédentes
+pour exercer la liaison binaire avec les nouveaux JAR. Aucun succès annoncé avant
+CI au commit exact. L'élargissement d'admission vient après cette preuve.
+
+Aucun changement gameplay/génération : Overworld actif par défaut, Nether fermé,
+OreGuard indépendant, retrogen désactivé. Pas de travail sur le PC, de modification
+des mods tiers, de nettoyage MineColonies, d'installation, fusion ou publication.

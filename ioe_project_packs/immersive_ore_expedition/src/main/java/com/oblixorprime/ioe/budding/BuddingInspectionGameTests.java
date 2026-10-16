@@ -13,6 +13,8 @@ public final class BuddingInspectionGameTests {
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
     public static void jadeShowsActualRankAndCommittedSiteMetadata(GameTestHelper helper) throws ReflectiveOperationException {
         if (!ModList.get().isLoaded("jade")) {
+            helper.assertFalse(Boolean.getBoolean("ioe.expectJadeRuntime"),
+                    "Full-runtime qualification requires the pinned Jade provider");
             helper.succeed();
             return;
         }
