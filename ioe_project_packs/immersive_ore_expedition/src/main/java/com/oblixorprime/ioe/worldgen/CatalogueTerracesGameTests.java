@@ -588,7 +588,7 @@ public final class CatalogueTerracesGameTests {
                 helper.assertTrue(stand(geometry,new BlockPos(x,15,z)),"Upper eight traverse narrowed or lost support");
             for(int x=3;x<=12;x++) for(int z=4;z<=5;z++)
                 helper.assertTrue(stand(geometry,new BlockPos(x,3,z)),"Lower eight traverse narrowed or lost support");
-            for(int x=6;x<=8;x++) for(int y=12;y<=13;y++) for(int z=8;z<=9;z++)
+            for(int x=7;x<=8;x++) for(int y=12;y<=13;y++) for(int z=8;z<=9;z++)
                 helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Upper nucleus is not a solid body");
             for(int x=6;x<=8;x++) for(int y=3;y<=6;y++) for(int z=6;z<=8;z++) {
                 if(x==8 && z==8 || variant==CatalogueTerraces.Variant.EIGHT_SLIT && y<=5 && z>=7) continue;

@@ -451,3 +451,13 @@ separate-process restart. Maximum 2,488 over 12,960 plans; 475-class JAR SHA256
 `2ac0f1436786cb96c33e0bf24fa0f304daa7757a2d665d3280c0dc9ee509df1a`.
 Those results do not qualify BP-02. No installation, merge, release or Nether
 activation. Client/visual qualification remains NOT_PERFORMED.
+
+
+BP-02 qualification at `60b2121` passed all other GameTests but the expanded
+21-form seed matrix exposed a BP-23 B/camp fixture at 2,502 cells. The earlier
+18-form fixture seeds were different; their success was not a global bound.
+The upper BP-23 core is narrowed from three to two cells in X, retaining an
+explicit solid 2×2×2 body. Its lower boundary already belongs to the surrounding
+shell, so this removes two unique writes. Both loops, every route and fixed
+mineral mask remain unchanged. The upper core test checks every retained cell;
+all families and composed contexts are requalified at the new source.

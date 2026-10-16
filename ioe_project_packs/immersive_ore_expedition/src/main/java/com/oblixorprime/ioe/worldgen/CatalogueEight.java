@@ -51,7 +51,7 @@ final class CatalogueEight {
         var blocks = CatalogueTerraces.finish(center,air,false);
         var base = CatalogueTerraces.base(center);
         // Explicit cores cannot disappear when the source terrain contains a cave.
-        for(int x=6;x<=8;x++) for(int y=12;y<=13;y++) for(int z=8;z<=9;z++)
+        for(int x=7;x<=8;x++) for(int y=12;y<=13;y++) for(int z=8;z<=9;z++)
             blocks.put(base.offset(x,y,z),Blocks.STONE.defaultBlockState());
         for(int x=6;x<=8;x++) for(int y=3;y<=6;y++) for(int z=6;z<=8;z++) {
             if (x>=8 && z>=8 || slit && y<=5 && z>=7 && z<=8) continue;
