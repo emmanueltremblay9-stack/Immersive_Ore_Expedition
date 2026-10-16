@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 34 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 33 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-03, BP-05, BP-16, BP-23, BP-27 or BP-37 A/B/C using one eighteen-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-16, BP-23, BP-27 or BP-37 A/B/C using one twenty-one-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -118,7 +118,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
-| 001 | BP-01–BP-10 | BP-03 and BP-05 A/B/C | All A/B/C of the other eight families (24) |
+| 001 | BP-01–BP-10 | BP-02, BP-03 and BP-05 A/B/C | All A/B/C of the other seven families (21) |
 | 002 | BP-11–BP-20 | BP-16 A/B/C | All A/B/C of the other nine families (27) |
 | 003 | BP-21–BP-30 | BP-23 and BP-27 A/B/C | All A/B/C of the other eight families (24) |
 | 004 | BP-31–BP-40 | BP-37 A/B/C | All A/B/C of the other nine families (27) |
@@ -420,3 +420,34 @@ to Z=9–10, and its east side ends there. N3's fixed terminal branch still reac
 Z=12 on the west. Both full-width traverses are now explicitly tested for support
 and three-high clearance; no arm, node or room function is removed. Upper/lower
 circuits remain offset in Z around their distinct cores, within the same envelope.
+
+
+## BP-02 A/B/C: a narrow bayonet fracture
+
+GOV001's proposed dimensions are normalized to FINAL's 15×19×15 envelope,
+fixed entrance and all seven mineral reservations. Two alternating elbows lead
+from the upper east descent across the middle landing to the lower west descent.
+The main fracture has supported two-wide, three-high passages; terminal mineral
+fronts and their immutable masks use the same shared finalizer as every family.
+A has only the two serial descents. B adds an independently backed east descent
+from the middle level to the lower one, rejoining the lower terminal approach.
+C widens the upper elbow into a terrace and extends a short sterile branch;
+cutting that branch leaves all seven mineral fronts reachable. Neither B nor C
+adds a node, reward, cache, reserve or resource draw. The lower room anchor lies
+on the actual lower traverse; survey functions and the other room anchors remain.
+
+Tests cut the upper neck, either/both lower routes, and C's branch in both
+travel directions. Full traverse widths, unique signatures, every fixed mask,
+actual natural placements, idempotent compensation and foreign ladder edits are
+covered. The expanded shared matrix contains 15,120 composed plans and 84 actual
+Feature placement/commit/dedup pairs. The production ceiling stays 2,500; these
+counts describe fixtures, not yet a successful qualification of this source.
+Coverage is 21/120 implemented and 99 pending. Exact CI/JAR evidence follows in
+PR64 after the new source passes both baseline and current-pack runtimes.
+
+Accepted BP-23 predecessor: `cf96d078560ea382b2ee0752045a1a579ce40e55`, 16 green
+jobs, 716 JUnit and 94 minimal + 94 complete GameTests per stack, streaming and
+separate-process restart. Maximum 2,488 over 12,960 plans; 475-class JAR SHA256
+`2ac0f1436786cb96c33e0bf24fa0f304daa7757a2d665d3280c0dc9ee509df1a`.
+Those results do not qualify BP-02. No installation, merge, release or Nether
+activation. Client/visual qualification remains NOT_PERFORMED.

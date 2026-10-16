@@ -11,14 +11,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-/** GOV 60d1c94, BP-03/05/16/23/27/37 A/B/C, geometry version 8. No quality or reward random source. */
+/** GOV 60d1c94, BP-02/03/05/16/23/27/37 A/B/C, geometry version 9. No quality or reward random source. */
 final class CatalogueTerraces {
     private CatalogueTerraces() { }
     enum Variant {
         ALTERNATING, FAN, SPLIT, CROSSING, CROSSING_WINDOW, CROSSING_LOOP,
-        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT;
+        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER;
+        boolean isBayonet() { return this == BAYONET || this == BAYONET_SPLIT || this == BAYONET_SHOULDER; }
         boolean isCrossing() { return this == CROSSING || this == CROSSING_WINDOW || this == CROSSING_LOOP; }
-        boolean isEight() { return this == EIGHT || this == EIGHT_RETURN || this == EIGHT_SLIT; }
+        boolean isEight() { return this == EIGHT || this == EIGHT_RETURN || this == EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER; }
         boolean isPearls() { return this == PEARLS || this == PEARLS_SPLIT || this == PEARLS_SATELLITE; }
         boolean isRails() { return this == RAILS || this == RAILS_SLOPES || this == RAILS_FORK; }
         boolean isSiphon() { return this == SIPHON || this == SIPHON_SPLIT || this == SIPHON_SHOULDER; }
@@ -41,6 +42,7 @@ final class CatalogueTerraces {
         if (variant.isRails()) return CatalogueRails.geometry(center,variant);
         if (variant.isPearls()) return CataloguePearls.geometry(center,variant);
         if (variant.isEight()) return CatalogueEight.geometry(center,variant);
+        if (variant.isBayonet()) return CatalogueBayonet.geometry(center,variant);
         boolean split = variant == Variant.SPLIT;
         var air = new LinkedHashSet<BlockPos>();
         for (int y : new int[]{3, 9, 15}) {

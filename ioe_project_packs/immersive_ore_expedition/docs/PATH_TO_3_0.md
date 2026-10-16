@@ -33,16 +33,17 @@ par pile et streaming/reprise ; maximum 2 482 sur 8 640 plans. JAR non installé
 BP-03 A/B/C `82a9e16` est qualifié : 16 jobs verts, 716 JUnit, 92+92 GameTests
 par pile et streaming/reprise ; maximum 2 488 sur 10 800 plans. JAR non installé :
 `5320a99af024ad1bc4a3681512b982a120ba05d66ca53df91d90055a312de91f`.
-Cycle suivant : BP-23 A/B/C, deux boucles verticales décalées autour de deux
-noyaux, jonction centrale soutenue, retour extérieur B et fente inférieure C.
-Enveloppe, positions, masques, qualités, récompenses, fonctions et plafond conservés.
-Matrice de 12 960 plans, 72 placements réels ; coupures des quatre bras, de J,
-du retour et de la fente, compensation et édition étrangère. Qualification exacte
-suivie dans PR64, sans transfert des preuves précédentes. Carte : 18 variantes
-implémentées, 102 restantes ; deux familles des catalogues 001/003 et une de 002/004.
-Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation
-Nether, fusion ou publication. Le runtime installé reste `382e0b4` ; le reçu
-ci-dessous est distinct du nouveau travail de génération.
+BP-23 A/B/C `cf96d07` est qualifié : 16 jobs verts, 716 JUnit, 94+94 GameTests
+par pile et streaming/reprise ; maximum 2 488 sur 12 960 plans. JAR non installé :
+`2ac0f1436786cb96c33e0bf24fa0f304daa7757a2d665d3280c0dc9ee509df1a`.
+Cycle suivant : BP-02 A/B/C, fracture étroite à deux coudes, descente médiane
+dédoublée B et terrasse haute avec branche stérile C. Raccord au générateur réel,
+positions/masques/qualités/récompenses/fonctions conservés, transitions soutenues.
+Matrice de 15 120 plans, 84 placements réels, coupures des descentes et de la
+branche, compensation idempotente respectant les éditions étrangères. Plafond
+2 500 inchangé ; qualification exacte à suivre dans PR64, sans transfert des
+preuves précédentes. Couverture : 21/120 variantes implémentées, 99 restantes.
+Aucun accès PC, activation Nether, fusion ou publication. Visuel/client non prouvé.
 
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 

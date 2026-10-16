@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || variant.isEight() && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isEight()) assertEightSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isBayonet()) assertBayonetSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isEight()) assertEightSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isPearls()) assertPearlSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isRails()) assertRailsSignatures(helper,plan.blocks(),base,variant);
                     else {
@@ -270,10 +271,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isEight()) assertEightSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isBayonet()) assertBayonetSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isEight()) assertEightSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isPearls()) assertPearlSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else assertRailsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
             } else {
@@ -649,6 +651,65 @@ public final class CatalogueTerracesGameTests {
             }
         }
         helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void bayonetElbowsHaveOnlyTheirSupportedDescents(GameTestHelper helper) {
+        for(var variant : new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.BAYONET,
+                CatalogueTerraces.Variant.BAYONET_SPLIT,CatalogueTerraces.Variant.BAYONET_SHOULDER}) {
+            var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertBayonetSignatures(helper,geometry,BlockPos.ZERO,variant);
+            for(int x=6;x<=12;x++) for(int z=4;z<=5;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,15,z)),"Upper bayonet turn narrowed");
+            for(int x=4;x<=10;x++) for(int z=6;z<=7;z++) {
+                helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"Middle bayonet traverse narrowed");
+                helper.assertTrue(stand(geometry,new BlockPos(x,3,z)),"Lower bayonet traverse narrowed");
+            }
+            var middle = new BlockPos(7,9,7); var low = new BlockPos(3,3,4);
+            var upperCut = new LinkedHashMap<>(geometry);
+            closeWell(upperCut,11,12,6,7,13);
+            helper.assertTrue(!reachable(upperCut,CatalogueTerraces.ENTRANCE).contains(middle)
+                    && !reachable(upperCut,middle).contains(CatalogueTerraces.ENTRANCE),"Upper elbow gained a bypass");
+            for(int mask=0;mask<4;mask++) {
+                var cut = new LinkedHashMap<>(geometry);
+                if((mask&1)!=0) closeWell(cut,2,3,6,7,7);
+                if((mask&2)!=0) closeWell(cut,11,12,8,9,7);
+                boolean connected = variant==CatalogueTerraces.Variant.BAYONET_SPLIT ? mask!=3 : (mask&1)==0;
+                helper.assertTrue(reachable(cut,middle).contains(low)==connected
+                        && reachable(cut,low).contains(middle)==connected,
+                        "Middle split does not have exactly its intended routes: " + variant + " mask=" + mask);
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void bayonetShoulderBranchIsSterileAndOptional(GameTestHelper helper) {
+        var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.BAYONET_SHOULDER);
+        for(int x=9;x<=12;x++) for(int z=6;z<=9;z++)
+            helper.assertTrue(stand(geometry,new BlockPos(x,15,z)),"Upper shoulder lost its widened floor");
+        var terminal = new BlockPos(11,15,11);
+        helper.assertTrue(reachable(geometry,CatalogueTerraces.ENTRANCE).contains(terminal),"Sterile branch unreachable");
+        var cut = new LinkedHashMap<>(geometry);
+        for(int x=11;x<=12;x++) for(int y=15;y<=17;y++) cut.put(new BlockPos(x,y,10),Blocks.STONE.defaultBlockState());
+        var reached = reachable(cut,CatalogueTerraces.ENTRANCE);
+        helper.assertTrue(!reached.contains(terminal) && !reachable(cut,terminal).contains(CatalogueTerraces.ENTRANCE),
+                "Branch has an unintended second connection");
+        for(var heart:CatalogueTerraces.HEARTS)
+            helper.assertTrue(reached.contains(heart.south()),"Optional branch cut disconnected a mineral alcove");
+        helper.succeed();
+    }
+
+    private static void assertBayonetSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(7,15,6),Blocks.STONE.defaultBlockState()).is(Blocks.STONE),
+                "Bayonet entry bypasses the upper elbow");
+        helper.assertTrue(blocks.getOrDefault(base.offset(9,15,6),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.BAYONET_SHOULDER),"Upper shoulder changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(12,6,8),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.BAYONET_SPLIT),"Middle split changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(11,15,11),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.BAYONET_SHOULDER),"Sterile branch changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
