@@ -26,7 +26,11 @@ Cycle suivant : BP-16 B/C, fente visuelle protégée avec paliers décalés et b
 local conservés ; marges des galeries compactées, sols des nouveaux paliers
 explicites. Matrice portée à 4 320 plans et 24 placements réels, tests de ligne de
 vue/collision et coupures indépendantes des deux liaisons. CI exacte suivie dans
-PR64, sans transfert de preuve. Couverture : 6 variantes implémentées, 114 restantes.
+PR64, sans transfert de preuve. Premier run B/C : maximum 2 482 ; correction du
+contexte de rayon et de l'ordre de compensation des voisins du muret. Le journal
+est défait en ordre inverse avec le contrôle exact de propriété inchangé ; un
+test protège explicitement les modifications étrangères. Couverture : 6 variantes
+implémentées, 114 restantes.
 Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation
 Nether, fusion ou publication. Le runtime installé reste `382e0b4` ; le reçu
 ci-dessous est distinct du nouveau travail de génération.

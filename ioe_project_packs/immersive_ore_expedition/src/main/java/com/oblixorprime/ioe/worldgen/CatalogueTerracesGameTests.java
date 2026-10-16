@@ -317,11 +317,22 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(allowed > 0.0 && allowed < 1.0,"Window guard permits walking straight into the slit");
         var eye = new net.minecraft.world.phys.Vec3(base.getX()+6.94,base.getY()+16.62,base.getZ()+7.99);
         var target = new net.minecraft.world.phys.Vec3(base.getX()+7.5,base.getY()+2.5,base.getZ()+8.5);
+        var observer = net.neoforged.neoforge.common.util.FakePlayerFactory.get(level,
+                new com.mojang.authlib.GameProfile(java.util.UUID.nameUUIDFromBytes(
+                        "ioe_window_guard".getBytes(java.nio.charset.StandardCharsets.UTF_8)),"ioe_window"));
+        observer.setPos(eye.x,base.getY()+15,eye.z);
         var hit = level.clip(new net.minecraft.world.level.ClipContext(eye,target,
-                net.minecraft.world.level.ClipContext.Block.VISUAL,net.minecraft.world.level.ClipContext.Fluid.NONE,(net.minecraft.world.entity.Entity)null));
+                net.minecraft.world.level.ClipContext.Block.VISUAL,net.minecraft.world.level.ClipContext.Fluid.NONE,observer));
         helper.assertTrue(hit.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK
                 && hit.getBlockPos().equals(base.offset(7,2,8)),"Guarded visual slit does not reveal the lower floor");
-        helper.assertTrue(applied.rollback(level),"Window placement did not compensate");
+        helper.assertTrue(applied.rollback(level) && applied.rollback(level),"Window placement did not compensate idempotently");
+        helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
+                "Window compensation left neighbor-dependent blocks");
+        var foreign = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
+        level.setBlockAndUpdate(guard,Blocks.DIAMOND_BLOCK.defaultBlockState());
+        helper.assertTrue(foreign.rollback(level) && level.getBlockState(guard).is(Blocks.DIAMOND_BLOCK),
+                "Ordered compensation overwrote a foreign edit");
+        level.setBlockAndUpdate(guard,Blocks.STONE.defaultBlockState());
         helper.succeed();
     }
 

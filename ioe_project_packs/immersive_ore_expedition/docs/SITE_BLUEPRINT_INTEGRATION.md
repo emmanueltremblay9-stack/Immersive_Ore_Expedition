@@ -208,3 +208,17 @@ jobs (baseline 38903350234/38903357582; current pack 38903350173/38903357570),
 716 JUnit and 84+84 GameTests per stack, plus streaming/restart; maximum 2,487
 cells over 2,880 fixtures. Its non-installed JAR contains 471 classes and has
 SHA256 `8bcee2f6efd43fcfe8837e1066ef33ec8dfd787abe1c73f84d4653d055e5b1fa`.
+
+
+First B/C CI findings at `39804fd`: 84 of 86 minimal GameTests passed; the 4,320
+plan matrix measured 2,482 cells, and both structural variants passed placement.
+The visual-ray fixture incorrectly supplied a null entity; it now uses the same
+NeoForge fake-player facility as existing discovery tests. The wall also exposed
+an order-sensitive compensation defect: restoring its neighbors first could
+change its state and make the exact-ownership check skip it. The correction puts
+the guard after its surroundings and retains journal insertion order, undoing
+writes in reverse order. The exact current-state/target comparison is unchanged;
+foreign edits are still preserved, not force-restored. Runtime tests require all
+original stone to return, repeated rollback to succeed and a foreign guard edit
+to survive. This correction requires new exact-source CI, including the existing
+placement/persistence/failure regressions on both stacks.

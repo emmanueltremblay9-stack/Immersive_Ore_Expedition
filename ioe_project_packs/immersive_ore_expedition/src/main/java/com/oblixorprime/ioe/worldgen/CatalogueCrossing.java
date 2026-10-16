@@ -62,7 +62,10 @@ final class CatalogueCrossing {
             blocks.put(base.offset(11,14,8),Blocks.STONE.defaultBlockState());
             blocks.put(base.offset(3,8,5),Blocks.STONE.defaultBlockState());
             // Existing IOE structural palette: a collision guard beside the supported upper path.
-            blocks.put(base.offset(7,15,8),Blocks.STONE_BRICK_WALL.defaultBlockState());
+            // Apply after its surroundings so neighbor-derived state cannot change during composition.
+            BlockPos guard = base.offset(7,15,8);
+            blocks.remove(guard);
+            blocks.put(guard,Blocks.STONE_BRICK_WALL.defaultBlockState());
         }
         if (loop) {
             for (int z = 6; z <= 7; z++) {

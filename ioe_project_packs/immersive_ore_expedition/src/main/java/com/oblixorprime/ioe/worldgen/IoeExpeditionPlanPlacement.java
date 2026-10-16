@@ -130,7 +130,8 @@ final class IoeExpeditionPlanPlacement {
                 boolean active
         ) {
             this.plan = Objects.requireNonNull(plan, "plan");
-            this.previousStates = Map.copyOf(Objects.requireNonNull(previousStates, "previousStates"));
+            this.previousStates = java.util.Collections.unmodifiableMap(
+                    new LinkedHashMap<>(Objects.requireNonNull(previousStates, "previousStates")));
             this.active = new AtomicBoolean(active);
         }
 
@@ -148,7 +149,11 @@ final class IoeExpeditionPlanPlacement {
                 return true;
             }
             boolean restored = true;
-            for (Map.Entry<BlockPos, BlockState> previous : previousStates.entrySet()) {
+            // Undo in reverse write order: restore neighbor-dependent blocks before their supports.
+            // Exact target equality below still protects all foreign changes.
+            var restorationOrder = new java.util.ArrayList<>(previousStates.entrySet());
+            java.util.Collections.reverse(restorationOrder);
+            for (Map.Entry<BlockPos, BlockState> previous : restorationOrder) {
                 try {
                     BlockPos pos = previous.getKey();
                     BlockState target = plan.blocks().get(pos);
