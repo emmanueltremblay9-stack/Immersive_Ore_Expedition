@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isRoots()) assertRootsSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isCells()) assertCellSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isRoots()) assertRootsSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isBayonet()) assertBayonetSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isEight()) assertEightSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isPearls()) assertPearlSignatures(helper,plan.blocks(),base,variant);
@@ -272,10 +273,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isRoots()) assertRootsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isCells()) assertCellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isRoots()) assertRootsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isBayonet()) assertBayonetSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isEight()) assertEightSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isPearls()) assertPearlSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -787,6 +789,88 @@ public final class CatalogueTerracesGameTests {
                 "Terminal roots gained an unintended crossconnection");
         helper.assertTrue(blocks.get(base.offset(5,12,6)).is(Blocks.STONE)
                 && blocks.get(base.offset(6,12,6)).is(Blocks.LADDER),"Trunk backing changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void cellPocketsKeepTheirTwoLoopsOrTheirMiddleSpine(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.CELLS,
+                CatalogueTerraces.Variant.CELLS_SPINE,CatalogueTerraces.Variant.CELLS_DIAGONAL}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertCellSignatures(helper,geometry,BlockPos.ZERO,variant);
+            for(int x=5;x<=10;x++) for(int z=11;z<=12;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"Middle pocket spine narrowed or lost support");
+            for(int x=12;x<=13;x++) for(int z=6;z<=9;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,15,z)),"Upper right pocket route narrowed");
+            if(variant!=CatalogueTerraces.Variant.CELLS_SPINE) {
+                for(int x=8;x<=11;x++) for(int z=6;z<=7;z++)
+                    helper.assertTrue(stand(geometry,new BlockPos(x,15,z)),"Upper transverse pocket link narrowed");
+                for(int x=7;x<=8;x++) for(int z=6;z<=10;z++)
+                    helper.assertTrue(stand(geometry,new BlockPos(x,3,z)),"Lower transverse pocket link narrowed");
+            }
+            // Remove C's extra edge while checking the common eight-edge reference graph.
+            if(variant==CatalogueTerraces.Variant.CELLS_DIAGONAL) closeWell(geometry,8,9,11,12,12);
+            boolean spine=variant==CatalogueTerraces.Variant.CELLS_SPINE;
+            var middle=CatalogueTerraces.HEARTS.get(6).south();
+            for(boolean upper:new boolean[]{false,true}) for(int mask=0;mask<4;mask++) {
+                var cut=new LinkedHashMap<>(geometry);
+                if((mask&1)!=0) {
+                    if(upper) closeWell(cut,2,3,6,7,12); else closeWell(cut,7,8,4,5,6);
+                }
+                if((mask&2)!=0) closeWell(cut,12,13,11,12,upper ? 12 : 6);
+                var left=CatalogueTerraces.HEARTS.get(upper ? 2 : 0).south();
+                var right=CatalogueTerraces.HEARTS.get(upper ? 4 : 3).south();
+                boolean leftConnected=spine ? (mask&1)==0 : mask!=3;
+                boolean rightConnected=spine ? (mask&2)==0 : mask!=3;
+                helper.assertTrue(reachable(cut,middle).contains(left)==leftConnected
+                        && reachable(cut,left).contains(middle)==leftConnected,"Left pocket neck topology changed: " + variant);
+                helper.assertTrue(reachable(cut,middle).contains(right)==rightConnected
+                        && reachable(cut,right).contains(middle)==rightConnected,"Right pocket neck topology changed: " + variant);
+                helper.assertTrue(reachable(cut,left).contains(right)==(!spine || mask==0)
+                        && reachable(cut,right).contains(left)==(!spine || mask==0),"Transverse pocket link changed: " + variant);
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void cellDiagonalIsAnIndependentHighToMiddleConnection(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.CELLS,
+                CatalogueTerraces.Variant.CELLS_SPINE,CatalogueTerraces.Variant.CELLS_DIAGONAL}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var bridgeCut=new LinkedHashMap<>(geometry);
+            for(int y=9;y<=11;y++) for(int z=11;z<=12;z++) bridgeCut.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+            var left=CatalogueTerraces.HEARTS.get(5).south(); var right=CatalogueTerraces.HEARTS.get(1).south();
+            boolean loop=variant!=CatalogueTerraces.Variant.CELLS_SPINE;
+            helper.assertTrue(reachable(bridgeCut,left).contains(right)==loop
+                    && reachable(bridgeCut,right).contains(left)==loop,"Middle spine is bypassed in B or missing a loop in A/C");
+            var cut=new LinkedHashMap<>(geometry);
+            closeWell(cut,2,3,6,7,12);
+            closeWell(cut,12,13,11,12,12);
+            for(int y=15;y<=17;y++) for(int z=6;z<=7;z++) cut.put(new BlockPos(8,y,z),Blocks.STONE.defaultBlockState());
+            var high=CatalogueTerraces.HEARTS.get(2).south(); var otherHigh=CatalogueTerraces.HEARTS.get(4).south();
+            boolean diagonal=variant==CatalogueTerraces.Variant.CELLS_DIAGONAL;
+            helper.assertTrue(reachable(cut,high).contains(right)==diagonal
+                    && reachable(cut,right).contains(high)==diagonal,"C diagonal is not independent of the original upper necks");
+            helper.assertTrue(!reachable(cut,otherHigh).contains(right),"Diagonal accidentally connected the other high pocket");
+            if(diagonal) {
+                closeWell(cut,8,9,11,12,12);
+                helper.assertTrue(!reachable(cut,high).contains(right) && !reachable(cut,right).contains(high),
+                        "C added more than one independent high-to-middle connection");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertCellSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                             BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(8,15,7),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant!=CatalogueTerraces.Variant.CELLS_SPINE),"Upper transverse pocket link changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(7,3,8),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant!=CatalogueTerraces.Variant.CELLS_SPINE),"Lower transverse pocket link changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(8,12,12),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.CELLS_DIAGONAL),"Diagonal pocket neck changed");
+        helper.assertTrue(blocks.get(base.offset(2,10,10)).isAir() && blocks.get(base.offset(13,10,10)).isAir(),
+                "Middle pockets lost their irregular side volumes");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {

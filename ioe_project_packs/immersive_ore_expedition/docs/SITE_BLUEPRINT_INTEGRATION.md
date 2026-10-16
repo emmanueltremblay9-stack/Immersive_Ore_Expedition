@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 32 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 31 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-16, BP-23, BP-27 or BP-37 A/B/C using one twenty-four-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-16, BP-23, BP-27 or BP-37 A/B/C using one twenty-seven-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -118,7 +118,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
-| 001 | BP-01–BP-10 | BP-02, BP-03, BP-05 and BP-06 A/B/C | All A/B/C of the other six families (18) |
+| 001 | BP-01–BP-10 | BP-02, BP-03, BP-05, BP-06 and BP-10 A/B/C | All A/B/C of the other five families (15) |
 | 002 | BP-11–BP-20 | BP-16 A/B/C | All A/B/C of the other nine families (27) |
 | 003 | BP-21–BP-30 | BP-23 and BP-27 A/B/C | All A/B/C of the other eight families (24) |
 | 004 | BP-31–BP-40 | BP-37 A/B/C | All A/B/C of the other nine families (27) |
@@ -491,3 +491,35 @@ Accepted BP-02 predecessor: `eef708fbe0d4f182346aaa0d63f7276613778dc1`, 16 green
 96 minimal + 96 complete GameTests per stack plus streaming/restart; maximum
 2,500 over 15,120 plans. JAR SHA256
 `10d830bd1ca97ef4506e2ea301e2b7800b2539597bba4e516fa2ccfa8252130d`. These results do not qualify BP-06.
+
+
+## BP-10 A/B/C: seven pockets and an explicit connection graph
+
+Seven small, irregular pockets surround the fixed mineral reservations. The
+reference graph is retained: 1–6, 6–3, 4–2, 2–5, 6–7, 7–2, 1–4 and 3–5.
+Two backed necks connect the left pockets through N6; the right neck serves N4,
+N2 and N5. The middle spine passes through N7's pocket. Rock separates that spine
+from a direct N6–N2 shortcut. A's lower and upper transverse links produce two
+loops. B removes precisely those two links, making the middle spine mandatory.
+C adds a separate connection from N3's upper pocket to the edge of N2's middle
+pocket. Its shaft and upper approach remain separated from the original upper
+cross-link. No eighth pocket, node, quality roll or independent reward is added.
+
+Tests cut either/both lower and upper necks, temporarily excluding C's extra
+edge when comparing the base graph. They check each pocket's reachable component
+in both directions, cut B's mandatory middle spine, and isolate C's extra route
+from both original upper necks and the upper transverse link. Cutting that extra
+route then removes the last high-to-middle connection. Full corridor widths,
+fixed masks, real natural placements and ownership-safe compensation are included.
+The lower room anchor follows the actual N1 pocket. Survey functions and the
+upper calcite marker remain unchanged. The 2,500-cell ceiling is unchanged.
+
+Coverage: 27/120 implemented, 93 pending. The expanded matrix contains 19,440
+plans and 108 real placement/commit/dedup pairs. These are fixture counts pending
+exact-source CI qualification, not transferred predecessor results. No PC action,
+merge, release or Nether activation. Visual/client qualification NOT_PERFORMED.
+
+Accepted BP-06 predecessor: `6c47363207ee78b19921df94cd224d5af22dca13`, 16 green jobs, 716 JUnit,
+98 minimal + 98 complete GameTests per stack plus streaming/restart; maximum
+2,499 over 17,280 plans. JAR SHA256
+`7f9d00ed6c2eda7c1238414c1c756d7b59be9c46f14bf88b0bfd33ef82aee16f`. These results do not qualify BP-10.

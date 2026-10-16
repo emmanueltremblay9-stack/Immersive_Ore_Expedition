@@ -39,13 +39,17 @@ par pile et streaming/reprise ; maximum 2 488 sur 12 960 plans. JAR non install�
 BP-02 A/B/C `eef708f` est qualifié : 16 jobs verts, 716 JUnit,
 96+96 GameTests par pile et streaming/reprise ; maximum 2500 sur 15 120 plans.
 JAR non installé : `10d830bd1ca97ef4506e2ea301e2b7800b2539597bba4e516fa2ccfa8252130d`.
-Cycle suivant : BP-06 A/B/C, tronc soutenu, fourche profonde A, fourches étagées B
-et unique liaison latérale C. Positions, masques, budgets et fonctions conservés.
-Matrice de 17 280 plans, 96 placements réels ; coupures du tronc, des descentes,
-d'une branche terminale et de la boucle, compensation avec édition étrangère.
-Qualification exacte à suivre dans PR64, sans transfert des preuves précédentes.
-Couverture 24/120 variantes, 96 restantes. Plafond 2 500 inchangé. Aucun accès PC,
-activation Nether, fusion ou publication. Visuel/client non prouvé.
+BP-06 A/B/C `6c47363` est qualifié : 16 jobs verts, 716 JUnit,
+98+98 GameTests par pile et streaming/reprise ; maximum 2499 sur 17 280 plans.
+JAR non installé : `7f9d00ed6c2eda7c1238414c1c756d7b59be9c46f14bf88b0bfd33ef82aee16f`.
+Cycle suivant : BP-10 A/B/C, sept poches et huit liaisons de référence, deux
+boucles A, épine médiane B et connexion haute/médiane supplémentaire C.
+Positions, masques, budgets, récompenses et fonctions conservés. Matrice de
+19 440 plans, 108 placements réels ; coupures des cols et liaisons transversales,
+compensation idempotente avec édition étrangère. Qualification exacte à suivre
+dans PR64, sans transfert des preuves précédentes. Couverture 27/120, 93 restantes.
+Plafond 2 500 inchangé. Aucun accès PC, activation Nether, fusion ou publication.
+Visuel/client non prouvé.
 
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
