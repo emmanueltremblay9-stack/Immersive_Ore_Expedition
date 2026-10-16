@@ -13,7 +13,7 @@ class PackAdmissionTest {
     @Test
     void admitsQualifiedVersionsAndRejectsUnqualifiedGaps() throws Exception {
         var properties = new Properties();
-        try (var input = Files.newBufferedReader(Path.of("gradle.properties"))) {
+        try (var input = Files.newBufferedReader(Path.of(System.getProperty("ioe.moduleProjectDir"), "gradle.properties"))) {
             properties.load(input);
         }
         check(properties, "ae2cs_version_range", new String[]{"1.1.12", "1.2.1"},
