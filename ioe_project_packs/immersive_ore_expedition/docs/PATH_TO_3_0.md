@@ -169,6 +169,21 @@ Couverture 48/120, 72 restantes. Qualification exacte à suivre sans transfert
 de preuves. Plafond 2 500 inchangé ; pas de PC, installation, fusion, publication
 ou activation Nether. Validation visuelle/client non prouvée.
 
+### BP-11 qualifié ; cycle suivant BP-17 A/B/C
+
+BP-11 accepté sur 03aa1afb2b6bd6f726d90e692d16e8266b57cc9b : 16 jobs verts, 716 JUnit et 115+115
+GameTests par pile, streaming/reprise ; 34 560 plans, 192 placements réels,
+maximum 2499. JAR non installé :
+d2754df8654da3d53a4d8d204b1389240ec5ed85c00683daf0e2c8035ed1d209.
+
+BP-17 : noyau attaché au plafond et pointes libres, passage inférieur de trois
+blocs, fenêtre B entre les pointes et fenêtre C dans le corps, avec coupures
+indépendantes du trajet bas. Masques, accès, fonctions et budgets inchangés.
+Couverture 51/120 implémentées, 69 restantes ; 36 720 plans et 204 placements.
+Qualification exacte à suivre ; plafond 2 500 inchangé, aucun transfert de
+preuves. Pas de PC, installation, fusion, publication ou activation Nether.
+Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

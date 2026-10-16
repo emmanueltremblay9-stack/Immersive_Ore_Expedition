@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isHourglass()) assertHourglassSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isBell()) assertBellSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isHourglass()) assertHourglassSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isSlab()) assertSlabSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isMushroom()) assertMushroomSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isAxial()) assertAxialSignatures(helper,plan.blocks(),base,variant);
@@ -286,10 +287,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isHourglass()) assertHourglassSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isBell()) assertBellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isHourglass()) assertHourglassSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isSlab()) assertSlabSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isMushroom()) assertMushroomSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isAxial()) assertAxialSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -1424,6 +1426,83 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.HOURGLASS_BALCONY),"Balcony lateral descent changed");
         helper.assertTrue(blocks.get(base.offset(9,14,8)).is(Blocks.STONE)
                 == (variant==CatalogueTerraces.Variant.HOURGLASS_BALCONY),"Large balcony overhang changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void bellCoresHangFromRoofAboveAnUnobstructedLowerReturn(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.BELL,
+                CatalogueTerraces.Variant.BELL_FORK,CatalogueTerraces.Variant.BELL_WINDOW}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertBellSignatures(helper,g,BlockPos.ZERO,variant);
+            for(int x=5;x<=11;x++) for(int z=6;z<=7;z++) {
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)),"Hanging core narrowed the supported lower crossing");
+                for(int y=3;y<=5;y++) helper.assertTrue(g.get(new BlockPos(x,y,z)).isAir(),
+                        "Hanging core became a pillar or blocked the three-high lower crossing");
+            }
+            for(int y:new int[]{6,7,10,11,16,17}) {
+                int left=variant==CatalogueTerraces.Variant.BELL_FORK?4:7;
+                int right=variant==CatalogueTerraces.Variant.BELL_WINDOW?12:11;
+                helper.assertTrue(g.get(new BlockPos(left,y,6)).isAir()
+                        && g.get(new BlockPos(right,y,6)).isAir(),"Clapper flank merged into a side wall");
+            }
+            var top=new BlockPos(7,15,7);var mid=new BlockPos(7,9,5);var low=new BlockPos(7,3,7);
+            for(var end:java.util.List.of(mid,low)) helper.assertTrue(reachable(g,top).contains(end)
+                    && reachable(g,end).contains(top),"Bell side descents lack a supported return");
+            if(variant==CatalogueTerraces.Variant.BELL_WINDOW) {
+                for(int y=8;y<=18;y++) helper.assertTrue(g.get(new BlockPos(8,y,6)).is(Blocks.STONE),
+                        "Pierced clapper lost its continuous roof-side attachment");
+                for(int y=6;y<=8;y++) helper.assertTrue(g.get(new BlockPos(9,y,6)).is(Blocks.STONE),
+                        "Pierced clapper lost its free tip connection");
+            } else {
+                for(int y=6;y<=18;y++) helper.assertTrue(g.get(new BlockPos(9,y,6)).is(Blocks.STONE),
+                        "Clapper detached from the roof");
+                if(variant==CatalogueTerraces.Variant.BELL_FORK) {
+                    for(int y=6;y<=18;y++) helper.assertTrue(g.get(new BlockPos(6,y,6)).is(Blocks.STONE),
+                            "Second free tip detached from its common roof attachment");
+                    for(int x=6;x<=9;x++) helper.assertTrue(g.get(new BlockPos(x,18,6)).is(Blocks.STONE),
+                            "Bifid clapper lost its common roof attachment");
+                }
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void bellMiddleWindowsRemainSeparateFromTheLowerCrossing(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.BELL_FORK,
+                CatalogueTerraces.Variant.BELL_WINDOW}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            boolean fork=variant==CatalogueTerraces.Variant.BELL_FORK;
+            int x1=fork?7:9;
+            for(int x=x1;x<=x1+1;x++) for(int z=6;z<=7;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,9,z)),"Middle window lacks a two-wide supported crossing");
+            var cut=new LinkedHashMap<>(g);
+            // Isolate the middle level from the independent side descents.
+            for(int y:new int[]{6,12}) {closeWell(cut,3,4,6,7,y);closeWell(cut,12,13,4,5,y);}
+            if(!fork) closeWell(cut,6,7,6,7,9);
+            var north=new BlockPos(7,9,5);var south=new BlockPos(7,9,8);
+            helper.assertTrue(reachable(cut,north).contains(south) && reachable(cut,south).contains(north),
+                    "Middle window depends on a lower or upper bypass");
+            closeWell(cut,x1,x1+1,6,7,9);
+            helper.assertTrue(!reachable(cut,north).contains(south) && !reachable(cut,south).contains(north),
+                    "Middle window cut retained an unintended same-level bypass");
+            var lowNorth=new BlockPos(7,3,5);var lowSouth=new BlockPos(7,3,8);
+            helper.assertTrue(reachable(cut,lowNorth).contains(lowSouth) && reachable(cut,lowSouth).contains(lowNorth),
+                    "Middle window cut removed the distinct lower crossing");
+        }
+        helper.succeed();
+    }
+
+    private static void assertBellSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                             BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(6,6,6)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.BELL_FORK),"Second hanging tip changed");
+        helper.assertTrue(blocks.get(base.offset(8,9,6)).isAir()
+                == (variant==CatalogueTerraces.Variant.BELL_FORK),"Space between the two tips changed");
+        helper.assertTrue(blocks.get(base.offset(9,9,6)).isAir()
+                == (variant==CatalogueTerraces.Variant.BELL_WINDOW),"Pierced single-body window changed");
+        helper.assertTrue(blocks.get(base.offset(9,5,6)).isAir()
+                && blocks.get(base.offset(9,6,6)).is(Blocks.STONE),"Clapper no longer stops above the floor");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
