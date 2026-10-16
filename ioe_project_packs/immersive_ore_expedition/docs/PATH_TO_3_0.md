@@ -994,3 +994,13 @@ check the same exact geometry metadata halo as the GeOre/catalogue fixtures.
 The separate missing-neighbor test still requires rejection without forced
 loads. Production guards, geometry, rewards and the 2,500-cell cap are unchanged.
 This correction needs a new exact-source CI; ea22bd7 is not qualified.
+
+
+### BP-26 — composed-budget correction
+
+Candidate 9b18ada reached 2,920 cells in the composed MINER_CAMP Motherlode
+matrix and C was refused by actual placement. The new cap trims unused rear
+shoulders and tapers the intermediate viewing space around the exposed single
+stem. Walkable base/underside routes, upper cap, B's slit and C's isthmus remain;
+no main passage is narrowed. The 2,500-cell guard, fixed masks and rewards are
+unchanged. New exact-source CI is required; the failed candidate is not qualified.

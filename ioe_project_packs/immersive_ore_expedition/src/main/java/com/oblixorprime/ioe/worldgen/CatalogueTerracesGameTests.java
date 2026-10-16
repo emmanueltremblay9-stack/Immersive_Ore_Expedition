@@ -1205,6 +1205,12 @@ public final class CatalogueTerracesGameTests {
             assertMushroomSignatures(helper,geometry,BlockPos.ZERO,variant);
             for(int x=7;x<=8;x++) for(int z=6;z<=7;z++) for(int y=2;y<=11;y++)
                 helper.assertTrue(geometry.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Single rooted stem was cut or mineralized");
+            for(int y=6;y<=7;y++) {
+                for(int x:new int[]{6,9}) for(int z=6;z<=7;z++)
+                    helper.assertTrue(geometry.get(new BlockPos(x,y,z)).isAir(),"Stem merged into a side wall at its waist");
+                for(int z:new int[]{5,8}) for(int x=7;x<=8;x++)
+                    helper.assertTrue(geometry.get(new BlockPos(x,y,z)).isAir(),"Stem merged into a front or rear wall at its waist");
+            }
             var top=new BlockPos(7,15,7); var below=new BlockPos(7,9,9); var bottom=new BlockPos(5,3,7);
             for(var end:java.util.List.of(below,bottom)) helper.assertTrue(reachable(geometry,top).contains(end)
                     && reachable(geometry,end).contains(top),"Cap top/underside/base lacks a supported return");

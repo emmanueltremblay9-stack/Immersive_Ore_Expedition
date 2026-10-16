@@ -18,8 +18,9 @@ final class CatalogueMushroom {
         boolean lobes = variant == CatalogueTerraces.Variant.MUSHROOM_LOBES;
         var cap = new LinkedHashSet<BlockPos>();
         footprint(cap,6,10,3,4);
-        footprint(cap,3,11,5,8);
-        footprint(cap,4,10,9,10);
+        footprint(cap,5,11,5,6);
+        footprint(cap,4,11,7,8);
+        footprint(cap,4,6,9,10);
         footprint(cap,3,6,11,12);
         var splitCap = new LinkedHashSet<BlockPos>();
         footprint(splitCap,7,11,3,7);
@@ -27,11 +28,15 @@ final class CatalogueMushroom {
         footprint(splitCap,6,8,7,8);
         var air = new LinkedHashSet<BlockPos>();
         for(var cell:cap) {
-            for(int y=3;y<=11;y++) air.add(cell.atY(y));
+            for(int y=9;y<=11;y++) air.add(cell.atY(y));
             for(int y=15;y<=17;y++) air.add(cell.atY(y));
             if(lobes && !splitCap.contains(cell)) for(int y=12;y<=14;y++) air.add(cell.atY(y));
         }
         if(lobes) for(var cell:splitCap) for(int y=15;y<=17;y++) air.add(cell.atY(y));
+        // A broad walkable base and upper underside surround a narrower, non-walkable
+        // viewing waist. The single stem remains exposed on every side through it.
+        room(air,5,10,3,4,9);
+        well(air,6,9,5,8,6,8);
         room(air,3,6,3,4,5);
         room(air,11,12,3,4,9);
         room(air,8,9,3,8,12);

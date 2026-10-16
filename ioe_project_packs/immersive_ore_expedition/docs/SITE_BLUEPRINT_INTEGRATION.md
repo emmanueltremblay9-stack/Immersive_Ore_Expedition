@@ -756,3 +756,13 @@ Accepted BP-31 source 05d8587fdd77e367b9f43bb8e7d1489e8f8f3670: 16 successful jo
 109 minimal + 109 complete GameTests per stack plus streaming/restart; maximum
 2,497 cells over 28,080 plans. Its JAR SHA256 is
 57461f20eb775238abdf7e47b736eec465c06916df2f8afd76fc7c3649352983. These remain predecessor proofs only.
+
+
+### BP-26 — composed-budget correction
+
+Candidate 9b18ada reached 2,920 cells in the composed MINER_CAMP Motherlode
+matrix and C was refused by actual placement. The new cap trims unused rear
+shoulders and tapers the intermediate viewing space around the exposed single
+stem. Walkable base/underside routes, upper cap, B's slit and C's isthmus remain;
+no main passage is narrowed. The 2,500-cell guard, fixed masks and rewards are
+unchanged. New exact-source CI is required; the failed candidate is not qualified.
