@@ -65,6 +65,22 @@ une fois les seules métadonnées de fixture disponibles. Aucun garde-fou de pro
 ni géométrie modifié dans cette correction. Qualification du nouveau source à suivre
 sur PR64 ; les échecs précédents ne sont pas des preuves de réussite.
 
+### BP-14 qualifié ; cycle suivant BP-24 A/B/C
+
+BP-14 accepté sur 17fc48887358e8ffb94a6cb4b67cb85b115b0cda : 16 jobs verts,
+716 JUnit et 103+103 GameTests par pile, streaming/reprise ; 21 600 plans,
+120 placements réels, maximum 2 494. JAR non installé, SHA256
+8f42a09a7e420b1818b00940cb769af51d9db847e3d5217f0d44e36fa2b3fe78.
+Le refus MINER_CAMP/COMB était le halo de métadonnées absent dans la fixture ;
+le test négatif confirme le refus sans chargement forcé, puis l’admission.
+
+Suite autorisée : BP-24 A/B/C, becs alternés attachés aux parois, fenêtre médiane
+B et encoche haute C. Positions, masques, fonctions, accès et budgets conservés ;
+23 760 plans, 132 placements réels et coupures de parcours dans les deux sens.
+Couverture 33/120, 87 restantes. Qualification exacte à suivre dans PR64 ; les
+preuves BP-14 ne sont pas transférées. Plafond 2 500 inchangé, aucun accès PC,
+installation, fusion, publication ou activation Nether. Visuel/client non prouvé.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

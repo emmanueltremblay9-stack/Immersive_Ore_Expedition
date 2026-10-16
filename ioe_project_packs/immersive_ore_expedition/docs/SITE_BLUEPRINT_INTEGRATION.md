@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 30 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 29 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-14, BP-16, BP-23, BP-27 or BP-37 A/B/C using one thirty-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-14, BP-16, BP-23, BP-24, BP-27 or BP-37 A/B/C using one thirty-three-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -120,7 +120,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | --- | --- | --- | --- |
 | 001 | BP-01–BP-10 | BP-02, BP-03, BP-05, BP-06 and BP-10 A/B/C | All A/B/C of the other five families (15) |
 | 002 | BP-11–BP-20 | BP-14 and BP-16 A/B/C | All A/B/C of the other eight families (24) |
-| 003 | BP-21–BP-30 | BP-23 and BP-27 A/B/C | All A/B/C of the other eight families (24) |
+| 003 | BP-21–BP-30 | BP-23, BP-24 and BP-27 A/B/C | All A/B/C of the other seven families (21) |
 | 004 | BP-31–BP-40 | BP-37 A/B/C | All A/B/C of the other nine families (27) |
 
 A future family must pass the same route/node-mask/complete-budget qualification
@@ -582,3 +582,45 @@ reserved upper air face and every three-high route. C's redundant outer wall
 rows below/above its three-high side wall are omitted; the shell already supplies
 that entire wall, now asserted cell by cell. No room function, alcove or mandatory
 route is removed. Full qualification restarts without raising the cap.
+
+
+## BP-24 A/B/C: interleaved wall-rooted beaks
+
+Three rock beaks remain attached alternately to the west/east/west walls. Their
+points overlap in projection but are separated vertically by explicit air gaps.
+The route contours the upper point, descends south of the middle beak, contours
+its western point, descends to the north of the low beak, then contours its east
+point. Each principal corridor is two blocks wide, three high and supported;
+two backed ladder pairs provide the changes in height. No moving rock or trap.
+
+B opens a two-wide, three-high window through the middle root, preserving its
+floor, roof and side frames. C splits the upper mass with a walkable notch;
+the unequal prongs retain their common solid base and wall attachment. The outer
+contour remains available. The fixed mineral positions and growth/periphery masks
+are unchanged. Room anchors follow the actual middle south and lower north routes;
+all access, survey, cache and reward functions are retained.
+
+The catalogue's proposed 23-high envelope, entrance and node orientation are
+normalized to FINAL_DESIGN's 15×19×15 envelope, E=(7,15,1), seven fixed nodes and
+existing masks. This changes geometry only, not quality/rank selection, node or
+reward budgets, independent lotteries or resource admission. DRY remains sterile
+apart from its existing contracted residues/cache.
+
+Two specific GameTests verify wall roots, continuous bases, vertical separation,
+supported contour widths and bidirectional reachability after cutting each point
+contour. Only B's root window or C's upper notch can provide the corresponding
+alternative; cutting that alternative removes the last connection. All forms
+also enter the shared mask/quality/DRY/compensation and real-generator tests.
+The existing fixture-only metadata halo covers wall-edge collision margins;
+production still refuses unavailable metadata without loading chunks.
+
+Coverage in this source: 33/120 variants, 87 pending. Matrix: 23,760 composed
+plans and 132 real placement/commit/dedup pairs. Qualification is pending at the
+new exact source; the 2,500-cell production limit remains unchanged.
+
+Accepted BP-14 source: 17fc48887358e8ffb94a6cb4b67cb85b115b0cda, 16 successful jobs,
+716 JUnit, 103 minimal + 103 complete GameTests per stack plus streaming/restart;
+maximum 2,494 across 21,600 plans. Its 479-class JAR SHA256 is
+8f42a09a7e420b1818b00940cb769af51d9db847e3d5217f0d44e36fa2b3fe78.
+Those proofs remain independent of this new source. No install, merge, release or
+Nether activation. Client/visual qualification remains NOT_PERFORMED.

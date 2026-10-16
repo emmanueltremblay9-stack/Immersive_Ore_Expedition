@@ -11,12 +11,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-/** GOV 60d1c94, BP-02/03/05/06/10/14/16/23/27/37 A/B/C, geometry version 12. No quality or reward random source. */
+/** GOV 60d1c94, BP-02/03/05/06/10/14/16/23/24/27/37 A/B/C, geometry version 13. No quality or reward random source. */
 final class CatalogueTerraces {
     private CatalogueTerraces() { }
     enum Variant {
         ALTERNATING, FAN, SPLIT, CROSSING, CROSSING_WINDOW, CROSSING_LOOP,
-        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER, ROOTS, ROOTS_STAGED, ROOTS_JOINED, CELLS, CELLS_SPINE, CELLS_DIAGONAL, COMB, COMB_WINDOW, COMB_DIVIDED;
+        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER, ROOTS, ROOTS_STAGED, ROOTS_JOINED, CELLS, CELLS_SPINE, CELLS_DIAGONAL, COMB, COMB_WINDOW, COMB_DIVIDED, TEETH, TEETH_WINDOW, TEETH_NOTCH;
+        boolean isTeeth() { return this == TEETH || this == TEETH_WINDOW || this == TEETH_NOTCH; }
         boolean isComb() { return this == COMB || this == COMB_WINDOW || this == COMB_DIVIDED; }
         boolean isCells() { return this == CELLS || this == CELLS_SPINE || this == CELLS_DIAGONAL; }
         boolean isRoots() { return this == ROOTS || this == ROOTS_STAGED || this == ROOTS_JOINED; }
@@ -49,6 +50,7 @@ final class CatalogueTerraces {
         if (variant.isRoots()) return CatalogueRoots.geometry(center,variant);
         if (variant.isCells()) return CatalogueCells.geometry(center,variant);
         if (variant.isComb()) return CatalogueComb.geometry(center,variant);
+        if (variant.isTeeth()) return CatalogueTeeth.geometry(center,variant);
         boolean split = variant == Variant.SPLIT;
         var air = new LinkedHashSet<BlockPos>();
         for (int y : new int[]{3, 9, 15}) {

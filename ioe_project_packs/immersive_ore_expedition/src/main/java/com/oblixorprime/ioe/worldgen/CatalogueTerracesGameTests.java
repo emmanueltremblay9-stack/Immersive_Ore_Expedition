@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isComb()) assertCombSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isTeeth()) assertTeethSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isComb()) assertCombSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isCells()) assertCellSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isRoots()) assertRootsSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isBayonet()) assertBayonetSignatures(helper,plan.blocks(),base,variant);
@@ -289,10 +290,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isComb()) assertCombSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isTeeth()) assertTeethSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isComb()) assertCombSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isCells()) assertCellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isRoots()) assertRootsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isBayonet()) assertBayonetSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -985,6 +987,79 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.COMB_DIVIDED),"Side detour changed");
         helper.assertTrue(blocks.get(base.offset(8,9,4)).is(Blocks.STONE_STAIRS)
                 && stand(blocks,base.offset(9,10,4)),"Collector lost its level change");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void teethStayRootedAndTheirPointContoursStayWalkable(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.TEETH,
+                CatalogueTerraces.Variant.TEETH_WINDOW,CatalogueTerraces.Variant.TEETH_NOTCH}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertTeethSignatures(helper,geometry,BlockPos.ZERO,variant);
+            for(int x=0;x<=8;x++) helper.assertTrue(geometry.get(new BlockPos(x,14,6)).is(Blocks.STONE),
+                    "Upper prongs lost their common wall-rooted base");
+            for(int x=7;x<=14;x++) helper.assertTrue(geometry.get(new BlockPos(x,8,6)).is(Blocks.STONE),
+                    "Middle beak lost its root");
+            for(int x=0;x<=7;x++) helper.assertTrue(geometry.get(new BlockPos(x,2,6)).is(Blocks.STONE),
+                    "Lower beak lost its root");
+            for(int x=7;x<=8;x++) helper.assertTrue(geometry.get(new BlockPos(x,13,6)).isAir(),
+                    "Upper and middle beaks touched");
+            for(int y=6;y<=7;y++) for(int z=6;z<=7;z++) helper.assertTrue(geometry.get(new BlockPos(7,y,z)).isAir(),
+                    "Middle and lower beaks touched");
+            for(int z=5;z<=6;z++) for(int x=9;x<=10;x++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,15,z)),"Upper point contour narrowed");
+            for(int z=6;z<=7;z++) {
+                for(int x=5;x<=6;x++) helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"Middle point contour narrowed");
+                for(int x=8;x<=9;x++) helper.assertTrue(stand(geometry,new BlockPos(x,3,z)),"Lower point contour narrowed");
+            }
+            var cut=new LinkedHashMap<>(geometry);
+            for(int x=8;x<=9;x++) for(int y=3;y<=5;y++) cut.put(new BlockPos(x,y,6),Blocks.STONE.defaultBlockState());
+            var north=CatalogueTerraces.HEARTS.get(0).south(); var south=CatalogueTerraces.HEARTS.get(3).south();
+            helper.assertTrue(!reachable(cut,north).contains(south) && !reachable(cut,south).contains(north),
+                    "Lower beak is bypassed outside its point");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void teethWindowAndUpperNotchAddOnlyTheirOwnAlternatives(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.TEETH,
+                CatalogueTerraces.Variant.TEETH_WINDOW,CatalogueTerraces.Variant.TEETH_NOTCH}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var upper=new LinkedHashMap<>(geometry);
+            for(int x=9;x<=10;x++) for(int y=15;y<=17;y++) upper.put(new BlockPos(x,y,6),Blocks.STONE.defaultBlockState());
+            var high=CatalogueTerraces.HEARTS.get(2).south();
+            boolean notch=variant==CatalogueTerraces.Variant.TEETH_NOTCH;
+            helper.assertTrue(reachable(upper,CatalogueTerraces.ENTRANCE).contains(high)==notch
+                    && reachable(upper,high).contains(CatalogueTerraces.ENTRANCE)==notch,"Upper notch missing or shared by another variant");
+            if(notch) {
+                for(int x=5;x<=6;x++) for(int y=15;y<=17;y++) upper.put(new BlockPos(x,y,6),Blocks.STONE.defaultBlockState());
+                helper.assertTrue(!reachable(upper,CatalogueTerraces.ENTRANCE).contains(high)
+                        && !reachable(upper,high).contains(CatalogueTerraces.ENTRANCE),"Upper beak gained a third passage");
+            }
+            var middle=new LinkedHashMap<>(geometry);
+            for(int x=5;x<=6;x++) for(int y=9;y<=11;y++) middle.put(new BlockPos(x,y,6),Blocks.STONE.defaultBlockState());
+            var north=CatalogueTerraces.HEARTS.get(5).south(); var south=CatalogueTerraces.HEARTS.get(1).south();
+            boolean window=variant==CatalogueTerraces.Variant.TEETH_WINDOW;
+            helper.assertTrue(reachable(middle,north).contains(south)==window
+                    && reachable(middle,south).contains(north)==window,"Middle root window missing or shared by another variant");
+            if(window) {
+                for(int x=11;x<=12;x++) for(int y=9;y<=11;y++) middle.put(new BlockPos(x,y,6),Blocks.STONE.defaultBlockState());
+                helper.assertTrue(!reachable(middle,north).contains(south) && !reachable(middle,south).contains(north),
+                        "Middle beak gained a third passage");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertTeethSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                              BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(11,9,6)).isAir()
+                == (variant==CatalogueTerraces.Variant.TEETH_WINDOW),"Middle root window changed");
+        helper.assertTrue(blocks.get(base.offset(5,15,6)).isAir()
+                == (variant==CatalogueTerraces.Variant.TEETH_NOTCH),"Upper notch changed");
+        helper.assertTrue(blocks.get(base.offset(0,15,6)).is(Blocks.STONE)
+                && blocks.get(base.offset(14,9,7)).is(Blocks.STONE)
+                && blocks.get(base.offset(0,3,6)).is(Blocks.STONE),"Alternating wall roots changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
