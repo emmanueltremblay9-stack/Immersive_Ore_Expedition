@@ -2,6 +2,7 @@
 """Two sequential invocations of the SAME existing full-runtime profile; CI fixture only."""
 import hashlib,json,os,secrets,subprocess,sys
 from pathlib import Path
+from current_pack_arguments import arguments
 
 module=Path(__file__).resolve().parents[1]
 root=module/'run/gametest-full'
@@ -16,7 +17,7 @@ def digest(p):
         for b in iter(lambda:f.read(65536),b''):h.update(b)
     return h.hexdigest()
 def run(phase):
-    command=['gradle','--no-daemon','-PioeIncludeIeRuntime=true','-PioeDepth32Prototype=true',
+    command=['gradle','--no-daemon',*arguments(),'-PioeIncludeIeRuntime=true','-PioeDepth32Prototype=true',
              '-PioeDepth32RestartPhase='+phase,'runFullRuntimeGameTestServer']
     with (evidence/(phase+'.log')).open('w') as log:
         process=subprocess.Popen(command,cwd=module,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
@@ -44,7 +45,7 @@ require(not any(p.name in ('level.dat','level.dat_old') or p.suffix=='.mca' for 
 stream_report=module/'build/reports/ioe/player-streaming.json'
 archive=module/'build/tmp/ioe-player-streaming-world'
 require(not stream_report.exists() and not archive.exists(),'Streaming evidence already exists')
-command=['gradle','--no-daemon','-PioeIncludeIeRuntime=true','-PioeDepth32Prototype=true',
+command=['gradle','--no-daemon',*arguments(),'-PioeIncludeIeRuntime=true','-PioeDepth32Prototype=true',
          '-PioePlayerStreamingQualification=true','runFullRuntimeGameTestServer']
 with (evidence/'streaming.log').open('w') as log:
     process=subprocess.Popen(command,cwd=module,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
