@@ -1150,8 +1150,8 @@ def validate() -> None:
     require(len(domum_entries) == 1, "full-runtime lock must contain exactly one Domum artifact")
     if len(domum_entries) == 1:
         entry = domum_entries[0]
-        require(entry.get("filename") == "domum-ornamentum-1.0.231-main.jar", "unexpected Domum runtime file")
-        require(entry.get("sha512") == "483061574a8452ce6b5b25779431540fc4e444123a987633546b290e9beb03ce094d0bdb80f28fb1dbc2317fd91d1dfbde1c4c0619dbf124768744cb8bc6ea35",
+        require(entry.get("filename") == "domum-ornamentum-1.0.234-snapshot-main.jar", "unexpected Domum runtime file")
+        require(entry.get("sha512") == "7c6ebdd08ca95e445724f1b87f00d18b9f6a72166696d02f0af2d4f97326fe95096ff0d62effbf1f99076fb10f6f92be86c792005b984433f8e66099f8b5a878",
                 "Domum runtime SHA-512 differs from authoritative Maven evidence")
 
     dimension_rows = csv_rows(DOCS / "STRUCTURE_DIMENSION_REPORT.csv")
@@ -1284,7 +1284,7 @@ def validate() -> None:
         "160 anchor/rotation/quality collision cases, "
         "family-specific shelter geometry, two-block circulation headroom, 48-block anchor spacing, "
         "one deterministic selector, zero surface ores, "
-        "four tiered utility loot tables, optional Domum 1.0.231 API/main contract"
+        "four tiered utility loot tables, optional Domum 1.0.231 API / 1.0.234-snapshot runtime contract"
     )
 
 
