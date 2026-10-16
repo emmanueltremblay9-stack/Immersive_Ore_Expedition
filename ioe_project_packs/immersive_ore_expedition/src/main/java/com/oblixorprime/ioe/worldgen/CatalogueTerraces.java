@@ -14,6 +14,7 @@ import java.util.Map;
 /** GOV 60d1c94, BP-05 A/C, geometry version 1. No quality or reward random source. */
 final class CatalogueTerraces {
     private CatalogueTerraces() { }
+    static final BlockPos ENTRANCE = new BlockPos(7,15,1);
     static final List<BlockPos> HEARTS = List.of(new BlockPos(3, 3, 3), new BlockPos(11, 9, 11),
             new BlockPos(3, 15, 11), new BlockPos(11, 3, 11), new BlockPos(11, 15, 3),
             new BlockPos(7, 9, 3), new BlockPos(3, 9, 9));
@@ -38,6 +39,9 @@ final class CatalogueTerraces {
                 }
             }
         }
+        // Catalogue entrance E, with a two-wide approach into the upper terrace.
+        for (int x = 6; x <= 7; x++) for (int y = 15; y <= 17; y++)
+            air.add(new BlockPos(x,y,1));
         // Two-block-wide, backed ladder routes, offset east and west.
         for (int y = 9; y <= 17; y++) for (int x = 11; x <= 12; x++)
             for (int z = 6; z <= 7; z++) air.add(new BlockPos(x,y,z));
@@ -85,14 +89,20 @@ final class CatalogueTerraces {
 
     static Map<BlockPos, BlockState> nodes(BlockPos center, BlockState ore,
                      BlockState heart, int total, int nodes) {
-        if (nodes <= 0 || nodes > HEARTS.size() || total % nodes != 0
-                || total / nodes - 1 < 4 || total / nodes - 1 > 7)
-            throw new IllegalArgumentException("Catalogue nodes require canonical equal budgets");
+        int peripheral = switch (nodes) {
+            case 3 -> 4;
+            case 4 -> 5;
+            case 5 -> 6;
+            case 7 -> 7;
+            default -> throw new IllegalArgumentException("Catalogue nodes require 3/4/5/7 hearts");
+        };
+        if (total != nodes * (peripheral + 1))
+            throw new IllegalArgumentException("Catalogue nodes require exact canonical peripheral budgets");
         var blocks = new LinkedHashMap<BlockPos, BlockState>();
         for (BlockPos local : HEARTS.subList(0, nodes)) {
             BlockPos pos = base(center).offset(local);
             blocks.put(pos, heart);
-            for (BlockPos offset : ORE.subList(0, total / nodes - 1)) blocks.put(pos.offset(offset), ore);
+            for (BlockPos offset : ORE.subList(0, peripheral)) blocks.put(pos.offset(offset), ore);
             for (BlockPos offset : AIR) blocks.put(pos.offset(offset), Blocks.AIR.defaultBlockState());
         }
         return blocks;

@@ -16,6 +16,7 @@ PR64 branch. Authority reference: GOV `60d1c9453aaf91f1e90a6ba113f106ac51238cf9`
 
 `CatalogueTerraces` composes explicit voxel geometry for BP-05 A (offset terraces)
 and C (split middle terrace with bridge), in the proposed 15×19×15 envelope.
+Entry E=(7,15,1) has a supported two-wide, three-high approach.
 The three circulation levels are Y=3/9/15; two offset, backed ladder routes connect
 them. Differing footprints and the middle bridge change the actual solid/air map,
 not only rotation, palette or a seed. Only a one-block shell is written; no whole

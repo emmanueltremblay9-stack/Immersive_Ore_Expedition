@@ -41,13 +41,21 @@ public final class CatalogueTerracesGameTests {
                 int ore = nodes == 0 ? 0 : nodes * (nodes == 7 ? 7 : nodes+1);
                 helper.assertTrue(composed.values().stream().filter(s -> s.is(Blocks.IRON_ORE)).count() == ore,
                         "Peripheral budget changed");
-                Set<BlockPos> reached = reachable(composed, center);
+                Set<BlockPos> reached = reachable(composed, CatalogueTerraces.ENTRANCE);
+                helper.assertTrue(reached.contains(center), "Entrance does not reach the upper terrace");
                 for (BlockPos heart : CatalogueTerraces.HEARTS) {
                     helper.assertTrue(reached.contains(heart.south()), "Unreachable alcove: " + heart + " split=" + split);
                     for (BlockPos offset : CatalogueTerraces.AIR)
                         helper.assertTrue(composed.get(heart.offset(offset)).isAir(), "Growth mask overwritten");
                 }
             }
+        }
+        for (int[] invalid : new int[][]{{2,10},{6,42},{3,24},{7,49}}) {
+            boolean rejected = false;
+            try { CatalogueTerraces.nodes(center, Blocks.IRON_ORE.defaultBlockState(),
+                    Blocks.BUDDING_AMETHYST.defaultBlockState(), invalid[1],invalid[0]); }
+            catch (IllegalArgumentException expected) { rejected = true; }
+            helper.assertTrue(rejected, "Noncanonical budget accepted");
         }
         var a = CatalogueTerraces.geometry(center,false);
         var c = CatalogueTerraces.geometry(center,true);
