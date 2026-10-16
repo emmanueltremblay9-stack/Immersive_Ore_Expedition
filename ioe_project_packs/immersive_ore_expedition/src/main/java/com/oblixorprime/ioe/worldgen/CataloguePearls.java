@@ -52,8 +52,8 @@ final class CataloguePearls {
             box(air,8,11,11,12,9,11); // unchanged east-middle node front
         }
         if (satellite) {
-            box(air,11,12,8,11,15,17);
-            column(air,11,12,15,17);
+            // Two-wide entrance plus a 2x2 terminal alcove; no independent reward or node.
+            box(air,11,12,8,10,15,17);
         }
         var blocks = CatalogueTerraces.finish(center,air);
         var base = CatalogueTerraces.base(center);

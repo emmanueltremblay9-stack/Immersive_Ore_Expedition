@@ -336,7 +336,7 @@ remain unchanged; the proposed catalogue coordinates are not substituted.
 A retains three lobes. B divides the middle lobe with rock into a west floor at
 Y=9 and an east floor at Y=10, joined by a two-wide stair opening. Short supported
 branches preserve the north-middle and east-middle nodes at their original Y=9.
-C adds a small rounded-end satellite pocket to the upper neck, separated from the
+C adds a small satellite pocket to the upper neck, separated from the
 upper lobe by rock. It contains no additional node, lottery, cache or reward and
 is not required to reach any existing mineral alcove.
 
@@ -360,3 +360,10 @@ jobs (baseline 38917914872/38917925322; current pack 38917914849/38917925501),
 716 JUnit and 90+90 GameTests per stack plus streaming/restart. Maximum 2,482
 cells over 8,640 fixtures; non-installed JAR, 473 classes, SHA256
 `d7d94ed7d3e411a29adc7f4b613f7a0114176dda0673cf8a2cb217d380d7df94`.
+
+The first BP-03 CI at `3cfd48a` passed the topology, masks and compensation tests
+but rejected a 2,511-cell C/camp fixture. Only the satellite depth is reduced: a
+two-wide entrance now leads to a 2×2 terminal floor, retaining its distinct rock
+separation and optional attachment. All three main lobes, mineral alcoves and
+functions are unchanged. The 2,500-cell assertion and production cap remain fixed;
+that failed run is not a qualification receipt.
