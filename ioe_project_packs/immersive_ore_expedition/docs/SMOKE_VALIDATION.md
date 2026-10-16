@@ -10,6 +10,27 @@ Natural expedition-site worldgen is active when `worldgen.global.naturalExpediti
 
 The four legacy proof controls remain separate and default `false`: `worldgen.runtimePlacementEnabled`, `worldgen.runtimePlacementDiagnostics`, `worldgen.runtimeProofFeatureEnabled`, and `worldgen.runtimeProofFeatureDiagnostics`. Historical controlled-smoke tags and proof procedures do not replace the current production path.
 
+The default-false `NetherWorldActivation.PRODUCTION_ENABLED` is specific to Nether
+depth32 production routing. It is not an IOE-wide production-off state. The existing
+GameTest prototype has its own restrictions; do not activate it for client qualification.
+
+`IoeNewChunkOreGuard` is registered independently of the natural-site and proof
+gates. It can replace/remove unauthorized resources in newly generated admitted
+chunks, even with natural sites disabled, including newly explored terrain in an
+existing world. Its loaded-chunk/admission/provenance protections remain in force;
+this is not retrogen of old chunks. Source defaults, effective configs and datapacks
+must be recorded separately. See [activation scopes](SERVER_CONFIG_EXAMPLES.md).
+
+**Current qualification hold (16 October):** the owner thread reports the `dc3bfa7`
+JAR independently hashed on PC as
+`60bf6e86e0aaa6df75612d388c4e8a1e79cf0a8f2439b66bc1437a89af85261e`.
+This is a reported PC receipt, not a hash recomputed by the cloud executor, and it
+does not qualify a later documentation commit's artifact. Installation is suspended
+because required GeOre is absent and adding it awaits an answer. Do not repeat
+that request, install anything, or create another profile/server under this runbook.
+The following manual steps are conditional procedures for a separately authorized
+and dependency-complete environment, not instructions to proceed now.
+
 Hosted GameTests validate automated scenarios in CI. They are not a manual client launch, dedicated-server smoke, newly generated world observation, or visual worldgen proof. Record each manual activity independently as `NOT_PERFORMED`, `PASS`, or `FAIL` and preserve a fresh `latest.log` plus observation details when it is run.
 
 ## Evidence To Record
@@ -19,7 +40,9 @@ Hosted GameTests validate automated scenarios in CI. They are not a manual clien
 - NeoForge version.
 - Java version.
 - IOE jar filename.
-- IOE jar SHA-256.
+- IOE jar SHA-256, source commit, and where/by whom the hash was computed.
+- Required dependency versions and effective config/datapacks.
+- Separate Overworld natural-site, legacy proof, new-chunk guard and Nether routing states.
 - Client or server log path.
 - Fresh `latest.log` copy or excerpt location.
 - Pass/fail status.

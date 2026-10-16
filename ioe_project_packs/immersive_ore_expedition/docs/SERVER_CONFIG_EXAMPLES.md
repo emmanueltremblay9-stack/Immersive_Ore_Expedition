@@ -1,152 +1,83 @@
 # IOE Server Config Examples
 
-The consolidated module writes one common config file:
+The consolidated module uses `immersive_ore_expedition-common.toml`. These are
+separate controls, not a global no-mutation switch. Values below describe source
+defaults; record the effective config and datapacks of the world being qualified.
+Do not overwrite an existing config with this document.
 
-`immersive_ore_expedition-common.toml`
+## Current activation scopes
 
-Defaults are intentionally conservative. Runtime worldgen placement remains default-off/no-op in the current scaffold and planning releases.
+| Path | Current default / control | Meaning |
+| --- | --- | --- |
+| Natural Overworld expedition sites | `worldgen.global.naturalExpeditionSiteGenerationEnabled = true` | `ExpeditionSiteFeature.place` can place eligible sites in newly generated terrain, subject to site/component controls and placement checks. Production biome wrappers include `#c:is_overworld`. |
+| Legacy placement proof hook | `worldgen.runtimePlacementEnabled = false` | Disables only the old proof/planning placement path; it does not disable natural expedition sites. |
+| Legacy proof bridge / diagnostics | `worldgen.runtimeProofFeatureEnabled`, `worldgen.runtimeProofFeatureDiagnostics`, `worldgen.runtimePlacementDiagnostics` default `false` | Historical proof controls, not global worldgen switches. |
+| New-chunk resource guard | `IoeNewChunkOreGuard` listeners are registered independently | May replace/remove unauthorized ores or growth blocks in admitted newly generated chunks, independently of the natural-site and proof gates. No global disable switch is asserted here. |
+| Nether depth32 production routing | `NetherWorldActivation.PRODUCTION_ENABLED = false` in code | Nether-specific routing remains closed. The existing development GameTest prototype is a separate restricted path, not a server-config toggle. This does not stop every IOE operation in the Nether, including the new-chunk guard. |
 
-## Default Safety
+The owner's 14 October instruction to activate IOE in new worlds and merge PR63
+after tests is distinct from Nether qualification/activation. It does not grant
+permission to merge PR64 or install another runtime during this documentation cycle.
 
-- `worldgen.provinces.runtimeIntegrationEnabled` defaults to `false`.
-- `worldgen.provinces.resourcePolicyRules` defaults to `[]`.
-- Diagnostics remain opt-in and non-noisy by default.
-- Strict resource exclusions still win over configured allow rules.
-- Old split IOE namespaces remain legacy opt-in references only.
-- Runtime placement proof remains disabled by default.
-- Runtime proof feature registration bridge remains disabled by default.
-- Configured/placed feature declarations are attached only to an empty IOE smoke biome tag by default.
+### Natural-site control
 
-## Province Resource Rules
-
-Rules use this shape:
-
-```toml
-worldgen.provinces.resourcePolicyRules = [
-  "immersive_ore_expedition:default|minecraft:iron_ore|allow",
-  "alpine|minecraft:*|deny",
-  "volcanic|immersive_ore_expedition:*|exclude"
-]
-```
-
-The middle field is a resource selector. Exact resource ids and `namespace:*` selectors are supported. Exact selectors win over namespace wildcard selectors, and strict exclusions win over every configured rule.
-
-Keep resource namespaces explicit. Do not rely on old split IOE namespaces unless a legacy migration intentionally enables them.
-
-## Runtime Integration Gate
-
-Province resource rules affect runtime ore-load planning only when province runtime integration is enabled:
+The current source default is:
 
 ```toml
-worldgen.provinces.runtimeIntegrationEnabled = true
+worldgen.global.naturalExpeditionSiteGenerationEnabled = true
 ```
 
-Leave this disabled for default-safe server releases unless the server owner has reviewed the province rules and understands the current scaffold/planning-only limitations.
+Setting this existing key to `false` prevents the natural-site feature from
+placing sites. It does **not** disable biome modifiers, independent new-chunk ore
+sanitization, existing block behavior, or every IOE mutation. In particular, do not
+use sites disabled / proof disabled as a promise that ordinary ore generation is
+restored or that exploring new chunks cannot change resources.
 
-## Runtime Placement Proof Gate
+The guard admits new chunks through `ChunkEvent.Load.isNewChunk`, checks its
+bounded admission lifecycle, and uses `getChunkNow` rather than requesting missing
+chunks. Existing chunks are not newly admitted just because they reload; a still
+valid first-load admission can finish its existing work. Placement authorization
+and Nether provenance protect matching resources. These rules are not permission
+for retrogen or repair of old chunks.
 
-v18 adds a first explicit runtime placement proof gate. Keep it disabled for normal server configs:
+## Province resource rules
 
 ```toml
-worldgen.runtimePlacementEnabled = false
-worldgen.runtimePlacementDiagnostics = false
-```
-
-Only enable it in a controlled smoke profile when collecting evidence for the v18 proof path:
-
-```toml
-worldgen.runtimePlacementEnabled = true
-worldgen.runtimePlacementDiagnostics = true
-```
-
-The proof path still validates the anchor, loaded block resource, resource policy, strict exclusions, writable generation region, and target air block before placement. It does not enable the full surface clue, mineshaft, or ore-load gameplay loop, and it does not register configured features, placed features, or biome modifiers.
-
-## Runtime Registration Smoke Bridge
-
-v19 registers one custom feature type for controlled future smoke profiles but keeps bridge execution disabled by default:
-
-```toml
-worldgen.runtimeProofFeatureEnabled = false
-worldgen.runtimeProofFeatureDiagnostics = false
-```
-
-Only enable it together with the v18 placement gate in a controlled smoke profile:
-
-```toml
-worldgen.runtimeProofFeatureEnabled = true
-worldgen.runtimeProofFeatureDiagnostics = true
-worldgen.runtimePlacementEnabled = true
-worldgen.runtimePlacementDiagnostics = true
-```
-
-The bridge does not add configured features, placed features, biome modifiers, datapack JSON, ores, gems, blocks, items, or entities. With default config it produces no world mutation, and live gameplay proof still requires manual client/server/world smoke evidence.
-
-## Configured/Placed Feature Declaration Bridge
-
-v20 adds one configured feature declaration and one placed feature declaration for the v19 proof feature id, `immersive_ore_expedition:tiny_vertical_mine_entrance`. The placed feature uses an empty placement modifier list and is not attached to any biome.
-
-No extra config is required for the declarations, and no default changes are made. With normal server config, the declarations are addressable data only: no biome modifier is added, no biome binding is added, and no world mutation occurs.
-
-## Biome Modifier Smoke-Tag Bridge
-
-v21 adds a default-off biome modifier smoke bridge for `immersive_ore_expedition:tiny_vertical_mine_entrance`. The biome modifier targets only the IOE-owned tag `#immersive_ore_expedition:worldgen_smoke_test_biomes`, and the shipped tag is empty by default:
-
-```json
-{
-  "replace": false,
-  "values": []
-}
-```
-
-With default resources and config, no real biome receives the placed feature and no world mutation occurs. A future external datapack may append one explicit biome to the smoke tag for manual smoke only. That external smoke profile must still enable both gates:
-
-```toml
-worldgen.runtimeProofFeatureEnabled = true
-worldgen.runtimeProofFeatureDiagnostics = true
-worldgen.runtimePlacementEnabled = true
-worldgen.runtimePlacementDiagnostics = true
-```
-
-Do not enable broad biome tags such as `#minecraft:is_overworld` or `#c:is_overworld` for this smoke path. Do not claim live placement or gameplay proof unless manual client/server/world smoke evidence was captured.
-
-## V22 Controlled Smoke Profile Template
-
-v22 adds a docs-only controlled smoke profile at `docs/smoke_profiles/v22_worldgen_smoke_profile/`. The profile is not active unless a tester manually installs its external datapack into a disposable test world and applies the smoke config template.
-
-The sample datapack appends exactly one explicit vanilla biome id, `minecraft:plains`, to `immersive_ore_expedition:worldgen_smoke_test_biomes`. It does not use broad biome tags, modded biome ids, or multiple biome ids.
-
-The docs-only smoke config template uses:
-
-```toml
-worldgen.runtimeProofFeatureEnabled = true
-worldgen.runtimeProofFeatureDiagnostics = true
-worldgen.runtimePlacementEnabled = true
-worldgen.runtimePlacementDiagnostics = true
 worldgen.provinces.runtimeIntegrationEnabled = false
 worldgen.provinces.resourcePolicyRules = []
 ```
 
-Default server config remains unchanged with all runtime smoke gates disabled. Manual client/server/world smoke evidence is required before claiming live placement.
+These province planning controls are separate from natural-site activation and
+the new-chunk guard. If configuring reviewed rules, their syntax is
+`province|resource|allow`, `province|resource|deny`, or `province|resource|exclude`.
+Exact resource IDs and `namespace:*` selectors are supported; strict exclusions
+win. Neither these defaults nor empty rules establish globally mutation-free IOE.
 
-## V23 Controlled Smoke Runbook
+## Historical proof examples
 
-v23 adds a docs-only controlled smoke runbook at `docs/smoke_profiles/v23_worldgen_smoke_runbook/`. The runbook uses the v22 external datapack and config template, records client/server execution status, and separates skipped, attempted, and observed placement outcomes.
+The v18–v23 proof controls remain available but are not the current Overworld
+production path. Their former empty smoke biome tag and declaration-only feature
+statements applied to that proof bridge, not to current production biome bindings.
+See [historical smoke procedures](SMOKE_VALIDATION.md#historical-controlled-smoke-record-v18-v35).
+Do not enable proof controls to activate normal expedition sites, and do not treat
+all proof flags being false as a world-safety qualification.
 
-The runbook does not change server defaults and does not make the v22 profile active. Keep normal server configs default-safe unless a disposable smoke profile is intentionally configured and evidenced.
+## Qualification before use
 
-## Diagnostics
+Follow [SMOKE_VALIDATION](SMOKE_VALIDATION.md) and record the source commit, exact
+JAR SHA256, mandatory dependencies, effective config/datapacks, and each activation
+scope above. An old world's newly explored chunks are still new chunks; old-chunk
+protection is not protection against changes in future terrain.
 
-Keep diagnostics disabled unless actively investigating a server issue:
+Use only an explicitly authorized qualification environment. This document neither
+creates a new profile/server nor authorizes installation or an activation change.
+A missing required dependency blocks launch qualification. No manual visual/client
+success follows from CI, JAR inspection, or a reported download alone.
 
-```toml
-resourcePolicy.debugDiagnostics = false
-worldgen.provinces.debugDiagnostics = false
-```
+## Source references
 
-If diagnostics are enabled, capture a short log window, then turn them back off to avoid noisy routine logs.
-
-## Current Limitation
-
-The v7-v23 roadmap work is primarily scaffold, planning, policy, persistence, release validation, a default-off runtime placement proof gate, a default-off registration smoke bridge, declaration-only configured/placed feature resources, a biome modifier bridge that targets an empty smoke tag by default, a docs-only controlled external smoke profile package, and a docs-only controlled smoke runbook/result template. These config examples do not enable live placement of anchors, ore-load chambers, IE/IP clues, crystal sites, AE2 geodes, Nether geodes, Ancient Debris hearts, or retrogen resources.
-
-v18 adds a default-off runtime placement proof path, v19 adds a default-off registration smoke bridge, v20 makes that bridge addressable as configured/placed feature data, v21 adds a default-off biome modifier smoke-tag bridge with zero real biome bindings by default, v22 documents a controlled external smoke profile without running it, and v23 documents the controlled smoke runbook/result template without running it. Do not claim live gameplay proof or smoke success unless manual client/server/world smoke evidence was captured.
+- [Config defaults](../src/main/java/com/oblixorprime/ioe/config/ImmersiveOreExpeditionConfig.java)
+- [Natural feature gate](../src/main/java/com/oblixorprime/ioe/worldgen/ExpeditionSiteFeature.java)
+- [Guard registration](../src/main/java/com/oblixorprime/ioe/worldgen/IoeExpeditionWorldgenMod.java)
+- [New-chunk guard](../src/main/java/com/oblixorprime/ioe/worldgen/IoeNewChunkOreGuard.java)
+- [Nether routing](../src/main/java/com/oblixorprime/ioe/nethergeodes/NetherWorldActivation.java)

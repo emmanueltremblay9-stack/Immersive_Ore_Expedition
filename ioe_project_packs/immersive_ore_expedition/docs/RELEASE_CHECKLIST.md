@@ -47,6 +47,9 @@ Use this checklist before publishing an Immersive Ore Expedition release from th
 - Confirm the four legacy proof controls remain separate and default `false`: `worldgen.runtimePlacementEnabled`, `worldgen.runtimePlacementDiagnostics`, `worldgen.runtimeProofFeatureEnabled`, and `worldgen.runtimeProofFeatureDiagnostics`.
 - Confirm the active configured features, placed features, and production biome modifiers expected by this release are present and resolve to the intended expedition-site placement path.
 - Confirm broad `#c:is_overworld` biome membership is used only by the validated production wrapper tags. Historical controlled-smoke tags and procedures must remain narrowly scoped and must not be presented as the current production binding.
+- Record the independent new-chunk guard and biome modifiers; disabling sites or proof hooks is not a global no-mutation mode.
+- Confirm `NetherWorldActivation.PRODUCTION_ENABLED=false` describes Nether routing only; preserve its qualification restrictions and all 74×74/budget/revalidation/rollback protections.
+- Check required dependencies (including GeOre) before any authorized client qualification; a JAR hash and green CI do not authorize installation or prove visuals.
 - Confirm retrogen mutation remains default-off and administrator-controlled.
 - Confirm strict exclusions, unsupported-material skipping, and the no-fake-resources policy remain enforced.
 - Confirm no new blocks, items, entities, ores, gems, fluids, recipes, loot tables, creative tabs, mixins, access transformers, embedded JARs, or dependencies were added unexpectedly.

@@ -1,5 +1,12 @@
 # Immersive Ore Expedition Config Migration
 
+Current activation is documented in [SERVER_CONFIG_EXAMPLES](SERVER_CONFIG_EXAMPLES.md).
+Historical v18–v23 default-off/no-op statements below concern the old proof path.
+Natural Overworld sites default on; the new-chunk resource guard is independent;
+Nether production routing remains separately closed. This clarification changes no
+config defaults and introduces no migration or global disable switch.
+
+
 The consolidated NeoForge module registers one common config file:
 
 `immersive_ore_expedition-common.toml`

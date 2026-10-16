@@ -1,5 +1,32 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
+## Correction de portée d'activation — 16 octobre 2026
+
+Les mentions globales « Production OFF » des bilans PR64 étaient incorrectes.
+Au source `dc3bfa7a349f8f2267c0c3799eb4820096f35057`, les sites Overworld sont
+activés par défaut (`worldgen.global.naturalExpeditionSiteGenerationEnabled=true`).
+Le proof hook ancien reste séparément désactivé ; le routage de production Nether
+reste fermé. Le garde `IoeNewChunkOreGuard` peut modifier les ressources des nouveaux
+chunks indépendamment du gate des sites. Voir [portées et exemples corrigés](SERVER_CONFIG_EXAMPLES.md).
+
+Cela préserve la décision utilisateur du 14 octobre : « Active IOE dans les nouveaux
+mondes puis fusionne PR63 après les tests ». Ni nouvelle activation Nether ni
+permission de fusion PR64 n'est déduite. Ce successeur documentaire ne change aucun
+default, switch, code ou datapack ; tous les contrats Nether 74×74, budgets partagés,
+read sets/revalidation, déduplication et ROLLBACK_INCOMPLETE sans réparation des
+anciens chunks sont conservés.
+
+Preuve transmise par le fil propriétaire : le JAR de `dc3bfa7` a été récupéré et
+haché indépendamment sur PC, SHA256
+`60bf6e86e0aaa6df75612d388c4e8a1e79cf0a8f2439b66bc1437a89af85261e`.
+Ce hash est attribué à cette source, pas au présent successeur documentaire ;
+il n'a pas été recalculé dans ce workspace cloud. Installation suspendue : GeOre
+obligatoire absent, ajout en attente de réponse. Aucune nouvelle demande ni action
+sur le PC. Qualification client/visuelle toujours non prouvée.
+
+La CI de ce successeur et le reçu distant exact sont consignés dans PR64 ; les
+14 checks verts de `dc3bfa7` restent identifiés séparément.
+
 ## Référence technique vérifiée — 2026-10-10 UTC
 
 Ce relevé est le point de reprise technique commun aux interfaces, dans le document
@@ -658,7 +685,7 @@ this cleanup boundary and rejects starting a selected candidate in a different t
 
 État distant re-vérifié : PR63 fusionnée, main `53cea49a2636939356c0bd2a8ce11c07a27f23af`.
 La CI postmerge 38542822224 est verte ; ses 709 JUnit et 152 GameTests restent
-propres à cette source, pas aux familles Crystal Cave futures. Production OFF.
+propres à cette source, pas aux familles Crystal Cave futures. Routage de production Nether OFF ; sites Overworld activés par défaut.
 Les anciennes mentions PR63 brouillon ci-dessus restent historiques.
 
 La cible Crystal Cave inclut désormais explicitement améthyste et la création ou
@@ -683,7 +710,7 @@ Budgets naturels/recettes/plafond de restauration FLAWED et blocs Certus natifs
 conservés. Nouvelles familles et distributions Crystal Cave encore non implémentées.
 Les tests adaptés et leur CI au head exact sont consignés dans le reçu PR64 ;
 les résultats du commit documentaire 949e716 ne prouvent pas ce nouveau code.
-Production OFF, aucun ancien monde modifié ; qualification visuelle non prouvée.
+Routage de production Nether OFF ; sites Overworld activés par défaut, aucun ancien monde modifié ; qualification visuelle non prouvée.
 
 
 ## PR64 — améthyste profil A
@@ -699,7 +726,7 @@ remplacés ; aucune recette de cœur ou distribution naturelle ajoutée. Jade af
 Minecraft et réutilise la provenance persistante existante. Tests de croissance,
 récolte/registre, dépendances, exclusion du placement GeOre et Jade adaptés.
 Le reçu PR64 distingue la nouvelle CI exacte de la qualification du head précédent.
-Production OFF ; garde-fous Nether inchangés ; aucune installation, migration,
+Routage de production Nether OFF ; sites Overworld activés par défaut ; garde-fous Nether inchangés ; aucune installation, migration,
 fusion ou publication. Validation visuelle/client toujours non prouvée.
 
 
@@ -715,7 +742,7 @@ Correctif partagé : ne pas lire/générer un chunk voisin absent lors de random
 ni tirer l'usure dans ce cas. GameTest sur l'entrée runtime réelle pour les familles
 et rangs disponibles ; validation exacte à consigner dans PR64. Les 14 checks
 verts de e7f02ee restent la preuve de la source précédente seulement.
-Production OFF ; aucune famille/recette/distribution nouvelle ni modification des
+Routage de production Nether OFF ; sites Overworld activés par défaut ; aucune famille/recette/distribution nouvelle ni modification des
 budgets, read sets, déduplication ou anciens chunks. Visuel/client non prouvé.
 
 
@@ -728,5 +755,5 @@ Glowstone implémentés avec le moteur partagé, stockage vanilla, Jade/persista
 existants. 15 familles / 75 cœurs ; aucune recette ou distribution naturelle ajoutée.
 Tests runtime récolte/outils/Fortune à graines fixes, croissance/usure et Jade ;
 CI exacte à consigner dans PR64, sans réutiliser les résultats cb473e3 comme preuve.
-Production OFF ; contrats Nether, anciens chunks et protections inchangés.
+Routage de production Nether OFF ; sites Overworld activés par défaut ; contrats Nether, anciens chunks et protections inchangés.
 Aucune installation/fusion/publication ; validation visuelle non prouvée.

@@ -211,7 +211,7 @@ blocs réels, comparaison aux quatre phases ExtendedAE lorsque ce mod est charg�
 métadonnées. Tests unitaires de compatibilité des quatre anciennes identités,
 chaîne complète et séparation des phases natives. Validation des 65 modèles et
 ressources. Résultats exacts consignés dans la PR, sans qualification visuelle.
-Production OFF, aucun profil/serveur nouveau, ancien monde modifié ou chargement forcé.
+Routage de production Nether OFF ; sites Overworld activés par défaut, aucun profil/serveur nouveau, ancien monde modifié ou chargement forcé.
 
 ## Améthyste — profil A approuvé et implémenté
 
@@ -314,4 +314,4 @@ Touch et comparaison Fortune à l'améthyste chargée avec graines explicites.
 Pas de mutation du RNG du monde pour cette comparaison. Validation statique :
 75 cœurs et quatre produits ; CI exacte consignée dans PR64.
 AE2CS Fluix purifié, Draconium et budgets de cave restent hors de ce cycle.
-Production OFF ; validation visuelle/client non prouvée.
+Routage de production Nether OFF ; sites Overworld activés par défaut ; validation visuelle/client non prouvée.
