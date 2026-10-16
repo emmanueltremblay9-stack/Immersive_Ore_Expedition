@@ -33,22 +33,22 @@ final class CatalogueRails {
         room(air,4,12,15,11,12);
         room(air,4,5,15,8,9);
         room(air,5,7,15,9,10);
-        room(air,2,5,15,11,12);
+        room(air,3,5,15,11,12);
         room(air,6,7,15,1,11);
         // Fixed middle alcoves are terminal branches, not extra inter-rail crossings.
-        room(air,3,8,9,4,5);
+        room(air,3,7,9,4,5);
         room(air,8,11,9,11,12);
-        room(air,8,12,10,9,9);
+        room(air,8,12,10,8,9);
         room(air,8,9,10,10,10);
         // Lower east alcove stays at Y=3 despite the east rail's Y=4 landing.
         room(air,8,11,3,11,12);
         room(air,8,9,3,10,12);
         if (fork) {
             room(air,4,5,3,4,9);
-            room(air,5,8,3,4,5);
-            room(air,5,8,3,8,9);
-            room(air,9,12,4,4,5);
-            room(air,9,12,4,8,9);
+            room(air,5,9,3,4,5);
+            room(air,5,9,3,8,9);
+            room(air,10,12,4,4,5);
+            room(air,10,12,4,8,9);
         } else {
             room(air,3,6,3,4,5);
             room(air,7,12,4,4,5);
@@ -84,8 +84,8 @@ final class CatalogueRails {
         floor(blocks,base,4,5,14,11,12);
         stairs(blocks,base,8,9,9,10,10,Direction.NORTH);
         if (fork) {
-            stairs(blocks,base,9,9,3,4,5,Direction.EAST);
-            stairs(blocks,base,9,9,3,8,9,Direction.EAST);
+            stairs(blocks,base,10,10,3,4,5,Direction.EAST);
+            stairs(blocks,base,10,10,3,8,9,Direction.EAST);
         } else {
             stairs(blocks,base,7,7,3,4,5,Direction.EAST);
             stairs(blocks,base,8,9,3,9,9,Direction.NORTH);

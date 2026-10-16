@@ -315,3 +315,9 @@ The upper step is moved north of that immutable mask. Unused third/fourth galler
 lanes and alcove margins are trimmed while retaining two-wide rails, every branch,
 all three crossbars, the split lower route and every room function. A/C also keep
 a two-wide bypass around N7's back mask. The cap remains 2,500; no test is relaxed.
+
+Follow-up width review adds explicit supported-turn assertions at N2, N7, the
+upper west landing and C's lower east branch. The N2 landing occupies two rows;
+C's east stair moves one cell along its lower channels so the alcove junction
+retains both lanes. Unused outer alcove margins are trimmed instead of narrowing
+these turns. Mineral reservations, all destinations and rewards remain fixed.

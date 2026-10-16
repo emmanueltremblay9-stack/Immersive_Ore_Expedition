@@ -440,6 +440,16 @@ public final class CatalogueTerracesGameTests {
                 CatalogueTerraces.Variant.RAILS_SLOPES,CatalogueTerraces.Variant.RAILS_FORK}) {
             var geometry = CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
             assertRailsSignatures(helper,geometry,BlockPos.ZERO,variant);
+            for (int x=8;x<=11;x++) for(int z=8;z<=9;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,10,z)),"N2 landing narrowed at its turn");
+            for (int x=4;x<=5;x++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,15,9)),"Upper west landing lost clearance");
+            if (variant!=CatalogueTerraces.Variant.RAILS_SLOPES)
+                for(int x=5;x<=6;x++) for(int z=8;z<=10;z++)
+                    helper.assertTrue(stand(geometry,new BlockPos(x,9,z)),"N7 bypass narrowed");
+            if (variant==CatalogueTerraces.Variant.RAILS_FORK)
+                for(int x=8;x<=9;x++) for(int z=8;z<=10;z++)
+                    helper.assertTrue(stand(geometry,new BlockPos(x,3,z)),"Lower east branch narrowed");
             var west = new BlockPos(3,3,4);
             var east = new BlockPos(11,4,6);
             // Keep one crossing band at a time. Each must join both complete side rails.
