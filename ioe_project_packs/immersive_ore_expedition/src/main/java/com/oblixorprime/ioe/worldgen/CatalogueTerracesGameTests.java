@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isTeeth()) assertTeethSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isChimney()) assertChimneySignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isTeeth()) assertTeethSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isComb()) assertCombSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isCells()) assertCellSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isRoots()) assertRootsSignatures(helper,plan.blocks(),base,variant);
@@ -290,10 +291,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isTeeth()) assertTeethSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isChimney()) assertChimneySignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isTeeth()) assertTeethSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isComb()) assertCombSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isCells()) assertCellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isRoots()) assertRootsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -1060,6 +1062,72 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(blocks.get(base.offset(0,15,6)).is(Blocks.STONE)
                 && blocks.get(base.offset(14,9,7)).is(Blocks.STONE)
                 && blocks.get(base.offset(0,3,6)).is(Blocks.STONE),"Alternating wall roots changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void chimneyKeepsOneVisibleVoidBesideItsProtectedSpine(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.CHIMNEY,
+                CatalogueTerraces.Variant.CHIMNEY_BALCONY,CatalogueTerraces.Variant.CHIMNEY_REAR}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertChimneySignatures(helper,geometry,BlockPos.ZERO,variant);
+            for(int x=9;x<=10;x++) for(int z=6;z<=7;z++) for(int y=3;y<=17;y++)
+                helper.assertTrue(geometry.get(new BlockPos(x,y,z)).isAir(),"Chimney lost its continuous vertical void");
+            for(int z=6;z<=7;z++) {
+                for(int y=3;y<=15;y++) helper.assertTrue(geometry.get(new BlockPos(4,y,z)).is(Blocks.LADDER)
+                        && solid(geometry,new BlockPos(3,y,z)),"Protected spine lost its backed ladder");
+                for(int foot:new int[]{3,9,15}) {
+                    helper.assertTrue(stand(geometry,new BlockPos(5,foot,z)),"Spine landing is unsupported");
+                    helper.assertTrue(geometry.get(new BlockPos(6,foot,z)).is(Blocks.STONE),"Void-side rock rail is absent");
+                    for(int y=foot+1;y<=foot+2;y++) helper.assertTrue(geometry.get(new BlockPos(6,y,z)).isAir(),
+                            "Chimney is no longer visible from its landing");
+                }
+            }
+            var cut=new LinkedHashMap<>(geometry);
+            closeWell(cut,4,5,6,7,12);
+            var low=CatalogueTerraces.HEARTS.get(0).south();
+            boolean rear=variant==CatalogueTerraces.Variant.CHIMNEY_REAR;
+            helper.assertTrue(reachable(cut,CatalogueTerraces.ENTRANCE).contains(low)==rear
+                    && reachable(cut,low).contains(CatalogueTerraces.ENTRANCE)==rear,
+                    "Terminal lodges bypass the spine without C's rear descent");
+            if(rear) {
+                closeWell(cut,12,13,11,12,12);
+                helper.assertTrue(!reachable(cut,CatalogueTerraces.ENTRANCE).contains(low)
+                        && !reachable(cut,low).contains(CatalogueTerraces.ENTRANCE),"Rear descent gained an extra connection");
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void chimneyBalconyClosesOnlyItsLocalLodgeLoop(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.CHIMNEY,
+                CatalogueTerraces.Variant.CHIMNEY_BALCONY,CatalogueTerraces.Variant.CHIMNEY_REAR}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var left=CatalogueTerraces.HEARTS.get(6).south(); var right=CatalogueTerraces.HEARTS.get(1).south();
+            helper.assertTrue(reachable(geometry,left).contains(right) && reachable(geometry,right).contains(left),
+                    "Initial lodge connection is missing");
+            var cut=new LinkedHashMap<>(geometry);
+            for(int x=5;x<=6;x++) for(int y=9;y<=11;y++) cut.put(new BlockPos(x,y,10),Blocks.STONE.defaultBlockState());
+            boolean balcony=variant==CatalogueTerraces.Variant.CHIMNEY_BALCONY;
+            helper.assertTrue(reachable(cut,left).contains(right)==balcony && reachable(cut,right).contains(left)==balcony,
+                    "Middle lodges have an uncontracted peripheral connection");
+            if(balcony) {
+                for(int z=11;z<=12;z++) for(int y=9;y<=11;y++) cut.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+                helper.assertTrue(!reachable(cut,left).contains(right) && !reachable(cut,right).contains(left),
+                        "Local balcony gained a second return");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertChimneySignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                                BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(7,9,11),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.CHIMNEY_BALCONY),"Bent middle balcony changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(13,12,11),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.CHIMNEY_REAR),"Rear lodge descent changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(8,15,12),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.CHIMNEY_REAR),"High rear lodge connection changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
