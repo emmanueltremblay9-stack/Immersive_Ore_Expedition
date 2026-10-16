@@ -59,10 +59,11 @@ public final class CatalogueTerracesGameTests {
         }
         var a = CatalogueTerraces.geometry(center,false);
         var c = CatalogueTerraces.geometry(center,true);
-        helper.assertTrue(a.get(new BlockPos(5,9,8)).isAir()
-                && !c.getOrDefault(new BlockPos(5,9,8),Blocks.STONE.defaultBlockState()).isAir(),
-                "C did not split the middle terrace");
-        helper.assertTrue(c.get(new BlockPos(7,9,7)).isAir(), "C lost its bridge");
+        helper.assertTrue(a.get(new BlockPos(5,8,8)).is(Blocks.STONE)
+                && c.get(new BlockPos(5,8,8)).isAir()
+                && c.get(new BlockPos(9,8,8)).isAir(), "C did not open voids on both sides of its bridge");
+        helper.assertTrue(c.get(new BlockPos(7,9,7)).isAir()
+                && c.get(new BlockPos(7,8,7)).is(Blocks.STONE), "C lost its supported bridge");
         helper.assertTrue(a.values().stream().filter(BlockState::isAir).count()
                         != c.values().stream().filter(BlockState::isAir).count(),
                 "Variants must differ beyond rotation/mirror, which preserve the air volume");

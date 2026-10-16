@@ -48,7 +48,9 @@ final class CatalogueTerraces {
         for (int y = 3; y <= 11; y++) for (int x = 2; x <= 3; x++)
             for (int z = 6; z <= 7; z++) air.add(new BlockPos(x,y,z));
         if (split) {
-            // C: the middle bridge is the only horizontal link between the two balconies.
+            // C: open voids flank a supported bridge, rather than solid corridor walls.
+            for (int y = 6; y <= 11; y++) for (int x : new int[]{4,5,9,10})
+                for (int z = 6; z <= 8; z++) air.add(new BlockPos(x,y,z));
             // Ladder landings join the north/south balconies without adding a second bridge.
             for (int y = 9; y <= 11; y++) for (int x = 3; x <= 5; x++)
                 air.add(new BlockPos(x,y,5));
