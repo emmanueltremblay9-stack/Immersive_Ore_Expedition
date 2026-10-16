@@ -16,7 +16,8 @@ final class CatalogueSlab {
         boolean third = variant == CatalogueTerraces.Variant.SLAB_THIRD;
         boolean joined = variant == CatalogueTerraces.Variant.SLAB_JOINED;
         var slab = new LinkedHashSet<BlockPos>();
-        footprint(slab,5,10,4,9);
+        footprint(slab,5,8,4,9);
+        footprint(slab,9,10,4,5);
         footprint(slab,3,4,6,9);
         footprint(slab,4,5,10,12);
         footprint(slab,3,5,11,12);

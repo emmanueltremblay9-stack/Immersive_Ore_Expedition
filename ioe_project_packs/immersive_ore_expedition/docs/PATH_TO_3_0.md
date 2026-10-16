@@ -1055,3 +1055,10 @@ The shared volumes, three openings, equipped descents, N2 turn and upper rib
 remain covered by the existing route/cut tests. The 2,500-cell cap is unchanged.
 This candidate requires new exact-source CI; 42/120 remain qualified and
 45/120 implemented until that qualification succeeds. No client proof or install.
+
+
+BP-36 follow-up: 35c06ff reached 2,544 cells, with only the composed-cap
+test failing among 113 current minimal GameTests. The unused upper south-east
+slab shoulder is now omitted; the north/east approach, western bypass, rear
+view, and C's two-wide rib remain. No budget, cap or route assertion is relaxed.
+A new exact-source qualification is required.
