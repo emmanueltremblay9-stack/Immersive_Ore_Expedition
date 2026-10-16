@@ -11,9 +11,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-/** GOV 60d1c94, BP-05 A/C, geometry version 1. No quality or reward random source. */
+/** GOV 60d1c94, BP-05 A/B/C, geometry version 2. No quality or reward random source. */
 final class CatalogueTerraces {
     private CatalogueTerraces() { }
+    enum Variant { ALTERNATING, FAN, SPLIT }
     static final BlockPos ENTRANCE = new BlockPos(7,15,1);
     static final List<BlockPos> HEARTS = List.of(new BlockPos(3, 3, 3), new BlockPos(11, 9, 11),
             new BlockPos(3, 15, 11), new BlockPos(11, 3, 11), new BlockPos(11, 15, 3),
@@ -26,7 +27,8 @@ final class CatalogueTerraces {
 
     static BlockPos base(BlockPos center) { return center.offset(-7, -15, -7); }
 
-    static Map<BlockPos, BlockState> geometry(BlockPos center, boolean split) {
+    static Map<BlockPos, BlockState> geometry(BlockPos center, Variant variant) {
+        boolean split = variant == Variant.SPLIT;
         var air = new LinkedHashSet<BlockPos>();
         for (int y : new int[]{3, 9, 15}) {
             for (int x = y == 9 ? 3 : 2; x <= (y == 9 ? 12 : 11); x++) {
@@ -37,6 +39,9 @@ final class CatalogueTerraces {
                     // Trim unused corners, retaining every node, landing and three-high route.
                     if (y == 15 && x >= 9 && z >= 9 || y == 3 && x <= 5 && z >= 9
                             || y == 9 && x <= 5 && z <= 4) continue;
+                    // B: taper the three different ledges toward their common vertical opening.
+                    if (variant == Variant.FAN && (y == 15 && x >= 10 && z == 8
+                            || y == 9 && x == 12 && z == 12 || y == 3 && x == 6 && z >= 10)) continue;
                     if (split && y == 9 && z >= 6 && z <= 8 && (x < 6 || x > 8)) continue;
                     for (int h = 0; h < 3; h++) air.add(new BlockPos(x,y+h,z));
                 }
@@ -61,6 +66,11 @@ final class CatalogueTerraces {
                 air.add(new BlockPos(x,y,5));
             for (int y = 9; y <= 11; y++) for (int x = 9; x <= 12; x++)
                 air.add(new BlockPos(x,y,8));
+        }
+        if (variant == Variant.FAN) {
+            // One shared void joins all three fan ledges; the offset backed routes stay outside it.
+            for (int y = 3; y <= 17; y++) for (int x = 8; x <= 9; x++)
+                for (int z = 8; z <= 9; z++) air.add(new BlockPos(x,y,z));
         }
         // Grow the shell around the final growth clearances as well as the main rooms.
         for (BlockPos heart : HEARTS) {

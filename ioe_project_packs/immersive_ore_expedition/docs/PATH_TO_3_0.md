@@ -12,8 +12,13 @@ Voir [SITE_BLUEPRINT_INTEGRATION.md](SITE_BLUEPRINT_INTEGRATION.md) pour les has
 le raccord, les tests et le plafond composé inchangé de 2 500 cellules.
 Le local de relevé est conservé ; le puits sous son entrée est compacté à deux
 blocs de largeur, avec son échelle soutenue, pour respecter ce plafond.
-Le composeur isolé `b275df0` a 16 jobs verts ; ces preuves ne sont pas transférées
-au raccord suivant, dont la CI au commit exact est suivie dans PR64.
+Le raccord A/C `724e8d6` a 16 jobs verts, 716 JUnit et 83+83 GameTests par pile,
+plus streaming/reprise ; maximum composé 2 474 sur 1 440 plans, local conservé.
+Son JAR non installé a le SHA256 `8ae0701673502ce7b7bc1d407225a9f2fa0b9e984e9f2e80b39ed3266eb4aa2e`.
+Cycle suivant : ajout de BP-05 B (éventail autour d'un vide commun), matrice portée
+à 2 160 plans. Les preuves A/C ne qualifient pas ce successeur ; sa CI exacte est
+suivie dans PR64. La carte de couverture couvre explicitement les quatre catalogues
+(3 variantes implémentées, 117 restantes ; qualification distincte).
 Ce n'est ni 40 familles ni 120 variantes actives. Aucun accès PC, activation
 Nether, fusion ou publication. Le runtime installé reste `382e0b4` ; le reçu
 ci-dessous est distinct du nouveau travail de génération.

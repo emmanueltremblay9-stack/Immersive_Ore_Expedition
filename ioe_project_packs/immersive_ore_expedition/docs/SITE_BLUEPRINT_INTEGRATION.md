@@ -14,16 +14,18 @@ PR64 branch. Authority reference: GOV `60d1c9453aaf91f1e90a6ba113f106ac51238cf9`
 
 ## Implemented first natural-generation slice
 
-`CatalogueTerraces` composes BP-05 A (offset terraces) and C (split middle terrace
-with an open void on either side of its supported bridge), geometry version 1.
+`CatalogueTerraces` composes BP-05 A (offset terraces), B (fan ledges around one shared vertical void)
+and C (split middle terrace with an open void on either side of its supported
+bridge), geometry version 2. B retains the offset ladder accesses and rock slabs
+outside its 2×2 common opening; its ledge edges taper toward this opening.
 The chamber occupies 15×19×15. Entry E=(7,15,1) and the three circulation levels
 Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-05 B and the remaining 39 families are not implemented.
+and supported routes are retained. The remaining 39 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects A/C using one bit
+The existing natural `ExpeditionSiteBlueprints` path now selects A/B/C using one three-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -75,16 +77,54 @@ Its separate CI JAR SHA256 is
 That receipt does not qualify the subsequent natural-routing changes described
 above. Their exact source and final CI receipt are recorded separately in PR64.
 
-Added integration tests cover both shapes, four access types, all qualities,
-source-chunk containment including negative coordinates, both variants at all nine
+Added integration tests cover all three shapes, four access types, all qualities,
+source-chunk containment including negative coordinates, all three variants at all nine
 approved depths, unchanged depth and
 anchor bounds, complete-plan size, three-high supported routes to all alcoves,
 all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
-`Feature.place` staging/commit/deduplication for both variants at all four accesses.
+`Feature.place` staging/commit/deduplication for all three variants at all four accesses.
 The existing GeOre/Certus runtime tests additionally exercise ranks, fallbacks,
 Jade metadata, persistence, compensation and actual resource-profile admission.
 
 No new server/profile, PC operation, Nether activation, merge or publication is
 part of this work. The installed `382e0b4` provenance remains separate. Client
-visual qualification remains NOT_PERFORMED. This slice is two of 120 described
-variants, not completion of the four catalogues.
+visual qualification remains NOT_PERFORMED. This slice implements three of 120 described
+variants, not completion of the four catalogues. Runtime qualification of B must
+be attributed to its own subsequent source, not to the A/C receipt below.
+
+
+## Qualified predecessor and current qualification boundary
+
+The natural A/C integration at `724e8d63afbc21e86a1b50c0bad3b2ace312895a` passed
+16 CI jobs: baseline push 38897636317 / PR 38897643054 and current-pack push
+38897636280 / PR 38897643351. Each stack: 716 JUnit (zero failures/errors/skips),
+83 minimal + 83 full GameTests, plus streaming and separate-process restart.
+Its 1,440-plan matrix maximum was 2,474 cells with the survey room retained.
+JAR SHA256 `8ae0701673502ce7b7bc1d407225a9f2fa0b9e984e9f2e80b39ed3266eb4aa2e`,
+469 compiled classes and metadata verified. This JAR is not installed.
+
+The next cycle adds BP-05 B and expands the matrix to 2,160 plans and 12 real
+Feature commits. It preserves admission/economic rules and uses the same
+source-chunk, envelope, route and mask guards. Exact-source CI is recorded in PR64.
+
+## Four-catalogue coverage map
+
+Reference remains GOV `60d1c9453aaf91f1e90a6ba113f106ac51238cf9`.
+`Implemented` means connected to natural generation in this source; qualification
+is reported separately above and in PR64. `Pending` does not mean incompatible.
+No entry is declared contract-conflicting merely because its implementation is
+unfinished. PROPOSED dimensions, retry counts and reward parameters remain
+subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
+
+| Catalogue | Families | Implemented variants | Pending variants |
+| --- | --- | --- | --- |
+| 001 | BP-01–BP-10 | BP-05 A/B/C | BP-01–04 and BP-06–10 A/B/C (27) |
+| 002 | BP-11–BP-20 | None | All A/B/C (30) |
+| 003 | BP-21–BP-30 | None | All A/B/C (30) |
+| 004 | BP-31–BP-40 | None | All A/B/C (30) |
+
+A future family must pass the same route/node-mask/complete-budget qualification
+before activation. A proposed outline alone does not authorize resource changes,
+larger write limits, loading extra chunks or removing the survey room. If a
+specific family cannot fit those contracts, record the precise geometric or
+functional conflict before asking for a product decision.

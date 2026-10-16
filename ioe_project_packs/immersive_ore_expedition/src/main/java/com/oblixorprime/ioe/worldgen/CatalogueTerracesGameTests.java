@@ -23,9 +23,9 @@ public final class CatalogueTerracesGameTests {
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 200)
     public static void terracesHaveSupportedRoutesAndExactMasks(GameTestHelper helper) {
         BlockPos center = new BlockPos(7,15,7);
-        for (boolean split : new boolean[]{false,true}) {
-            var geometry = CatalogueTerraces.geometry(center, split);
-            helper.assertTrue(geometry.equals(CatalogueTerraces.geometry(center, split)), "Unstable geometry");
+        for (var variant : CatalogueTerraces.Variant.values()) {
+            var geometry = CatalogueTerraces.geometry(center, variant);
+            helper.assertTrue(geometry.equals(CatalogueTerraces.geometry(center, variant)), "Unstable geometry");
             helper.assertTrue(geometry.keySet().stream().allMatch(p -> p.getX() >= 0 && p.getX() <= 14
                     && p.getZ() >= 0 && p.getZ() <= 14 && p.getY() >= 0 && p.getY() <= 18), "Escaped 15x19x15");
             for (var entry : geometry.entrySet()) if (entry.getValue().is(Blocks.LADDER)) {
@@ -44,7 +44,7 @@ public final class CatalogueTerracesGameTests {
                 Set<BlockPos> reached = reachable(composed, CatalogueTerraces.ENTRANCE);
                 helper.assertTrue(reached.contains(center), "Entrance does not reach the upper terrace");
                 for (BlockPos heart : CatalogueTerraces.HEARTS) {
-                    helper.assertTrue(reached.contains(heart.south()), "Unreachable alcove: " + heart + " split=" + split);
+                    helper.assertTrue(reached.contains(heart.south()), "Unreachable alcove: " + heart + " variant=" + variant);
                     for (BlockPos offset : CatalogueTerraces.AIR)
                         helper.assertTrue(composed.get(heart.offset(offset)).isAir(), "Growth mask overwritten");
                 }
@@ -57,8 +57,8 @@ public final class CatalogueTerracesGameTests {
             catch (IllegalArgumentException expected) { rejected = true; }
             helper.assertTrue(rejected, "Noncanonical budget accepted");
         }
-        var a = CatalogueTerraces.geometry(center,false);
-        var c = CatalogueTerraces.geometry(center,true);
+        var a = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.ALTERNATING);
+        var c = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.SPLIT);
         helper.assertTrue(a.get(new BlockPos(5,8,8)).is(Blocks.STONE)
                 && c.get(new BlockPos(5,8,8)).isAir()
                 && c.get(new BlockPos(9,8,8)).isAir(), "C did not open voids on both sides of its bridge");
@@ -68,6 +68,15 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(a.values().stream().filter(BlockState::isAir).count()
                         != c.values().stream().filter(BlockState::isAir).count(),
                 "Variants must differ beyond rotation/mirror, which preserve the air volume");
+        var b = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.FAN);
+        for (int y = 3; y <= 17; y++) for (int x = 8; x <= 9; x++) for (int z = 8; z <= 9; z++)
+            helper.assertTrue(b.get(new BlockPos(x,y,z)).isAir(), "B lost its common three-terrace void");
+        helper.assertTrue(a.get(new BlockPos(8,8,9)).is(Blocks.STONE)
+                && c.get(new BlockPos(8,8,9)).is(Blocks.STONE), "B signature is shared by another variant");
+        long bAir = b.values().stream().filter(BlockState::isAir).count();
+        helper.assertTrue(bAir != a.values().stream().filter(BlockState::isAir).count()
+                && bAir != c.values().stream().filter(BlockState::isAir).count(),
+                "B must differ volumetrically from A and C");
         helper.succeed();
     }
 
@@ -93,8 +102,9 @@ public final class CatalogueTerracesGameTests {
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
     public static void terracePlacementCompensatesIdempotently(GameTestHelper helper) {
         BlockPos center = helper.absolutePos(new BlockPos(8,20,8));
-        var geometry = CatalogueTerraces.geometry(center,true);
         var level = helper.getLevel();
+        for (var variant : CatalogueTerraces.Variant.values()) {
+        var geometry = CatalogueTerraces.geometry(center,variant);
         geometry.keySet().forEach(p -> level.setBlockAndUpdate(p, Blocks.STONE.defaultBlockState()));
         var plan = new ExpeditionSiteBlockPlan(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER, center, center,
                 center, com.oblixorprime.ioe.core.SiteQuality.DRY, 0, null, null,
@@ -105,18 +115,19 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
+        }
         helper.succeed();
     }
 
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 400)
     public static void naturalCataloguePlansKeepBudgetsRoutesAndDryRewards(GameTestHelper helper) {
         var shapes = new java.util.LinkedHashMap<Integer,Long>();
-        for (long seed = 0; seed < 10000 && shapes.size() < 18; seed++) {
+        for (long seed = 0; seed < 10000 && shapes.size() < 27; seed++) {
             var random = net.minecraft.util.RandomSource.create(seed);
             int depth = random.nextInt(9);
-            shapes.putIfAbsent(depth*2+(random.nextBoolean()?1:0),seed);
+            shapes.putIfAbsent(depth*3+random.nextInt(3),seed);
         }
-        helper.assertTrue(shapes.size() == 18, "Both variants at every approved depth must be selectable");
+        helper.assertTrue(shapes.size() == 27, "All three variants at every approved depth must be selectable");
         int largest = 0;
         String largestContext = "";
         for (var shape : shapes.entrySet()) for (var type : ExpeditionSiteType.naturalSurfaceSites()) {
@@ -149,8 +160,10 @@ public final class CatalogueTerracesGameTests {
                             && plan.blocks().get(survey.offset(direction,-2,zDirection)).is(Blocks.COBWEB),
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
-                    helper.assertTrue(plan.blocks().get(base.offset(5,8,8)).isAir() == (shape.getKey()%2==1),
+                    helper.assertTrue(plan.blocks().get(base.offset(5,8,8)).isAir() == (shape.getKey()%3==2),
                             "Quality or resource composition changed structural variant");
+                    helper.assertTrue(plan.blocks().get(base.offset(8,8,9)).isAir() == (shape.getKey()%3==1),
+                            "Quality or composition changed the shared-void variant");
                     var reached = reachable(plan.blocks(),plan.connectorEnd());
                     for (BlockPos heart : CatalogueTerraces.HEARTS) {
                         helper.assertTrue(reached.contains(base.offset(heart).south()),
@@ -187,7 +200,7 @@ public final class CatalogueTerracesGameTests {
         var profile = new BiomeMineResourceProfile(net.minecraft.resources.ResourceLocation.parse("minecraft:plains"),
                 profileId,definition,1);
         int index = 0;
-        for (var type : ExpeditionSiteType.naturalSurfaceSites()) for (boolean split : new boolean[]{false,true}) {
+        for (var type : ExpeditionSiteType.naturalSurfaceSites()) for (var variant : CatalogueTerraces.Variant.values()) {
             long seed = 0;
             long planSeed = 0;
             boolean found = false;
@@ -197,7 +210,7 @@ public final class CatalogueTerracesGameTests {
                 planSeed = random.nextLong();
                 var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
                 shapeRandom.nextInt(9);
-                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextBoolean()==split) {
+                if (quality == com.oblixorprime.ioe.core.SiteQuality.DRY && shapeRandom.nextInt(3)==variant.ordinal()) {
                     found = true; break;
                 }
             }
@@ -211,14 +224,16 @@ public final class CatalogueTerracesGameTests {
                     java.util.Optional.empty(),level,level.getChunkSource().getGenerator(),
                     net.minecraft.util.RandomSource.create(seed),origin,
                     net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration.INSTANCE));
-            helper.assertTrue(staged,"Natural catalogue Feature.place rejected " + type + " split=" + split);
+            helper.assertTrue(staged,"Natural catalogue Feature.place rejected " + type + " variant=" + variant);
             helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level,chunk).confirmedSites()==1,
                     "Natural catalogue transaction did not commit");
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(5,8,8)).isAir()==split,
+            helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(5,8,8)).isAir()==(variant==CatalogueTerraces.Variant.SPLIT),
                     "Committed natural blocks do not contain the selected structural variant");
+            helper.assertTrue(level.getBlockState(CatalogueTerraces.base(center).offset(8,8,9)).isAir()
+                    == (variant==CatalogueTerraces.Variant.FAN), "Committed shared-void signature changed");
             helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level,chunk).confirmedSites()==0,
                     "Natural catalogue transaction replayed");
         }

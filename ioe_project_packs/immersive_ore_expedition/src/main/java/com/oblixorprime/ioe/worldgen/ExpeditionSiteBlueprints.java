@@ -253,7 +253,7 @@ public final class ExpeditionSiteBlueprints {
             int direction = directionTowardChunkCenter(origin);
             if (catalogue) {
                 // Geometry stream only: quality, DRY and Flawless use their existing independent streams.
-                boolean split = random.nextBoolean();
+                var variant = CatalogueTerraces.Variant.values()[random.nextInt(CatalogueTerraces.Variant.values().length)];
                 chamberCenter = new BlockPos(Math.floorDiv(origin.getX(),16)*16+7,
                         origin.getY()-depth, Math.floorDiv(origin.getZ(),16)*16+7);
                 int shaftDepth = depth-4;
@@ -261,7 +261,7 @@ public final class ExpeditionSiteBlueprints {
                 roomCenters.add(addGalleryLevel(builder, origin.below(8), direction,
                         zDirectionTowardChunkCenter(origin), GalleryTheme.SURVEY));
                 connectorEnd = origin.below(shaftDepth);
-                var geometry = CatalogueTerraces.geometry(chamberCenter,split);
+                var geometry = CatalogueTerraces.geometry(chamberCenter,variant);
                 geometry.forEach(builder::put);
                 CatalogueTerraces.access(chamberCenter,connectorEnd,geometry).forEach(builder::put);
                 // Reopen the two original shaft cells through the overhead connector's roof.
