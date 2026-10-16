@@ -155,6 +155,20 @@ Couverture 45/120, 75 restantes. Qualification exacte à suivre, aucun transfert
 de preuves. Plafond 2 500 inchangé ; pas de PC, installation, fusion, publication
 ou activation Nether. Validation visuelle/client non prouvée.
 
+### BP-36 qualifié ; cycle suivant BP-11 A/B/C
+
+BP-36 accepté sur 0c7386ddbbf8df75f00ae8fbb32f020966f25f42 : 16 jobs verts,
+716 JUnit et 113+113 GameTests par pile, streaming/reprise ; 32 400 plans,
+180 placements réels, maximum 2499.
+JAR non installé, SHA256 073616dc2c66f37e9c12667d89e7f5e2b20c8f10d3101b690f149d87d68860a4.
+
+Suite : BP-11 A/B/C, deux entonnoirs excentrés avec taille étroite.
+Une descente A, deux B autour d'une lame, balcon C et descente latérale.
+Masques, accès, fonctions et budgets inchangés ; 34 560 plans et 192 placements.
+Couverture 48/120, 72 restantes. Qualification exacte à suivre sans transfert
+de preuves. Plafond 2 500 inchangé ; pas de PC, installation, fusion, publication
+ou activation Nether. Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

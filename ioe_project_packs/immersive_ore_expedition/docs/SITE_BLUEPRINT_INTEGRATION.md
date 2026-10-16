@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 25 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 24 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-14, BP-16, BP-23, BP-24, BP-26, BP-27, BP-31, BP-35, BP-36 or BP-37 A/B/C using one forty-five-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-11, BP-14, BP-16, BP-23, BP-24, BP-26, BP-27, BP-31, BP-35, BP-36 or BP-37 A/B/C using one forty-eight-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -77,19 +77,19 @@ Its separate CI JAR SHA256 is
 That receipt does not qualify the subsequent natural-routing changes described
 above. Their exact source and final CI receipt are recorded separately in PR64.
 
-Integration tests cover all 45 implemented shapes, four access types and all five
+Integration tests cover all 48 implemented shapes, four access types and all five
 qualities: source-chunk containment including negative coordinates, all nine
 approved depths, unchanged anchor bounds, complete-plan size, three-high
 supported routes to all alcoves,
 all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
-`Feature.place` staging/commit/deduplication for all 45 variants at all four accesses.
+`Feature.place` staging/commit/deduplication for all 48 variants at all four accesses.
 The existing GeOre/Certus runtime tests additionally exercise ranks, fallbacks,
 Jade metadata, persistence, compensation and actual resource-profile admission.
 
 No new server/profile, PC operation, Nether activation, merge or publication is
 part of this work. The installed `382e0b4` provenance remains separate. Client
-visual qualification remains NOT_PERFORMED. Current coverage is 45 of 120 described
-variants; 75 remain pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
+visual qualification remains NOT_PERFORMED. Current coverage is 48 of 120 described
+variants; 72 remain pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
 be attributed to its own source, not to a predecessor receipt.
 
 
@@ -119,7 +119,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
 | 001 | BP-01–BP-10 | BP-02, BP-03, BP-05, BP-06 and BP-10 A/B/C | All A/B/C of the other five families (15) |
-| 002 | BP-11–BP-20 | BP-14 and BP-16 A/B/C | All A/B/C of the other eight families (24) |
+| 002 | BP-11–BP-20 | BP-11, BP-14 and BP-16 A/B/C | All A/B/C of the other seven families (21) |
 | 003 | BP-21–BP-30 | BP-23, BP-24, BP-26 and BP-27 A/B/C | All A/B/C of the other six families (18) |
 | 004 | BP-31–BP-40 | BP-31, BP-35, BP-36 and BP-37 A/B/C | All A/B/C of the other six families (18) |
 
@@ -817,3 +817,30 @@ rim (X7, backing X6), with the landing at X8. The N2 branch uses X8/9 and its
 full two-wide turn stays open. Explicit support/clearance assertions cover the
 branch and landing. The rear L-shaped view, fixed masks and budgets remain;
 qualification must use the corrected source, not e4ab137.
+
+
+## BP-11 A/B/C: offset funnels and an equipped narrow waist
+
+Two continuous, differently centered funnel volumes narrow toward a shared
+waist. Supported shoulders connect the fixed alcoves separately. A has one
+backed descent on the waist shoulder. B divides the waist with one rock blade
+and provides two backed descents, each reaching both basins. C keeps the waist
+visual, extends the upper balcony over the lower volume and uses a separate
+lateral descent. This is two continuous funnels, not a three-pocket chain.
+
+The upper cache marker and survey/access functions remain. Middle/base anchors
+follow supported routes. FINAL masks, quality budgets, rewards and independent
+lotteries are unchanged. Specific tests check broad basins/narrow waist and
+continuous flares, supported returns, the two-wide upper shoulder, distinct
+vertical cut sets and C's supported overhang with an open view beneath it.
+Shared masks, actual placement, persistence and ownership-safe rollback remain.
+
+Coverage: 48/120 implemented, 72 pending. Matrix: 34,560 composed plans and
+192 real placement/commit/dedup pairs. The 2,500-cell production cap stays.
+Exact-source CI required; no installation, merge, publication or Nether activation.
+Visual/client qualification remains NOT_PERFORMED.
+
+Predecessor BP-36 source 0c7386ddbbf8df75f00ae8fbb32f020966f25f42: 16 successful jobs, 716 JUnit,
+113 minimal + 113 complete GameTests per stack plus streaming/restart; maximum
+2499 cells over 32,400 plans. JAR SHA256
+073616dc2c66f37e9c12667d89e7f5e2b20c8f10d3101b690f149d87d68860a4. These proofs do not qualify BP-11.

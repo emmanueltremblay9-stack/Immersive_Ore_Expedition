@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isSlab()) assertSlabSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isHourglass()) assertHourglassSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isSlab()) assertSlabSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isMushroom()) assertMushroomSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isAxial()) assertAxialSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isChimney()) assertChimneySignatures(helper,plan.blocks(),base,variant);
@@ -285,10 +286,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isSlab()) assertSlabSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isHourglass()) assertHourglassSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isSlab()) assertSlabSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isMushroom()) assertMushroomSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isAxial()) assertAxialSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isChimney()) assertChimneySignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -1359,6 +1361,69 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(blocks.get(base.offset(11,12,7)).isAir()
                 && blocks.get(base.offset(13,12,7)).is(Blocks.LADDER)
                 && blocks.get(base.offset(14,12,7)).is(Blocks.STONE),"Wide eastern opening lost its backed descent");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void hourglassFunnelsShareAnOffsetWaistAndSupportedReturns(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.HOURGLASS,
+                CatalogueTerraces.Variant.HOURGLASS_SPLIT,CatalogueTerraces.Variant.HOURGLASS_BALCONY}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertHourglassSignatures(helper,geometry,BlockPos.ZERO,variant);
+            helper.assertTrue(geometry.get(new BlockPos(5,4,4)).isAir()
+                    && geometry.get(new BlockPos(4,16,4)).isAir()
+                    && solid(geometry,new BlockPos(4,10,4)),"Two broad basins lost their narrow middle section");
+            helper.assertTrue(geometry.get(new BlockPos(5,6,5)).isAir()
+                    && geometry.get(new BlockPos(5,12,5)).isAir(),"Funnel flares became separate sealed rooms");
+            var top=new BlockPos(7,15,7); var middle=new BlockPos(6,9,5); var bottom=new BlockPos(7,3,7);
+            for(var end:java.util.List.of(middle,bottom)) helper.assertTrue(reachable(geometry,top).contains(end)
+                    && reachable(geometry,end).contains(top),"Hourglass lacks a supported basin/waist return");
+            for(int x=6;x<=7;x++) for(int z=1;z<=7;z++)
+                helper.assertTrue(stand(geometry,new BlockPos(x,15,z)),"Upper shoulder approach narrowed or lost support");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void hourglassNecksHaveExactlyTheirEquippedVerticalConnections(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.HOURGLASS,
+                CatalogueTerraces.Variant.HOURGLASS_SPLIT,CatalogueTerraces.Variant.HOURGLASS_BALCONY}) {
+            var geometry=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var cut=new LinkedHashMap<>(geometry);
+            var top=new BlockPos(7,15,7); var bottom=new BlockPos(7,3,7);
+            boolean split=variant==CatalogueTerraces.Variant.HOURGLASS_SPLIT;
+            boolean balcony=variant==CatalogueTerraces.Variant.HOURGLASS_BALCONY;
+            if(split) closeWell(cut,5,6,6,7,12);
+            else if(balcony) closeWell(cut,11,12,8,9,12);
+            else closeWell(cut,8,9,6,7,12);
+            helper.assertTrue(reachable(cut,top).contains(bottom)==split
+                    && reachable(cut,bottom).contains(top)==split,"Hourglass has an incorrect number of vertical returns");
+            if(split) {
+                closeWell(cut,9,10,6,7,12);
+                helper.assertTrue(!reachable(cut,top).contains(bottom) && !reachable(cut,bottom).contains(top),
+                        "Double neck retained an uncontracted third descent");
+            }
+            if(balcony) {
+                for(int x=6;x<=10;x++) for(int z=8;z<=9;z++)
+                    helper.assertTrue(stand(geometry,new BlockPos(x,15,z)),"Overhanging balcony lost its supported surface");
+                helper.assertTrue(geometry.get(new BlockPos(9,13,8)).isAir()
+                        && geometry.get(new BlockPos(7,12,7)).isAir(),"Balcony filled the visual opening below");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertHourglassSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                                 BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(7,10,7)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.HOURGLASS_SPLIT),"Bifid neck lost its central blade");
+        helper.assertTrue(blocks.get(base.offset(9,12,6)).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.HOURGLASS),"Single shoulder descent changed");
+        helper.assertTrue(blocks.get(base.offset(5,12,6)).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.HOURGLASS_SPLIT),"Bifid neck lost its second descent");
+        helper.assertTrue(blocks.getOrDefault(base.offset(12,12,8),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.HOURGLASS_BALCONY),"Balcony lateral descent changed");
+        helper.assertTrue(blocks.get(base.offset(9,14,8)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.HOURGLASS_BALCONY),"Large balcony overhang changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
