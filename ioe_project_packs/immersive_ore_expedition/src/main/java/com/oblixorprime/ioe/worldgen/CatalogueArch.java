@@ -72,7 +72,7 @@ final class CatalogueArch {
         floor(blocks,base,12,12,8,7,8);
         floor(blocks,base,12,12,14,7,8);
         stairs(blocks,base,5,14,9,9,Direction.SOUTH);
-        floor(blocks,base,6,6,14,8,12);
+        floor(blocks,base,6,6,14,9,12);
         floor(blocks,base,5,5,14,10,12);
         if(window) for(int x=4;x<=5;x++) for(int y=3;y<=5;y++) for(int z=5;z<=6;z++)
             blocks.put(base.offset(x,y,z),Blocks.AIR.defaultBlockState());
