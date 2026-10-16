@@ -16,11 +16,10 @@ final class CatalogueArch {
         boolean window=variant==CatalogueTerraces.Variant.ARCH_WINDOW;
         boolean fork=variant==CatalogueTerraces.Variant.ARCH_FORK;
         var air=new LinkedHashSet<BlockPos>();
-        well(air,7,9,4,8,3,11);
+        // Keep the arch opening tall; trim unused front/rear viewing shoulders.
         well(air,7,9,5,6,3,13);
-        well(air,3,12,4,4,3,12);
-        well(air,3,12,7,8,3,12);
-        well(air,12,12,5,6,3,14);
+        room(air,8,9,3,4,8);
+        room(air,3,12,3,7,8);
         room(air,3,6,3,3,4);
         room(air,2,4,3,7,8);
         // Supported west bypass keeps N1 independent of B's local window.
