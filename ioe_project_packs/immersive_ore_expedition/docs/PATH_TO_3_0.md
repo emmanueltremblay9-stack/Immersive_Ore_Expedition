@@ -316,6 +316,14 @@ Contrats FINAL inchangés, coupures indépendantes et matrice de 51 840 plans,
 288 placements. Couverture 72/120, 48 restantes. Qualification exacte à suivre.
 Aucun PC, installation, fusion, publication ou Nether. Visuel non prouvé.
 
+### BP-04 — correction de l'ancre de pièce basse
+
+Le candidat 1d1b669 échoue sur le contrat d'ancre ouverte : C utilise une
+échelle en (3,3,6), valide pour le parcours mais pas comme centre de pièce AIR.
+Le centre bas passe à (4,3,6), cellule AIR soutenue commune aux trois variantes.
+Aucune géométrie, masque minéral ou récompense ne change. Qualification à refaire
+sur le nouveau commit exact ; les deux tests de parcours dédiés sont conservés.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
