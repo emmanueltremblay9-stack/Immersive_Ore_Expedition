@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isVault()) assertVaultSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isIslands()) assertIslandsSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isVault()) assertVaultSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isCage()) assertCageSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isWedge()) assertWedgeSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isVolute()) assertVoluteSignatures(helper,plan.blocks(),base,variant);
@@ -299,10 +300,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isVault()) assertVaultSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isIslands()) assertIslandsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isVault()) assertVaultSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isCage()) assertCageSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isWedge()) assertWedgeSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isVolute()) assertVoluteSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -2300,6 +2302,69 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.VAULT_BUTTRESS),"Dominant buttress changed");
         helper.assertTrue(blocks.get(base.offset(7,13,11)).is(Blocks.STONE)
                 == (variant==CatalogueTerraces.Variant.VAULT_TWIN),"Twin-vault divider changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void islandsKeepUnequalMassesOneUnderpassAndSupportedAlcoveReturns(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.ISLANDS,
+                CatalogueTerraces.Variant.ISLANDS_SLAB,CatalogueTerraces.Variant.ISLANDS_HOLLOW}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertIslandsSignatures(helper,g,BlockPos.ZERO,variant);
+            for(int x=6;x<=7;x++) for(int z=7;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,15,z)),"Upper alcove approach pinches below two supported cells");
+            for(int x=7;x<=8;x++) for(int z=10;z<=12;z++) {
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)),"Slab underpass lost its two-wide supported floor");
+                for(int y=6;y<=8;y++) helper.assertTrue(g.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Host-rock slab disappeared");
+            }
+            for(int x=7;x<=10;x++) for(int z=11;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)),"Slab return pinches against the fixed N4 mineral mask");
+            for(int x=7;x<=8;x++) for(int y=2;y<=8;y++)
+                helper.assertTrue(g.get(new BlockPos(x,y,13)).is(Blocks.STONE),"Slab lost its attached rear root");
+            var top=new BlockPos(7,15,7);
+            for(var end:java.util.List.of(new BlockPos(3,3,6),new BlockPos(11,3,9),new BlockPos(11,9,6),
+                    new BlockPos(11,9,12),new BlockPos(3,9,10),new BlockPos(3,15,12)))
+                helper.assertTrue(reachable(g,top).contains(end) && reachable(g,end).contains(top),"Island clearing lost its supported return");
+        }
+        var a=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.ISLANDS);
+        helper.assertTrue(a.get(new BlockPos(5,8,6)).is(Blocks.STONE) && open(a,new BlockPos(5,9,6))
+                && a.get(new BlockPos(9,11,8)).is(Blocks.STONE) && open(a,new BlockPos(9,12,8)),
+                "Reference island heights became uniform");
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void islandRoofBranchesAreIndependentAndDepressionHasOrientedReturnStairs(GameTestHelper helper) {
+        var b=new LinkedHashMap<>(CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.ISLANDS_SLAB));
+        for(int x=8;x<=12;x++) for(int z=8;z<=9;z++)
+            helper.assertTrue(stand(b,new BlockPos(x,3,z)),"Inclined roof pinches the east branch turn against N4 ore");
+        for(int x=8;x<=9;x++) for(int z=9;z<=12;z++)
+            helper.assertTrue(stand(b,new BlockPos(x,3,z)),"East branch return is not two-wide");
+        closeWell(b,5,6,11,12,6);closeWell(b,11,12,6,7,6);
+        var north=new BlockPos(7,3,5);var south=new BlockPos(7,3,11);
+        helper.assertTrue(reachable(b,north).contains(south),"Inclined roof has no lower branch");
+        closeWell(b,3,4,8,8,3);
+        helper.assertTrue(reachable(b,north).contains(south),"West cut removed the independent east branch");
+        closeWell(b,11,12,8,8,3);
+        helper.assertTrue(!reachable(b,north).contains(south) && !reachable(b,south).contains(north),"Roofed fork retained a third lower crossing");
+        var c=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.ISLANDS_HOLLOW);
+        for(int x=5;x<=6;x++) {
+            helper.assertTrue(c.get(new BlockPos(x,2,7)).getValue(StairBlock.FACING)==net.minecraft.core.Direction.SOUTH
+                    && stand(c,new BlockPos(x,3,8)),
+                    "Depression stairs lost their return orientation");
+            var low=new BlockPos(x,2,6);var high=new BlockPos(x,3,9);
+            helper.assertTrue(stand(c,low) && reachable(c,low).contains(high) && reachable(c,high).contains(low),
+                    "Connected depression requires a jump or cannot be exited");
+        }
+        helper.assertTrue(reachable(c,new BlockPos(3,3,6)).contains(new BlockPos(11,3,9)),"Depression removed its surrounding circuit");
+        helper.succeed();
+    }
+
+    private static void assertIslandsSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                                 BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(11,7,8),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.ISLANDS_SLAB),"Inclined-roof high underpass changed");
+        helper.assertTrue(blocks.get(base.offset(5,2,6)).isAir()
+                == (variant==CatalogueTerraces.Variant.ISLANDS_HOLLOW),"Connected depression changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {

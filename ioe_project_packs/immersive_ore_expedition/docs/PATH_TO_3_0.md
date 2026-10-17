@@ -400,6 +400,17 @@ Deux tests dédiés, 62,640 plans et 348 placements.
 Couverture 87/120, 33 restantes ; qualification exacte à suivre.
 Aucun PC, installation, fusion, publication ou Nether. Visuel non prouvé.
 
+### BP-08 qualifié ; cycle suivant BP-09 A/B/C
+
+BP-08 accepté sur d01bb261b9b40c0d4aacd5c1115b2ebbc6137043 : 16 jobs verts, 716 JUnit,
+141+141 GameTests par pile, streaming/reprise ; maximum 2494.
+JAR non installé : 6cae4def8272220a2bad32e80b55df7a1ebe015c15ded44295b324de9698e20a.
+BP-09 : trois îlots inégaux, toit incliné à deux branches, puis dépression
+reliée par escalier. Coupures et retours vérifiés sans modifier les récompenses.
+Deux tests dédiés, 64,800 plans et 360 placements.
+Couverture 90/120, 30 restantes ; qualification exacte à suivre.
+Aucun PC, installation, fusion, publication ou Nether. Visuel non prouvé.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
