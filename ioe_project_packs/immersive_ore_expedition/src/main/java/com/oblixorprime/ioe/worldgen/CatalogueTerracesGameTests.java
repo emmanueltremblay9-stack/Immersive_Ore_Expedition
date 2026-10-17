@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isNave()) assertNaveSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isTrihedral()) assertTrihedralSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isNave()) assertNaveSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isTraverse()) assertTraverseSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isArch()) assertArchSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isBipyramid()) assertBipyramidSignatures(helper,plan.blocks(),base,variant);
@@ -291,10 +292,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isNave()) assertNaveSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isTrihedral()) assertTrihedralSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isNave()) assertNaveSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isTraverse()) assertTraverseSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isArch()) assertArchSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isBipyramid()) assertBipyramidSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -1785,6 +1787,63 @@ public final class CatalogueTerracesGameTests {
         for(var p:java.util.List.of(new BlockPos(7,12,4),new BlockPos(10,12,8),new BlockPos(8,6,11)))
             helper.assertTrue(!blocks.getOrDefault(base.offset(p),Blocks.STONE.defaultBlockState()).isAir(),
                     "Diaphragm lost its separating frame above a window");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void trihedralSheetsRemainPerpendicularWithSupportedFootAndShoulderRoutes(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.TRIHEDRAL,
+                CatalogueTerraces.Variant.TRIHEDRAL_CHAMFER,CatalogueTerraces.Variant.TRIHEDRAL_PIERCED}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertTrihedralSignatures(helper,g,BlockPos.ZERO,variant);
+            for(int y:new int[]{3,9,15}) {
+                for(int x=5;x<=6;x++) for(int z=4;z<=12;z++) {
+                    if(variant==CatalogueTerraces.Variant.TRIHEDRAL_CHAMFER && y==9 && z<=5) continue;
+                    helper.assertTrue(stand(g,new BlockPos(x,y,z)),"West sheet lost its supported two-wide route");
+                }
+                for(int x=5;x<=12;x++) for(int z=4;z<=5;z++) {
+                    if(variant==CatalogueTerraces.Variant.TRIHEDRAL_CHAMFER && y==9 && x<=6) continue;
+                    helper.assertTrue(stand(g,new BlockPos(x,y,z)),"North sheet lost its supported two-wide route");
+                }
+            }
+            var top=new BlockPos(7,15,7);
+            for(var end:java.util.List.of(new BlockPos(6,3,8),new BlockPos(6,9,9),new BlockPos(3,15,12)))
+                helper.assertTrue(reachable(g,top).contains(end) && reachable(g,end).contains(top),
+                        "Trihedral planes lack a supported return");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void trihedralChamferAndDiagonalPiercingKeepDistinctMiddleConnections(GameTestHelper helper) {
+        var north=new BlockPos(10,9,4);var west=new BlockPos(6,9,9);
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.TRIHEDRAL_CHAMFER,
+                CatalogueTerraces.Variant.TRIHEDRAL_PIERCED}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var cut=new LinkedHashMap<>(g);
+            for(int y:new int[]{6,12}) {
+                closeWell(cut,5,6,6,7,y);closeWell(cut,10,11,5,6,y);
+            }
+            closeWell(cut,5,6,4,5,9);
+            helper.assertTrue(reachable(cut,north).contains(west) && reachable(cut,west).contains(north),
+                    "Oblique middle route depends on the sharp edge or vertical return");
+            if(variant==CatalogueTerraces.Variant.TRIHEDRAL_CHAMFER) closeWell(cut,6,8,6,6,9);
+            else closeWell(cut,7,10,7,7,9);
+            helper.assertTrue(!reachable(cut,north).contains(west) && !reachable(cut,west).contains(north),
+                    "Oblique route cut retained an unintended middle bypass");
+            helper.assertTrue(reachable(cut,new BlockPos(6,3,9)).contains(new BlockPos(10,3,5)),
+                    "Middle cut removed the independent lower gallery");
+        }
+        helper.succeed();
+    }
+
+    private static void assertTrihedralSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                                  BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(6,9,4)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.TRIHEDRAL_CHAMFER),"Middle sharp edge/chamfer changed");
+        helper.assertTrue(blocks.get(base.offset(9,9,7)).isAir()
+                == (variant==CatalogueTerraces.Variant.TRIHEDRAL_PIERCED),"Opposite-corner piercing changed");
+        helper.assertTrue(blocks.get(base.offset(9,12,9)).is(Blocks.STONE)
+                && blocks.get(base.offset(9,7,8)).is(Blocks.STONE),"Opposite corner lost its retained host-rock mass");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {

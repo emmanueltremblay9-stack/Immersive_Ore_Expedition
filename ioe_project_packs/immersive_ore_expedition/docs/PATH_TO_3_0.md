@@ -262,6 +262,22 @@ rayon de résidus. Géométrie, budgets et récompenses restent inchangés.
 La matrice du candidat mesure au plus 2 500 cellules ; cela ne qualifie pas
 le nouveau commit. Les quatre CI doivent être exécutées sur la correction.
 
+### BP-13 qualifié ; cycle suivant BP-19 A/B/C
+
+BP-13 accepté sur c493b79867a1d559129c468d6f89096353612463 : 16 jobs verts, 716 JUnit et 125+125
+GameTests par pile, streaming/reprise ; 45 360 plans, 252 placements réels,
+maximum 2500. JAR non installé :
+ba8c3b3e5a905d76331cbf53dc2f8dd0bbbb7a012e8d513a59b5abfb8b10eea5.
+
+BP-19 : deux ailes verticales perpendiculaires et galerie basse ; A arête
+vive, B chanfrein médian, C percement diagonal du massif opposé. Les raccords
+obliques conservent des sections communes de deux blocs de largeur.
+Tests de retours, plans distincts et coupures médianes sans détruire le bas.
+Couverture 66/120 implémentées, 54 restantes ; 47 520 plans et 264 placements.
+Qualification exacte à suivre sans transfert de preuves. Plafond 2 500
+inchangé ; pas de PC, installation, fusion, publication ou activation Nether.
+Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

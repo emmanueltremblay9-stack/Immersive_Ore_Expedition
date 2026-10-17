@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 19 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 18 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-11, BP-13, BP-14, BP-16, BP-17, BP-20, BP-23, BP-24, BP-26, BP-27, BP-31, BP-34, BP-35, BP-36, BP-37 or BP-40 A/B/C using one sixty-three-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-05, BP-06, BP-10, BP-11, BP-13, BP-14, BP-16, BP-17, BP-19, BP-20, BP-23, BP-24, BP-26, BP-27, BP-31, BP-34, BP-35, BP-36, BP-37 or BP-40 A/B/C using one sixty-six-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -77,19 +77,19 @@ Its separate CI JAR SHA256 is
 That receipt does not qualify the subsequent natural-routing changes described
 above. Their exact source and final CI receipt are recorded separately in PR64.
 
-Integration tests cover all 63 implemented shapes, four access types and all five
+Integration tests cover all 66 implemented shapes, four access types and all five
 qualities: source-chunk containment including negative coordinates, all nine
 approved depths, unchanged anchor bounds, complete-plan size, three-high
 supported routes to all alcoves,
 all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
-`Feature.place` staging/commit/deduplication for all 63 variants at all four accesses.
+`Feature.place` staging/commit/deduplication for all 66 variants at all four accesses.
 The existing GeOre/Certus runtime tests additionally exercise ranks, fallbacks,
 Jade metadata, persistence, compensation and actual resource-profile admission.
 
 No new server/profile, PC operation, Nether activation, merge or publication is
 part of this work. The installed `382e0b4` provenance remains separate. Client
-visual qualification remains NOT_PERFORMED. Current coverage is 63 of 120 described
-variants; 57 remain pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
+visual qualification remains NOT_PERFORMED. Current coverage is 66 of 120 described
+variants; 54 remain pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
 be attributed to its own source, not to a predecessor receipt.
 
 
@@ -119,7 +119,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
 | 001 | BP-01–BP-10 | BP-02, BP-03, BP-05, BP-06 and BP-10 A/B/C | All A/B/C of the other five families (15) |
-| 002 | BP-11–BP-20 | BP-11, BP-13, BP-14, BP-16, BP-17 and BP-20 A/B/C | All A/B/C of the other four families (12) |
+| 002 | BP-11–BP-20 | BP-11, BP-13, BP-14, BP-16, BP-17, BP-19 and BP-20 A/B/C | All A/B/C of the other three families (9) |
 | 003 | BP-21–BP-30 | BP-23, BP-24, BP-26 and BP-27 A/B/C | All A/B/C of the other six families (18) |
 | 004 | BP-31–BP-40 | BP-31, BP-34, BP-35, BP-36, BP-37 and BP-40 A/B/C | All A/B/C of the other four families (12) |
 
@@ -971,3 +971,27 @@ Predecessor BP-40 source 77c5e5e4f27b2ded8b8f99835fb13dafbb54a295: 16 successful
 123 minimal + 123 complete GameTests per stack plus streaming/restart; maximum
 2495 over 43,200 plans. JAR SHA256
 d9a4800023df92434c1585aa376675a4624a9772b171e5f8d006847b80346602. These proofs do not qualify BP-13.
+
+
+## BP-19 A/B/C: perpendicular sheets and a lower gallery
+
+Two vertical wings meet at a common edge, with a connected lower gallery.
+A retains the sharp middle corner; B replaces it by a chamfered supported
+connection; C keeps the corner and adds a diagonal middle piercing through
+the opposite host-rock mass. Overlapping passage sections retain two-wide
+faces instead of joining diagonal squares through a single-cell corner.
+
+Tests check supported routes in both perpendicular planes, their lower and
+upper returns, the retained mass, and independent middle cut sets after
+isolating vertical bypasses. The lower gallery survives those middle cuts.
+Fixed masks, entry, cache, survey room and rewards remain. Generic generator,
+DRY, persistence, absent-neighbor refusal and rollback matrices extend.
+Coverage 66/120 implemented, 54 pending; 47,520 composed plans and 264 actual
+placement/commit/dedup pairs. Exact-source qualification required; 2,500 cap
+unchanged. No installation, merge, publication or Nether activation.
+Client/visual qualification remains NOT_PERFORMED.
+
+Predecessor BP-13 source c493b79867a1d559129c468d6f89096353612463: 16 successful jobs, 716 JUnit,
+125 minimal + 125 complete GameTests per stack plus streaming/restart; maximum
+2500 over 45,360 plans. JAR SHA256
+ba8c3b3e5a905d76331cbf53dc2f8dd0bbbb7a012e8d513a59b5abfb8b10eea5. These proofs do not qualify BP-19.
