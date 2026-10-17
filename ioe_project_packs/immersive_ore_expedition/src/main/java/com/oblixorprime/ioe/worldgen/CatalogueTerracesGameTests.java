@@ -119,7 +119,7 @@ public final class CatalogueTerracesGameTests {
             helper.assertTrue(level.getBlockState(entry.getKey()).equals(entry.getValue()), "Route support changed during placement: " + variant + " " + entry.getKey().subtract(CatalogueTerraces.base(center)) + " expected=" + entry.getValue() + " actual=" + level.getBlockState(entry.getKey()));
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
-                "Rollback left blueprint blocks");
+                "Rollback left blueprint blocks: " + variant + " " + geometry.keySet().stream().filter(p -> !level.getBlockState(p).is(Blocks.STONE)).map(p -> p.subtract(CatalogueTerraces.base(center))).limit(12).toList());
         if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands() || variant.isNetworks() || variant.isHelix() || variant.isGrid() || variant.isPages() || variant.isWheel() || variant.isKnot() || variant.isDelta() || variant.isSaddle() || variant.isWaves() || variant.isLens() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
             var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands() || variant.isNetworks() || variant.isHelix() || variant.isGrid() || variant.isPages() || variant.isWheel() || variant.isKnot() || variant.isDelta() || variant.isSaddle() || variant.isWaves() || variant.isLens()) && e.getValue().is(Blocks.LADDER))
@@ -130,9 +130,44 @@ public final class CatalogueTerracesGameTests {
                     "Compensation overwrote a foreign route replacement");
             helper.assertTrue(geometry.keySet().stream().filter(p -> !p.equals(foreign))
                     .allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
-                    "Foreign route edit prevented compensation of owned cells");
+                    "Foreign route edit prevented compensation of owned cells: " + variant);
             level.setBlockAndUpdate(foreign,Blocks.STONE.defaultBlockState());
         }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void cornerRollbackTracksOwnNativeUpdatesWithoutReclaimingForeignStates(GameTestHelper helper) {
+        var level=helper.getLevel();var a=helper.absolutePos(new BlockPos(6,8,6));var b=a.west();
+        var corner=Blocks.STONE_STAIRS.defaultBlockState().setValue(StairBlock.FACING,Direction.WEST)
+                .setValue(StairBlock.SHAPE,net.minecraft.world.level.block.state.properties.StairsShape.OUTER_LEFT);
+        var neighbour=Blocks.STONE_STAIRS.defaultBlockState().setValue(StairBlock.FACING,Direction.SOUTH);
+        var geometry=new LinkedHashMap<BlockPos,BlockState>();
+        for(var pos:java.util.List.of(a,b)) {
+            geometry.put(pos.below(),Blocks.STONE.defaultBlockState());
+            for(int y=1;y<=3;y++) geometry.put(pos.above(y),Blocks.AIR.defaultBlockState());
+        }
+        // B is restored first, so native updates change the still-owned A corner to STRAIGHT.
+        geometry.put(a,corner);geometry.put(b,neighbour);
+        for(boolean foreign:new boolean[]{false,true}) {
+            geometry.keySet().forEach(p->level.setBlockAndUpdate(p,Blocks.STONE.defaultBlockState()));
+            var plan=new ExpeditionSiteBlockPlan(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER,a,a,a,a.above(),
+                    com.oblixorprime.ioe.core.SiteQuality.DRY,0,null,null,java.util.List.of(a.above()),
+                    java.util.List.of(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER),geometry);
+            var applied=IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
+            helper.assertTrue(level.getBlockState(a).equals(corner) && level.getBlockState(b).equals(neighbour),
+                    "Native corner fixture did not settle to its planned states");
+            var foreignState=corner.setValue(StairBlock.SHAPE,net.minecraft.world.level.block.state.properties.StairsShape.STRAIGHT);
+            if(foreign) {
+                level.setBlock(a,foreignState,2);
+                helper.assertTrue(level.getBlockState(a).equals(foreignState),"Foreign state-only edit was not established");
+            }
+            helper.assertTrue(applied.rollback(level) && applied.rollback(level),"Corner compensation is not idempotent");
+            for(var pos:geometry.keySet()) helper.assertTrue(level.getBlockState(pos).equals(
+                    foreign && pos.equals(a)?foreignState:Blocks.STONE.defaultBlockState()),
+                    "Rollback reclaimed a foreign stair state or lost an owned native update: "+pos+" foreign="+foreign);
+            level.setBlockAndUpdate(a,Blocks.STONE.defaultBlockState());
         }
         helper.succeed();
     }

@@ -448,6 +448,22 @@ pentes résolvent maintenant leurs angles d'escalier selon les voisins planifié
 sans lecture du monde ; l'égalité stricte après pose et le rollback restent testés.
 Chaque correctif conserve les parcours A/B/C et attend une nouvelle CI exacte.
 
+### Journal des changements natifs pendant la compensation
+
+Le runtime actuel de 5a4d572 termine la matrice des 120 variantes (maximum 2 494)
+et ne signale plus que le test de compensation : restaurer un voisin change l'angle
+d'un escalier encore possédé, que l'ancienne comparaison prenait alors pour une
+édition étrangère. Le rollback capture maintenant les propriétaires par égalité
+exacte avant toute écriture. Seul un changement SHAPE observé immédiatement après
+sa propre restauration, sur un escalier préalablement égal à son attente, fait
+avancer cette attente. Bloc, orientation, moitié et waterlogging restent identiques.
+Une modification étrangère préexistante n'entre jamais ensuite dans le journal.
+Le journal persiste pour une reprise après échec ; les restaurations restent LIFO.
+Un GameTest ciblé vérifie le changement natif et la préservation d'une édition
+étrangère portant seulement sur SHAPE, avec répétition idempotente. Total attendu :
+164 minimaux + 164 complets par pile. Les assertions existantes restent strictes.
+Nouvelle qualification exacte requise ; aucun moteur de génération ou budget modifié.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
