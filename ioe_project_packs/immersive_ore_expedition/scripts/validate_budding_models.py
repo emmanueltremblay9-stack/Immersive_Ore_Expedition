@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate canonical GeOre rank bindings/geometry and recipes; optionally resolve assets from pinned runtime JARs.
+"""Validate IOE-owned rank bindings/geometry and recipes; optionally resolve assets from pinned runtime JARs.
 
 This is a resource check, not a Minecraft renderer or client visual acceptance test.
 """
@@ -10,21 +10,21 @@ from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1] / 'src/main/resources'
 MOD = 'immersive_ore_expedition'
-RANKS = ('flawless', 'flawed', 'chipped', 'damaged')
+RANKS = ('flawless', 'fully', 'flawed', 'chipped', 'damaged')
 FAMILIES = ('iron', 'coal', 'copper', 'diamond', 'emerald', 'gold', 'lapis', 'redstone',
-            'aluminum', 'lead', 'nickel', 'silver', 'uranium')
+            'aluminum', 'lead', 'nickel', 'silver', 'uranium', 'amethyst', 'glowstone')
 IE_FAMILIES = {'aluminum', 'lead', 'nickel', 'silver', 'uranium'}
 FACES = {'north', 'south', 'east', 'west', 'up', 'down'}
 
 
 def validate_data(family, read):
-    required = {'ae2', 'geore'} | ({'immersiveengineering'} if family in IE_FAMILIES else set())
+    required = set() if family in ('amethyst', 'glowstone') else {'ae2', 'geore'} | ({'immersiveengineering'} if family in IE_FAMILIES else set())
     def data(path, extra=()):
         result = json.loads(read(f'data/{MOD}/{path}.json'))
-        assert {c['modid'] for c in result['neoforge:conditions']} == required | set(extra), path
+        assert {c['modid'] for c in result.get('neoforge:conditions', [])} == required | set(extra), path
         return result
     storage = (f'immersiveengineering:storage_{family}' if family in IE_FAMILIES
-               else f'minecraft:{family}_block')
+               else 'minecraft:glowstone' if family == 'glowstone' else f'minecraft:{family}_block')
     for rank in RANKS:
         name = f'{rank}_budding_{family}'
         loot = data(f'loot_table/blocks/{name}')
@@ -35,11 +35,14 @@ def validate_data(family, read):
             children = entries[0]['children']
             assert children[0]['name'] == f'{MOD}:{name}', name
             assert children[0]['conditions'][0]['predicate']['predicates']['minecraft:enchantments'][0]['enchantments'] == 'minecraft:silk_touch'
-            lower = {'flawed': 'chipped', 'chipped': 'damaged'}.get(rank)
+            lower = {'fully': 'flawed', 'flawed': 'chipped', 'chipped': 'damaged'}.get(rank)
             assert children[1]['name'] == (f'{MOD}:{lower}_budding_{family}' if lower else storage), name
         for tag in ('c/tags/block/budding_blocks', 'minecraft/tags/block/mineable/pickaxe'):
             values = json.loads(read(f'data/{tag}.json'))['values']
             assert {'id': f'{MOD}:{name}', 'required': False} in values, name
+    if family in ('amethyst', 'glowstone'):
+        assert not list((ROOT / f'data/{MOD}/recipe').rglob(f'*budding_{family}.json'))
+        return
     for previous, rank in (('damaged', 'chipped'), ('chipped', 'flawed')):
         recipe = data(f'recipe/transform/{rank}_budding_{family}')
         assert recipe['type'] == 'ae2:transform'
@@ -92,6 +95,31 @@ def validate(jars=()):
         return textures
 
     try:
+        for name in ('small_glowstone_bud', 'medium_glowstone_bud', 'large_glowstone_bud', 'glowstone_cluster'):
+            model_id = f'{MOD}:block/{name}'
+            state = json.loads(read(f'assets/{MOD}/blockstates/{name}.json'))
+            assert set(state['variants']) == {f'facing={face}' for face in FACES}
+            assert all(v['model'] == model_id for v in state['variants'].values())
+            assert json.loads(read(resource(f'{MOD}:item/{name}', 'models', 'json')))['parent'] == model_id
+            for language in ('en_us', 'fr_fr'):
+                assert json.loads(read(f'assets/{MOD}/lang/{language}.json'))[f'block.{MOD}.{name}'].strip()
+            loot = json.loads(read(f'data/{MOD}/loot_table/blocks/{name}.json'))
+            entries = loot['pools'][0]['entries']
+            if name == 'glowstone_cluster':
+                silk, normal = entries[0]['children']
+                pick, other = normal['children']
+                assert pick['name'] == other['name'] == 'minecraft:glowstone_dust'
+                assert pick['functions'][0]['count'] == 2 and other['functions'][0]['count'] == 1
+                assert pick['conditions'][0]['predicate']['items'] == '#minecraft:cluster_max_harvestables'
+                assert pick['functions'][1]['formula'] == 'minecraft:ore_drops'
+                assert pick['functions'][1]['enchantment'] == 'minecraft:fortune'
+            else:
+                silk = entries[0]
+                assert len(entries) == 1
+            assert silk['name'] == f'{MOD}:{name}'
+            assert silk['conditions'][0]['predicate']['predicates']['minecraft:enchantments'][0]['enchantments'] == 'minecraft:silk_touch'
+            if archives:
+                resolve(f'{MOD}:item/{name}')
         for family in FAMILIES:
             signatures = set()
             coverage = []
@@ -106,7 +134,7 @@ def validate(jars=()):
                     translations = json.loads(read(f'assets/{MOD}/lang/{language}.json'))
                     assert translations[f'block.{MOD}.{name}'].strip(), name
                 model = json.loads(read(resource(model_id, 'models', 'json')))
-                assert model['textures']['all'] == f'geore:block/budding_{family}', name
+                assert model['textures']['all'] == (f'minecraft:block/budding_amethyst' if family == 'amethyst' else 'minecraft:block/glowstone' if family == 'glowstone' else f'geore:block/budding_{family}'), name
                 signatures.add(json.dumps(model, sort_keys=True))
                 face_area = dict.fromkeys(FACES, 0)
                 for element in model['elements']:
@@ -127,12 +155,12 @@ def validate(jars=()):
                 coverage.append(face_area['north'])
                 if archives:
                     resolve(item_id)
-            assert len(signatures) == 4, 'Ranks must have distinct model data'
+            assert len(signatures) == 5, 'Ranks must have distinct model data'
             assert coverage == sorted(set(coverage)) and coverage[0] == 0 and coverage[-1] < 64, coverage
             validate_data(family, read)
-        print(f'Budding resources: {len(FAMILIES)} families, 52 distinct rank bindings; '
+        print(f'Budding resources: {len(FAMILIES)} families, {len(FAMILIES) * len(RANKS)} distinct rank bindings; '
               f'{len(resolved)} texture resources resolved' if archives else
-              'Budding resources: 13 families, 52 rank bindings; external JAR resolution not requested')
+              f'Budding resources: {len(FAMILIES)} families, {len(FAMILIES) * len(RANKS)} rank bindings; external JAR resolution not requested')
     finally:
         for archive in archives:
             archive.close()

@@ -30,7 +30,7 @@ final class DrySitePockets {
                 BlockPos pos = center.offset(x, -1, z);
                 var state = blocks.get(pos);
                 if (blocks.getOrDefault(pos.above(), Blocks.STONE.defaultBlockState()).isAir()
-                        && (state == null || state.isAir()) && !shape.blockEntityPayloads().containsKey(pos)) {
+                        && (state == null || state.isAir() || state.is(Blocks.STONE)) && !shape.blockEntityPayloads().containsKey(pos)) {
                     candidates.add(pos);
                 }
             }

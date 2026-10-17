@@ -208,6 +208,114 @@
     {
       "id": "immersive_ore_expedition:flawless_budding_uranium",
       "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_iron",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_coal",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_copper",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_diamond",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_emerald",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_gold",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_lapis",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_redstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_aluminum",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_lead",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_nickel",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_silver",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_uranium",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_amethyst",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_amethyst",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_amethyst",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_amethyst",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_amethyst",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:damaged_budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:chipped_budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawed_budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:fully_budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_glowstone",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:small_glowstone_bud",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:medium_glowstone_bud",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:large_glowstone_bud",
+      "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:glowstone_cluster",
+      "required": false
     }
   ]
 }

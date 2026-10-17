@@ -13,14 +13,14 @@ class NativeCertusBuddingTest {
         }
         var required = new ArrayList<>(BuddingResourceFamily.CERTUS_QUARTZ.growthProductIds());
         required.add(NativeCertusBudding.QUARTZ);
-        for (BuddingRank rank : BuddingRank.values()) required.add(NativeCertusBudding.id(rank));
+        for (BuddingRank rank : com.oblixorprime.ioe.budding.NativeCertusBudding.ranks()) required.add(NativeCertusBudding.id(rank));
         for (var absent : required) {
             assertFalse(NativeCertusBudding.available(mod -> true, id -> !id.equals(absent)), absent.toString());
         }
     }
 
     @Test void nativeRankIdsAreExactAndEntroIsNotSelectedAsGeOre() {
-        for (BuddingRank rank : BuddingRank.values()) {
+        for (BuddingRank rank : com.oblixorprime.ioe.budding.NativeCertusBudding.ranks()) {
             assertEquals("ae2:" + rank.path() + "_budding_quartz", NativeCertusBudding.id(rank).toString());
         }
         assertEquals("ae2:quartz_block", NativeCertusBudding.QUARTZ.toString());

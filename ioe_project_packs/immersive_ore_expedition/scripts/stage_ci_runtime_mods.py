@@ -76,6 +76,8 @@ def stage(manifest_path: Path, destination: Path) -> list[dict[str, object]]:
         actual_hash = sha512(target)
         if actual_hash != entry["sha512"]:
             raise SystemExit(f"SHA-512 mismatch for {target.name}: {actual_hash}")
+        if entry.get("sha256") and hashlib.sha256(target.read_bytes()).hexdigest() != entry["sha256"]:
+            raise SystemExit(f"PC SHA-256 mismatch for {target.name}")
         actual_mod_ids = metadata_mod_ids(target)
         if entry["mod_id"] not in actual_mod_ids:
             raise SystemExit(
@@ -86,6 +88,7 @@ def stage(manifest_path: Path, destination: Path) -> list[dict[str, object]]:
             "mod_id": entry["mod_id"],
             "size": target.stat().st_size,
             "sha512": actual_hash,
+            "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
         }
         expected_biome_count = EXPECTED_BIOME_COUNTS.get(entry["mod_id"])
         if expected_biome_count is not None:

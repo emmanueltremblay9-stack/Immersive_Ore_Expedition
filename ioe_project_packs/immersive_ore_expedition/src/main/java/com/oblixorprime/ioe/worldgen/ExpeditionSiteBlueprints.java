@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class ExpeditionSiteBlueprints {
+    static final int MAX_PLANNED_BLOCKS = 2_500;
     static final int MIN_CONNECTOR_DEPTH = 20;
     static final int MAX_CONNECTOR_DEPTH = 28;
     static final int CHAMBER_HORIZONTAL_OFFSET = 5;
@@ -244,35 +245,65 @@ public final class ExpeditionSiteBlueprints {
         BlockPos chamberCenter = origin;
         List<BlockPos> roomCenters = new ArrayList<>();
         int oreNodeCount = 0;
+        boolean catalogue = requestedType.naturalSurfaceSite() && !hasSpecialGeode
+                && (oreNodeHeartState == null || BuddingBlockIdentity.isCanonical(oreNodeHeartState.getBlock()));
 
         if (requestedType.naturalSurfaceSite()) {
             int depth = MIN_CONNECTOR_DEPTH + random.nextInt(MAX_CONNECTOR_DEPTH - MIN_CONNECTOR_DEPTH + 1);
             int direction = directionTowardChunkCenter(origin);
-            connectorEnd = addConnector(builder, origin, depth, direction, true);
-            chamberCenter = connectedChamberCenter(connectorEnd, direction, quality);
-            connectTunnelToChamber(builder, connectorEnd, direction, chamberCenter);
-            oreNodeCount = addChamber(
-                    builder,
-                    chamberCenter,
-                    quality,
-                    oreState,
-                    oreNodeHeartState,
-                    specialBuddingState,
-                    specialShellState,
-                    oreBudget,
-                    requestedOreNodeCount,
-                    requestedSpecialBuddingCount,
-                    random
-            );
-            roomCenters.add(chamberCenter.immutable());
-            roomCenters.addAll(addExpeditionGalleries(
-                    builder,
-                    origin,
-                    chamberCenter,
-                    direction,
-                    quality
-            ));
-            restoreConnectorLadder(builder, origin, depth);
+            if (catalogue) {
+                // Geometry stream only: quality, DRY and Flawless use their existing independent streams.
+                var variant = CatalogueTerraces.Variant.values()[random.nextInt(CatalogueTerraces.Variant.values().length)];
+                chamberCenter = new BlockPos(Math.floorDiv(origin.getX(),16)*16+7,
+                        origin.getY()-depth, Math.floorDiv(origin.getZ(),16)*16+7);
+                int shaftDepth = depth-4;
+                addShaft(builder, origin, shaftDepth, true);
+                roomCenters.add(addGalleryLevel(builder, origin.below(8), direction,
+                        zDirectionTowardChunkCenter(origin), GalleryTheme.SURVEY));
+                connectorEnd = origin.below(shaftDepth);
+                var geometry = CatalogueTerraces.geometry(chamberCenter,variant);
+                geometry.forEach(builder::put);
+                CatalogueTerraces.access(chamberCenter,connectorEnd,geometry).forEach(builder::put);
+                // Reopen the two original shaft cells through the overhead connector's roof.
+                restoreConnectorLadder(builder,origin,shaftDepth);
+                roomCenters.add(chamberCenter.immutable());
+                roomCenters.add(variant.isLens() ? chamberCenter.offset(-4,-6,-1) : variant.isWaves() ? chamberCenter.offset(-1,-8,1) : variant.isSaddle() ? chamberCenter.offset(-1,-6,1) : variant.isDelta() ? chamberCenter.offset(-2,-6,5) : variant.isKnot() ? chamberCenter.offset(-2,-6,0) : variant.isWheel() ? chamberCenter.offset(0,-6,1) : variant.isPages() ? chamberCenter.offset(-1,-6,0) : variant.isGrid() ? chamberCenter.offset(0,-6,-3) : variant.isHelix() ? chamberCenter.offset(2,-6,1) : variant.isNetworks() ? chamberCenter.offset(-1,-6,-1) : variant.isIslands() ? chamberCenter.offset(4,-6,-1) : variant.isVault() ? chamberCenter.offset(-2,-6,2) : variant.isCage() ? chamberCenter.offset(1,-6,2) : variant.isWedge() ? chamberCenter.offset(1,-6,2) : variant.isVolute() ? chamberCenter.offset(-2,-6,2) : variant.isHorn() ? chamberCenter.offset(0,-6,-3) : variant.isAnnulus() ? chamberCenter.offset(0,-6,-3) : variant.isShells() ? chamberCenter.offset(-1,-6,4) : variant.isTrihedral() ? chamberCenter.offset(-1,-6,2) : variant.isNave() ? chamberCenter.offset(0,-6,-1) : variant.isTraverse() ? chamberCenter.offset(0,-6,-2) : variant.isArch() ? chamberCenter.offset(1,-6,0) : variant.isBipyramid() || variant.isBell() ? chamberCenter.offset(0,-6,-2) : variant.isHourglass() ? chamberCenter.offset(-1,-6,-2) : variant.isSlab() || variant.isMushroom() || variant.isChimney() || variant.isTeeth() ? chamberCenter.below(6).south(2) : variant.isPearls() ? chamberCenter.below(6).west() : variant.isRails() ? chamberCenter.offset(-2,-6,-3) : variant.isCrossing() || variant.isSiphon()
+                        ? chamberCenter.below(6).north(3) : chamberCenter.below(6));
+                roomCenters.add(variant.isLens() ? chamberCenter.offset(-3,-12,-1) : variant.isWaves() ? chamberCenter.offset(-3,-12,-2) : variant.isSaddle() ? chamberCenter.offset(-3,-12,-2) : variant.isDelta() ? chamberCenter.offset(-3,-12,-1) : variant.isKnot() ? chamberCenter.offset(-3,-12,0) : variant.isWheel() ? chamberCenter.offset(-3,-12,0) : variant.isPages() ? chamberCenter.offset(-1,-12,0) : variant.isGrid() ? chamberCenter.offset(-3,-12,-3) : variant.isHelix() ? chamberCenter.offset(-3,-12,0) : variant.isNetworks() ? chamberCenter.offset(-1,-12,-1) : variant.isIslands() ? chamberCenter.offset(-4,-12,-1) : variant.isVault() ? chamberCenter.offset(-2,-12,2) : variant.isCage() ? chamberCenter.offset(-2,-12,-1) : variant.isWedge() ? chamberCenter.offset(0,-12,0) : variant.isVolute() ? chamberCenter.offset(-1,-12,1) : variant.isHorn() ? chamberCenter.offset(-4,-12,-1) : variant.isAnnulus() ? chamberCenter.offset(-3,-12,-1) : variant.isShells() ? chamberCenter.offset(-4,-12,-1) : variant.isTrihedral() ? chamberCenter.offset(-1,-12,1) : variant.isNave() ? chamberCenter.offset(0,-12,-1) : variant.isTraverse() ? chamberCenter.offset(1,-12,1) : variant.isArch() ? chamberCenter.offset(1,-12,0) : variant.isBipyramid() ? chamberCenter.offset(0,-12,1) : variant.isBell() || variant.isHourglass() ? chamberCenter.below(12) : variant.isSlab() || variant.isMushroom() ? chamberCenter.offset(-2,-12,0) : variant.isAxial() ? chamberCenter.offset(-3,-12,0) : variant.isChimney() ? chamberCenter.below(12) : variant.isTeeth() ? chamberCenter.below(12).north(2) : variant.isComb() ? chamberCenter.offset(-4,-12,-2) : variant.isCells() ? chamberCenter.offset(-2,-12,-3) : variant.isRoots() ? chamberCenter.offset(variant == CatalogueTerraces.Variant.ROOTS_STAGED ? -4 : 0,-12,variant == CatalogueTerraces.Variant.ROOTS_STAGED ? -2 : 0) : variant.isBayonet() ? chamberCenter.below(12) : variant.isEight() ? chamberCenter.below(12).north(2) : variant.isRails() ? chamberCenter.offset(-2,-12,-3) : variant.isSiphon()
+                        ? chamberCenter.below(12).north(variant == CatalogueTerraces.Variant.SIPHON_SPLIT ? 3 : 0)
+                        : chamberCenter.below(12).south(2));
+                if (quality.isProductive() && oreState != null) {
+                    CatalogueTerraces.nodes(chamberCenter,oreState,oreNodeHeartState,oreBudget,requestedOreNodeCount)
+                            .forEach(builder::put);
+                    oreNodeCount = requestedOreNodeCount;
+                }
+            } else {
+                connectorEnd = addConnector(builder, origin, depth, direction, true);
+                chamberCenter = connectedChamberCenter(connectorEnd, direction, quality);
+                connectTunnelToChamber(builder, connectorEnd, direction, chamberCenter);
+                oreNodeCount = addChamber(
+                        builder,
+                        chamberCenter,
+                        quality,
+                        oreState,
+                        oreNodeHeartState,
+                        specialBuddingState,
+                        specialShellState,
+                        oreBudget,
+                        requestedOreNodeCount,
+                        requestedSpecialBuddingCount,
+                        random
+                );
+                roomCenters.add(chamberCenter.immutable());
+                roomCenters.addAll(addExpeditionGalleries(
+                        builder,
+                        origin,
+                        chamberCenter,
+                        direction,
+                        quality
+                ));
+                restoreConnectorLadder(builder, origin, depth);
+            }
             addSurfaceClue(builder, requestedType, origin, direction, quality, prospectorCampContext);
             components.add(requestedType.id());
             components.add(IoeWorldgenFeatureKeys.BASIC_MINESHAFT_CONNECTOR);
@@ -303,7 +334,7 @@ public final class ExpeditionSiteBlueprints {
             components.add(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER);
         }
 
-        if (oreNodeHeartState != null
+        if (!catalogue && oreNodeHeartState != null
                 && BuddingBlockIdentity.isCanonical(oreNodeHeartState.getBlock())
                 && quality.isProductive() && components.contains(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER)) {
             int radius = horizontalRadius(quality);
@@ -382,22 +413,7 @@ public final class ExpeditionSiteBlueprints {
             int horizontalDirection,
             boolean includeBranch
     ) {
-        for (int dy = 0; dy <= depth; dy++) {
-            int y = top.getY() - dy;
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dz = -1; dz <= 1; dz++) {
-                    builder.put(new BlockPos(top.getX() + dx, y, top.getZ() + dz), Blocks.AIR.defaultBlockState());
-                }
-            }
-            builder.put(new BlockPos(top.getX(), y, top.getZ() + 2), Blocks.OAK_LOG.defaultBlockState());
-
-            if (dy % 5 == 0) {
-                builder.put(new BlockPos(top.getX() - 2, y, top.getZ() - 2), Blocks.OAK_LOG.defaultBlockState());
-                builder.put(new BlockPos(top.getX() + 2, y, top.getZ() - 2), Blocks.OAK_LOG.defaultBlockState());
-                builder.put(new BlockPos(top.getX() - 2, y, top.getZ() + 2), Blocks.OAK_LOG.defaultBlockState());
-                builder.put(new BlockPos(top.getX() + 2, y, top.getZ() + 2), Blocks.OAK_LOG.defaultBlockState());
-            }
-        }
+        addShaft(builder, top, depth);
 
         BlockPos bottom = top.below(depth);
         for (int step = 0; step <= CHAMBER_HORIZONTAL_OFFSET; step++) {
@@ -411,6 +427,31 @@ public final class ExpeditionSiteBlueprints {
             addDryBranch(builder, bottom.offset(horizontalDirection * 2, 0, 0));
         }
         return bottom;
+    }
+
+    private static void addShaft(Builder builder, BlockPos top, int depth) {
+        addShaft(builder, top, depth, false);
+    }
+
+    private static void addShaft(Builder builder, BlockPos top, int depth, boolean compact) {
+        for (int dy = 0; dy <= depth; dy++) {
+            int y = top.getY() - dy;
+            // Keep the surface mouth; below it retain a two-wide shaft and backed ladder.
+            int minimum = compact && dy >= 4 ? 0 : -1;
+            for (int dx = minimum; dx <= 1; dx++) {
+                for (int dz = minimum; dz <= 1; dz++) {
+                    builder.put(new BlockPos(top.getX() + dx, y, top.getZ() + dz), Blocks.AIR.defaultBlockState());
+                }
+            }
+            builder.put(new BlockPos(top.getX(), y, top.getZ() + 2), Blocks.OAK_LOG.defaultBlockState());
+
+            if (dy % 5 == 0 && (!compact || dy < 4)) {
+                builder.put(new BlockPos(top.getX() - 2, y, top.getZ() - 2), Blocks.OAK_LOG.defaultBlockState());
+                builder.put(new BlockPos(top.getX() + 2, y, top.getZ() - 2), Blocks.OAK_LOG.defaultBlockState());
+                builder.put(new BlockPos(top.getX() - 2, y, top.getZ() + 2), Blocks.OAK_LOG.defaultBlockState());
+                builder.put(new BlockPos(top.getX() + 2, y, top.getZ() + 2), Blocks.OAK_LOG.defaultBlockState());
+            }
+        }
     }
 
     private static void restoreConnectorLadder(Builder builder, BlockPos top, int depth) {

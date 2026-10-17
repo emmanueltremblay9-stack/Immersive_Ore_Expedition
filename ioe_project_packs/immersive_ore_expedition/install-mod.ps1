@@ -160,6 +160,18 @@ function Test-VersionRange {
 
 function Invoke-VersionRangeSelfTest {
     $cases = @(
+        @{ Version = "1.1.12"; Range = "[1.1.12,1.2),[1.2.1]"; Expected = $true },
+        @{ Version = "1.2.1"; Range = "[1.1.12,1.2),[1.2.1]"; Expected = $true },
+        @{ Version = "1.2.0"; Range = "[1.1.12,1.2),[1.2.1]"; Expected = $false },
+        @{ Version = "1.2.2"; Range = "[1.1.12,1.2),[1.2.1]"; Expected = $false },
+        @{ Version = "1.0.231"; Range = "[1.0.231,1.0.232),[1.0.236-snapshot]"; Expected = $true },
+        @{ Version = "1.0.236-snapshot"; Range = "[1.0.231,1.0.232),[1.0.236-snapshot]"; Expected = $true },
+        @{ Version = "1.0.234-snapshot"; Range = "[1.0.231,1.0.232),[1.0.236-snapshot]"; Expected = $false },
+        @{ Version = "1.0.237-snapshot"; Range = "[1.0.231,1.0.232),[1.0.236-snapshot]"; Expected = $false },
+        @{ Version = "1.21-2.2.33-neoforge"; Range = "[1.21-2.2.33-neoforge],[1.21-2.2.41-neoforge]"; Expected = $true },
+        @{ Version = "1.21-2.2.41-neoforge"; Range = "[1.21-2.2.33-neoforge],[1.21-2.2.41-neoforge]"; Expected = $true },
+        @{ Version = "1.21-2.2.40-neoforge"; Range = "[1.21-2.2.33-neoforge],[1.21-2.2.41-neoforge]"; Expected = $false },
+        @{ Version = "1.21-2.2.42-neoforge"; Range = "[1.21-2.2.33-neoforge],[1.21-2.2.41-neoforge]"; Expected = $false },
         @{ Version = "4.4.1-37"; Range = "[4.4.1-37],[4.5.0-39]"; Expected = $true },
         @{ Version = "4.5.0-39"; Range = "[4.4.1-37],[4.5.0-39]"; Expected = $true },
         @{ Version = "4.4.1-38"; Range = "[4.4.1-37],[4.5.0-39]"; Expected = $false },

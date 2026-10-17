@@ -226,3 +226,52 @@ Flawless du site : 1 / 1
 ## Règle canonique finale
 
 **IOE utilise cinq qualités de site : DRY, POOR, NORMAL, RICH et MOTHERLODE. Les Budding utilisent les quatre rangs natifs d'AE2 : DAMAGED, CHIPPED, FLAWED et FLAWLESS. Les variantes GeOre sont de véritables blocs IOE préenregistrés qui reproduisent la mécanique réelle de dégradation et de restauration d'AE2. Tous les Flawless sont exclusivement générés dans les Motherlodes : aucune recette ni machine ne peut les fabriquer. Un site DRY possède 10 % de chance de contenir une Resonating Seed neutre, utilisée avec un Purified Resonating Crystal et un bloc de stockage minéral pour créer le premier rang Damaged dans l'Aggregator.**
+
+
+## Cible ultérieure Crystal Cave — demande utilisateur du 14 octobre
+
+La demande d'appliquer la mécanique ExtendedAE à tous nos buddings et de fournir
+un bloc par phase est confirmée, ainsi que l'améthyste et les familles à intégrer
+ou créer Fluix, Draconium, Glowstone. Le [contrat Crystal Cave](CRYSTAL_CAVE_CONTRACT.md)
+distingue cette cible de l'implémentation actuelle décrite ci-dessus. ExtendedAE
+use ses quatre phases, y compris fully ; aucune équivalence avec Flawless n'est
+implicite. Décision ultérieure confirmée : quatre rangs usurables puis Flawless permanent.
+La chaîne IOE est FULLY → FLAWED → CHIPPED → DAMAGED → stockage.
+La restauration reste plafonnée à FLAWED et les blocs natifs restent inchangés dans ce cycle. Les budgets de cave mixte ne sont
+pas déduits des budgets monofamille. Entro reste réservé à IE ; les contrats Nether
+et météorites ne changent pas par cet amendement de préparation.
+
+### Application du cinquième rang — PR64
+
+La décision du message `01a13b6f-6a6e-70ba-bee1-95d780921357` est implémentée
+pour les 13 familles GeOre IOE. Le §4 décrivait le moteur AE2 antérieur : les cœurs
+IOE utilisent désormais les paramètres ExtendedAE vérifiés (1/3 tentative, 1/10
+usure après croissance), avec quatre rangs usurables et Flawless permanent.
+Les identités existantes, stockages, recettes, récoltes existantes et budgets sont
+préservés. Le rang ajouté FULLY suit la récolte canonique usurable (Silk Touch :
+lui-même ; sinon FLAWED). Aucune recette ni sélection naturelle de FULLY ajoutée.
+Les règles AE2 natives, Entro/IE et Nether ne sont pas modifiées.
+
+### Améthyste — profil A, PR64
+
+Profil A validé par « Pr64 IOE A » le 14 octobre 2026 à 22:27 UTC. Cinq cœurs IOE
+améthyste appliquent la chaîne usurable et l'exception Flawless permanente déjà
+approuvées. Récoltes des cœurs selon les règles IOE ; épuisement en
+`minecraft:amethyst_block`. Produits et récoltes des cristaux vanilla inchangés.
+Aucune recette de cœur ni distribution naturelle ajoutée. Voir le contrat Crystal Cave.
+
+### Glowstone — mécanique commune confirmée
+
+La décision vocale `01a13d3d-1027-76e8-92a5-198b72c3ae3d` confirme le moteur
+commun IOE pour Glowstone et rejette le profil spécial proposé de quatre poussières.
+Les cinq rangs/usure/récupération des cœurs ne sont plus une question ouverte.
+Le produit et la table de récolte des cristaux ne sont pas universels dans IOE ;
+voir la réconciliation du contrat Crystal Cave. Aucun profil spécial implémenté.
+
+### Glowstone — récolte 2/1, décision finale
+
+Le message vocal `01a14246-770a-729f-9495-94c30efb2f87` fixe 2 poussières avec
+pioche, 1 autrement. Les règles communes Fortune/Silk Touch sont conservées ;
+le détail et les cinq cœurs/quatre produits implémentés sont dans le contrat
+Crystal Cave. Le profil de récolte n'est plus en attente. Aucune recette ou
+distribution ajoutée ; rangs et budgets existants inchangés.

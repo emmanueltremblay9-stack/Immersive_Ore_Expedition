@@ -36,6 +36,7 @@ neoForge {
                 systemProperty "ioe.depth32Pack", project.file("prototype/depth32").absolutePath
             }
             systemProperty "ioe.expectDomumRuntime", "true"
+            systemProperty "ioe.expectJadeRuntime", "true"
             if (providers.gradleProperty("ioePlayerStreamingQualification").isPresent())
                 systemProperty "neoforge.enabledGameTestNamespaces", "ioe_streaming"
             if (providers.gradleProperty('ioeDepth32RestartPhase').isPresent()) {
@@ -100,7 +101,8 @@ def replacementProperties = [
         geore_version_range : geore_version_range,
         ie_version_range    : ie_version_range,
         ip_version_range    : ip_version_range,
-        domum_version_range : domum_version_range
+        domum_version_range : domum_version_range,
+        jade_version_range : jade_version_range
 ]
 
 tasks.named('processResources', ProcessResources).configure {
@@ -130,6 +132,11 @@ dependencies {
     }
     if (providers.gradleProperty('ioeIncludeDomumRuntime').map { it.toBoolean() }.getOrElse(false)) {
         runtimeOnly "com.ldtteam:domum-ornamentum:${domum_version}:main"
+    }
+    // AE2CS 1.2.1 references AE2WTLib API during construction. Existing CI fixture,
+    // resolved here for the current core/unit runtime as well as the full runtime.
+    if (providers.gradleProperty('ioeCurrentPackQualification').map { it.toBoolean() }.getOrElse(false)) {
+        runtimeOnly "maven.modrinth:pNabrMMw:IQFaf9vp"
     }
     runtimeOnly "org.appliedenergistics:appliedenergistics2:${ae2_runtime_version}"
     runtimeOnly "maven.modrinth:${ae2cs_modrinth_project}:${ae2cs_modrinth_version}"

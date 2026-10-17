@@ -14,7 +14,7 @@ import net.minecraft.world.level.material.Fluids;
 import java.util.List;
 import java.util.Optional;
 
-/** Original registry-based implementation of the growth rules verified in AE2 19.2.17. */
+/** Original registry-based implementation of the ExtendedAE 2.2.33 growth rules, with the authorized permanent Flawless exception. */
 public class GeOreBuddingBlock extends Block {
     private final BuddingRank rank;
     private final BuddingResourceFamily family;
@@ -33,24 +33,28 @@ public class GeOreBuddingBlock extends Block {
 
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!IoeGeOreBuddingBlocks.available(family) || random.nextInt(5) != 0) {
+        if (!IoeGeOreBuddingBlocks.available(family) || random.nextInt(3) != 0) {
             return;
         }
         Direction direction = Direction.values()[random.nextInt(6)];
         BlockPos target = pos.relative(direction);
+        // A growth attempt must not request or generate an unloaded neighboring chunk.
+        if (!level.hasChunkAt(target)) {
+            return;
+        }
         Optional<BlockState> next = nextGrowth(family, level.getBlockState(target), direction);
         if (next.isEmpty()) {
             return;
         }
         level.setBlockAndUpdate(target, next.orElseThrow());
-        if (rank.canGrowthDegrade() && random.nextInt(12) == 0) {
+        if (rank.canGrowthDegrade() && random.nextInt(10) == 0) {
             Block replacement = rank.degradedRank().map(lower -> IoeGeOreBuddingBlocks.block(family, lower))
                     .orElseGet(() -> BuiltInRegistries.BLOCK.getOptional(family.storageBlockId()).orElseThrow());
             level.setBlockAndUpdate(pos, replacement.defaultBlockState());
         }
     }
 
-    /** Missing or incompatible GeOre products stop growth; never substitute another mineral. */
+    /** Missing or incompatible growth products stop growth; never substitute another mineral. */
     static Optional<BlockState> nextGrowth(BuddingResourceFamily family, BlockState neighbor, Direction direction) {
         List<Block> products = family.growthProductIds().stream()
                 .map(id -> BuiltInRegistries.BLOCK.getOptional(id).orElse(null)).toList();
