@@ -278,6 +278,16 @@ Qualification exacte à suivre sans transfert de preuves. Plafond 2 500
 inchangé ; pas de PC, installation, fusion, publication ou activation Nether.
 Validation visuelle/client non prouvée.
 
+### BP-19 — marge du plafond composé
+
+Le candidat d381eae mesure 2 503 cellules sur MINER_CAMP/MOTHERLODE,
+clé profondeur/variante 577 (BP-17 B). Le nouveau nombre de formes change
+les graines couvrant la matrice et expose cette limite dans une forme antérieure.
+L'alcôve basse est de BP-17 passe de quatre à trois cellules de largeur,
+avec son approche de deux cellules conservée. Masques, passage sous les
+pointes, retours, ressources et plafond 2 500 inchangés. La nouvelle CI
+exacte doit requalifier l'ensemble ; les échecs précédents ne sont pas acceptés.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

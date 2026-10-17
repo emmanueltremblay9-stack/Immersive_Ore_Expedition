@@ -29,7 +29,8 @@ final class CatalogueBell {
         room(air,3,6,3,4,5);
         room(air,11,12,3,4,5);
         room(air,8,9,3,8,12);
-        room(air,9,12,3,11,12);
+        // Keep the low alcove three cells wide, including its two-wide approach.
+        room(air,9,11,3,11,12);
         room(air,3,12,9,4,5);
         room(air,fork?7:6,fork?8:7,9,6,7);
         room(air,5,12,9,8,9);
