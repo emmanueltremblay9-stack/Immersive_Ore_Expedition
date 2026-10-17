@@ -305,6 +305,17 @@ Qualification exacte à suivre sans transfert de preuves. Plafond 2 500
 inchangé ; pas de PC, installation, fusion, publication ou activation Nether.
 Validation visuelle/client non prouvée.
 
+### BP-21 qualifié ; cycle suivant BP-04 A/B/C
+
+BP-21 accepté sur 68ed832a4cb037e86b85ec078094deb729538c1c : 16 jobs verts, 716 JUnit, 129+129
+GameTests par pile, streaming/reprise ; maximum 2498.
+JAR non installé : b790a7479a18bbe65c197a5d467cebe244271d6f3ebf271d575f0e048918818d.
+BP-04 : arcs inégaux autour d'un noyau intact ; raccord intérieur A,
+pont oblique B fermant une boucle, deux croissants C et col latéral unique.
+Contrats FINAL inchangés, coupures indépendantes et matrice de 51 840 plans,
+288 placements. Couverture 72/120, 48 restantes. Qualification exacte à suivre.
+Aucun PC, installation, fusion, publication ou Nether. Visuel non prouvé.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
