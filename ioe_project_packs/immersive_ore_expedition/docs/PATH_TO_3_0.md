@@ -436,6 +436,18 @@ utilise X5/Y8/Z6, hors de la colonne du puits qui rendait l'ancien point ambigu.
 Les assertions de séparation et de pose restent strictes et donnent désormais les
 positions/états manquants pour diagnostiquer les défauts restants. Nouvelle CI requise.
 
+### Diagnostic précis du second candidat du lot final
+
+Le runtime actuel de 69044c6 conserve cinq échecs. BP-22 et sa largeur passent.
+BP-01 A avait écrasé sa marche de retour orientée en ajoutant le passage frontal :
+la marche est rétablie après cette composition, sans changer les deux passages.
+BP-33 élargit sa première crête à deux cellules, garde deux dépressions et le second
+col B ; le dégagement du puits ouest suit désormais la hauteur effective du relief.
+Le runtime montre aussi STRAIGHT devenu OUTER_LEFT à X6/Y8/Z10. Les nouvelles
+pentes résolvent maintenant leurs angles d'escalier selon les voisins planifiés,
+sans lecture du monde ; l'égalité stricte après pose et le rollback restent testés.
+Chaque correctif conserve les parcours A/B/C et attend une nouvelle CI exacte.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

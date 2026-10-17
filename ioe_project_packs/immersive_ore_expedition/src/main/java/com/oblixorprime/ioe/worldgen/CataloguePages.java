@@ -79,6 +79,7 @@ final class CataloguePages {
             for(int x=5;x<=6;x++) blocks.put(base.offset(x,8,11),Blocks.STONE.defaultBlockState());
         }
         CatalogueTerraces.supportStairs(blocks);
+        CatalogueTerraces.resolveStairCorners(blocks);
         blocks.put(center.below(),Blocks.CALCITE.defaultBlockState());
         return blocks;
     }

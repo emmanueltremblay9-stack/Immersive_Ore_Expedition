@@ -78,6 +78,7 @@ final class CatalogueLens {
         for(int y:new int[]{2,8,14}) solid(blocks,base,5,6,y,12,12);
         for(int y:new int[]{2,8,12}) solid(blocks,base,10,11,y,12,12);
         CatalogueTerraces.supportStairs(blocks);
+        CatalogueTerraces.resolveStairCorners(blocks);
         blocks.put(center.below(),Blocks.CALCITE.defaultBlockState());
         return blocks;
     }

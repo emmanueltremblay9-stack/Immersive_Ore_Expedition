@@ -82,6 +82,7 @@ final class CatalogueGrid {
         for(int y:new int[]{8,14}) solid(blocks,base,7,7,y,4,5);
         steps.forEach((p,state)->blocks.put(base.offset(p),state));
         CatalogueTerraces.supportStairs(blocks);
+        CatalogueTerraces.resolveStairCorners(blocks);
         blocks.put(center.below(),Blocks.CALCITE.defaultBlockState());
         return blocks;
     }

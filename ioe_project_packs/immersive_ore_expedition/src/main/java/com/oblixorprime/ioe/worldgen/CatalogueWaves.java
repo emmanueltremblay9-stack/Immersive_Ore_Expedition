@@ -12,11 +12,13 @@ final class CatalogueWaves {
         return CatalogueSaddle.compose(center,heights(variant),false);
     }
     static Map<BlockPos,Integer> heights(CatalogueTerraces.Variant variant) {
-        int[] wave={0,1,0,-1,-1,-1,0,1,1,0};
+        // Two-cell crests give opposed slopes their own oriented stair edges.
+        int[] wave={0,1,1,0,-1,-1,-1,0,1,1,0};
         var out=new LinkedHashMap<BlockPos,Integer>();
-        for(int x=3;x<=12;x++) for(int z=4;z<=13;z++) {
-            if(!CatalogueSaddle.surfaceCell(x,z)) continue;
-            int foot=9+wave[x-3]+wave[z-4];
+        for(int x=2;x<=12;x++) for(int z=3;z<=13;z++) {
+            if(!CatalogueSaddle.surfaceCell(x,z) || x==2 && z>=6 && z<=7
+                    || z==3 && x>=6 && x<=8) continue;
+            int foot=9+wave[x-2]+wave[z-3];
             if(x>=7 && x<=8 && z<=5 || x<=6 && z>=10 && z<=11) foot=9;
             if(variant==CatalogueTerraces.Variant.WAVES_NOTCH && x>=4 && x<=5 && z>=6 && z<=7) foot=8;
             if(variant==CatalogueTerraces.Variant.WAVES_RIDGE && x==7 && z>=7 && z<=9) foot=8;

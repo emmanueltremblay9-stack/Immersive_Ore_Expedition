@@ -88,6 +88,7 @@ final class CatalogueDelta {
         solid(blocks,base,9,10,8,12,12);
         steps.forEach((p,s)->blocks.put(base.offset(p),s));
         CatalogueTerraces.supportStairs(blocks);
+        CatalogueTerraces.resolveStairCorners(blocks);
         blocks.put(center.below(),Blocks.CALCITE.defaultBlockState());
         return blocks;
     }

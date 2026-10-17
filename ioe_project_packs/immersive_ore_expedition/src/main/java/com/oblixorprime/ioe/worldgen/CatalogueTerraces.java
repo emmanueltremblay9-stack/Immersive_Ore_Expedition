@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LadderBlock;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.LinkedHashMap;
@@ -203,6 +204,40 @@ final class CatalogueTerraces {
             var support = blocks.get(below);
             if (support == null || support.isAir()) blocks.put(below, Blocks.STONE.defaultBlockState());
         }
+    }
+
+    /** Resolve the same facing/half corner relationships that native neighbour updates apply. */
+    static void resolveStairCorners(Map<BlockPos, BlockState> blocks) {
+        for (var entry : new LinkedHashMap<>(blocks).entrySet()) if (entry.getValue().is(Blocks.STONE_STAIRS)) {
+            BlockState state = entry.getValue();
+            BlockPos pos = entry.getKey();
+            Direction facing = state.getValue(StairBlock.FACING);
+            var shape = net.minecraft.world.level.block.state.properties.StairsShape.STRAIGHT;
+            var front = blocks.get(pos.relative(facing));
+            if (sameStairHalf(state, front) && front.getValue(StairBlock.FACING).getAxis() != facing.getAxis()
+                    && differentStairFacing(blocks, state, pos.relative(front.getValue(StairBlock.FACING).getOpposite()))) {
+                shape = front.getValue(StairBlock.FACING) == facing.getCounterClockWise()
+                        ? net.minecraft.world.level.block.state.properties.StairsShape.OUTER_LEFT
+                        : net.minecraft.world.level.block.state.properties.StairsShape.OUTER_RIGHT;
+            } else {
+                var back = blocks.get(pos.relative(facing.getOpposite()));
+                if (sameStairHalf(state, back) && back.getValue(StairBlock.FACING).getAxis() != facing.getAxis()
+                        && differentStairFacing(blocks, state, pos.relative(back.getValue(StairBlock.FACING)))) {
+                    shape = back.getValue(StairBlock.FACING) == facing.getCounterClockWise()
+                            ? net.minecraft.world.level.block.state.properties.StairsShape.INNER_LEFT
+                            : net.minecraft.world.level.block.state.properties.StairsShape.INNER_RIGHT;
+                }
+            }
+            blocks.put(pos, state.setValue(StairBlock.SHAPE, shape));
+        }
+    }
+    private static boolean sameStairHalf(BlockState state, BlockState other) {
+        return other != null && StairBlock.isStairs(other)
+                && other.getValue(StairBlock.HALF) == state.getValue(StairBlock.HALF);
+    }
+    private static boolean differentStairFacing(Map<BlockPos, BlockState> blocks, BlockState state, BlockPos pos) {
+        var other = blocks.get(pos);
+        return !sameStairHalf(state, other) || other.getValue(StairBlock.FACING) != state.getValue(StairBlock.FACING);
     }
 
     /** Raccord above the chamber roof, then a backed descent through E. */

@@ -50,8 +50,10 @@ final class CatalogueSaddle {
                 }
             }
         }
+        int westTop=bridge?13:Math.max(9,Math.max(heights.getOrDefault(new BlockPos(3,0,6),9),
+                heights.getOrDefault(new BlockPos(3,0,7),9)));
         room(air,floors,3,4,3,4,7);
-        well(air,3,4,6,7,3,bridge?15:11);
+        well(air,3,4,6,7,3,westTop+2);
         room(air,floors,9,11,3,11,12);
         well(air,9,10,12,13,3,11);
         room(air,floors,10,12,9,12,13);
@@ -70,7 +72,7 @@ final class CatalogueSaddle {
         var blocks=CatalogueTerraces.finish(center,air,false);
         var base=CatalogueTerraces.base(center);
         floors.forEach((p,s)->blocks.put(base.offset(p),s));
-        for(int z=6;z<=7;z++) for(int y=3;y<=(bridge?13:9);y++) {
+        for(int z=6;z<=7;z++) for(int y=3;y<=westTop;y++) {
             blocks.put(base.offset(2,y,z),Blocks.STONE.defaultBlockState());
             blocks.put(base.offset(3,y,z),Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING,Direction.EAST));
         }
@@ -94,6 +96,7 @@ final class CatalogueSaddle {
             blocks.put(base.offset(x,y,4),Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING,Direction.SOUTH));
         }
         CatalogueTerraces.supportStairs(blocks);
+        CatalogueTerraces.resolveStairCorners(blocks);
         blocks.put(center.below(),Blocks.CALCITE.defaultBlockState());
         return blocks;
     }
