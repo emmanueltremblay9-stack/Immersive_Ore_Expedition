@@ -1985,7 +1985,7 @@ public final class CatalogueTerracesGameTests {
             helper.assertTrue(!open(g,new BlockPos(5,16,5)) && open(g,new BlockPos(3,4,6))
                     && open(g,new BlockPos(11,4,9)),"Neck and wide lower mouth no longer have distinct sections");
             var top=new BlockPos(7,15,7);
-            for(var end:java.util.List.of(new BlockPos(3,3,6),new BlockPos(11,3,10),
+            for(var end:java.util.List.of(new BlockPos(3,3,6),new BlockPos(11,3,9),
                     new BlockPos(3,9,10),new BlockPos(11,9,12),new BlockPos(3,15,12)))
                 helper.assertTrue(reachable(g,top).contains(end) && reachable(g,end).contains(top),
                         "Horn lip or fixed alcove lost its supported return");
@@ -1997,7 +1997,7 @@ public final class CatalogueTerracesGameTests {
     public static void hornLobesJoinBehindTheirBladeAndAwningKeepsSeparateUpperAndLowerRoutes(GameTestHelper helper) {
         var lobes=new LinkedHashMap<>(CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.HORN_LOBES));
         closeWell(lobes,5,6,11,12,6);closeWell(lobes,11,12,6,7,6);
-        var left=new BlockPos(3,3,6);var right=new BlockPos(11,3,10);
+        var left=new BlockPos(3,3,6);var right=new BlockPos(11,3,9);
         helper.assertTrue(reachable(lobes,left).contains(right),"Bilobed mouth lost its rear connection");
         closeWell(lobes,7,8,10,12,3);
         helper.assertTrue(!reachable(lobes,left).contains(right) && !reachable(lobes,right).contains(left),

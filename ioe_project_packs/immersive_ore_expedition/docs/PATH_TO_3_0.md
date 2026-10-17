@@ -344,6 +344,15 @@ rejoint la même alcôve, sans déplacer N3. Le test dédié contrôle désormai
 les deux cellules soutenues sur toute la jonction. Ce constat de revue
 n'est pas un échec CI annoncé ; le nouveau source doit être qualifié séparément.
 
+### BP-15 — sonde de test hors du masque N4
+
+Le candidat df94401 passe la matrice composée (maximum 2 496), mais deux
+assertions dédiées ciblent (11,3,10), cellule rocheuse réservée au minerai
+arrière de N4. La sonde de lèvre droite passe à (11,3,9), hors du masque.
+La géométrie et les tests intégrés de tous les fronts minéraux restent
+inchangés. Ces résultats partiels ne qualifient pas le successeur : les
+quatre exécutions exactes doivent toutes passer après cette correction.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
