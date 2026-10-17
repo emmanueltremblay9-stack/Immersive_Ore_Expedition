@@ -377,6 +377,18 @@ Tests de profils, dégagements et coupures. 58 320 plans, 324 placements ; 81/12
 39 restantes. Qualification exacte à suivre. Aucun PC, installation, fusion,
 publication ou Nether. Validation visuelle/client non prouvée.
 
+### BP-30 qualifié ; cycle suivant BP-25 A/B/C
+
+BP-30 accepté sur e0d4cbbd5b6048f07dfd4b1068ef10b602b0ac92 : 16 jobs verts, 716 JUnit, 137+137
+GameTests par pile et streaming/reprise ; maximum 2499.
+JAR non installé : 4a0029d01a6936ae344755724012c0114b6edb8bd759c1d49e6b32e2a5bb0e52.
+BP-25 : quatre sommets non coplanaires et six arêtes séparées autour de roche
+intacte ; B omet BC, C dédouble AD. N6/N7 sont des retraits de BD/CD dans la
+normalisation FINAL, sans déplacer de node ni ajouter de récompense.
+Tests des six paires isolées et des deux bras, 60 480 plans, 336 placements.
+Couverture 84/120, 36 restantes ; qualification exacte à suivre.
+Aucun PC, installation, fusion, publication ou Nether. Visuel non prouvé.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

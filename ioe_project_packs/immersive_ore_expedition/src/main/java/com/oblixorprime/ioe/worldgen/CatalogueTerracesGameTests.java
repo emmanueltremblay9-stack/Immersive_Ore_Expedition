@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isWedge()) assertWedgeSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isCage()) assertCageSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isWedge()) assertWedgeSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isVolute()) assertVoluteSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isHorn()) assertHornSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isAnnulus()) assertAnnulusSignatures(helper,plan.blocks(),base,variant);
@@ -297,10 +298,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isWedge()) assertWedgeSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isCage()) assertCageSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isWedge()) assertWedgeSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isVolute()) assertVoluteSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isHorn()) assertHornSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isAnnulus()) assertAnnulusSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -2166,6 +2168,76 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.WEDGE_GORGES),"Shared nose rib changed");
         helper.assertTrue(blocks.getOrDefault(base.offset(8,15,10),Blocks.STONE.defaultBlockState()).isAir()
                 == (variant==CatalogueTerraces.Variant.WEDGE_GALLERY),"Distinct upper front gallery changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void cageHasFourVerticesAndSixSeparatedEdgesExceptTheExplicitOmission(GameTestHelper helper) {
+        var vertices=java.util.List.of(new BlockPos(5,3,6),new BlockPos(10,3,6),new BlockPos(6,3,11),new BlockPos(7,15,7));
+        int[][] endpoints={{0,1},{0,2},{1,2},{0,3},{1,3},{2,3}};
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.CAGE,
+                CatalogueTerraces.Variant.CAGE_OPEN,CatalogueTerraces.Variant.CAGE_SPLIT}) {
+            var original=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertCageSignatures(helper,original,BlockPos.ZERO,variant);
+            for(int x=5;x<=6;x++) for(int z=4;z<=7;z++)
+                helper.assertTrue(stand(original,new BlockPos(x,3,z)),"A vertex approach pinches against the AD ladder backing");
+            for(var from:vertices) helper.assertTrue(reachable(original,from).containsAll(vertices),"Cage vertex has no supported return");
+            for(int y=2;y<=11;y++) for(int x=5;x<=7;x++) for(int z=8;z<=9;z++)
+                helper.assertTrue(original.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Cage central mass was excavated");
+            var cuts=cageEdgeCuts(variant);
+            var closed=new LinkedHashMap<>(original);
+            cuts.forEach(edge->edge.forEach(p->closed.put(p,Blocks.STONE.defaultBlockState())));
+            for(int edge=0;edge<6;edge++) {
+                var restored=new LinkedHashMap<>(closed);
+                if(edge!=2 || variant!=CatalogueTerraces.Variant.CAGE_OPEN)
+                    for(var p:cuts.get(edge)) restored.put(p,original.getOrDefault(p,Blocks.STONE.defaultBlockState()));
+                for(int i=0;i<4;i++) for(int j=i+1;j<4;j++) {
+                    boolean expected=i==endpoints[edge][0] && j==endpoints[edge][1]
+                            && (edge!=2 || variant!=CatalogueTerraces.Variant.CAGE_OPEN);
+                    helper.assertTrue(reachable(restored,vertices.get(i)).contains(vertices.get(j))==expected
+                            && reachable(restored,vertices.get(j)).contains(vertices.get(i))==expected,
+                            "Cage edges fused outside their four vertices: "+variant+" edge="+edge+" pair="+i+","+j);
+                }
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void cageSplitEdgeHasTwoIndependentArmsAndOmittedEdgeKeepsNoAlcove(GameTestHelper helper) {
+        var variant=CatalogueTerraces.Variant.CAGE_SPLIT;
+        var g=new LinkedHashMap<>(CatalogueTerraces.geometry(new BlockPos(7,15,7),variant));
+        var cuts=cageEdgeCuts(variant);
+        for(int edge=0;edge<6;edge++) if(edge!=3) for(var p:cuts.get(edge)) g.put(p,Blocks.STONE.defaultBlockState());
+        var low=new BlockPos(5,3,6);var high=new BlockPos(7,15,7);
+        closeWell(g,1,2,6,7,14);
+        helper.assertTrue(reachable(g,low).contains(high),"First AD-arm cut removed the independent second arm");
+        closeWell(g,4,5,6,7,14);
+        helper.assertTrue(!reachable(g,low).contains(high) && !reachable(g,high).contains(low),"Both AD-arm cuts retained a bypass");
+        var b=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.CAGE_OPEN);
+        for(int x=8;x<=9;x++) for(int z=8;z<=9;z++)
+            helper.assertTrue(!open(b,new BlockPos(x,3,z)),"Omitted BC edge was carved then blocked");
+        helper.assertTrue(reachable(b,high).contains(new BlockPos(3,9,10)),"N7 retreat was stranded on the omitted edge");
+        helper.succeed();
+    }
+
+    private static java.util.List<java.util.Set<BlockPos>> cageEdgeCuts(CatalogueTerraces.Variant variant) {
+        var result=new java.util.ArrayList<java.util.Set<BlockPos>>();
+        for(int[] q:new int[][]{{7,7,4,5,3},{3,4,9,9,3},{8,9,9,9,3},{3,4,6,7,12},{11,12,6,7,12},{5,6,11,12,12}}) {
+            var edge=new java.util.LinkedHashSet<BlockPos>();
+            if(result.size()==3 && variant==CatalogueTerraces.Variant.CAGE_SPLIT) {
+                for(int x:new int[]{1,2,4,5}) for(int z=6;z<=7;z++) edge.add(new BlockPos(x,14,z));
+            } else for(int x=q[0];x<=q[1];x++) for(int z=q[2];z<=q[3];z++) edge.add(new BlockPos(x,q[4],z));
+            result.add(edge);
+        }
+        return result;
+    }
+
+    private static void assertCageSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                              BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(8,3,9),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant!=CatalogueTerraces.Variant.CAGE_OPEN),"Cage BC admission changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(1,12,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.CAGE_SPLIT),"Cage split AD arm changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
