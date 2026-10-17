@@ -361,7 +361,13 @@ public final class CatalogueTerracesGameTests {
                 }
             }
             helper.assertTrue(found,"No bounded deterministic fixture seed for catalogue variant");
-            var chunk = new net.minecraft.world.level.ChunkPos(helper.absolutePos(new BlockPos(512+index++*128,24,512)));
+            // A compact, isolated fixture grid shares native chunk-generation halos. The old
+            // 61,440-block strip exhausted heap while saving thousands of peripheral chunks.
+            // Every case still has a distinct source chunk and exceeds the production camp spacing.
+            helper.assertTrue(64 > IoePendingExpeditionSites.MINER_CAMP_MINIMUM_SPACING_BLOCKS,
+                    "Catalogue fixture grid violates production camp spacing");
+            var chunk = new net.minecraft.world.level.ChunkPos(1_430_000+4*(index%24),1_430_000+4*(index/24));
+            index++;
             var origin = new BlockPos(chunk.getMinBlockX()+4,41,chunk.getMinBlockZ()+9);
             ExpeditionWorldgenGameTests.fillTestChunk(level,chunk);
             if (type == ExpeditionSiteType.MINER_CAMP) {
@@ -445,6 +451,8 @@ public final class CatalogueTerracesGameTests {
             helper.assertTrue(IoePendingExpeditionSites.confirmLoadedChunk(level,chunk).confirmedSites()==0,
                     "Natural catalogue transaction replayed");
         }
+        helper.assertTrue(index==4*CatalogueTerraces.Variant.values().length,
+                "Catalogue placement grid omitted a variant/access pair");
         helper.succeed();
     }
 

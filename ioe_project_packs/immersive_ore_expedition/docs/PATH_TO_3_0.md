@@ -1425,3 +1425,14 @@ cell from later reclamation; other owned cells still restore. Only observing its
 original state resolves that uncertainty. A noncoincident foreign facing edit is
 preserved across retry. Ownership capture failures defer writes. Exact hosted CI
 is required; no failed-source evidence is transferred.
+
+### Bounded spatial footprint of catalogue placement fixtures
+
+506c66d baseline push exhausted its approximately 4 GiB Java heap during native
+chunk saving, after the composed matrix completed at 2,494 cells. The 480 actual
+placements formerly occupied a 61,440-block strip. They now use an isolated 24-column
+grid with 64-block anchor spacing, explicitly exceeding the unchanged 48-block
+production camp guard. All 480 distinct source chunks, placements, confirmations,
+signatures and replay checks remain. Only test coordinates change; no production
+chunk-loading policy, heap, dependency, security or gameplay setting changes.
+Exact qualification must restart at the corrected source.
