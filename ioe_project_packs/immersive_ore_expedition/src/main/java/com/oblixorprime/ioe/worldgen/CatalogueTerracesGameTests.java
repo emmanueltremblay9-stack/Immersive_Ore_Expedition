@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isAnnulus()) assertAnnulusSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isHorn()) assertHornSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isAnnulus()) assertAnnulusSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isShells()) assertShellSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isTrihedral()) assertTrihedralSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isNave()) assertNaveSignatures(helper,plan.blocks(),base,variant);
@@ -294,10 +295,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isAnnulus()) assertAnnulusSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isHorn()) assertHornSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isAnnulus()) assertAnnulusSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isShells()) assertShellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isTrihedral()) assertTrihedralSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isNave()) assertNaveSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -1966,6 +1968,60 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(blocks.getOrDefault(base.offset(3,12,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
                 == (variant==CatalogueTerraces.Variant.ANNULUS_CRESCENTS),"Side-neck signature changed");
         helper.assertTrue(blocks.get(base.offset(8,10,8)).is(Blocks.STONE),"Non-mineral annulus core changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void hornTurnsItsInternalSectionsAndKeepsTheMouthAndAlcoveReturns(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.HORN,
+                CatalogueTerraces.Variant.HORN_LOBES,CatalogueTerraces.Variant.HORN_AWNING}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertHornSignatures(helper,g,BlockPos.ZERO,variant);
+            for(int x=6;x<=7;x++) for(int z=3;z<=6;z++)
+                helper.assertTrue(open(g,new BlockPos(x,16,z)),"Horn neck lost its north/south elongated section");
+            for(int x=5;x<=10;x++) for(int z=5;z<=8;z++)
+                helper.assertTrue(open(g,new BlockPos(x,10,z)),"Middle section no longer turns east/west");
+            helper.assertTrue(!open(g,new BlockPos(5,16,5)) && open(g,new BlockPos(3,4,6))
+                    && open(g,new BlockPos(11,4,9)),"Neck and wide lower mouth no longer have distinct sections");
+            var top=new BlockPos(7,15,7);
+            for(var end:java.util.List.of(new BlockPos(3,3,6),new BlockPos(11,3,10),
+                    new BlockPos(3,9,10),new BlockPos(11,9,12),new BlockPos(3,15,12)))
+                helper.assertTrue(reachable(g,top).contains(end) && reachable(g,end).contains(top),
+                        "Horn lip or fixed alcove lost its supported return");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void hornLobesJoinBehindTheirBladeAndAwningKeepsSeparateUpperAndLowerRoutes(GameTestHelper helper) {
+        var lobes=new LinkedHashMap<>(CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.HORN_LOBES));
+        closeWell(lobes,5,6,11,12,6);closeWell(lobes,11,12,6,7,6);
+        var left=new BlockPos(3,3,6);var right=new BlockPos(11,3,10);
+        helper.assertTrue(reachable(lobes,left).contains(right),"Bilobed mouth lost its rear connection");
+        closeWell(lobes,7,8,10,12,3);
+        helper.assertTrue(!reachable(lobes,left).contains(right) && !reachable(lobes,right).contains(left),
+                "Bilobed mouth retained an unintended front or blade crossing");
+        var a=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.HORN_AWNING);
+        for(int x=8;x<=10;x++) for(int z=7;z<=9;z++) {
+            helper.assertTrue(stand(a,new BlockPos(x,3,z)) && stand(a,new BlockPos(x,9,z)),
+                    "Folded lip lost its supported underpass or upper ledge");
+            for(int y=6;y<=8;y++) helper.assertTrue(a.get(new BlockPos(x,y,z)).is(Blocks.STONE),
+                    "Folded lip no longer separates the two routes");
+        }
+        var cut=new LinkedHashMap<>(a);closeWell(cut,8,10,8,8,9);
+        helper.assertTrue(reachable(cut,new BlockPos(8,3,7)).contains(new BlockPos(8,3,9)),
+                "Upper cut removed the independent lower underpass");
+        cut=new LinkedHashMap<>(a);closeWell(cut,8,10,8,8,3);
+        helper.assertTrue(reachable(cut,new BlockPos(8,9,7)).contains(new BlockPos(8,9,9)),
+                "Lower cut removed the independent upper ledge");
+        helper.succeed();
+    }
+
+    private static void assertHornSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                              BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(7,4,7)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.HORN_LOBES),"Bilobed mouth blade changed");
+        helper.assertTrue(blocks.get(base.offset(9,7,8)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.HORN_AWNING),"Folded mouth awning changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {

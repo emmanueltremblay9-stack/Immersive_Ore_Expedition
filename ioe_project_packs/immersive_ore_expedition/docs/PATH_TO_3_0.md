@@ -324,6 +324,17 @@ Le centre bas passe à (4,3,6), cellule AIR soutenue commune aux trois variantes
 Aucune géométrie, masque minéral ou récompense ne change. Qualification à refaire
 sur le nouveau commit exact ; les deux tests de parcours dédiés sont conservés.
 
+### BP-04 qualifié ; cycle suivant BP-15 A/B/C
+
+BP-04 accepté sur a76cf03f65e4471c8761669ae27779edc825abb2 : 16 jobs verts, 716 JUnit, 131+131
+GameTests par pile et streaming/reprise ; maximum 2499.
+JAR non installé : 66ae70cb9248a36b7f2f0a48b1cfbe398eef836fa7d27479fab25413c180bf2a.
+BP-15 : col étroit, sections internes pivotantes et bouche évasée ; A lèvres
+inégales, B lame avec passage arrière, C auvent et passage inférieur distinct.
+Les masques et récompenses restent fixes. Deux tests dédiés et 54 000 plans,
+300 placements. Couverture 75/120, 45 restantes ; qualification exacte à suivre.
+Aucun PC, installation, fusion, publication ou Nether. Visuel non prouvé.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
