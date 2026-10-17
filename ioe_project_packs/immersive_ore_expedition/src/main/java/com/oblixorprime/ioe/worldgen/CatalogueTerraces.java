@@ -11,12 +11,22 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-/** GOV 60d1c94, BP-02/03/04/05/06/08/09/10/11/13/14/15/16/17/19/20/21/23/24/25/26/27/30/31/32/34/35/36/37/40 A/B/C, geometry version 32. No quality or reward random source. */
+/** GOV 60d1c94, BP-01/02/03/04/05/06/07/08/09/10/11/12/13/14/15/16/17/18/19/20/21/22/23/24/25/26/27/28/29/30/31/32/33/34/35/36/37/38/39/40 A/B/C, geometry version 42. No quality or reward random source. */
 final class CatalogueTerraces {
     private CatalogueTerraces() { }
     enum Variant {
         ALTERNATING, FAN, SPLIT, CROSSING, CROSSING_WINDOW, CROSSING_LOOP,
-        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER, ROOTS, ROOTS_STAGED, ROOTS_JOINED, CELLS, CELLS_SPINE, CELLS_DIAGONAL, COMB, COMB_WINDOW, COMB_DIVIDED, TEETH, TEETH_WINDOW, TEETH_NOTCH, CHIMNEY, CHIMNEY_BALCONY, CHIMNEY_REAR, AXIAL, AXIAL_RETURN, AXIAL_BENT, MUSHROOM, MUSHROOM_SLIT, MUSHROOM_LOBES, SLAB, SLAB_THIRD, SLAB_JOINED, HOURGLASS, HOURGLASS_SPLIT, HOURGLASS_BALCONY, BELL, BELL_FORK, BELL_WINDOW, BIPYRAMID, BIPYRAMID_TRUNCATED, BIPYRAMID_DIVIDED, ARCH, ARCH_WINDOW, ARCH_FORK, TRAVERSE, TRAVERSE_WINDOW, TRAVERSE_FORK, NAVE, NAVE_DOUBLE, NAVE_ARCH, TRIHEDRAL, TRIHEDRAL_CHAMFER, TRIHEDRAL_PIERCED, SHELLS, SHELLS_OPPOSED, SHELLS_OPEN, ANNULUS, ANNULUS_BRIDGE, ANNULUS_CRESCENTS, HORN, HORN_LOBES, HORN_AWNING, VOLUTE, VOLUTE_WINDOW, VOLUTE_FORK, WEDGE, WEDGE_GORGES, WEDGE_GALLERY, CAGE, CAGE_OPEN, CAGE_SPLIT, VAULT, VAULT_BUTTRESS, VAULT_TWIN, ISLANDS, ISLANDS_SLAB, ISLANDS_HOLLOW;
+        SIPHON, SIPHON_SPLIT, SIPHON_SHOULDER, RAILS, RAILS_SLOPES, RAILS_FORK, PEARLS, PEARLS_SPLIT, PEARLS_SATELLITE, EIGHT, EIGHT_RETURN, EIGHT_SLIT, BAYONET, BAYONET_SPLIT, BAYONET_SHOULDER, ROOTS, ROOTS_STAGED, ROOTS_JOINED, CELLS, CELLS_SPINE, CELLS_DIAGONAL, COMB, COMB_WINDOW, COMB_DIVIDED, TEETH, TEETH_WINDOW, TEETH_NOTCH, CHIMNEY, CHIMNEY_BALCONY, CHIMNEY_REAR, AXIAL, AXIAL_RETURN, AXIAL_BENT, MUSHROOM, MUSHROOM_SLIT, MUSHROOM_LOBES, SLAB, SLAB_THIRD, SLAB_JOINED, HOURGLASS, HOURGLASS_SPLIT, HOURGLASS_BALCONY, BELL, BELL_FORK, BELL_WINDOW, BIPYRAMID, BIPYRAMID_TRUNCATED, BIPYRAMID_DIVIDED, ARCH, ARCH_WINDOW, ARCH_FORK, TRAVERSE, TRAVERSE_WINDOW, TRAVERSE_FORK, NAVE, NAVE_DOUBLE, NAVE_ARCH, TRIHEDRAL, TRIHEDRAL_CHAMFER, TRIHEDRAL_PIERCED, SHELLS, SHELLS_OPPOSED, SHELLS_OPEN, ANNULUS, ANNULUS_BRIDGE, ANNULUS_CRESCENTS, HORN, HORN_LOBES, HORN_AWNING, VOLUTE, VOLUTE_WINDOW, VOLUTE_FORK, WEDGE, WEDGE_GORGES, WEDGE_GALLERY, CAGE, CAGE_OPEN, CAGE_SPLIT, VAULT, VAULT_BUTTRESS, VAULT_TWIN, ISLANDS, ISLANDS_SLAB, ISLANDS_HOLLOW, NETWORKS, NETWORKS_TWO, NETWORKS_HIGH, HELIX, HELIX_TWO, HELIX_OFFSET, GRID, GRID_OFFSET, GRID_CLOSED, PAGES, PAGES_WINDOW, PAGES_TORN, WHEEL, WHEEL_BLIND, WHEEL_SPLIT, KNOT, KNOT_TRANSFER, KNOT_SPLIT, DELTA, DELTA_CAPTURE, DELTA_SUSPENDED, SADDLE, SADDLE_NOTCH, SADDLE_BRIDGE, WAVES, WAVES_NOTCH, WAVES_RIDGE, LENS, LENS_OVERLAP, LENS_BROKEN;
+        boolean isLens() { return this == LENS || this == LENS_OVERLAP || this == LENS_BROKEN; }
+        boolean isWaves() { return this == WAVES || this == WAVES_NOTCH || this == WAVES_RIDGE; }
+        boolean isSaddle() { return this == SADDLE || this == SADDLE_NOTCH || this == SADDLE_BRIDGE; }
+        boolean isDelta() { return this == DELTA || this == DELTA_CAPTURE || this == DELTA_SUSPENDED; }
+        boolean isKnot() { return this == KNOT || this == KNOT_TRANSFER || this == KNOT_SPLIT; }
+        boolean isWheel() { return this == WHEEL || this == WHEEL_BLIND || this == WHEEL_SPLIT; }
+        boolean isPages() { return this == PAGES || this == PAGES_WINDOW || this == PAGES_TORN; }
+        boolean isGrid() { return this == GRID || this == GRID_OFFSET || this == GRID_CLOSED; }
+        boolean isHelix() { return this == HELIX || this == HELIX_TWO || this == HELIX_OFFSET; }
+        boolean isNetworks() { return this == NETWORKS || this == NETWORKS_TWO || this == NETWORKS_HIGH; }
         boolean isIslands() { return this == ISLANDS || this == ISLANDS_SLAB || this == ISLANDS_HOLLOW; }
         boolean isVault() { return this == VAULT || this == VAULT_BUTTRESS || this == VAULT_TWIN; }
         boolean isCage() { return this == CAGE || this == CAGE_OPEN || this == CAGE_SPLIT; }
@@ -89,6 +99,16 @@ final class CatalogueTerraces {
         if (variant.isCage()) return CatalogueCage.geometry(center,variant);
         if (variant.isVault()) return CatalogueVault.geometry(center,variant);
         if (variant.isIslands()) return CatalogueIslands.geometry(center,variant);
+        if (variant.isNetworks()) return CatalogueNetworks.geometry(center,variant);
+        if (variant.isHelix()) return CatalogueHelix.geometry(center,variant);
+        if (variant.isGrid()) return CatalogueGrid.geometry(center,variant);
+        if (variant.isPages()) return CataloguePages.geometry(center,variant);
+        if (variant.isWheel()) return CatalogueWheel.geometry(center,variant);
+        if (variant.isKnot()) return CatalogueKnot.geometry(center,variant);
+        if (variant.isDelta()) return CatalogueDelta.geometry(center,variant);
+        if (variant.isSaddle()) return CatalogueSaddle.geometry(center,variant);
+        if (variant.isWaves()) return CatalogueWaves.geometry(center,variant);
+        if (variant.isLens()) return CatalogueLens.geometry(center,variant);
         boolean split = variant == Variant.SPLIT;
         var air = new LinkedHashSet<BlockPos>();
         for (int y : new int[]{3, 9, 15}) {

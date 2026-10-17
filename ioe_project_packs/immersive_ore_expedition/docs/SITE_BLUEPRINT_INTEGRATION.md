@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 10 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. The earlier BP-16 slice is described below as history; all forty families are now implemented. See the four-catalogue coverage map and the pending final qualification below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-04, BP-05, BP-06, BP-08, BP-09, BP-10, BP-11, BP-13, BP-14, BP-15, BP-16, BP-17, BP-19, BP-20, BP-21, BP-23, BP-24, BP-25, BP-26, BP-27, BP-30, BP-31, BP-32, BP-34, BP-35, BP-36, BP-37 or BP-40 A/B/C using one 90-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-01 through BP-40 A/B/C using one 120-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -77,19 +77,19 @@ Its separate CI JAR SHA256 is
 That receipt does not qualify the subsequent natural-routing changes described
 above. Their exact source and final CI receipt are recorded separately in PR64.
 
-Integration tests cover all 90 implemented shapes, four access types and all five
+Integration tests cover all 120 implemented shapes, four access types and all five
 qualities: source-chunk containment including negative coordinates, all nine
 approved depths, unchanged anchor bounds, complete-plan size, three-high
 supported routes to all alcoves,
 all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
-`Feature.place` staging/commit/deduplication for all 90 variants at all four accesses.
+`Feature.place` staging/commit/deduplication for all 120 variants at all four accesses.
 The existing GeOre/Certus runtime tests additionally exercise ranks, fallbacks,
 Jade metadata, persistence, compensation and actual resource-profile admission.
 
 No new server/profile, PC operation, Nether activation, merge or publication is
 part of this work. The installed `382e0b4` provenance remains separate. Client
-visual qualification remains NOT_PERFORMED. Current coverage is 90 of 120 described
-variants; 30 remain pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
+visual qualification remains NOT_PERFORMED. Current coverage is 120 of 120 described
+variants; 0 remain unimplemented. Qualification of the final thirty variants remains pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
 be attributed to its own source, not to a predecessor receipt.
 
 
@@ -118,10 +118,10 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
-| 001 | BP-01–BP-10 | BP-02, BP-03, BP-04, BP-05, BP-06, BP-08, BP-09, BP-10 A/B/C | All A/B/C of the other 2 families (6) |
-| 002 | BP-11–BP-20 | BP-11, BP-13, BP-14, BP-15, BP-16, BP-17, BP-19, BP-20 A/B/C | All A/B/C of the other 2 families (6) |
-| 003 | BP-21–BP-30 | BP-21, BP-23, BP-24, BP-25, BP-26, BP-27, BP-30 A/B/C | All A/B/C of the other 3 families (9) |
-| 004 | BP-31–BP-40 | BP-31, BP-32, BP-34, BP-35, BP-36, BP-37, BP-40 A/B/C | All A/B/C of the other 3 families (9) |
+| 001 | BP-01–BP-10 | BP-01, BP-02, BP-03, BP-04, BP-05, BP-06, BP-07, BP-08, BP-09, BP-10 A/B/C | None unimplemented; final-source qualification pending |
+| 002 | BP-11–BP-20 | BP-11, BP-12, BP-13, BP-14, BP-15, BP-16, BP-17, BP-18, BP-19, BP-20 A/B/C | None unimplemented; final-source qualification pending |
+| 003 | BP-21–BP-30 | BP-21, BP-22, BP-23, BP-24, BP-25, BP-26, BP-27, BP-28, BP-29, BP-30 A/B/C | None unimplemented; final-source qualification pending |
+| 004 | BP-31–BP-40 | BP-31, BP-32, BP-33, BP-34, BP-35, BP-36, BP-37, BP-38, BP-39, BP-40 A/B/C | None unimplemented; final-source qualification pending |
 
 A future family must pass the same route/node-mask/complete-budget qualification
 before activation. A proposed outline alone does not authorize resource changes,
@@ -1179,3 +1179,52 @@ continuous at Z6/7. Dedicated assertions cover the full elbow and rear return.
 Unused lower south-east shoulders and excavation inside masses immediately
 restored as solid are omitted; all canonical AIR/ORE reservations remain.
 Static footprint estimates are not runtime or composed-plan qualification.
+
+
+## Final catalogue implementation batch — qualification pending
+
+BP-09 predecessor 0d272dd81e8b873ff2d393a3a1aec27859b30af9 passed 16 jobs, 716 JUnit and 143+143 GameTests per stack, streaming/restart. Its JAR SHA256 is abafb5659f3c8ac592d25b2d3bb87ea14dc6d14b6860c1c779f3494bc5699b2b. Those results qualify only 90/120 variants.
+
+The remaining ten families are integrated together below. No intermediate family is claimed qualified. Twenty dedicated tests extend the common matrix to **86,400 composed plans and 480 actual placements**, with **163 minimal and 163 complete-runtime GameTests expected per stack**. The final exact-source CI must independently qualify all 120 variants.
+
+### BP-29 A/B/C: branched interleaved networks and explicit transfers
+
+P serves N1/N3/N6, Q serves N4/N2/N5/N7. A has one middle transfer; B adds one lower transfer; C moves the only transfer high and turns a terminal P branch into an internal loop. Tests close every admitted transfer and require each complete network to remain internally connected but separated from the other, then restore each transfer independently. A separate cut set verifies the P terminal loop without creating a Q bypass. No per-network quality, reserve or reward draw is added.
+
+### BP-07 A/B/C: separated helical strands and explicit transfers
+
+Two supported windings pass around a retained pillar at separate heights. A has one middle transfer, B adds a high transfer, and C displaces the pillar through overlapping bands while an upper outer gallery goes around it. Tests cut every admitted transfer, require each complete strand to retain its assigned fixed alcoves, then restore each transfer independently. Projected crossings retain separating rock, the middle bridge and upper winding stay two-wide, and the displaced pillar stays continuous. No node, reserve or reward is added.
+
+### BP-39 A/B/C: nine inclined grid intersections and four retained cores
+
+Nine two-wide intersections rise diagonally around four retained rock cores. Short rises finish before the flat intersections; longer differences use backed descents. B offsets one north-west bay with two supported bends while retaining all four cores. C closes only one middle traverse and keeps the grid detour. Tests verify shared floors, stair direction, all fixed alcove returns and every grid edge independently: with all admitted edges cut, the nine intersections separate; restoring one edge reconnects only its endpoint pair. N2/N4 use supported rear retreats and N7 a side landing without moving a mineral mask.
+
+### BP-22 A/B/C: three inclined radial sheets and an explicit hinge
+
+Three widening sheets meet at a backed front hinge. The lower and upper sheets descend rearward at different heights while the middle sheet slopes transversely. B adds one far lower/middle window; C divides the middle sheet into two lobes whose only connection is their far inclined neck. Tests isolate the hinge, window and neck independently, verify supported slopes and preserve every canonical mineral retreat. No per-sheet rewards or budgets are introduced.
+
+### BP-38 A/B/C: five separated spokes and an inclined hollow-hub wheel
+
+Five spokes join a hollow hub to an inclined continuous rim. B omits only the east connection while retaining its blind rim-side stump; C splits the lower rim around a retained rock blade. Tests cut every spoke and rim edge, then restore each independently and require only its endpoint pair to reconnect. Fixed mineral retreats remain on supported parts of the same site.
+
+### BP-28 A/B/C: one trilobed circuit and separated overpasses
+
+One closed circuit traverses three unequal lobes at different heights; overlapping projections remain separated by rock. B adds one explicit middle transfer and C splits only the lower lobe around a retained blade. Tests check supported returns and separating shells, isolate every cycle edge, then restore each edge or split arc independently. No new node, budget or reward draw is added.
+
+### BP-18 A/B/C: dry braided channels and two distinct confluences
+
+Three supported upper channels reunite at a rear middle confluence, then three lower branches reunite at the front bottom. B captures the central channel into the west before the middle reunion; C joins two lower channels on a raised plateau before their final two-wide descent, while the third stays below. Tests cut each upper and lower branch independently and isolate the early capture and suspended final descent. No water, node, reward or extra quality draw is added.
+
+### BP-12 A/B/C: continuous saddle surface with supported opposite curvatures
+
+A continuous rotated saddle joins opposed crests through a lower col and retains two sloping depressions. B notches one crest; C adds one upper bridge over a lower passage. Tests check the supported discretized surface, fixed mineral retreats and independent upper/lower passage cuts.
+
+### BP-33 A/B/C: crossed undulations with a following roof
+
+Two crossing undulations retain a continuous traversable floor and a roof following its clearance. B adds a lower notch in one ridge; C divides the central depression with a low ridge whose two ends remain independently traversable. Tests check every supported surface cell, mineral returns and the isolated basin end routes.
+
+### BP-01 A/B/C: folded flattened lens and inclined facing ledges
+
+A flattened lenticular cavity contains an oblique retained fold and two non-flat facing ledges. A has two offset side passages; B retains overlapping blades around one under/over transverse link; C opens the upper fold around one staggered diagonal stone bridge. Tests cut every admitted connection independently and retain supported access to all fixed mineral fronts.
+
+All FINAL positions, masks, reserves/ranks, independent lotteries, access functions, ownership-safe rollback and the 2,500-cell guard remain unchanged. Overworld TRUE, retrogen OFF, OreGuard independent, Nether production OFF. No installation, merge or publication. Visual/client NOT_PERFORMED.

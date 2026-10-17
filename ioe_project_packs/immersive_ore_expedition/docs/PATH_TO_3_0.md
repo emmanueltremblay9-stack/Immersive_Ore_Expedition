@@ -411,6 +411,19 @@ Deux tests dédiés, 64,800 plans et 360 placements.
 Couverture 90/120, 30 restantes ; qualification exacte à suivre.
 Aucun PC, installation, fusion, publication ou Nether. Visuel non prouvé.
 
+### BP-09 qualifié ; intégration finale des dix familles restantes
+
+Source qualifié BP-09 : 0d272dd81e8b873ff2d393a3a1aec27859b30af9, 16 jobs verts,
+716 JUnit et 143+143 GameTests par pile, streaming/reprise. Maximum 2491.
+JAR non installé : abafb5659f3c8ac592d25b2d3bb87ea14dc6d14b6860c1c779f3494bc5699b2b.
+
+BP-29/07/39/22/38/28/18/12/33/01 A/B/C sont intégrés ensemble :
+120/120 implémentés, mais seulement 90/120 qualifiés avant ce cycle.
+Vingt tests dédiés, 86 400 plans et 480 placements réels attendus ;
+163+163 GameTests attendus par pile. Qualification exacte du nouveau commit requise,
+sans transfert des preuves BP-09. Tous contrats FINAL conservés.
+Aucun PC, installation, fusion, publication ni activation Nether. Visuel non prouvé.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

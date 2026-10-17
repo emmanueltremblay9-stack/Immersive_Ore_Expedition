@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands() || variant.isNetworks() || variant.isHelix() || variant.isGrid() || variant.isPages() || variant.isWheel() || variant.isKnot() || variant.isDelta() || variant.isSaddle() || variant.isWaves() || variant.isLens() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands() || variant.isNetworks() || variant.isHelix() || variant.isGrid() || variant.isPages() || variant.isWheel() || variant.isKnot() || variant.isDelta() || variant.isSaddle() || variant.isWaves() || variant.isLens()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,17 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isIslands()) assertIslandsSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isLens()) assertLensSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isWaves()) assertWavesSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isSaddle()) assertSaddleSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isDelta()) assertDeltaSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isKnot()) assertKnotSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isWheel()) assertWheelSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isPages()) assertPagesSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isGrid()) assertGridSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isHelix()) assertHelixSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isNetworks()) assertNetworksSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isIslands()) assertIslandsSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isVault()) assertVaultSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isCage()) assertCageSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isWedge()) assertWedgeSignatures(helper,plan.blocks(),base,variant);
@@ -300,10 +310,20 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands() || variant.isNetworks() || variant.isHelix() || variant.isGrid() || variant.isPages() || variant.isWheel() || variant.isKnot() || variant.isDelta() || variant.isSaddle() || variant.isWaves() || variant.isLens()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isIslands()) assertIslandsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isLens()) assertLensSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isWaves()) assertWavesSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isSaddle()) assertSaddleSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isDelta()) assertDeltaSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isKnot()) assertKnotSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isWheel()) assertWheelSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isPages()) assertPagesSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isGrid()) assertGridSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isHelix()) assertHelixSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isNetworks()) assertNetworksSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isIslands()) assertIslandsSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isVault()) assertVaultSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isCage()) assertCageSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isWedge()) assertWedgeSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -2365,6 +2385,750 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.ISLANDS_SLAB),"Inclined-roof high underpass changed");
         helper.assertTrue(blocks.get(base.offset(5,2,6)).isAir()
                 == (variant==CatalogueTerraces.Variant.ISLANDS_HOLLOW),"Connected depression changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void interleavedNetworksSeparateExactlyAtTheirAdmittedTransfers(GameTestHelper helper) {
+        var p=java.util.List.of(new BlockPos(3,3,4),new BlockPos(7,9,4),new BlockPos(3,15,12));
+        var q=java.util.List.of(new BlockPos(11,3,12),new BlockPos(11,9,12),new BlockPos(11,15,4),new BlockPos(3,9,10));
+        var entry=new BlockPos(7,15,1);
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.NETWORKS,
+                CatalogueTerraces.Variant.NETWORKS_TWO,CatalogueTerraces.Variant.NETWORKS_HIGH}) {
+            var original=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertNetworksSignatures(helper,original,BlockPos.ZERO,variant);
+            int transferY=variant==CatalogueTerraces.Variant.NETWORKS_HIGH?15:9;
+            int firstX=variant==CatalogueTerraces.Variant.NETWORKS_HIGH?8:6;
+            for(int x=firstX;x<=firstX+3;x++) for(int z=6;z<=7;z++)
+                helper.assertTrue(stand(original,new BlockPos(x,transferY,z)),"P/Q transfer lost two-wide support");
+            if(variant==CatalogueTerraces.Variant.NETWORKS_TWO)
+                for(int x=6;x<=9;x++) for(int z=6;z<=7;z++)
+                    helper.assertTrue(stand(original,new BlockPos(x,3,z)),"Low P/Q transfer lost two-wide support");
+            for(int x=8;x<=9;x++) for(int z=8;z<=12;z++)
+                helper.assertTrue(stand(original,new BlockPos(x,9,z)),"Q mineral approach lost two-wide support");
+            var transfers=new java.util.ArrayList<java.util.List<BlockPos>>();
+            if(variant==CatalogueTerraces.Variant.NETWORKS_HIGH)
+                transfers.add(java.util.List.of(new BlockPos(9,15,6),new BlockPos(9,15,7)));
+            else transfers.add(java.util.List.of(new BlockPos(7,9,6),new BlockPos(7,9,7)));
+            if(variant==CatalogueTerraces.Variant.NETWORKS_TWO)
+                transfers.add(java.util.List.of(new BlockPos(7,3,6),new BlockPos(7,3,7)));
+            var cut=new LinkedHashMap<>(original);
+            transfers.forEach(t->t.forEach(pos->cut.put(pos,Blocks.STONE.defaultBlockState())));
+            var fromP=reachable(cut,entry);var fromQ=reachable(cut,q.get(0));
+            helper.assertTrue(fromP.containsAll(p) && fromQ.containsAll(q)
+                    && p.stream().noneMatch(fromQ::contains) && q.stream().noneMatch(fromP::contains),
+                    "P/Q gained an accidental transfer or lost a branch: "+variant);
+            for(var transfer:transfers) {
+                var restored=new LinkedHashMap<>(cut);transfer.forEach(pos->restored.put(pos,original.get(pos)));
+                for(var end:java.util.stream.Stream.concat(p.stream(),q.stream()).toList())
+                    helper.assertTrue(reachable(restored,entry).contains(end) && reachable(restored,end).contains(entry),
+                            "An admitted transfer alone does not reconnect both complete networks");
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void highTransferTurnsOnlyThePTerminalIntoAnInternalLoop(GameTestHelper helper) {
+        var terminal=new BlockPos(3,15,4);var main=new BlockPos(7,15,7);
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.NETWORKS,
+                CatalogueTerraces.Variant.NETWORKS_TWO,CatalogueTerraces.Variant.NETWORKS_HIGH}) {
+            var g=new LinkedHashMap<>(CatalogueTerraces.geometry(new BlockPos(7,15,7),variant));
+            closeWell(g,5,5,4,5,15);
+            helper.assertTrue(reachable(g,terminal).contains(main)==(variant==CatalogueTerraces.Variant.NETWORKS_HIGH),
+                    "Terminal P branch gained or lost its explicit internal loop");
+            if(variant==CatalogueTerraces.Variant.NETWORKS_HIGH) {
+                for(int x=2;x<=3;x++) for(int z=6;z<=9;z++) helper.assertTrue(stand(g,new BlockPos(x,15,z)),
+                        "P outer loop lost its two-wide support or backing clearance");
+                closeWell(g,2,3,7,7,15);
+                helper.assertTrue(!reachable(g,terminal).contains(main) && !reachable(g,main).contains(terminal),
+                        "Both terminal-loop cuts retained an unplanned P bypass");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertNetworksSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                                  BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(7,3,6),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.NETWORKS_TWO),"Low P/Q transfer changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(7,9,6),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant!=CatalogueTerraces.Variant.NETWORKS_HIGH),"Middle P/Q transfer changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(9,15,6),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.NETWORKS_HIGH),"High P/Q transfer changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void helicalStrandsMeetOnlyAtTheirExplicitTransfers(GameTestHelper helper) {
+        var entry=new BlockPos(7,15,1);
+        var first=java.util.List.of(new BlockPos(3,15,12),new BlockPos(7,9,4),new BlockPos(11,3,12));
+        var second=java.util.List.of(new BlockPos(11,15,4),new BlockPos(11,9,12),new BlockPos(3,9,10),new BlockPos(3,3,4));
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.HELIX,
+                CatalogueTerraces.Variant.HELIX_TWO,CatalogueTerraces.Variant.HELIX_OFFSET}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertHelixSignatures(helper,g,BlockPos.ZERO,variant);
+            var cuts=new java.util.ArrayList<java.util.List<BlockPos>>();
+            cuts.add(java.util.List.of(new BlockPos(8,9,7),new BlockPos(9,9,7)));
+            if(variant==CatalogueTerraces.Variant.HELIX_TWO)
+                cuts.add(java.util.List.of(new BlockPos(9,15,6),new BlockPos(9,15,7)));
+            var separated=new LinkedHashMap<>(g);
+            cuts.forEach(c->c.forEach(p->separated.put(p,Blocks.STONE.defaultBlockState())));
+            var fromFirst=reachable(separated,entry);var fromSecond=reachable(separated,second.get(0));
+            helper.assertTrue(fromFirst.containsAll(first) && fromSecond.containsAll(second)
+                    && first.stream().noneMatch(fromSecond::contains) && second.stream().noneMatch(fromFirst::contains),
+                    "Helical strands merged at a projected crossing or lost a fixed retreat: "+variant);
+            for(var transfer:cuts) {
+                var restored=new LinkedHashMap<>(separated);transfer.forEach(p->restored.put(p,g.get(p)));
+                for(var end:java.util.stream.Stream.concat(first.stream(),second.stream()).toList())
+                    helper.assertTrue(reachable(restored,entry).contains(end) && reachable(restored,end).contains(entry),
+                            "One admitted helix transfer does not reconnect both complete strands");
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void helicalCrossingsStaySeparatedAndTheOffsetGalleryReturnsAroundItsPillar(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.HELIX,
+                CatalogueTerraces.Variant.HELIX_TWO,CatalogueTerraces.Variant.HELIX_OFFSET}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            for(int z=8;z<=9;z++) {
+                helper.assertTrue(stand(g,new BlockPos(11,3,z)) && stand(g,new BlockPos(11,9,z)),
+                        "Projected eastern crossing lost its supported lower or upper strand");
+                helper.assertTrue(g.get(new BlockPos(11,6,z)).is(Blocks.STONE)
+                        && g.get(new BlockPos(11,8,z)).is(Blocks.STONE),"Projected crossing lost its separating rock");
+            }
+            for(int x=8;x<=9;x++) for(int z=5;z<=8;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,9,z)),"Middle helix transfer lost two-wide support");
+            for(int x=11;x<=12;x++) for(int z=5;z<=9;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)),"Lower winding lost its two-wide east approach");
+            for(int x=8;x<=12;x++) for(int z=8;z<=9;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)),"Lower winding lost its two-wide east-to-south turn");
+            int firstX=variant==CatalogueTerraces.Variant.HELIX_OFFSET?7:5;
+            for(int x=firstX;x<=firstX+1;x++) for(int z=8;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,15,z)),"Upper winding pinches against its pillar");
+            if(variant==CatalogueTerraces.Variant.HELIX_OFFSET) {
+                for(int y=3;y<=17;y++) {
+                    int first=y<=6?6:y<=11?5:4;
+                    for(int x=first;x<=first+1;x++) for(int z=8;z<=9;z++)
+                        helper.assertTrue(g.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Offset pillar lost its continuous overlapping bands");
+                }
+                helper.assertTrue(!open(g,new BlockPos(6,15,9)) && open(g,new BlockPos(8,15,10)),
+                        "Offset winding did not leave the displaced pillar by its outer gallery");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertHelixSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(9,15,6),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.HELIX_TWO),"Second helix transfer changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(8,15,10),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.HELIX_OFFSET),"Offset outer helix gallery changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void miningGridKeepsSharedIntersectionFloorsFourCoresAndFixedAlcoveReturns(GameTestHelper helper) {
+        int[] xs={3,7,11},zs={4,8,12};int[][] heights={{3,5,7},{5,7,9},{9,11,15}};
+        var entry=new BlockPos(7,15,1);
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.GRID,
+                CatalogueTerraces.Variant.GRID_OFFSET,CatalogueTerraces.Variant.GRID_CLOSED}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertGridSignatures(helper,g,BlockPos.ZERO,variant);
+            for(int row=0;row<3;row++) for(int col=0;col<3;col++) {
+                for(int x=xs[col];x<=xs[col]+1;x++) for(int z=zs[row];z<=zs[row]+1;z++)
+                    helper.assertTrue(stand(g,new BlockPos(x,heights[row][col],z)),"Grid intersection has inconsistent incoming floors or headroom");
+                var node=new BlockPos(xs[col],heights[row][col],zs[row]);
+                helper.assertTrue(reachable(g,entry).contains(node) && reachable(g,node).contains(entry),"Grid intersection has no supported return");
+            }
+            for(int y=2;y<=13;y++) for(var core:java.util.List.of(new BlockPos(5,y,6),new BlockPos(6,y,7),
+                    new BlockPos(9,y,6),new BlockPos(10,y,7),new BlockPos(5,y,10),new BlockPos(6,y,11),
+                    new BlockPos(9,y,11),new BlockPos(10,y,10)))
+                helper.assertTrue(g.get(core).is(Blocks.STONE),"Grid lost one of its four continuous retained cores");
+            for(var heart:CatalogueTerraces.HEARTS) {
+                var front=heart.south();
+                helper.assertTrue(reachable(g,entry).contains(front) && reachable(g,front).contains(entry),"Grid lost a fixed mineral retreat");
+            }
+            for(int col=0;col<3;col++) {
+                int first=variant==CatalogueTerraces.Variant.GRID_OFFSET && col==0?1:xs[col];
+                for(int x=first;x<=first+1;x++) for(int n=1;n<=2;n++) {
+                    var step=new BlockPos(x,heights[0][col]+n-1,5+n);
+                    helper.assertTrue(g.get(step).is(Blocks.STONE_STAIRS)
+                            && g.get(step).getValue(StairBlock.FACING)==net.minecraft.core.Direction.SOUTH,
+                            "North grid edge lost its oriented two-wide rise");
+                }
+            }
+            if(variant==CatalogueTerraces.Variant.GRID_OFFSET)
+                for(int x=1;x<=4;x++) for(int z=4;z<=5;z++) {
+                    helper.assertTrue(stand(g,new BlockPos(x,3,z)),"Offset bay lost its lower two-wide bend");
+                    helper.assertTrue(stand(g,new BlockPos(x,5,z+4)),"Offset bay lost its upper two-wide bend");
+                }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void miningGridEdgesReconnectOnlyTheirOwnIntersectionPair(GameTestHelper helper) {
+        int[] xs={3,7,11},zs={4,8,12};int[][] heights={{3,5,7},{5,7,9},{9,11,15}};
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.GRID,
+                CatalogueTerraces.Variant.GRID_OFFSET,CatalogueTerraces.Variant.GRID_CLOSED}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var nodes=new java.util.ArrayList<BlockPos>();
+            for(int row=0;row<3;row++) for(int col=0;col<3;col++) nodes.add(new BlockPos(xs[col],heights[row][col],zs[row]));
+            var pairs=new java.util.ArrayList<int[]>();
+            var cuts=new java.util.ArrayList<java.util.List<BlockPos>>();
+            for(int row=0;row<3;row++) for(int col=0;col<2;col++) {
+                if(variant==CatalogueTerraces.Variant.GRID_CLOSED && row==1 && col==1) continue;
+                pairs.add(new int[]{row*3+col,row*3+col+1});
+                var cut=new java.util.ArrayList<BlockPos>();
+                for(int y=2;y<=17;y++) for(int z=zs[row];z<=zs[row]+1;z++) cut.add(new BlockPos(xs[col]+2,y,z));
+                cuts.add(cut);
+            }
+            for(int col=0;col<3;col++) {
+                pairs.add(new int[]{col,col+3});
+                var cut=new java.util.ArrayList<BlockPos>();
+                int first=variant==CatalogueTerraces.Variant.GRID_OFFSET && col==0?1:xs[col];
+                for(int x=first;x<=first+1;x++) for(int y=2;y<=17;y++) cut.add(new BlockPos(x,y,6));
+                cuts.add(cut);
+            }
+            for(int col=0;col<3;col++) {
+                pairs.add(new int[]{col+3,col+6});
+                var cut=new java.util.ArrayList<BlockPos>();
+                int firstZ=col==2?8:10;int y=col==0?7:col==1?9:12;
+                for(int x=xs[col];x<=xs[col]+1;x++) for(int z=firstZ;z<=firstZ+1;z++) cut.add(new BlockPos(x,y,z));
+                cuts.add(cut);
+            }
+            var isolated=new LinkedHashMap<>(g);
+            cuts.forEach(c->c.forEach(p->isolated.put(p,Blocks.STONE.defaultBlockState())));
+            for(int start=0;start<nodes.size();start++) {
+                var reachable=reachable(isolated,nodes.get(start));
+                for(int end=0;end<nodes.size();end++) helper.assertTrue(reachable.contains(nodes.get(end))==(start==end),
+                        "Grid intersections remained connected after every admitted edge was cut");
+            }
+            for(int edge=0;edge<cuts.size();edge++) {
+                var restored=new LinkedHashMap<>(isolated);
+                for(var p:cuts.get(edge)) {
+                    var state=g.get(p);
+                    if(state==null) restored.remove(p); else restored.put(p,state);
+                }
+                int a=pairs.get(edge)[0],b=pairs.get(edge)[1];
+                for(int start=0;start<nodes.size();start++) {
+                    var reachable=reachable(restored,nodes.get(start));
+                    for(int end=0;end<nodes.size();end++) {
+                        boolean expected=start==end || start==a && end==b || start==b && end==a;
+                        helper.assertTrue(reachable.contains(nodes.get(end))==expected,
+                                "Restored grid edge joined the wrong intersection pair: "+variant+" edge="+edge);
+                    }
+                }
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertGridSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                              BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(1,4,6),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.GRID_OFFSET),"Offset grid bay changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(9,8,8),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant!=CatalogueTerraces.Variant.GRID_CLOSED),"Closed grid traverse changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void hingedPagesKeepDistinctInclinationsAndSupportedAlcoveReturns(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.PAGES,
+                CatalogueTerraces.Variant.PAGES_WINDOW,CatalogueTerraces.Variant.PAGES_TORN}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertPagesSignatures(helper,g,BlockPos.ZERO,variant);
+            var top=new BlockPos(7,15,7);
+            for(var end:java.util.List.of(new BlockPos(3,3,4),new BlockPos(11,9,12),new BlockPos(3,15,12),
+                    new BlockPos(11,3,12),new BlockPos(11,15,4),new BlockPos(7,9,4),new BlockPos(3,9,10),
+                    new BlockPos(3,1,12),new BlockPos(8,7,12),new BlockPos(11,13,12)))
+                helper.assertTrue(reachable(g,top).contains(end) && reachable(g,end).contains(top),"Page slope or mineral retreat lost its supported return");
+            for(int x=3;x<=4;x++) for(int z=8;z<=12;z++) {
+                int foot=z<=9?3:z==10?2:1;
+                helper.assertTrue(stand(g,new BlockPos(x,foot,z)),"Low page descent lost width or clearance");
+            }
+            for(int x=10;x<=11;x++) for(int z=8;z<=12;z++) {
+                int foot=z<=9?15:z==10?14:13;
+                helper.assertTrue(stand(g,new BlockPos(x,foot,z)),"High page descent lost width or clearance");
+            }
+            for(int z=11;z<=12;z++) for(int x=5;x<=9;x++) {
+                int foot=x<=6?9:x==7?8:7;
+                helper.assertTrue(stand(g,new BlockPos(x,foot,z)),"Middle page's far neck lost its transverse inclination or support");
+            }
+            for(int z=11;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(10,8,z)),"N2 terminal approach is not two-wide");
+            for(int z=8;z<=10;z++) helper.assertTrue(g.get(new BlockPos(8,10,z)).is(Blocks.STONE),
+                    "Middle and high sheets lost their separating rock");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void hingedPagesUseOnlyTheirHingeWindowAndFarTornNeck(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.PAGES,
+                CatalogueTerraces.Variant.PAGES_WINDOW,CatalogueTerraces.Variant.PAGES_TORN}) {
+            var g=new LinkedHashMap<>(CatalogueTerraces.geometry(new BlockPos(7,15,7),variant));
+            closeWell(g,5,6,4,5,6);closeWell(g,5,6,4,5,12);
+            var low=new BlockPos(3,1,12);var mid=new BlockPos(5,9,9);var high=new BlockPos(11,13,12);
+            helper.assertTrue(!reachable(g,high).contains(mid) && !reachable(g,mid).contains(high),"Pages have an unplanned upper cross-connection");
+            helper.assertTrue(reachable(g,low).contains(mid)==(variant==CatalogueTerraces.Variant.PAGES_WINDOW)
+                    && reachable(g,mid).contains(low)==(variant==CatalogueTerraces.Variant.PAGES_WINDOW),"Low-middle connection is not owned by the B window");
+            if(variant==CatalogueTerraces.Variant.PAGES_WINDOW) {
+                closeWell(g,5,6,11,12,6);
+                helper.assertTrue(!reachable(g,low).contains(mid) && !reachable(g,mid).contains(low),"Far window has a hidden bypass");
+            }
+            var right=new BlockPos(8,7,9);
+            helper.assertTrue(reachable(g,mid).contains(right) && reachable(g,right).contains(mid),"Middle page lobes disconnected");
+            for(int z=11;z<=12;z++) for(int y=7;y<=11;y++) g.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+            helper.assertTrue(reachable(g,mid).contains(right)==(variant!=CatalogueTerraces.Variant.PAGES_TORN)
+                    && reachable(g,right).contains(mid)==(variant!=CatalogueTerraces.Variant.PAGES_TORN),"Torn page has an unplanned connection outside its far neck");
+        }
+        helper.succeed();
+    }
+
+    private static void assertPagesSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue((blocks.get(base.offset(5,6,12))!=null && blocks.get(base.offset(5,6,12)).is(Blocks.LADDER))
+                ==(variant==CatalogueTerraces.Variant.PAGES_WINDOW),"Far page window changed");
+        helper.assertTrue(blocks.get(base.offset(7,9,9)).is(Blocks.STONE)
+                ==(variant==CatalogueTerraces.Variant.PAGES_TORN),"Torn page divider changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void inclinedWheelPreservesItsHollowHubRockSectorsAndFiveRimSectors(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.WHEEL,
+                CatalogueTerraces.Variant.WHEEL_BLIND,CatalogueTerraces.Variant.WHEEL_SPLIT}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertWheelSignatures(helper,g,BlockPos.ZERO,variant);
+            var hub=new BlockPos(7,9,8);
+            for(var end:java.util.List.of(new BlockPos(7,15,7),new BlockPos(11,9,7),new BlockPos(9,3,12),
+                    new BlockPos(5,3,12),new BlockPos(4,9,7),new BlockPos(3,3,4),new BlockPos(11,9,12),
+                    new BlockPos(3,15,12),new BlockPos(11,3,12),new BlockPos(11,15,4),
+                    new BlockPos(7,9,4),new BlockPos(3,9,10)))
+                helper.assertTrue(reachable(g,hub).contains(end) && reachable(g,end).contains(hub),"Wheel sector or fixed retreat lost its supported return");
+            for(int x=6;x<=9;x++) for(int z=7;z<=9;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,9,z)),"Wheel hub is not a supported hollow chamber");
+            for(int x=3;x<=11;x++) for(int z=12;z<=13;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)),"Lower rim pinches at a spoke landing");
+            for(int x=3;x<=12;x++) for(int z=6;z<=7;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,15,z)),"Upper rim is not two-wide");
+            for(int y=2;y<=6;y++) for(int x=5;x<=7;x++) for(int z=10;z<=11;z++)
+                helper.assertTrue(g.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Wheel lost its lower rock sector");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void wheelRimEdgesAndSpokesReconnectOnlyTheirOwnEndpoints(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.WHEEL,
+                CatalogueTerraces.Variant.WHEEL_BLIND,CatalogueTerraces.Variant.WHEEL_SPLIT}) {
+            var source=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var vertices=java.util.List.of(new BlockPos(7,9,8),new BlockPos(7,15,7),new BlockPos(11,9,7),
+                    new BlockPos(9,3,12),new BlockPos(5,3,12),new BlockPos(4,9,7));
+            var edges=new java.util.ArrayList<int[]>();
+            var cuts=new java.util.ArrayList<java.util.List<BlockPos>>();
+            edges.add(new int[]{0,1});cuts.add(wheelPlane(7,8,12,6,7));
+            if(variant!=CatalogueTerraces.Variant.WHEEL_BLIND) {
+                edges.add(new int[]{0,2});cuts.add(wheelPlane(10,10,9,8,9));
+            }
+            edges.add(new int[]{0,3});cuts.add(wheelPlane(9,10,6,12,13));
+            edges.add(new int[]{0,4});cuts.add(wheelPlane(5,6,6,12,13));
+            edges.add(new int[]{0,5});cuts.add(wheelPlane(5,5,9,6,7));
+            edges.add(new int[]{1,2});cuts.add(wheelPlane(11,12,12,6,7));
+            edges.add(new int[]{2,3});cuts.add(wheelPlane(11,12,6,6,7));
+            edges.add(new int[]{3,4});
+            var bottom=new java.util.ArrayList<>(wheelPlane(7,7,3,12,13));
+            if(variant==CatalogueTerraces.Variant.WHEEL_SPLIT) bottom.addAll(wheelPlane(7,7,3,8,9));
+            cuts.add(bottom);
+            edges.add(new int[]{4,5});cuts.add(wheelPlane(3,4,6,6,7));
+            edges.add(new int[]{5,1});cuts.add(wheelPlane(3,4,12,6,7));
+            var isolated=new LinkedHashMap<>(source);
+            for(var cut:cuts) for(var p:cut) isolated.put(p,Blocks.STONE.defaultBlockState());
+            for(int i=0;i<vertices.size();i++) for(int j=0;j<vertices.size();j++) if(i!=j)
+                helper.assertTrue(!reachable(isolated,vertices.get(i)).contains(vertices.get(j)),"Wheel has a hidden edge outside its hub or rim vertices");
+            for(int e=0;e<edges.size();e++) {
+                var restored=new LinkedHashMap<>(isolated);
+                for(var p:cuts.get(e)) {
+                    var state=source.get(p);if(state==null) restored.remove(p);else restored.put(p,state);
+                }
+                var pair=edges.get(e);
+                for(int i=0;i<vertices.size();i++) for(int j=0;j<vertices.size();j++) if(i!=j) {
+                    boolean expected=i==pair[0] && j==pair[1] || i==pair[1] && j==pair[0];
+                    helper.assertTrue(reachable(restored,vertices.get(i)).contains(vertices.get(j))==expected,
+                            "Restoring a wheel edge connects a different rim sector or spoke");
+                }
+            }
+            if(variant==CatalogueTerraces.Variant.WHEEL_SPLIT) for(var arc:java.util.List.of(
+                    wheelPlane(7,7,3,12,13),wheelPlane(7,7,3,8,9))) {
+                var restored=new LinkedHashMap<>(isolated);
+                for(var p:arc) restored.put(p,source.get(p));
+                helper.assertTrue(reachable(restored,vertices.get(3)).contains(vertices.get(4))
+                        && reachable(restored,vertices.get(4)).contains(vertices.get(3)),"One of the split rim arcs is not an independent supported return");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static java.util.List<BlockPos> wheelPlane(int x1,int x2,int y,int z1,int z2) {
+        var out=new java.util.ArrayList<BlockPos>();
+        for(int x=x1;x<=x2;x++) for(int z=z1;z<=z2;z++) out.add(new BlockPos(x,y,z));
+        return out;
+    }
+
+    private static void assertWheelSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(open(blocks,base.offset(10,9,8))==(variant!=CatalogueTerraces.Variant.WHEEL_BLIND),"Blind spoke changed");
+        helper.assertTrue(open(blocks,base.offset(7,3,8))==(variant==CatalogueTerraces.Variant.WHEEL_SPLIT),"Split rim changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void trilobedCircuitKeepsSeparatedOverpassesAndSupportedReturns(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.KNOT,
+                CatalogueTerraces.Variant.KNOT_TRANSFER,CatalogueTerraces.Variant.KNOT_SPLIT}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertKnotSignatures(helper,g,BlockPos.ZERO,variant);
+            var top=new BlockPos(7,15,7);
+            for(var heart:CatalogueTerraces.HEARTS)
+                helper.assertTrue(reachable(g,top).contains(heart.south()) && reachable(g,heart.south()).contains(top),
+                        "Trilobed circuit left a fixed mineral retreat without a supported return");
+            for(int x=5;x<=6;x++) for(int z=4;z<=5;z++) {
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)) && stand(g,new BlockPos(x,9,z))
+                        && stand(g,new BlockPos(x,15,z)),"Three projected lobe segments lost their supported heights");
+                helper.assertTrue(solid(g,new BlockPos(x,6,z)) && solid(g,new BlockPos(x,8,z))
+                        && solid(g,new BlockPos(x,12,z)) && solid(g,new BlockPos(x,14,z)),"Projected crossings fused vertically");
+            }
+            for(int x=8;x<=9;x++) for(int z=8;z<=9;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)) && stand(g,new BlockPos(x,9,z))
+                        && stand(g,new BlockPos(x,15,z)),"Second crossing lost its separate two-wide levels");
+            for(int y=2;y<=6;y++) for(int x=8;x<=8;x++) for(int z=6;z<=7;z++)
+                helper.assertTrue(g.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Lower lobe's separating blade disappeared");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void trilobedCircuitHasOnlyItsCycleTransferAndSplitArc(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.KNOT,
+                CatalogueTerraces.Variant.KNOT_TRANSFER,CatalogueTerraces.Variant.KNOT_SPLIT}) {
+            var source=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var vertices=java.util.List.of(new BlockPos(7,15,4),new BlockPos(3,15,12),new BlockPos(3,3,12),
+                    new BlockPos(9,3,12),new BlockPos(9,9,12),new BlockPos(7,9,4));
+            var edges=new java.util.ArrayList<int[]>();
+            var cuts=new java.util.ArrayList<java.util.List<BlockPos>>();
+            edges.add(new int[]{0,1});cuts.add(knotPlane(7,7,15,8,9));
+            edges.add(new int[]{1,2});cuts.add(knotPlane(3,4,6,12,13));
+            edges.add(new int[]{2,3});
+            var low=new java.util.ArrayList<>(knotPlane(7,7,3,4,5));
+            if(variant==CatalogueTerraces.Variant.KNOT_SPLIT) low.addAll(knotPlane(7,7,3,8,9));
+            cuts.add(low);
+            edges.add(new int[]{3,4});cuts.add(knotPlane(9,10,6,12,13));
+            edges.add(new int[]{4,5});cuts.add(knotPlane(7,7,9,8,9));
+            edges.add(new int[]{5,0});cuts.add(knotPlane(7,8,12,4,5));
+            if(variant==CatalogueTerraces.Variant.KNOT_TRANSFER) {
+                edges.add(new int[]{1,5});cuts.add(knotPlane(5,6,9,10,10));
+            }
+            var isolated=new LinkedHashMap<>(source);
+            for(var cut:cuts) for(var p:cut) isolated.put(p,Blocks.STONE.defaultBlockState());
+            for(int i=0;i<vertices.size();i++) for(int j=0;j<vertices.size();j++) if(i!=j)
+                helper.assertTrue(!reachable(isolated,vertices.get(i)).contains(vertices.get(j)),"Trilobed circuit has an unplanned crossing junction");
+            for(int e=0;e<edges.size();e++) {
+                var restored=new LinkedHashMap<>(isolated);
+                for(var p:cuts.get(e)) {
+                    var state=source.get(p);if(state==null) restored.remove(p);else restored.put(p,state);
+                }
+                var pair=edges.get(e);
+                for(int i=0;i<vertices.size();i++) for(int j=0;j<vertices.size();j++) if(i!=j) {
+                    boolean expected=i==pair[0] && j==pair[1] || i==pair[1] && j==pair[0];
+                    helper.assertTrue(reachable(restored,vertices.get(i)).contains(vertices.get(j))==expected,
+                            "Trilobed edge restoration connects an unintended lobe");
+                }
+            }
+            if(variant==CatalogueTerraces.Variant.KNOT_SPLIT) for(var arc:java.util.List.of(
+                    knotPlane(7,7,3,4,5),knotPlane(7,7,3,8,9))) {
+                var restored=new LinkedHashMap<>(isolated);
+                for(var p:arc) restored.put(p,source.get(p));
+                helper.assertTrue(reachable(restored,vertices.get(2)).contains(vertices.get(3))
+                        && reachable(restored,vertices.get(3)).contains(vertices.get(2)),"Split lower lobe lost one independent route");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static java.util.List<BlockPos> knotPlane(int x1,int x2,int y,int z1,int z2) {
+        var out=new java.util.ArrayList<BlockPos>();
+        for(int x=x1;x<=x2;x++) for(int z=z1;z<=z2;z++) out.add(new BlockPos(x,y,z));
+        return out;
+    }
+
+    private static void assertKnotSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(open(blocks,base.offset(5,9,10))==(variant==CatalogueTerraces.Variant.KNOT_TRANSFER),"Middle transfer changed");
+        helper.assertTrue(open(blocks,base.offset(6,3,7))==(variant==CatalogueTerraces.Variant.KNOT_SPLIT),"Split lower lobe changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void dryDeltaKeepsTwoConfluencesBanksAndSupportedChannelReturns(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.DELTA,
+                CatalogueTerraces.Variant.DELTA_CAPTURE,CatalogueTerraces.Variant.DELTA_SUSPENDED}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertDeltaSignatures(helper,g,BlockPos.ZERO,variant);
+            var top=new BlockPos(7,15,7);var middle=new BlockPos(5,9,12);
+            for(var heart:CatalogueTerraces.HEARTS)
+                helper.assertTrue(reachable(g,top).contains(heart.south()) && reachable(g,heart.south()).contains(top),
+                        "Delta left a mineral retreat without a supported return");
+            for(int x=11;x<=12;x++) for(int z=5;z<=13;z++) {
+                int foot=z==5?15:z==6?14:13;
+                helper.assertTrue(stand(g,new BlockPos(x,foot,z)),"Upper east channel lost its supported two-wide descent");
+            }
+            for(int x=3;x<=12;x++) for(int z=12;z<=13;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,9,z)),"Middle confluence is pinched by a shaft landing");
+            for(int y=2;y<=7;y++) for(int z=6;z<=11;z++)
+                helper.assertTrue(g.get(new BlockPos(5,y,z)).is(Blocks.STONE),"Lower channels lost their separating bank");
+            if(variant==CatalogueTerraces.Variant.DELTA_SUSPENDED) {
+                for(int x=3;x<=4;x++) for(int z=10;z<=12;z++)
+                    helper.assertTrue(stand(g,new BlockPos(x,z==10?3:z==11?4:5,z)),"Suspended confluence's final descent is not two-wide");
+            } else for(int x=6;x<=7;x++) for(int z=5;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,z==5?3:z==6?4:5,z)),"Middle lower channel lost its supported incline");
+            var cuts=java.util.List.of(deltaPlane(5,6,12,6,7),deltaPlane(8,9,12,6,7),deltaPlane(11,12,12,12,13));
+            var isolated=new LinkedHashMap<>(g);
+            for(var cut:cuts) for(var p:cut) isolated.put(p,Blocks.STONE.defaultBlockState());
+            helper.assertTrue(!reachable(isolated,top).contains(middle) && !reachable(isolated,middle).contains(top),"Delta upper channels have a hidden fourth connection");
+            for(var cut:cuts) {
+                var restored=new LinkedHashMap<>(isolated);
+                for(var p:cut) restored.put(p,g.get(p));
+                helper.assertTrue(reachable(restored,top).contains(middle) && reachable(restored,middle).contains(top),"An upper delta channel is not an independent return");
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void deltaCaptureAndSuspendedConfluenceChangeOnlyTheDeclaredReunions(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.DELTA,
+                CatalogueTerraces.Variant.DELTA_CAPTURE,CatalogueTerraces.Variant.DELTA_SUSPENDED}) {
+            var source=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var g=new LinkedHashMap<>(source);
+            closeWell(g,5,6,6,7,12);closeWell(g,8,9,6,7,12);closeWell(g,11,12,12,13,12);
+            var west=new BlockPos(5,9,8);var central=new BlockPos(8,9,8);var rear=new BlockPos(5,9,12);
+            closeWell(g,5,6,10,10,9);
+            boolean capture=variant==CatalogueTerraces.Variant.DELTA_CAPTURE;
+            helper.assertTrue(!reachable(g,west).contains(rear),"West channel bypasses its interrupted stem");
+            helper.assertTrue(reachable(g,central).contains(rear)!=capture,"Central channel did not follow its declared early capture");
+            helper.assertTrue(reachable(g,west).contains(central)==capture && reachable(g,central).contains(west)==capture,
+                    "Central and west channels merge outside the declared capture");
+            closeWell(g,8,9,10,10,9);
+            helper.assertTrue(!reachable(g,central).contains(rear),"Central channel has a hidden rear return");
+            var cuts=java.util.List.of(deltaPlane(3,4,8,12,13),deltaPlane(6,7,8,12,13),deltaPlane(9,10,6,12,13));
+            var isolated=new LinkedHashMap<>(source);var bottom=new BlockPos(4,3,6);
+            for(var cut:cuts) for(var p:cut) isolated.put(p,Blocks.STONE.defaultBlockState());
+            helper.assertTrue(!reachable(isolated,rear).contains(bottom) && !reachable(isolated,bottom).contains(rear),"Lower delta retained a fourth descent");
+            for(var cut:cuts) {
+                var restored=new LinkedHashMap<>(isolated);
+                for(var p:cut) restored.put(p,source.get(p));
+                helper.assertTrue(reachable(restored,rear).contains(bottom) && reachable(restored,bottom).contains(rear),"A lower delta branch lost its supported return");
+            }
+            if(variant==CatalogueTerraces.Variant.DELTA_SUSPENDED) {
+                var left=new BlockPos(3,5,12);var right=new BlockPos(6,5,12);
+                helper.assertTrue(reachable(isolated,left).contains(right) && reachable(isolated,right).contains(left)
+                        && reachable(isolated,left).contains(bottom),"Suspended channels failed to reunite above the third channel");
+                closeWell(isolated,3,4,11,11,4);
+                helper.assertTrue(!reachable(isolated,left).contains(bottom) && !reachable(isolated,bottom).contains(left),
+                        "Suspended confluence bypasses its final supported descent");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static java.util.List<BlockPos> deltaPlane(int x1,int x2,int y,int z1,int z2) {
+        var out=new java.util.ArrayList<BlockPos>();
+        for(int x=x1;x<=x2;x++) for(int z=z1;z<=z2;z++) out.add(new BlockPos(x,y,z));
+        return out;
+    }
+
+    private static void assertDeltaSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(open(blocks,base.offset(7,9,8))==(variant==CatalogueTerraces.Variant.DELTA_CAPTURE),"Early channel capture changed");
+        helper.assertTrue(open(blocks,base.offset(5,5,12))==(variant==CatalogueTerraces.Variant.DELTA_SUSPENDED),"Suspended confluence changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void saddleKeepsOpposedCurvaturesAndEverySupportedSurfaceCell(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.SADDLE,
+                CatalogueTerraces.Variant.SADDLE_NOTCH,CatalogueTerraces.Variant.SADDLE_BRIDGE}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertSaddleSignatures(helper,g,BlockPos.ZERO,variant);
+            var centre=new BlockPos(6,9,8);
+            var reached=reachable(g,centre);
+            for(var e:CatalogueSaddle.heights(variant==CatalogueTerraces.Variant.SADDLE_NOTCH).entrySet()) {
+                var p=new BlockPos(e.getKey().getX(),e.getValue(),e.getKey().getZ());
+                helper.assertTrue(stand(g,p) && reached.contains(p) && reachable(g,p).contains(centre),
+                        "Discretized saddle has an unsupported or unreachable surface cell: "+p);
+            }
+            for(var heart:CatalogueTerraces.HEARTS)
+                helper.assertTrue(reached.contains(heart.south()) && reachable(g,heart.south()).contains(centre),
+                        "Saddle's fixed mineral retreat requires a jump or mining a mask");
+            for(var p:java.util.List.of(new BlockPos(4,7,5),new BlockPos(8,7,12),
+                    new BlockPos(11,11,4),new BlockPos(3,11,13),new BlockPos(6,9,8)))
+                helper.assertTrue(stand(g,p),"Saddle lost its two troughs, opposed ridges or central col");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void saddleNotchAndBridgeKeepTheirLowerAndUpperRoutesDistinct(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.SADDLE,
+                CatalogueTerraces.Variant.SADDLE_NOTCH,CatalogueTerraces.Variant.SADDLE_BRIDGE}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            for(int x=9;x<=10;x++) for(int z=5;z<=6;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,9,z))==(variant==CatalogueTerraces.Variant.SADDLE_NOTCH),
+                        "Second low col does not match the notched ridge");
+            for(int x=11;x<=12;x++) helper.assertTrue(stand(g,new BlockPos(x,11,4)),"Notch removed the adjacent high ridge");
+            var cut=new LinkedHashMap<>(g);
+            for(int y=0;y<=18;y++) for(int z=4;z<=7;z++) cut.put(new BlockPos(5,y,z),Blocks.STONE.defaultBlockState());
+            var north=new BlockPos(4,7,5);var south=new BlockPos(4,9,7);
+            helper.assertTrue(reachable(cut,north).contains(south) && reachable(cut,south).contains(north),
+                    "Isolated trough lost its supported lower route");
+            closeWell(cut,3,4,6,6,8);
+            boolean bridge=variant==CatalogueTerraces.Variant.SADDLE_BRIDGE;
+            helper.assertTrue(reachable(cut,north).contains(south)==bridge && reachable(cut,south).contains(north)==bridge,
+                    "Bridge does not provide exactly the additional high return");
+            if(bridge) {
+                for(int x=3;x<=4;x++) for(int z=4;z<=7;z++)
+                    helper.assertTrue(stand(g,new BlockPos(x,13,z)),"Bridge's upper path is not two-wide");
+                closeWell(cut,3,4,6,6,13);
+                helper.assertTrue(!reachable(cut,north).contains(south) && !reachable(cut,south).contains(north),
+                        "Saddle bridge has an unplanned third bypass");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertSaddleSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(open(blocks,base.offset(9,9,5))==(variant==CatalogueTerraces.Variant.SADDLE_NOTCH),"Saddle notch changed");
+        helper.assertTrue(open(blocks,base.offset(4,13,6))==(variant==CatalogueTerraces.Variant.SADDLE_BRIDGE),"Saddle bridge changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void wavesKeepAContinuousSupportedSurfaceAndFollowingRoof(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.WAVES,
+                CatalogueTerraces.Variant.WAVES_NOTCH,CatalogueTerraces.Variant.WAVES_RIDGE}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertWavesSignatures(helper,g,BlockPos.ZERO,variant);
+            var centre=new BlockPos(6,7,8);var reached=reachable(g,centre);
+            for(var e:CatalogueWaves.heights(variant).entrySet()) {
+                var p=new BlockPos(e.getKey().getX(),e.getValue(),e.getKey().getZ());
+                helper.assertTrue(stand(g,p) && reached.contains(p) && reachable(g,p).contains(centre),
+                        "Undulating surface has an unsupported or unreachable discretized cell: "+p);
+            }
+            for(var heart:CatalogueTerraces.HEARTS)
+                helper.assertTrue(reached.contains(heart.south()) && reachable(g,heart.south()).contains(centre),
+                        "Wave retreat lost its supported return");
+            for(var p:java.util.List.of(new BlockPos(4,11,5),new BlockPos(10,11,5),new BlockPos(4,11,12),
+                    new BlockPos(6,7,8),new BlockPos(8,7,8)))
+                helper.assertTrue(stand(g,p),"Crossed undulations lost a crest or depression");
+            for(var p:java.util.List.of(new BlockPos(4,11,5),new BlockPos(6,7,8),new BlockPos(8,7,8)))
+                helper.assertTrue(g.get(p.above(3)).is(Blocks.STONE),"Roof no longer follows its local wave clearance");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void waveNotchAddsALowerColAndSplitDepressionHasTwoEndReturns(GameTestHelper helper) {
+        var b=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.WAVES_NOTCH);
+        for(int x=4;x<=5;x++) for(int z=6;z<=7;z++)
+            helper.assertTrue(stand(b,new BlockPos(x,8,z)),"Notched ridge lost its broad lower col");
+        helper.assertTrue(stand(b,new BlockPos(4,11,5)),"Notch removed its adjacent original crest");
+        var source=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.WAVES_RIDGE);
+        // Examine the actual central basin without using distant boundary shafts as a bypass.
+        var basin=new LinkedHashMap<BlockPos,BlockState>();
+        source.forEach((p,s)->{if(p.getX()>=5 && p.getX()<=9 && p.getZ()>=5 && p.getZ()<=11) basin.put(p,s);});
+        var left=new BlockPos(6,7,8);var right=new BlockPos(8,7,8);
+        for(int y=0;y<=18;y++) for(int z=7;z<=9;z++) basin.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+        helper.assertTrue(reachable(basin,left).contains(right) && reachable(basin,right).contains(left),"Split depression has no route around its low ridge");
+        for(boolean north:new boolean[]{true,false}) {
+            var one=new LinkedHashMap<>(basin);
+            for(int y=0;y<=18;y++) for(int z=north?5:10;z<=(north?6:11);z++) one.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+            helper.assertTrue(reachable(one,left).contains(right) && reachable(one,right).contains(left),"One ridge end has no independent supported return");
+            for(int y=0;y<=18;y++) for(int z=north?10:5;z<=(north?11:6);z++) one.put(new BlockPos(7,y,z),Blocks.STONE.defaultBlockState());
+            helper.assertTrue(!reachable(one,left).contains(right) && !reachable(one,right).contains(left),"Local split basin bypasses both ridge ends");
+        }
+        helper.succeed();
+    }
+
+    private static void assertWavesSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(open(blocks,base.offset(4,8,6))==(variant==CatalogueTerraces.Variant.WAVES_NOTCH),"Wave notch changed");
+        helper.assertTrue(blocks.get(base.offset(7,7,8)).is(Blocks.STONE_STAIRS)
+                ==(variant==CatalogueTerraces.Variant.WAVES_RIDGE),"Low ridge dividing the depression changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void foldedLensKeepsInclinedFacingLedgesAndEveryMineralReturn(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.LENS,
+                CatalogueTerraces.Variant.LENS_OVERLAP,CatalogueTerraces.Variant.LENS_BROKEN}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertLensSignatures(helper,g,BlockPos.ZERO,variant);
+            var entry=new BlockPos(7,15,1);var reached=reachable(g,entry);
+            for(var heart:CatalogueTerraces.HEARTS)
+                helper.assertTrue(reached.contains(heart.south()) && reachable(g,heart.south()).contains(entry),
+                        "Fold closes a canonical mineral return: "+variant+" "+heart);
+            for(int z=6;z<=7;z++) for(var p:java.util.List.of(new BlockPos(4,9,z),new BlockPos(5,10,z),new BlockPos(6,11,z),new BlockPos(7,11,z)))
+                helper.assertTrue(stand(g,p) && reached.contains(p) && reachable(g,p).contains(entry),"Inclined left ledge lost a supported step");
+            for(int x=10;x<=11;x++) for(var p:java.util.List.of(new BlockPos(x,15,5),new BlockPos(x,14,6),new BlockPos(x,13,7)))
+                helper.assertTrue(stand(g,p) && reached.contains(p) && reachable(g,p).contains(entry),"Facing right ledge lost its descent or return");
+            helper.assertTrue(g.get(new BlockPos(8,9,8)).is(Blocks.STONE)
+                    && !open(g,new BlockPos(8,6,8)),"Oblique fold lost its lower retained mass");
+            if(variant==CatalogueTerraces.Variant.LENS_OVERLAP)
+                helper.assertTrue(g.get(new BlockPos(8,15,7)).is(Blocks.STONE)
+                        && g.get(new BlockPos(9,11,8)).is(Blocks.STONE),"Overlapping blades lost the under/over relation");
+            if(variant!=CatalogueTerraces.Variant.LENS)
+                for(int z=7;z<=8;z++) for(var p:java.util.List.of(new BlockPos(7,11,z),new BlockPos(8,12,z),new BlockPos(9,13,z),new BlockPos(10,13,z)))
+                    helper.assertTrue(stand(g,p) && reached.contains(p) && reachable(g,p).contains(entry),"Transverse bridge lost two-wide supported steps");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void foldedLensAdmitsOnlyItsTwoSidePassagesOrSingleTransverseBridge(GameTestHelper helper) {
+        var left=java.util.List.of(new BlockPos(3,3,4),new BlockPos(7,9,4),new BlockPos(3,9,10),new BlockPos(3,15,12));
+        var right=java.util.List.of(new BlockPos(11,3,12),new BlockPos(11,9,12),new BlockPos(11,15,4));
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.LENS,
+                CatalogueTerraces.Variant.LENS_OVERLAP,CatalogueTerraces.Variant.LENS_BROKEN}) {
+            var original=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var cuts=new java.util.ArrayList<java.util.List<BlockPos>>();
+            if(variant==CatalogueTerraces.Variant.LENS) {
+                var front=new java.util.ArrayList<BlockPos>();var rear=new java.util.ArrayList<BlockPos>();
+                for(int y=0;y<=18;y++) {
+                    for(int z=4;z<=5;z++) front.add(new BlockPos(8,y,z));
+                    for(int z=12;z<=13;z++) rear.add(new BlockPos(9,y,z));
+                }
+                cuts.add(front);cuts.add(rear);
+            } else {
+                var cut=new java.util.ArrayList<BlockPos>();
+                for(int y=0;y<=18;y++) for(int z=variant==CatalogueTerraces.Variant.LENS_BROKEN?6:7;z<=8;z++) cut.add(new BlockPos(8,y,z));
+                cuts.add(cut);
+            }
+            var closed=new LinkedHashMap<>(original);cuts.forEach(c->c.forEach(p->closed.put(p,Blocks.STONE.defaultBlockState())));
+            var l=reachable(closed,left.get(0));var r=reachable(closed,right.get(0));
+            helper.assertTrue(l.containsAll(left) && r.containsAll(right)
+                    && left.stream().noneMatch(r::contains) && right.stream().noneMatch(l::contains),
+                    "Lens sides gained a bypass or lost an internal return: "+variant);
+            for(var cut:cuts) {
+                var restored=new LinkedHashMap<>(closed);cut.forEach(p->{var state=original.get(p);if(state==null) restored.remove(p);else restored.put(p,state);});
+                for(var end:right) helper.assertTrue(reachable(restored,left.get(0)).contains(end)
+                        && reachable(restored,end).contains(left.get(0)),"Each admitted lens connection must independently reconnect both ledges");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertLensSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                              BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(open(blocks,base.offset(8,15,4))==(variant==CatalogueTerraces.Variant.LENS),"Lens front lateral passage changed");
+        helper.assertTrue(open(blocks,base.offset(8,12,7))==(variant!=CatalogueTerraces.Variant.LENS),"Lens transverse bridge changed");
+        helper.assertTrue(open(blocks,base.offset(8,16,7))==(variant==CatalogueTerraces.Variant.LENS_BROKEN),"Broken fold regained its upper connection");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
