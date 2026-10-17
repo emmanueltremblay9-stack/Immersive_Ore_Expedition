@@ -34,7 +34,7 @@ public final class CatalogueTerracesGameTests {
                 helper.assertTrue(solid(geometry, entry.getKey().relative(facing.getOpposite())), "Unbacked ladder");
             }
             for (var entry : geometry.entrySet()) if (entry.getValue().is(Blocks.STONE_STAIRS)) {
-                helper.assertTrue(solid(geometry,entry.getKey().below()),"Stair relies on unplanned terrain support");
+                helper.assertTrue(solid(geometry,entry.getKey().below()),"Stair relies on unplanned terrain support: " + variant + " " + entry.getKey());
                 helper.assertTrue(stand(geometry,entry.getKey().above()),"Stair lost three-high clearance: " + variant + " " + entry.getKey());
             }
             for (int nodes : new int[]{0,3,4,5,7}) {
@@ -116,7 +116,7 @@ public final class CatalogueTerracesGameTests {
                 java.util.List.of(center), java.util.List.of(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER), geometry);
         var applied = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
         for (var entry : geometry.entrySet()) if (entry.getValue().is(Blocks.LADDER) || entry.getValue().is(Blocks.STONE_STAIRS))
-            helper.assertTrue(level.getBlockState(entry.getKey()).equals(entry.getValue()), "Route support changed during placement");
+            helper.assertTrue(level.getBlockState(entry.getKey()).equals(entry.getValue()), "Route support changed during placement: " + variant + " " + entry.getKey().subtract(CatalogueTerraces.base(center)) + " expected=" + entry.getValue() + " actual=" + level.getBlockState(entry.getKey()));
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
@@ -2656,7 +2656,7 @@ public final class CatalogueTerracesGameTests {
                 int foot=x<=6?9:x==7?8:7;
                 helper.assertTrue(stand(g,new BlockPos(x,foot,z)),"Middle page's far neck lost its transverse inclination or support");
             }
-            for(int z=11;z<=12;z++)
+            for(int z=12;z<=13;z++)
                 helper.assertTrue(stand(g,new BlockPos(10,8,z)),"N2 terminal approach is not two-wide");
             for(int z=8;z<=10;z++) helper.assertTrue(g.get(new BlockPos(8,10,z)).is(Blocks.STONE),
                     "Middle and high sheets lost their separating rock");
@@ -3059,7 +3059,7 @@ public final class CatalogueTerracesGameTests {
 
     private static void assertWavesSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
                                                BlockPos base,CatalogueTerraces.Variant variant) {
-        helper.assertTrue(open(blocks,base.offset(4,8,6))==(variant==CatalogueTerraces.Variant.WAVES_NOTCH),"Wave notch changed");
+        helper.assertTrue(open(blocks,base.offset(5,8,6))==(variant==CatalogueTerraces.Variant.WAVES_NOTCH),"Wave notch changed");
         helper.assertTrue(blocks.get(base.offset(7,7,8)).is(Blocks.STONE_STAIRS)
                 ==(variant==CatalogueTerraces.Variant.WAVES_RIDGE),"Low ridge dividing the depression changed");
     }
@@ -3114,7 +3114,7 @@ public final class CatalogueTerracesGameTests {
             var l=reachable(closed,left.get(0));var r=reachable(closed,right.get(0));
             helper.assertTrue(l.containsAll(left) && r.containsAll(right)
                     && left.stream().noneMatch(r::contains) && right.stream().noneMatch(l::contains),
-                    "Lens sides gained a bypass or lost an internal return: "+variant);
+                    "Lens sides gained a bypass or lost an internal return: "+variant+" leftMissing="+left.stream().filter(p->!l.contains(p)).toList()+" rightMissing="+right.stream().filter(p->!r.contains(p)).toList()+" crossed="+right.stream().filter(l::contains).toList()+" wallCrossings="+l.stream().filter(p->p.getX()==8 && p.getZ()<=9 || p.getX()==9 && p.getZ()>=8).toList());
             for(var cut:cuts) {
                 var restored=new LinkedHashMap<>(closed);cut.forEach(p->{var state=original.get(p);if(state==null) restored.remove(p);else restored.put(p,state);});
                 for(var end:right) helper.assertTrue(reachable(restored,left.get(0)).contains(end)

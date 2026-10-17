@@ -87,6 +87,7 @@ final class CatalogueDelta {
         rearLadders(blocks,base,9,10,3,9);
         solid(blocks,base,9,10,8,12,12);
         steps.forEach((p,s)->blocks.put(base.offset(p),s));
+        CatalogueTerraces.supportStairs(blocks);
         blocks.put(center.below(),Blocks.CALCITE.defaultBlockState());
         return blocks;
     }

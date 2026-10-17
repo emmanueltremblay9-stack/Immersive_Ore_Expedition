@@ -1228,3 +1228,10 @@ Two crossing undulations retain a continuous traversable floor and a roof follow
 A flattened lenticular cavity contains an oblique retained fold and two non-flat facing ledges. A has two offset side passages; B retains overlapping blades around one under/over transverse link; C opens the upper fold around one staggered diagonal stone bridge. Tests cut every admitted connection independently and retain supported access to all fixed mineral fronts.
 
 All FINAL positions, masks, reserves/ranks, independent lotteries, access functions, ownership-safe rollback and the 2,500-cell guard remain unchanged. Overworld TRUE, retrogen OFF, OreGuard independent, Nether production OFF. No installation, merge or publication. Visual/client NOT_PERFORMED.
+
+
+### Final-batch first CI failures
+
+Candidate `a198a3d` failed seven minimal GameTests on both dependency stacks. Explicit stair foundations are now included in the new slope plans. BP-22's two-wide N2 terminal approach moves to Z12/13, outside the canonical ore cell X10/Y8/Z11. BP-33's notch probe moves to X5/Y8/Z6: the old X4 probe was also open inside the shared shaft. Lens separation and native placement assertions remain strict and now report precise missing fronts, crossing cells and changed states. No topology assertion or production guard is removed.
+
+Coverage limits: 480 actual placement/commit/dedup cases are DRY Certus (120 variants × four accesses). Productive qualities are covered by the 86,400 composed-plan matrix, not 480 placements per quality. Route assertions traverse block maps; they are not walking-player or visual exploration evidence. No rotation/mirror-normalized similarity corpus or numerical global uniqueness guarantee is claimed.

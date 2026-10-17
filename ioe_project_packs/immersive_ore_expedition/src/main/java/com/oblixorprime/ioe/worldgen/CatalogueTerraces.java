@@ -196,6 +196,15 @@ final class CatalogueTerraces {
         return blocks;
     }
 
+    /** Explicit foundations for the new inclined surfaces; never rely on unstaged host terrain. */
+    static void supportStairs(Map<BlockPos, BlockState> blocks) {
+        for (var entry : new LinkedHashMap<>(blocks).entrySet()) if (entry.getValue().is(Blocks.STONE_STAIRS)) {
+            var below = entry.getKey().below();
+            var support = blocks.get(below);
+            if (support == null || support.isAir()) blocks.put(below, Blocks.STONE.defaultBlockState());
+        }
+    }
+
     /** Raccord above the chamber roof, then a backed descent through E. */
     static Map<BlockPos, BlockState> access(BlockPos center, BlockPos shaftEnd,
                                            Map<BlockPos, BlockState> chamber) {

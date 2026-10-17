@@ -424,6 +424,18 @@ Vingt tests dédiés, 86 400 plans et 480 placements réels attendus ;
 sans transfert des preuves BP-09. Tous contrats FINAL conservés.
 Aucun PC, installation, fusion, publication ni activation Nether. Visuel non prouvé.
 
+### Première CI du lot final — corrections et diagnostic
+
+Le candidat a198a3da15cc6658d1a9603ae2deaa3d64ff54de échoue dans les
+quatre workflows. Sept tests signalent des supports d'escalier non explicités,
+l'approche de N2 dans BP-22, la signature BP-33, la séparation BP-01 et la stabilité
+réelle d'un support posé. Aucun succès final n'est revendiqué.
+Les nouvelles pentes ajoutent leurs fondations au plan ; BP-22 déporte son approche
+sur Z12/13 pour préserver le minerai canonique X10/Y8/Z11. La signature BP-33
+utilise X5/Y8/Z6, hors de la colonne du puits qui rendait l'ancien point ambigu.
+Les assertions de séparation et de pose restent strictes et donnent désormais les
+positions/états manquants pour diagnostiquer les défauts restants. Nouvelle CI requise.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

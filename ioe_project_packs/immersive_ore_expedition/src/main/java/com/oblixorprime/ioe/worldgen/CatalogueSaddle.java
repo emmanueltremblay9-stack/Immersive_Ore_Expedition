@@ -93,6 +93,7 @@ final class CatalogueSaddle {
             blocks.put(base.offset(x,y,3),Blocks.STONE.defaultBlockState());
             blocks.put(base.offset(x,y,4),Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING,Direction.SOUTH));
         }
+        CatalogueTerraces.supportStairs(blocks);
         blocks.put(center.below(),Blocks.CALCITE.defaultBlockState());
         return blocks;
     }

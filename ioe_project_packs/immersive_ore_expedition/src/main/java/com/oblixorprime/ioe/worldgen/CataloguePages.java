@@ -44,12 +44,14 @@ final class CataloguePages {
         room(air,floors,9,11,3,11,12);
         room(air,floors,5,8,9,4,5);
         room(air,floors,3,6,9,10,11);
-        room(air,floors,11,12,9,12,12);
-        for(int z=11;z<=12;z++) {
+        room(air,floors,8,9,7,13,13);
+        room(air,floors,11,12,9,12,13);
+        // Keep the two-wide N2 approach behind its reserved ore mask at X10/Y8/Z11.
+        for(int z=12;z<=13;z++) {
             cell(air,floors,10,8,z);
             steps.put(new BlockPos(10,7,z),stairs(Direction.EAST));
         }
-        steps.put(new BlockPos(11,8,12),stairs(Direction.EAST));
+        for(int z=12;z<=13;z++) steps.put(new BlockPos(11,8,z),stairs(Direction.EAST));
         room(air,floors,6,7,15,1,5);
         room(air,floors,5,11,15,4,5);
         room(air,floors,5,8,15,6,7);
@@ -76,6 +78,7 @@ final class CataloguePages {
             }
             for(int x=5;x<=6;x++) blocks.put(base.offset(x,8,11),Blocks.STONE.defaultBlockState());
         }
+        CatalogueTerraces.supportStairs(blocks);
         blocks.put(center.below(),Blocks.CALCITE.defaultBlockState());
         return blocks;
     }
