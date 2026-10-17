@@ -253,6 +253,15 @@ Qualification exacte à suivre sans transfert de preuves. Plafond 2 500
 inchangé ; pas de PC, installation, fusion, publication ou activation Nether.
 Validation visuelle/client non prouvée.
 
+### BP-13 — correction du témoin après placement DRY
+
+Le candidat ddd4e00 échoue au contrôle de signature BP-34 après placement
+réel : le témoin (8,14,6) appartient aux candidats de résidus DRY autorisés.
+La signature utilise désormais (9,14,6), dans la même fente mais hors du
+rayon de résidus. Géométrie, budgets et récompenses restent inchangés.
+La matrice du candidat mesure au plus 2 500 cellules ; cela ne qualifie pas
+le nouveau commit. Les quatre CI doivent être exécutées sur la correction.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

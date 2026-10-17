@@ -1651,7 +1651,8 @@ public final class CatalogueTerracesGameTests {
                                              BlockPos base,CatalogueTerraces.Variant variant) {
         helper.assertTrue(blocks.get(base.offset(4,4,5)).isAir()
                 == (variant==CatalogueTerraces.Variant.ARCH_WINDOW),"Thick pier window changed");
-        helper.assertTrue(blocks.get(base.offset(8,14,6)).isAir()
+        // X=9 lies outside the radius-two DRY residue candidates around (7,15,7).
+        helper.assertTrue(blocks.get(base.offset(9,14,6)).isAir()
                 == (variant==CatalogueTerraces.Variant.ARCH_FORK),"Forked deck slit changed");
         helper.assertTrue(blocks.get(base.offset(8,5,5)).isAir()
                 && blocks.get(base.offset(3,5,5)).is(Blocks.STONE)
