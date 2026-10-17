@@ -126,6 +126,7 @@ final class IoeExpeditionPlanPlacement {
         private final Map<BlockPos, BlockState> previousStates;
         private final AtomicBoolean active;
         private final Map<BlockPos, BlockState> expectedRollbackStates = new LinkedHashMap<>();
+        private final java.util.Set<BlockPos> uncertainRollbackStates = new java.util.HashSet<>();
         private final java.util.Set<BlockPos> observedRollbackOwnership = new java.util.HashSet<>();
 
         private AppliedPlan(
@@ -168,6 +169,7 @@ final class IoeExpeditionPlanPlacement {
                     restored = false;
                 }
             }
+            if (!restored) return false; // Do not mutate neighbours before ownership capture is complete.
             // Undo in reverse write order: restore neighbor-dependent blocks before their supports.
             // Only our own synchronous native stair-shape updates can advance an owned expectation.
             var restorationOrder = new java.util.ArrayList<>(previousStates.entrySet());
@@ -178,6 +180,11 @@ final class IoeExpeditionPlanPlacement {
                     BlockState target = expectedOwnedStates.get(pos);
                     if (target == null) continue;
                     BlockState current = level.getBlockState(pos);
+                    if (uncertainRollbackStates.contains(pos)) {
+                        if (current.equals(previous.getValue())) uncertainRollbackStates.remove(pos);
+                        else restored = false;
+                        continue;
+                    }
                     if (current.equals(previous.getValue()) || !current.equals(target)) {
                         continue;
                     }
@@ -198,16 +205,24 @@ final class IoeExpeditionPlanPlacement {
                                 && level.getBlockState(neighbour).equals(expected))
                             neighbourStairs.put(neighbour, expected);
                     }
-                    boolean changed = level.setBlock(pos, previous.getValue(), BLOCK_UPDATE_FLAGS);
-                    if (!changed && !level.getBlockState(pos).equals(previous.getValue())) {
-                        restored = false;
-                    }
-                    for (var neighbour : neighbourStairs.entrySet()) {
-                        var after = level.getBlockState(neighbour.getKey());
-                        // Never absorb a replacement, facing/half/water change, or an earlier foreign edit.
-                        if (after.getBlock() instanceof StairBlock
-                                && neighbour.getValue().setValue(StairBlock.SHAPE, after.getValue(StairBlock.SHAPE)).equals(after))
-                            expectedOwnedStates.put(neighbour.getKey(), after);
+                    try {
+                        boolean changed = level.setBlock(pos, previous.getValue(), BLOCK_UPDATE_FLAGS);
+                        if (!changed && !level.getBlockState(pos).equals(previous.getValue())) restored = false;
+                    } finally {
+                        // A write may take effect before throwing. Observe every owned neighbour even then.
+                        for (var neighbour : neighbourStairs.entrySet()) {
+                            try {
+                                var after = level.getBlockState(neighbour.getKey());
+                                if (after.getBlock() instanceof StairBlock
+                                        && neighbour.getValue().setValue(StairBlock.SHAPE, after.getValue(StairBlock.SHAPE)).equals(after))
+                                    expectedOwnedStates.put(neighbour.getKey(), after);
+                            } catch (RuntimeException | LinkageError failure) {
+                                // A later read cannot distinguish our native update from an intervening foreign edit.
+                                // Retain incomplete status instead of reclaiming that cell or declaring success.
+                                uncertainRollbackStates.add(neighbour.getKey());
+                                restored = false;
+                            }
+                        }
                     }
                 } catch (RuntimeException | LinkageError failure) {
                     restored = false;

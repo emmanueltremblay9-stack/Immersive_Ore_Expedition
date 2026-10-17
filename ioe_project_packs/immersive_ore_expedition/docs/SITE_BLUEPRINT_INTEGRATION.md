@@ -1245,3 +1245,15 @@ The current-stack run at `69044c6` isolated five remaining failures. The A front
 ### Native-corner compensation regression
 
 The current-stack `5a4d572` matrix completed all 86,400 composed plans with a 2,494-cell maximum. Its remaining failure was compensation: restoring a neighbour changed the SHAPE of a still-owned stair. Rollback now captures exact ownership before writes, excludes pre-existing foreign edits permanently, and journals only synchronous SHAPE-only changes it causes on previously matching owned stairs. Block identity, facing, half and waterlogging must remain exact. This journal survives retries; LIFO restoration remains. A focused native GameTest also protects a pre-existing SHAPE-only foreign edit and checks repeated rollback. The expected suite is now **164 minimal + 164 complete-runtime GameTests per stack**; final qualification still requires a fresh exact-source pass.
+
+### Interrupted native-state journal correction
+
+df5fb07 failed compilation in the new fixture (one extra position argument),
+not runtime qualification. The corrected fixture also injects a throw after an
+actual restoration write and a failed immediate neighbour read. A finally block
+captures synchronous native changes even when the write throws. If attribution
+cannot be observed, the journal persistently reports incomplete and protects that
+cell from later reclamation; other owned cells still restore. Only observing its
+original state resolves that uncertainty. A noncoincident foreign facing edit is
+preserved across retry. Ownership capture failures defer writes. Exact hosted CI
+is required; no failed-source evidence is transferred.

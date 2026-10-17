@@ -152,7 +152,7 @@ public final class CatalogueTerracesGameTests {
         geometry.put(a,corner);geometry.put(b,neighbour);
         for(boolean foreign:new boolean[]{false,true}) {
             geometry.keySet().forEach(p->level.setBlockAndUpdate(p,Blocks.STONE.defaultBlockState()));
-            var plan=new ExpeditionSiteBlockPlan(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER,a,a,a,a.above(),
+            var plan=new ExpeditionSiteBlockPlan(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER,a,a,a,
                     com.oblixorprime.ioe.core.SiteQuality.DRY,0,null,null,java.util.List.of(a.above()),
                     java.util.List.of(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER),geometry);
             var applied=IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
@@ -168,6 +168,43 @@ public final class CatalogueTerracesGameTests {
                     foreign && pos.equals(a)?foreignState:Blocks.STONE.defaultBlockState()),
                     "Rollback reclaimed a foreign stair state or lost an owned native update: "+pos+" foreign="+foreign);
             level.setBlockAndUpdate(a,Blocks.STONE.defaultBlockState());
+        }
+        for (boolean unreadableNeighbour : new boolean[]{false,true}) {
+            geometry.keySet().forEach(p->level.setBlockAndUpdate(p,Blocks.STONE.defaultBlockState()));
+            var plan=new ExpeditionSiteBlockPlan(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER,a,a,a,
+                    com.oblixorprime.ioe.core.SiteQuality.DRY,0,null,null,java.util.List.of(a.above()),
+                    java.util.List.of(IoeWorldgenFeatureKeys.ORE_LOAD_CHAMBER),geometry);
+            var applied=IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
+            var wrote=new java.util.concurrent.atomic.AtomicBoolean();
+            var failedRead=new java.util.concurrent.atomic.AtomicBoolean();
+            var faultLevel=(net.minecraft.world.level.WorldGenLevel)java.lang.reflect.Proxy.newProxyInstance(
+                    net.minecraft.world.level.WorldGenLevel.class.getClassLoader(),
+                    new Class<?>[]{net.minecraft.world.level.WorldGenLevel.class},(proxy,method,args)-> {
+                        if(unreadableNeighbour && wrote.get() && method.getName().equals("getBlockState")
+                                && a.equals(args[0]) && failedRead.compareAndSet(false,true))
+                            throw new IllegalStateException("Injected post-write neighbour read failure");
+                        Object result;
+                        try { result=method.invoke(level,args); }
+                        catch(java.lang.reflect.InvocationTargetException failure) { throw failure.getCause(); }
+                        if(method.getName().equals("setBlock") && b.equals(args[0])
+                                && wrote.compareAndSet(false,true) && !unreadableNeighbour)
+                            throw new IllegalStateException("Injected failure after native neighbour update");
+                        return result;
+                    });
+            helper.assertTrue(!applied.rollback(faultLevel) && wrote.get(),"Interrupted compensation reported success");
+            if(unreadableNeighbour) {
+                helper.assertTrue(failedRead.get(),"Post-write read fault was not exercised");
+                var foreignState=corner.setValue(StairBlock.FACING,Direction.EAST);
+                level.setBlock(a,foreignState,2);
+                helper.assertTrue(!applied.rollback(level) && level.getBlockState(a).equals(foreignState),
+                        "Ambiguous journal reclaimed a foreign edit or cleared incomplete status");
+                helper.assertTrue(geometry.keySet().stream().filter(p->!p.equals(a))
+                        .allMatch(p->level.getBlockState(p).is(Blocks.STONE)),"Best-effort restoration stopped at ambiguous cell");
+                level.setBlockAndUpdate(a,Blocks.STONE.defaultBlockState());
+            }
+            helper.assertTrue(applied.rollback(level) && applied.rollback(level),"Interrupted compensation did not retain its journal");
+            helper.assertTrue(geometry.keySet().stream().allMatch(p->level.getBlockState(p).is(Blocks.STONE)),
+                    "Interrupted compensation left owned blocks");
         }
         helper.succeed();
     }

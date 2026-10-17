@@ -1413,3 +1413,15 @@ rounded crown; all three walking/headroom cells, footprint, necks and satellite
 remain. An assertion checks three-high clearance and the retained raised centre.
 No cap, mineral mask, budget or route assertion is relaxed. This correction needs
 fresh exact-source CI; 84 variants remain qualified and 87 implemented.
+
+### Interrupted native-state journal correction
+
+df5fb07 failed compilation in the new fixture (one extra position argument),
+not runtime qualification. The corrected fixture also injects a throw after an
+actual restoration write and a failed immediate neighbour read. A finally block
+captures synchronous native changes even when the write throws. If attribution
+cannot be observed, the journal persistently reports incomplete and protects that
+cell from later reclamation; other owned cells still restore. Only observing its
+original state resolves that uncertainty. A noncoincident foreign facing edit is
+preserved across retry. Ownership capture failures defer writes. Exact hosted CI
+is required; no failed-source evidence is transferred.
