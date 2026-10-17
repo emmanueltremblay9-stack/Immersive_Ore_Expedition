@@ -389,6 +389,17 @@ Tests des six paires isolées et des deux bras, 60 480 plans, 336 placements.
 Couverture 84/120, 36 restantes ; qualification exacte à suivre.
 Aucun PC, installation, fusion, publication ou Nether. Visuel non prouvé.
 
+### BP-25 qualifié ; cycle suivant BP-08 A/B/C
+
+BP-25 accepté sur dfd349931ec16c82c52fd8b9c7b937775b16971a : 16 jobs verts, 716 JUnit,
+139+139 GameTests par pile, streaming/reprise ; maximum 2497.
+JAR non installé : 2a28f1fd9c5fe1826aaf383cd897ae1ce3b60008d786317633178f4cbe69d7d9.
+BP-08 : voûte fendue, contrefort dominant, puis deux voûtes inégales.
+Les coupures isolent leurs deux ouvertures ; masques et récompenses inchangés.
+Deux tests dédiés, 62,640 plans et 348 placements.
+Couverture 87/120, 33 restantes ; qualification exacte à suivre.
+Aucun PC, installation, fusion, publication ou Nether. Visuel non prouvé.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

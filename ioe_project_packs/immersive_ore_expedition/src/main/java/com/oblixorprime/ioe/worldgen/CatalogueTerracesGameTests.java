@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isCage()) assertCageSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isVault()) assertVaultSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isCage()) assertCageSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isWedge()) assertWedgeSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isVolute()) assertVoluteSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isHorn()) assertHornSignatures(helper,plan.blocks(),base,variant);
@@ -298,10 +299,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isCage()) assertCageSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isVault()) assertVaultSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isCage()) assertCageSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isWedge()) assertWedgeSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isVolute()) assertVoluteSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isHorn()) assertHornSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -2238,6 +2240,63 @@ public final class CatalogueTerracesGameTests {
                 == (variant!=CatalogueTerraces.Variant.CAGE_OPEN),"Cage BC admission changed");
         helper.assertTrue(blocks.getOrDefault(base.offset(1,12,6),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
                 == (variant==CatalogueTerraces.Variant.CAGE_SPLIT),"Cage split AD arm changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void vaultKeepsItsButtressesUnequalRoofsAndSupportedWallLedges(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.VAULT,
+                CatalogueTerraces.Variant.VAULT_BUTTRESS,CatalogueTerraces.Variant.VAULT_TWIN}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertVaultSignatures(helper,g,BlockPos.ZERO,variant);
+            for(int x=3;x<=6;x++) for(int z=10;z<=11;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,9,z)),"N7 approach pinches against a buttress");
+            for(int y=3;y<=14;y++) helper.assertTrue(g.get(new BlockPos(4,y,8)).is(Blocks.STONE),
+                    "Vault lost its upper-ledge buttress");
+            for(int y=3;y<=8;y++) helper.assertTrue(g.get(new BlockPos(10,y,8)).is(Blocks.STONE),
+                    "Vault lost its shorter middle-ledge buttress");
+            for(int x=8;x<=9;x++) for(int z=8;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,9,z)),"Right wall ledge pinches against the dominant buttress");
+            if(variant==CatalogueTerraces.Variant.VAULT_BUTTRESS) {
+                for(int x=8;x<=9;x++) for(int z=7;z<=12;z++)
+                    helper.assertTrue(stand(g,new BlockPos(x,3,z)),"Dominant buttress pinches its lower right aisle");
+                for(int z=8;z<=10;z++) for(int y=3;y<=17;y++)
+                    helper.assertTrue(g.get(new BlockPos(7,y,z)).is(Blocks.STONE),"Dominant buttress lost its continuous spine");
+                for(int z=8;z<=10;z++) for(int y=6;y<=17;y++) if(y<9 || y>11)
+                    helper.assertTrue(g.get(new BlockPos(8,y,z)).is(Blocks.STONE),"Dominant buttress lost its projecting upper faces");
+            }
+            helper.assertTrue(open(g,new BlockPos(6,6,9)) && open(g,new BlockPos(9,6,9)),"Vault's tall flanks were filled");
+            var top=new BlockPos(7,15,7);
+            for(var end:java.util.List.of(new BlockPos(5,3,9),new BlockPos(9,3,11),new BlockPos(5,9,9),
+                    new BlockPos(11,9,12),new BlockPos(3,9,10),new BlockPos(3,15,12)))
+                helper.assertTrue(reachable(g,top).contains(end) && reachable(g,end).contains(top),"Vault ledge or foot lost its supported return");
+        }
+        var a=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.VAULT);
+        helper.assertTrue(open(a,new BlockPos(7,17,10)) && a.get(new BlockPos(7,18,10)).is(Blocks.STONE),"High fissure opened outside the closed vault");
+        var c=CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.VAULT_TWIN);
+        helper.assertTrue(open(c,new BlockPos(6,17,10)) && !open(c,new BlockPos(9,15,10)),"Twin vaults lost their unequal roofs");
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void twinVaultHasOnlyItsTwoSupportedOpeningsAroundTheCentralPillar(GameTestHelper helper) {
+        var g=new LinkedHashMap<>(CatalogueTerraces.geometry(new BlockPos(7,15,7),CatalogueTerraces.Variant.VAULT_TWIN));
+        for(int y=2;y<=17;y++) helper.assertTrue(g.get(new BlockPos(7,y,10)).is(Blocks.STONE),"Twin vault central pillar is not continuous");
+        closeWell(g,5,6,11,12,12);closeWell(g,11,12,6,7,12);
+        var left=new BlockPos(5,3,9);var right=new BlockPos(9,3,11);
+        helper.assertTrue(reachable(g,left).contains(right),"Twin vault openings lost their supported connection");
+        closeWell(g,7,7,8,9,9);
+        helper.assertTrue(reachable(g,left).contains(right),"High-window cut removed the independent low opening");
+        closeWell(g,7,7,11,12,3);
+        helper.assertTrue(!reachable(g,left).contains(right) && !reachable(g,right).contains(left),"Twin vault retained an unplanned third opening");
+        helper.succeed();
+    }
+
+    private static void assertVaultSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(8,7,9)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.VAULT_BUTTRESS),"Dominant buttress changed");
+        helper.assertTrue(blocks.get(base.offset(7,13,11)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.VAULT_TWIN),"Twin-vault divider changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
