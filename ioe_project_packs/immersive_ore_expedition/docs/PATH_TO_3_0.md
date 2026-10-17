@@ -288,6 +288,23 @@ avec son approche de deux cellules conservée. Masques, passage sous les
 pointes, retours, ressources et plafond 2 500 inchangés. La nouvelle CI
 exacte doit requalifier l'ensemble ; les échecs précédents ne sont pas acceptés.
 
+### BP-19 qualifié ; cycle suivant BP-21 A/B/C
+
+BP-19 accepté sur 01504b296ed83ab7b46beaf204f3ad82b7d5a0b1 : 16 jobs verts, 716 JUnit et 127+127
+GameTests par pile, streaming/reprise ; 47 520 plans, 264 placements réels,
+maximum 2500. JAR non installé :
+746e363b08a76b8207339056899e171077ca626ede538016e99574753628aabf.
+
+BP-21 : domaines intérieur/extérieur séparés ; A fenêtre haute unique,
+B fenêtre basse opposée, C secteur ouvert avec lèvres et passage supérieur
+soutenu. Les nodes FINAL restent dehors, sans récompense ajoutée dedans.
+Cache sur le cap extérieur, retours extérieurs indépendants des fenêtres.
+Tests de séparation, dégagements, lèvres et coupures sans isoler les alcôves.
+Couverture 69/120 implémentées, 51 restantes ; 49 680 plans et 276 placements.
+Qualification exacte à suivre sans transfert de preuves. Plafond 2 500
+inchangé ; pas de PC, installation, fusion, publication ou activation Nether.
+Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

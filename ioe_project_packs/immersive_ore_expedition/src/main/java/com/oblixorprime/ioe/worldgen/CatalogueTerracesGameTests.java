@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isTrihedral()) assertTrihedralSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isShells()) assertShellSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isTrihedral()) assertTrihedralSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isNave()) assertNaveSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isTraverse()) assertTraverseSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isArch()) assertArchSignatures(helper,plan.blocks(),base,variant);
@@ -292,10 +293,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isTrihedral()) assertTrihedralSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isShells()) assertShellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isTrihedral()) assertTrihedralSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isNave()) assertNaveSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isTraverse()) assertTraverseSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isArch()) assertArchSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -1844,6 +1846,68 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.TRIHEDRAL_PIERCED),"Opposite-corner piercing changed");
         helper.assertTrue(blocks.get(base.offset(9,12,9)).is(Blocks.STONE)
                 && blocks.get(base.offset(9,7,8)).is(Blocks.STONE),"Opposite corner lost its retained host-rock mass");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void nestedShellsKeepTwoSupportedDomainsAndTheCanonicalOutsideAlcoves(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.SHELLS,
+                CatalogueTerraces.Variant.SHELLS_OPPOSED,CatalogueTerraces.Variant.SHELLS_OPEN}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertShellSignatures(helper,g,BlockPos.ZERO,variant);
+            var outside=new BlockPos(7,15,7);var inside=new BlockPos(7,4,9);
+            for(var end:java.util.List.of(inside,new BlockPos(8,9,8),new BlockPos(3,3,4),
+                    new BlockPos(11,3,12),new BlockPos(3,9,10),new BlockPos(3,15,12)))
+                helper.assertTrue(reachable(g,outside).contains(end) && reachable(g,end).contains(outside),
+                        "Nested shell lost a supported inner/outer return");
+            for(int x=6;x<=9;x++) for(int z=7;z<=9;z++) {
+                helper.assertTrue(stand(g,new BlockPos(x,4,z)),"Inner lower domain lost three-high support");
+                helper.assertTrue(stand(g,new BlockPos(x,9,z)),"Inner upper landing lost three-high support");
+                helper.assertTrue(g.get(new BlockPos(x,12,z)).is(Blocks.STONE),"Inner ceiling merged with the outer cap route");
+            }
+            int z1=variant==CatalogueTerraces.Variant.SHELLS_OPEN?7:8;
+            for(int z=z1;z<=z1+1;z++) helper.assertTrue(stand(g,new BlockPos(10,9,z)),"High shell window narrowed");
+            if(variant==CatalogueTerraces.Variant.SHELLS_OPPOSED) for(int z=8;z<=9;z++)
+                helper.assertTrue(stand(g,new BlockPos(5,4,z)),"Opposite low shell window narrowed");
+            if(variant==CatalogueTerraces.Variant.SHELLS_OPEN) {
+                for(int z=7;z<=8;z++) helper.assertTrue(stand(g,new BlockPos(10,4,z)),"Opened-sector low approach narrowed");
+                for(int y=4;y<=11;y++) for(int z:new int[]{6,9})
+                    helper.assertTrue(g.get(new BlockPos(10,y,z)).is(Blocks.STONE),"Opened sector lost a non-mineral structural lip");
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void nestedShellWindowCutsSeparateTheInteriorWithoutClosingTheOutsideReturn(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.SHELLS,
+                CatalogueTerraces.Variant.SHELLS_OPPOSED,CatalogueTerraces.Variant.SHELLS_OPEN}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var outside=new BlockPos(7,15,7);var inside=new BlockPos(7,4,9);
+            var cut=new LinkedHashMap<>(g);
+            int z1=variant==CatalogueTerraces.Variant.SHELLS_OPEN?7:8;
+            closeWell(cut,10,10,z1,z1+1,9);
+            helper.assertTrue(reachable(cut,outside).contains(inside)==(variant!=CatalogueTerraces.Variant.SHELLS),
+                    "Inner shell has the wrong low return after its high window is cut");
+            if(variant==CatalogueTerraces.Variant.SHELLS_OPPOSED) closeWell(cut,5,5,8,9,4);
+            if(variant==CatalogueTerraces.Variant.SHELLS_OPEN) closeWell(cut,10,10,7,8,4);
+            helper.assertTrue(!reachable(cut,outside).contains(inside) && !reachable(cut,inside).contains(outside),
+                    "Closed shell windows retained an unintended wall or roof opening");
+            for(var end:java.util.List.of(new BlockPos(11,3,12),new BlockPos(3,9,10),new BlockPos(3,15,12)))
+                helper.assertTrue(reachable(cut,outside).contains(end) && reachable(cut,end).contains(outside),
+                        "Inner-window cuts removed the independent outside return");
+        }
+        helper.succeed();
+    }
+
+    private static void assertShellSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(5,5,8)).isAir()
+                == (variant==CatalogueTerraces.Variant.SHELLS_OPPOSED),"Opposite low window changed");
+        helper.assertTrue(blocks.get(base.offset(10,6,7)).isAir()
+                == (variant==CatalogueTerraces.Variant.SHELLS_OPEN),"Opened shell sector changed");
+        helper.assertTrue(blocks.get(base.offset(8,5,8)).isAir()
+                && blocks.get(base.offset(8,10,8)).isAir()
+                && blocks.get(base.offset(8,12,8)).is(Blocks.STONE),"Inner domain or separating roof disappeared");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
