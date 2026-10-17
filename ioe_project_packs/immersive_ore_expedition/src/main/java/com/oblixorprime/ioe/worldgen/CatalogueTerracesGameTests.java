@@ -1976,6 +1976,8 @@ public final class CatalogueTerracesGameTests {
                 CatalogueTerraces.Variant.HORN_LOBES,CatalogueTerraces.Variant.HORN_AWNING}) {
             var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
             assertHornSignatures(helper,g,BlockPos.ZERO,variant);
+            for(int x=6;x<=7;x++) for(int z=7;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,15,z)),"Horn upper alcove approach pinches below two supported cells");
             for(int x=6;x<=7;x++) for(int z=3;z<=6;z++)
                 helper.assertTrue(open(g,new BlockPos(x,16,z)),"Horn neck lost its north/south elongated section");
             for(int x=5;x<=10;x++) for(int z=5;z<=8;z++)

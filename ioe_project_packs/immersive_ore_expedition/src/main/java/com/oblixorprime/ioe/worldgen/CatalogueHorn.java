@@ -26,8 +26,8 @@ final class CatalogueHorn {
         room(air,5,12,3,11,12);
         room(air,6,7,15,1,4);
         room(air,6,8,15,6,7);
-        room(air,5,6,15,8,12);
-        room(air,3,6,15,11,12);
+        room(air,6,7,15,8,12);
+        room(air,3,7,15,11,12);
         room(air,8,12,15,4,5);
         room(air,11,12,15,4,7);
         room(air,5,12,9,4,5);
@@ -45,8 +45,8 @@ final class CatalogueHorn {
         floor(blocks,base,5,12,2,11,12);
         floor(blocks,base,6,7,14,1,6);
         floor(blocks,base,6,8,14,6,7);
-        floor(blocks,base,5,6,14,8,12);
-        floor(blocks,base,3,6,14,11,12);
+        floor(blocks,base,6,7,14,8,12);
+        floor(blocks,base,3,7,14,11,12);
         floor(blocks,base,8,12,14,4,5);
         floor(blocks,base,11,12,14,4,7);
         floor(blocks,base,5,12,8,4,5);

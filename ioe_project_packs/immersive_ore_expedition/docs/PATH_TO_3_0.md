@@ -335,6 +335,15 @@ Les masques et récompenses restent fixes. Deux tests dédiés et 54 000 plans,
 300 placements. Couverture 75/120, 45 restantes ; qualification exacte à suivre.
 Aucun PC, installation, fusion, publication ou Nether. Visuel non prouvé.
 
+### BP-15 — largeur de la jonction supérieure
+
+La revue du candidat 217f285 identifie une jonction à un seul bloc entre
+la corniche de la cache et l'approche de N3. Le passage supérieur reste
+large de deux blocs mais se décale de X=5/6 à X=6/7 ; son raccord arrière
+rejoint la même alcôve, sans déplacer N3. Le test dédié contrôle désormais
+les deux cellules soutenues sur toute la jonction. Ce constat de revue
+n'est pas un échec CI annoncé ; le nouveau source doit être qualifié séparément.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
