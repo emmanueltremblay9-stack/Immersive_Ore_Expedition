@@ -1,5 +1,42 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
+## Catalogue complet — reçu runtime qualifié
+
+**120/120 variantes A/B/C des quarante familles GOV sont implémentées et qualifiées**
+sur le source runtime `ef222fd0eb37f3d203b63304e803a16df08a2221`, branche existante PR64.
+Les quatre workflows totalisent **16 jobs verts**. Chaque pile a **716 JUnit**
+sans échec/erreur/ignoré, **164 GameTests minimaux + 164 complets**, puis streaming
+et reprise dans deux processus distincts sans replay. Les reçus de reprise portent
+ce source exact. API/ABI et admission des versions TesT play2 sont recontrôlées.
+
+Matrice : **86 400 plans composés**, maximum **2494 cellules**, garde-fou
+2 500 inchangé. **480 placements/commit/dédup réels sont DRY Certus seulement**
+(120 variantes × quatre accès) ; les qualités productives relèvent de la matrice
+de plans et des tests communs, pas de 480 placements par qualité.
+
+JAR `immersive_ore_expedition-0.2.50-alpha-neoforge-1.21.1.jar` : **509 classes compilées**, métadonnées
+NeoForge et bornes de compatibilité vérifiées. SHA256 recalculé :
+`d0faa1857862fa92da96309489b5e7d275ba3e9b7ae9625aa08d00f6a04cc6d7`.
+Artefact CI : https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/39010669260/artifacts/12093535116
+
+- pull_request / baseline: https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/39010671587
+- pull_request / TesT play2: https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/39010671629
+- push / baseline: https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/39010669260
+- push / TesT play2: https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/39010669238
+
+Les assertions de parcours travaillent sur les cartes de blocs ; elles ne prouvent
+pas une marche de joueur ni une exploration visuelle. Aucun corpus de similarité
+normalisé par rotations/miroirs ni garantie numérique d'unicité globale n'est revendiqué.
+La limite mesurée vaut pour ces fixtures ; le refus fail-closed reste actif ailleurs.
+Le JAR catalogue n'est pas installé. Aucun accès PC, fusion, release, publication
+ou activation Nether. Overworld TRUE, OreGuard indépendant, retrogen OFF,
+Nether production OFF. **Visuel/client NOT_PERFORMED**.
+
+Ce reçu distingue le source runtime ci-dessus du commit documentaire qui le porte.
+L'identité de ce dernier est résolue dans l'historique Git et le reçu PR, jamais
+prétendue auto-inscrite ici. Les étapes et chiffres antérieurs ci-dessous sont
+historiques et ne sont pas transférés à un autre source.
+
 ## Nouvelle tranche autorisée — catalogues GOV 001–004
 
 Mandat courant : intégrer les variantes des quatre catalogues au générateur,

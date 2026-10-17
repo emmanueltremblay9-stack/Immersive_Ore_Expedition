@@ -1,5 +1,42 @@
 # Catalogue geometry integration — incremental implementation
 
+## Catalogue complet — reçu runtime qualifié
+
+**120/120 variantes A/B/C des quarante familles GOV sont implémentées et qualifiées**
+sur le source runtime `ef222fd0eb37f3d203b63304e803a16df08a2221`, branche existante PR64.
+Les quatre workflows totalisent **16 jobs verts**. Chaque pile a **716 JUnit**
+sans échec/erreur/ignoré, **164 GameTests minimaux + 164 complets**, puis streaming
+et reprise dans deux processus distincts sans replay. Les reçus de reprise portent
+ce source exact. API/ABI et admission des versions TesT play2 sont recontrôlées.
+
+Matrice : **86 400 plans composés**, maximum **2494 cellules**, garde-fou
+2 500 inchangé. **480 placements/commit/dédup réels sont DRY Certus seulement**
+(120 variantes × quatre accès) ; les qualités productives relèvent de la matrice
+de plans et des tests communs, pas de 480 placements par qualité.
+
+JAR `immersive_ore_expedition-0.2.50-alpha-neoforge-1.21.1.jar` : **509 classes compilées**, métadonnées
+NeoForge et bornes de compatibilité vérifiées. SHA256 recalculé :
+`d0faa1857862fa92da96309489b5e7d275ba3e9b7ae9625aa08d00f6a04cc6d7`.
+Artefact CI : https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/39010669260/artifacts/12093535116
+
+- pull_request / baseline: https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/39010671587
+- pull_request / TesT play2: https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/39010671629
+- push / baseline: https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/39010669260
+- push / TesT play2: https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/39010669238
+
+Les assertions de parcours travaillent sur les cartes de blocs ; elles ne prouvent
+pas une marche de joueur ni une exploration visuelle. Aucun corpus de similarité
+normalisé par rotations/miroirs ni garantie numérique d'unicité globale n'est revendiqué.
+La limite mesurée vaut pour ces fixtures ; le refus fail-closed reste actif ailleurs.
+Le JAR catalogue n'est pas installé. Aucun accès PC, fusion, release, publication
+ou activation Nether. Overworld TRUE, OreGuard indépendant, retrogen OFF,
+Nether production OFF. **Visuel/client NOT_PERFORMED**.
+
+Ce reçu distingue le source runtime ci-dessus du commit documentaire qui le porte.
+L'identité de ce dernier est résolue dans l'historique Git et le reçu PR, jamais
+prétendue auto-inscrite ici. Les étapes et chiffres antérieurs ci-dessous sont
+historiques et ne sont pas transférés à un autre source.
+
 Mandate: integrate varied generation from the four GOV catalogues, on the existing
 PR64 branch. Authority reference: GOV `60d1c9453aaf91f1e90a6ba113f106ac51238cf9`,
 `governance/gameplay/site_blueprints/`. All four actual files were read, including
@@ -89,7 +126,7 @@ Jade metadata, persistence, compensation and actual resource-profile admission.
 No new server/profile, PC operation, Nether activation, merge or publication is
 part of this work. The installed `382e0b4` provenance remains separate. Client
 visual qualification remains NOT_PERFORMED. Current coverage is 120 of 120 described
-variants; 0 remain unimplemented. Qualification of the final thirty variants remains pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
+variants; 0 remain unimplemented. The exact-source receipt above qualifies the final thirty variants. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
 be attributed to its own source, not to a predecessor receipt.
 
 
@@ -118,10 +155,10 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 
 | Catalogue | Families | Implemented variants | Pending variants |
 | --- | --- | --- | --- |
-| 001 | BP-01–BP-10 | BP-01, BP-02, BP-03, BP-04, BP-05, BP-06, BP-07, BP-08, BP-09, BP-10 A/B/C | None unimplemented; final-source qualification pending |
-| 002 | BP-11–BP-20 | BP-11, BP-12, BP-13, BP-14, BP-15, BP-16, BP-17, BP-18, BP-19, BP-20 A/B/C | None unimplemented; final-source qualification pending |
-| 003 | BP-21–BP-30 | BP-21, BP-22, BP-23, BP-24, BP-25, BP-26, BP-27, BP-28, BP-29, BP-30 A/B/C | None unimplemented; final-source qualification pending |
-| 004 | BP-31–BP-40 | BP-31, BP-32, BP-33, BP-34, BP-35, BP-36, BP-37, BP-38, BP-39, BP-40 A/B/C | None unimplemented; final-source qualification pending |
+| 001 | BP-01–BP-10 | BP-01, BP-02, BP-03, BP-04, BP-05, BP-06, BP-07, BP-08, BP-09, BP-10 A/B/C | None; exact-source qualification recorded above |
+| 002 | BP-11–BP-20 | BP-11, BP-12, BP-13, BP-14, BP-15, BP-16, BP-17, BP-18, BP-19, BP-20 A/B/C | None; exact-source qualification recorded above |
+| 003 | BP-21–BP-30 | BP-21, BP-22, BP-23, BP-24, BP-25, BP-26, BP-27, BP-28, BP-29, BP-30 A/B/C | None; exact-source qualification recorded above |
+| 004 | BP-31–BP-40 | BP-31, BP-32, BP-33, BP-34, BP-35, BP-36, BP-37, BP-38, BP-39, BP-40 A/B/C | None; exact-source qualification recorded above |
 
 A future family must pass the same route/node-mask/complete-budget qualification
 before activation. A proposed outline alone does not authorize resource changes,
@@ -1181,7 +1218,7 @@ restored as solid are omitted; all canonical AIR/ORE reservations remain.
 Static footprint estimates are not runtime or composed-plan qualification.
 
 
-## Final catalogue implementation batch — qualification pending
+## Final catalogue implementation batch — historical pending stage
 
 BP-09 predecessor 0d272dd81e8b873ff2d393a3a1aec27859b30af9 passed 16 jobs, 716 JUnit and 143+143 GameTests per stack, streaming/restart. Its JAR SHA256 is abafb5659f3c8ac592d25b2d3bb87ea14dc6d14b6860c1c779f3494bc5699b2b. Those results qualify only 90/120 variants.
 
