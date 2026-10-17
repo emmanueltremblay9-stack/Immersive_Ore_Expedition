@@ -42,8 +42,6 @@ final class CatalogueLens {
         room(air,floors,10,11,15,4,5);
         room(air,floors,10,11,14,6,6);
         room(air,floors,10,11,13,7,12);
-        stairs(floors,10,11,14,5,5,Direction.NORTH);
-        stairs(floors,10,11,13,6,6,Direction.NORTH);
         well(air,10,11,12,13,3,15);
         room(air,floors,10,12,9,12,13);
         room(air,floors,10,10,9,11,11);
@@ -61,6 +59,9 @@ final class CatalogueLens {
                 well(air,9,9,7,9,13,17);
             }
         }
+        // The A front passage must not flatten the right ledge's return steps.
+        stairs(floors,10,11,14,5,5,Direction.NORTH);
+        stairs(floors,10,11,13,6,6,Direction.NORTH);
         // Retain the host fold; its windows are the only transverse routes.
         air.removeIf(p->wall(p,overlap) && !opening(p,overlap,broken));
         floors.keySet().removeIf(p->wall(p,overlap) && !opening(p.above(),overlap,broken));
