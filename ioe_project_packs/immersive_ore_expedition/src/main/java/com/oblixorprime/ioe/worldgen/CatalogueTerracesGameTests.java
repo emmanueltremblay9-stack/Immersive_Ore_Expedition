@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isVolute()) assertVoluteSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isWedge()) assertWedgeSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isVolute()) assertVoluteSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isHorn()) assertHornSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isAnnulus()) assertAnnulusSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isShells()) assertShellSignatures(helper,plan.blocks(),base,variant);
@@ -296,10 +297,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isVolute()) assertVoluteSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isWedge()) assertWedgeSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isVolute()) assertVoluteSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isHorn()) assertHornSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isAnnulus()) assertAnnulusSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isShells()) assertShellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -2099,6 +2101,71 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.VOLUTE_WINDOW),"Controlled volute return changed");
         helper.assertTrue(blocks.getOrDefault(base.offset(7,5,5),Blocks.STONE.defaultBlockState()).isAir()
                 == (variant==CatalogueTerraces.Variant.VOLUTE_FORK),"Raised terminal fork changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void wedgeKeepsOneCeilingSlopeAndSupportedAccessToTheFixedHighAlcoves(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.WEDGE,
+                CatalogueTerraces.Variant.WEDGE_GORGES,CatalogueTerraces.Variant.WEDGE_GALLERY}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertWedgeSignatures(helper,g,BlockPos.ZERO,variant);
+            for(int x=6;x<=7;x++) for(int z=7;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,15,z)),"Upper alcove approach pinches below two supported cells");
+            for(int[] sample:new int[][]{{3,5,7},{4,6,11},{5,7,15},{6,8,17}}) {
+                helper.assertTrue(g.get(new BlockPos(sample[0],sample[2],sample[1])).isAir()
+                        && g.get(new BlockPos(sample[0],sample[2]+1,sample[1])).is(Blocks.STONE),
+                        "Wedge roof stopped rising along its single diagonal axis");
+            }
+            for(int x=3;x<=4;x++) for(int z=6;z<=7;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)),"West nose gorge lost its two-wide supported floor");
+            for(int x=6;x<=7;x++) for(int z=3;z<=4;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)),"East nose gorge lost its two-wide supported floor");
+            var top=new BlockPos(7,15,7);
+            for(var end:java.util.List.of(new BlockPos(3,3,4),new BlockPos(11,3,12),
+                    new BlockPos(7,9,4),new BlockPos(3,9,10),new BlockPos(3,15,12),new BlockPos(11,15,4)))
+                helper.assertTrue(reachable(g,top).contains(end) && reachable(g,end).contains(top),
+                        "Wedge nose, front or fixed alcove lost its supported return");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void wedgeNoseRibSeparatesTwoGorgesAndOnlyTheGalleryAddsAnUpperLoop(GameTestHelper helper) {
+        var left=new BlockPos(4,3,7);var right=new BlockPos(7,3,4);
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.WEDGE,CatalogueTerraces.Variant.WEDGE_GORGES}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            helper.assertTrue(reachable(g,left).contains(right),"Wedge gorges do not rejoin behind the nose rib");
+            var cut=new LinkedHashMap<>(g);closeWell(cut,11,12,6,7,6);closeWell(cut,5,6,11,12,6);
+            for(int x=0;x<=14;x++) for(int z=0;z<=14;z++) if(x+z==10)
+                cut.put(new BlockPos(x,3,z),Blocks.STONE.defaultBlockState());
+            helper.assertTrue(reachable(cut,left).contains(right),"Gorges lost their independent rear confluence");
+            for(int x=0;x<=14;x++) for(int z=0;z<=14;z++) if(x+z==13)
+                cut.put(new BlockPos(x,3,z),Blocks.STONE.defaultBlockState());
+            helper.assertTrue(reachable(cut,left).contains(right)==(variant==CatalogueTerraces.Variant.WEDGE),
+                    "Nose rib did not distinguish the two gorges after both near-tip and rear confluences were cut");
+        }
+        var top=new BlockPos(7,15,7);var mid=new BlockPos(8,9,9);
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.WEDGE,
+                CatalogueTerraces.Variant.WEDGE_GORGES,CatalogueTerraces.Variant.WEDGE_GALLERY}) {
+            var cut=new LinkedHashMap<>(CatalogueTerraces.geometry(new BlockPos(7,15,7),variant));
+            closeWell(cut,11,12,6,7,12);
+            helper.assertTrue(reachable(cut,top).contains(mid)==(variant==CatalogueTerraces.Variant.WEDGE_GALLERY),
+                    "Wedge gained or lost a distinct upper gallery return");
+            if(variant==CatalogueTerraces.Variant.WEDGE_GALLERY) {
+                closeWell(cut,5,6,11,12,12);
+                helper.assertTrue(!reachable(cut,top).contains(mid) && !reachable(cut,mid).contains(top),
+                        "Both gallery landings cut retained an unintended upper descent");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertWedgeSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                               BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.get(base.offset(6,3,6)).is(Blocks.STONE)
+                == (variant==CatalogueTerraces.Variant.WEDGE_GORGES),"Shared nose rib changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(8,15,10),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.WEDGE_GALLERY),"Distinct upper front gallery changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {

@@ -23,9 +23,9 @@ Y=3/9/15 have supported routes; the two interior ladders have solid backing.
 The differing footprints and middle bridge change the actual solid/air map, not
 only rotation, palette or seed. Only a one-block shell is written, not a 4,275-cell
 bounding-box fill. Unused terrace corners are trimmed; reference node positions
-and supported routes are retained. BP-16 A is described below; the remaining 14 families are not implemented; see the four-catalogue coverage map below.
+and supported routes are retained. BP-16 A is described below; the remaining 13 families are not implemented; see the four-catalogue coverage map below.
 
-The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-04, BP-05, BP-06, BP-10, BP-11, BP-13, BP-14, BP-15, BP-16, BP-17, BP-19, BP-20, BP-21, BP-23, BP-24, BP-26, BP-27, BP-31, BP-32, BP-34, BP-35, BP-36, BP-37 or BP-40 A/B/C using one seventy-eight-way draw
+The existing natural `ExpeditionSiteBlueprints` path now selects BP-02, BP-03, BP-04, BP-05, BP-06, BP-10, BP-11, BP-13, BP-14, BP-15, BP-16, BP-17, BP-19, BP-20, BP-21, BP-23, BP-24, BP-26, BP-27, BP-30, BP-31, BP-32, BP-34, BP-35, BP-36, BP-37 or BP-40 A/B/C using one eighty-one-way draw
 from its isolated shape stream, after the unchanged depth draw. All four natural
 access types and all five qualities use this path for structural and canonical
 GeOre/Certus sites. Legacy standalone/special-geode planning remains separate.
@@ -77,19 +77,19 @@ Its separate CI JAR SHA256 is
 That receipt does not qualify the subsequent natural-routing changes described
 above. Their exact source and final CI receipt are recorded separately in PR64.
 
-Integration tests cover all 78 implemented shapes, four access types and all five
+Integration tests cover all 81 implemented shapes, four access types and all five
 qualities: source-chunk containment including negative coordinates, all nine
 approved depths, unchanged anchor bounds, complete-plan size, three-high
 supported routes to all alcoves,
 all growth masks, canonical counts, DRY 0–5 residues plus cache, and real
-`Feature.place` staging/commit/deduplication for all 78 variants at all four accesses.
+`Feature.place` staging/commit/deduplication for all 81 variants at all four accesses.
 The existing GeOre/Certus runtime tests additionally exercise ranks, fallbacks,
 Jade metadata, persistence, compensation and actual resource-profile admission.
 
 No new server/profile, PC operation, Nether activation, merge or publication is
 part of this work. The installed `382e0b4` provenance remains separate. Client
-visual qualification remains NOT_PERFORMED. Current coverage is 78 of 120 described
-variants; 42 remain pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
+visual qualification remains NOT_PERFORMED. Current coverage is 81 of 120 described
+variants; 39 remain pending. The first-slice and prior-cycle receipts below are historical. Runtime qualification of each successor must
 be attributed to its own source, not to a predecessor receipt.
 
 
@@ -120,7 +120,7 @@ subordinate to FINAL_DESIGN and the composed 2,500-cell/source-chunk limits.
 | --- | --- | --- | --- |
 | 001 | BP-01–BP-10 | BP-02, BP-03, BP-04, BP-05, BP-06 and BP-10 A/B/C | All A/B/C of the other four families (12) |
 | 002 | BP-11–BP-20 | BP-11, BP-13, BP-14, BP-15, BP-16, BP-17, BP-19 and BP-20 A/B/C | All A/B/C of the other two families (6) |
-| 003 | BP-21–BP-30 | BP-21, BP-23, BP-24, BP-26 and BP-27 A/B/C | All A/B/C of the other five families (15) |
+| 003 | BP-21–BP-30 | BP-21, BP-23, BP-24, BP-26, BP-27 and BP-30 A/B/C | All A/B/C of the other four families (12) |
 | 004 | BP-31–BP-40 | BP-31, BP-32, BP-34, BP-35, BP-36, BP-37 and BP-40 A/B/C | All A/B/C of the other three families (9) |
 
 A future family must pass the same route/node-mask/complete-budget qualification
@@ -1093,3 +1093,28 @@ BP-15 predecessor 5a40164910e1a58c50fbff4d27d143e9c7964e75: 16 successful jobs, 
 133+133 GameTests per stack plus streaming/restart; maximum
 2496. JAR SHA256 70e511ecb674c8822d9947e604c314be47dc538af136d2202220137b63822ffe.
 These proofs do not qualify BP-32.
+
+
+## BP-30 A/B/C: broad wedge with one rising ceiling axis
+
+The prism uses u=x+z for increasing roof height and v=x-z for transverse
+width. This diagonal orientation keeps the canonical high alcoves near the
+high front without relocating any mineral. Only the outside viewing edges
+are beveled; low gorge widths and three-high clearance remain. The fixed
+entry connector reaches the front above the nose. A has a continuous main
+roof and one upper descent; B retains a ceiling-connected diagonal nose rib
+with two gorges rejoining behind it; C adds a short front gallery and a
+second supported upper landing/return.
+
+Tests sample the rising roof at a constant transverse offset, verify both
+two-wide gorge floors and every canonical alcove return, cut both near-tip and rear gorge
+confluences with vertical bypasses isolated, and independently cut the two
+upper returns. Shared generation, masks, budgets, DRY, persistence and
+ownership-safe compensation tests extend. Coverage 81/120, 39 pending;
+58,320 plans and 324 actual placements. Exact-source qualification required;
+cap 2,500 unchanged. No install/merge/publication/Nether. Visual NOT_PERFORMED.
+
+BP-32 predecessor d93870a29346698bb622d7773d8e30fcdb857f29: 16 successful jobs, 716 JUnit,
+135+135 GameTests per stack plus streaming/restart; maximum
+2494. JAR SHA256 23e1a225c3164bf001f15b111377fa2ada1e05d0952a0487c761992742f496e7.
+These proofs do not qualify BP-30.

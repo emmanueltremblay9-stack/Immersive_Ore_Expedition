@@ -365,6 +365,18 @@ dédiés et 56 160 plans, 312 placements. Couverture 78/120, 42 restantes.
 Qualification exacte à suivre. Aucun PC, installation, fusion, publication
 ou Nether. Validation visuelle/client non prouvée.
 
+### BP-32 qualifié ; cycle suivant BP-30 A/B/C
+
+BP-32 accepté sur d93870a29346698bb622d7773d8e30fcdb857f29 : 16 jobs verts, 716 JUnit, 135+135
+GameTests par pile et streaming/reprise ; maximum 2494.
+JAR non installé : 23e1a225c3164bf001f15b111377fa2ada1e05d0952a0487c761992742f496e7.
+BP-30 : plafond croissant suivant une diagonale, largeur transversale stable
+hors bords biseautés. Les alcôves hautes FINAL restent près du front haut.
+A toit continu, B nervure et deux gorges, C galerie et deuxième retour haut.
+Tests de profils, dégagements et coupures. 58 320 plans, 324 placements ; 81/120,
+39 restantes. Qualification exacte à suivre. Aucun PC, installation, fusion,
+publication ou Nether. Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,
