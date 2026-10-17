@@ -353,6 +353,18 @@ La géométrie et les tests intégrés de tous les fronts minéraux restent
 inchangés. Ces résultats partiels ne qualifient pas le successeur : les
 quatre exécutions exactes doivent toutes passer après cette correction.
 
+### BP-15 qualifié ; cycle suivant BP-32 A/B/C
+
+BP-15 accepté sur 5a40164910e1a58c50fbff4d27d143e9c7964e75 : 16 jobs verts, 716 JUnit, 133+133
+GameTests par pile et streaming/reprise ; maximum 2496.
+JAR non installé : 70e511ecb674c8822d9947e604c314be47dc538af136d2202220137b63822ffe.
+BP-32 : volute ouverte de rayon décroissant ; A retour par le même chemin,
+B fenêtre contrôlée fermant une boucle, C fourche terminale à deux hauteurs.
+Lame séparatrice, escaliers orientés et alcôves FINAL conservées. Deux tests
+dédiés et 56 160 plans, 312 placements. Couverture 78/120, 42 restantes.
+Qualification exacte à suivre. Aucun PC, installation, fusion, publication
+ou Nether. Validation visuelle/client non prouvée.
+
 ## État courant — installation confirmée le 16 octobre 2026 à 09:10 UTC
 
 Source runtime qualifiée et installée : `382e0b469358a7c9f32a3988632cd66c770f04c8`,

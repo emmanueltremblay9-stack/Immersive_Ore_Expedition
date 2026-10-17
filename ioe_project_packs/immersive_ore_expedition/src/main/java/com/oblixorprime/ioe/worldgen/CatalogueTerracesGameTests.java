@@ -120,9 +120,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(applied.rollback(level) && applied.rollback(level), "Rollback was not idempotent");
         helper.assertTrue(geometry.keySet().stream().allMatch(p -> level.getBlockState(p).is(Blocks.STONE)),
                 "Rollback left blueprint blocks");
-        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
+        if (variant.isRails() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant==CatalogueTerraces.Variant.PEARLS_SPLIT) {
             var again = IoeExpeditionPlanPlacement.apply(level,plan).orElseThrow();
-            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn()) && e.getValue().is(Blocks.LADDER))
+            var foreign = geometry.entrySet().stream().filter(e -> e.getValue().is(Blocks.STONE_STAIRS) || (variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute()) && e.getValue().is(Blocks.LADDER))
                     .findFirst().orElseThrow().getKey();
             level.setBlockAndUpdate(foreign,Blocks.DIAMOND_BLOCK.defaultBlockState());
             again.rollback(level);
@@ -180,7 +180,8 @@ public final class CatalogueTerracesGameTests {
                             "Survey room functions or decoration changed");
                     var base = CatalogueTerraces.base(plan.chamberCenter());
                     var variant = CatalogueTerraces.Variant.values()[shape.getKey()%forms];
-                    if (variant.isHorn()) assertHornSignatures(helper,plan.blocks(),base,variant);
+                    if (variant.isVolute()) assertVoluteSignatures(helper,plan.blocks(),base,variant);
+                    else if (variant.isHorn()) assertHornSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isAnnulus()) assertAnnulusSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isShells()) assertShellSignatures(helper,plan.blocks(),base,variant);
                     else if (variant.isTrihedral()) assertTrihedralSignatures(helper,plan.blocks(),base,variant);
@@ -295,10 +296,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
-            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn()) {
+            if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));
-                if (variant.isHorn()) assertHornSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                if (variant.isVolute()) assertVoluteSignatures(helper,actual,CatalogueTerraces.base(center),variant);
+                else if (variant.isHorn()) assertHornSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isAnnulus()) assertAnnulusSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isShells()) assertShellSignatures(helper,actual,CatalogueTerraces.base(center),variant);
                 else if (variant.isTrihedral()) assertTrihedralSignatures(helper,actual,CatalogueTerraces.base(center),variant);
@@ -2024,6 +2026,79 @@ public final class CatalogueTerracesGameTests {
                 == (variant==CatalogueTerraces.Variant.HORN_LOBES),"Bilobed mouth blade changed");
         helper.assertTrue(blocks.get(base.offset(9,7,8)).is(Blocks.STONE)
                 == (variant==CatalogueTerraces.Variant.HORN_AWNING),"Folded mouth awning changed");
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void voluteKeepsSeparatedTighteningPortionsAndSupportedReturns(GameTestHelper helper) {
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.VOLUTE,
+                CatalogueTerraces.Variant.VOLUTE_WINDOW,CatalogueTerraces.Variant.VOLUTE_FORK}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            assertVoluteSignatures(helper,g,BlockPos.ZERO,variant);
+            for(int x=7;x<=8;x++) for(int z=8;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,3,z)),"Low N4 approach pinches against the return-window backing");
+            if(variant==CatalogueTerraces.Variant.VOLUTE_WINDOW) {
+                for(int x=2;x<=3;x++) for(int z=10;z<=13;z++)
+                    helper.assertTrue(stand(g,new BlockPos(x,9,z)),"N7 return pinches against the window backing");
+                for(int x=2;x<=6;x++) for(int z=12;z<=13;z++)
+                    helper.assertTrue(stand(g,new BlockPos(x,9,z)),"N7 rear return lost two-wide headroom or support");
+            }
+            for(int x=7;x<=10;x++) for(int y=9;y<=13;y++) for(int z=6;z<=7;z++)
+                helper.assertTrue(g.get(new BlockPos(x,y,z)).is(Blocks.STONE),"Nearby volute portions merged through the separating blade");
+            for(int z=8;z<=9;z++) {
+                helper.assertTrue(g.get(new BlockPos(10,3,z)).getValue(StairBlock.FACING)==net.minecraft.core.Direction.WEST
+                        && g.get(new BlockPos(9,3,z)).getValue(StairBlock.FACING)==net.minecraft.core.Direction.EAST,
+                        "Inner volute lost its supported rise and return before the terminal");
+                helper.assertTrue(stand(g,new BlockPos(9,4,z)) && stand(g,new BlockPos(10,4,z)),
+                        "Inner rise lost its two-wide headroom");
+            }
+            var top=new BlockPos(7,15,7);
+            for(var end:java.util.List.of(new BlockPos(5,9,9),new BlockPos(11,9,12),
+                    new BlockPos(6,3,8),new BlockPos(3,3,4),new BlockPos(3,15,12)))
+                helper.assertTrue(reachable(g,top).contains(end) && reachable(g,end).contains(top),
+                        "Open volute lost a supported outer/inner or alcove return");
+            for(int x=5;x<=6;x++) for(int z=8;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,9,z)),"Outer arc lost its two-wide support");
+            for(int x=8;x<=9;x++) for(int z=8;z<=12;z++)
+                helper.assertTrue(stand(g,new BlockPos(x,9,z)),"Tightening inner arc lost its two-wide support");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void voluteReturnWindowAloneClosesTheLoopAndTerminalForkStaysAtTwoHeights(GameTestHelper helper) {
+        var outer=new BlockPos(5,9,9);var inner=new BlockPos(6,3,8);
+        for(var variant:new CatalogueTerraces.Variant[]{CatalogueTerraces.Variant.VOLUTE,
+                CatalogueTerraces.Variant.VOLUTE_WINDOW,CatalogueTerraces.Variant.VOLUTE_FORK}) {
+            var g=CatalogueTerraces.geometry(new BlockPos(7,15,7),variant);
+            var cut=new LinkedHashMap<>(g);closeWell(cut,11,12,8,9,6);
+            helper.assertTrue(reachable(cut,outer).contains(inner)==(variant==CatalogueTerraces.Variant.VOLUTE_WINDOW),
+                    "Volute gained or lost its controlled return window");
+            if(variant==CatalogueTerraces.Variant.VOLUTE_WINDOW) {
+                closeWell(cut,5,6,10,11,6);
+                helper.assertTrue(!reachable(cut,outer).contains(inner) && !reachable(cut,inner).contains(outer),
+                        "Both volute connections cut retained an accidental shortcut");
+            }
+            if(variant==CatalogueTerraces.Variant.VOLUTE_FORK) {
+                for(int x=7;x<=8;x++) {
+                    helper.assertTrue(g.get(new BlockPos(x,3,7)).getValue(StairBlock.FACING)==net.minecraft.core.Direction.NORTH
+                            && g.get(new BlockPos(x,4,6)).getValue(StairBlock.FACING)==net.minecraft.core.Direction.NORTH,
+                            "Terminal fork stairs lost their rise orientation");
+                    for(int z=4;z<=6;z++) helper.assertTrue(stand(g,new BlockPos(x,5,z)),"Upper fork lost two-wide headroom or support");
+                }
+                var high=new BlockPos(7,5,5);
+                helper.assertTrue(reachable(g,inner).contains(high) && reachable(g,high).contains(inner),
+                        "Terminal forks do not return without a mandatory jump");
+            }
+        }
+        helper.succeed();
+    }
+
+    private static void assertVoluteSignatures(GameTestHelper helper,Map<BlockPos,BlockState> blocks,
+                                                BlockPos base,CatalogueTerraces.Variant variant) {
+        helper.assertTrue(blocks.getOrDefault(base.offset(5,6,10),Blocks.STONE.defaultBlockState()).is(Blocks.LADDER)
+                == (variant==CatalogueTerraces.Variant.VOLUTE_WINDOW),"Controlled volute return changed");
+        helper.assertTrue(blocks.getOrDefault(base.offset(7,5,5),Blocks.STONE.defaultBlockState()).isAir()
+                == (variant==CatalogueTerraces.Variant.VOLUTE_FORK),"Raised terminal fork changed");
     }
 
     private static void closeWell(Map<BlockPos,BlockState> blocks,int x1,int x2,int z1,int z2,int y) {
