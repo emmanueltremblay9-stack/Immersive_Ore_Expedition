@@ -1337,3 +1337,15 @@ one upper rear edge are omitted. The free-tip crossing, exposed flanks, roof
 attachments, two-wide routes and independent window cut tests remain; flank
 probes follow the real narrowing tip. The 2,500-cell cap is unchanged.
 New exact-source CI is required, with no prior success transferred.
+
+
+### BP-08 cycle — BP-03 satellite composed-budget correction
+
+e1e718e failed only the composed-cap test in the current minimal runtime:
+2,502 cells, MINER_CAMP/MOTHERLODE, depth/variant710 (depth28, PEARLS_SATELLITE),
+anchor(-21,90,57). The 87-way shape matrix exposes a different camp fixture
+for the older BP-03 C form. Its extra middle-roof height now tapers to a smaller
+rounded crown; all three walking/headroom cells, footprint, necks and satellite
+remain. An assertion checks three-high clearance and the retained raised centre.
+No cap, mineral mask, budget or route assertion is relaxed. This correction needs
+fresh exact-source CI; 84 variants remain qualified and 87 implemented.

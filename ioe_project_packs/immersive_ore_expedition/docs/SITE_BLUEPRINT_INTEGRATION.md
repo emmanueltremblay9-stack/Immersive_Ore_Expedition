@@ -1151,3 +1151,15 @@ A tall cavity retains two asymmetric host-rock buttresses and supported wall led
 87/120 variants, 33 pending; 62,640 composed plans and 348 actual placements. Exact-source qualification required. The 2,500 cap remains unchanged; no installation, merge, publication or Nether activation. Visual NOT_PERFORMED.
 
 BP-25 predecessor dfd349931ec16c82c52fd8b9c7b937775b16971a: 16 successful jobs, 716 JUnit, 139+139 GameTests per stack plus streaming/restart; maximum 2497. JAR SHA256 2a28f1fd9c5fe1826aaf383cd897ae1ce3b60008d786317633178f4cbe69d7d9. These proofs do not qualify BP-08.
+
+
+### BP-08 cycle — BP-03 satellite composed-budget correction
+
+e1e718e failed only the composed-cap test in the current minimal runtime:
+2,502 cells, MINER_CAMP/MOTHERLODE, depth/variant710 (depth28, PEARLS_SATELLITE),
+anchor(-21,90,57). The 87-way shape matrix exposes a different camp fixture
+for the older BP-03 C form. Its extra middle-roof height now tapers to a smaller
+rounded crown; all three walking/headroom cells, footprint, necks and satellite
+remain. An assertion checks three-high clearance and the retained raised centre.
+No cap, mineral mask, budget or route assertion is relaxed. This correction needs
+fresh exact-source CI; 84 variants remain qualified and 87 implemented.

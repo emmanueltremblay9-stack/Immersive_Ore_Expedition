@@ -631,6 +631,9 @@ public final class CatalogueTerracesGameTests {
         helper.assertTrue(!reachable(cut,west).contains(east) && !reachable(cut,east).contains(west),
                 "Split pearl has an unintended second connection");
         var satellite = CatalogueTerraces.geometry(center,CatalogueTerraces.Variant.PEARLS_SATELLITE);
+        helper.assertTrue(stand(satellite,new BlockPos(6,9,7)) && open(satellite,new BlockPos(6,11,7))
+                && satellite.get(new BlockPos(6,12,7)).is(Blocks.STONE) && open(satellite,new BlockPos(7,12,8)),
+                "Satellite roof taper lost three-high clearance or its raised rounded centre");
         var tip = new BlockPos(11,15,10);
         helper.assertTrue(reachable(satellite,CatalogueTerraces.ENTRANCE).contains(tip),"Satellite is inaccessible");
         var separated = new LinkedHashMap<>(satellite);

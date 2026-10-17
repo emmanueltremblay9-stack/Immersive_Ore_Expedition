@@ -30,7 +30,8 @@ final class CataloguePearls {
             if (mid<=10285) {
                 if (!split) {
                     column(air,x,z,9,11);
-                    if (mid<=2600) air.add(new BlockPos(x,12,z));
+                    // Keep three-high circulation while tapering the satellite form's extra roof height.
+                    if (mid<=(satellite ? 1300 : 2600)) air.add(new BlockPos(x,12,z));
                 } else if (x<=6 || x==7 && z<=5) {
                     column(air,x,z,9,11);
                     if (mid<=2600) air.add(new BlockPos(x,12,z));
