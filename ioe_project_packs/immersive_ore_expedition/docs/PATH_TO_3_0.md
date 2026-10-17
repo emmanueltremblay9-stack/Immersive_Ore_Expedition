@@ -1,5 +1,42 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
+## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC
+
+Statut : **signalée, non reproduite, non résolue**. Retour utilisateur
+`Sentinel_d3e9193b79688191a48808e0ea1c7d0f` : « premier consta biome rule placement
+ore type/biome type is not respecterd ». Le fil propriétaire confirme le candidat
+`ef222fd0eb37f3d203b63304e803a16df08a2221` installé dans Prism et le SHA256
+`d0faa1857862fa92da96309489b5e7d275ba3e9b7ae9625aa08d00f6a04cc6d7` vérifié.
+Cette installation est rapportée, pas effectuée ni inspectée depuis ce fil.
+Les CI vertes restent des preuves automatiques ; elles ne ferment pas ce constat.
+
+Contrats et chemin vérifiés :
+- [IMMERSIVE_ENGINEERING_RESOURCE_INTEGRATION.md](IMMERSIVE_ENGINEERING_RESOURCE_INTEGRATION.md), section Mineral deposits : le profil est choisi au centre souterrain planifié ; surface, grotte et position du joueur ne sont pas nécessairement le même point de biome.
+- `ExpeditionSiteFeature.place` transmet `previewPlan.chamberCenter()` au résolveur avant de choisir la famille. `BiomeMineResourceProfile.resolve` échantillonne `BiomeSource.getNoiseBiome` aux coordonnées quart de ce point ; zéro ou plusieurs profils refusent le site.
+- La matrice `biome_mineral_distribution/biome_profile_matrix.csv` distingue 140 biomes spécialisés, 30 aquatiques et 82 génériques IE. Les profils spécialisés n'autorisent pas une sélection arbitraire dans tous les biomes.
+- Les 120 variantes déplacent la référence de chambre vers X/Z = minimum du chunk + 7, Y = ancrage − profondeur 20–28. Prévisualisation et plan productif réutilisent le même seed et ce même point ; la variante ne remplace pas la famille de minerai reçue. Le profil reste celui du site, pas un nouveau tirage par node.
+
+Audit statique du JAR exact : 15 définitions et leurs 15 tags correspondent
+byte-for-byte aux ressources du dépôt ; 140 membres, aucun chevauchement et
+aucun écart avec la matrice. Ces ressources, le résolveur et le mapping des familles
+n'ont pas changé entre `e66faab` et `ef222fd`. Ce contrôle n'inspecte pas les tags
+résolus ni les datapacks de l'instance utilisateur et n'est pas une reproduction.
+
+Limite démontrée des preuves : `CatalogueTerracesGameTests.naturalFeatureCommitsBothCatalogueVariants`
+injecte un profil Certus ; ses 480 cas valident placement/commit/dédup sur terrain
+préparé, pas le routage biome réel de l'instance. Les tests d'inventaire/exclusivité
+et de fréquence multi-seed ne reproduisent pas le site signalé. Aucun défaut de
+substitution de minerai n'est démontré par cette lecture ; aucune règle ni code de
+production n'est modifié sur cette seule hypothèse.
+
+Reproduction ciblée en attente : capture F3 avec biome/coordonnées/dimension et ID
+exact du bloc signalé, distinction node IOE / minerai libre / réserve IE, puis
+seed et statut nouveau/ancien chunk si nécessaires. Comparer ensuite le biome
+échantillonné au centre planifié, le profil attendu et la provenance du site ;
+ajouter un test de régression et corriger seulement un écart démontré. Une
+frontière de biome ou un biome de grotte est une hypothèse, pas le diagnostic.
+Aucune nouvelle installation, modification PC, fusion, release ou activation Nether.
+
 ## Catalogue complet — reçu runtime qualifié
 
 **120/120 variantes A/B/C des quarante familles GOV sont implémentées et qualifiées**
@@ -28,7 +65,8 @@ Les assertions de parcours travaillent sur les cartes de blocs ; elles ne prouve
 pas une marche de joueur ni une exploration visuelle. Aucun corpus de similarité
 normalisé par rotations/miroirs ni garantie numérique d'unicité globale n'est revendiqué.
 La limite mesurée vaut pour ces fixtures ; le refus fail-closed reste actif ailleurs.
-Le JAR catalogue n'est pas installé. Aucun accès PC, fusion, release, publication
+Au reçu initial le JAR catalogue n'était pas installé ; le retour du 17 octobre
+ci-dessus actualise cet état. Aucun accès PC depuis ce fil, fusion, release, publication
 ou activation Nether. Overworld TRUE, OreGuard indépendant, retrogen OFF,
 Nether production OFF. **Visuel/client NOT_PERFORMED**.
 

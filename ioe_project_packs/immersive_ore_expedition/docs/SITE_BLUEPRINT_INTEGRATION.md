@@ -1,5 +1,15 @@
 # Catalogue geometry integration — incremental implementation
 
+## Open client qualification issue — 2026-10-17
+
+The owner reports ef222fd installed with its verified hash and an apparent
+ore/biome mismatch at 08:42 UTC. **Not reproduced or resolved.** See the current
+incident in [PATH_TO_3_0.md](PATH_TO_3_0.md) for the exact contract, source trace,
+static artifact comparison and missing reproduction evidence. Automated catalogue
+qualification below remains valid only within its stated scope; it does not close
+this client report. The 480 DRY Certus fixtures inject a resource profile and use
+prepared terrain, so they are not proof of live instance biome routing.
+
 ## Catalogue complet — reçu runtime qualifié
 
 **120/120 variantes A/B/C des quarante familles GOV sont implémentées et qualifiées**
@@ -28,7 +38,8 @@ Les assertions de parcours travaillent sur les cartes de blocs ; elles ne prouve
 pas une marche de joueur ni une exploration visuelle. Aucun corpus de similarité
 normalisé par rotations/miroirs ni garantie numérique d'unicité globale n'est revendiqué.
 La limite mesurée vaut pour ces fixtures ; le refus fail-closed reste actif ailleurs.
-Le JAR catalogue n'est pas installé. Aucun accès PC, fusion, release, publication
+Au reçu initial le JAR catalogue n'était pas installé ; le retour utilisateur
+ci-dessus actualise cet état. Aucun accès PC depuis ce fil, fusion, release, publication
 ou activation Nether. Overworld TRUE, OreGuard indépendant, retrogen OFF,
 Nether production OFF. **Visuel/client NOT_PERFORMED**.
 
