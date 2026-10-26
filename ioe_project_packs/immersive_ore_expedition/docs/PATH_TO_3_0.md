@@ -245,6 +245,68 @@ Proposition : revoir séparément son utilité par rapport à la couverture actu
 puis décider soit de la conserver pour intégration ultérieure, soit de la clore
 explicitement si jugée redondante. Ne pas la présenter comme déjà intégrée.
 
+#### Reprise bornée de PR62 — 2026-10-26, qualification CI vérifiée
+
+Le nouvel environnement cloud IOE est disponible. Le checkout initial `work` est
+propre à `53cea49a2636939356c0bd2a8ce11c07a27f23af`, égal à `main` distant.
+Les révisions distantes ont été contrôlées avant le push : PR62 est alors
+à `239450e75a5095d2d27845cc79c8e0ca0db7b420` et PR64 à
+`13a7d5541b6556226f9fcd4d005ce702c3093067`. Aucun fichier de l'ancien conteneur
+inaccessible ni son JAR rapporté n'est présenté comme récupéré ou vérifié.
+
+La branche existante de PR62 est reprise dans `/workspace/ioe-pr62`. Le commit
+source local `4e953a521f97de8ba664ce8e26e1e1ae21d94b41` intègre `main` avec
+deux parents, l'ancien head de PR62 puis `53cea49a2636939356c0bd2a8ce11c07a27f23af` :
+aucun conflit, commit supprimé ou réécriture d'historique. Son arbre est
+`abb1028151a97aac48f34814531dfc0758b374a1`. Le diff contre `main` reste exactement
+`BuddingRankTest.java`, trois tests et 28 lignes. `git diff --check` réussit.
+Le blob de `BuddingRank.java` demeure `0623a9d1d0430c17d3800a10664d170a23c9d180`.
+Le présent relevé est un successeur documentaire, distinct de cette source.
+
+Avec OpenJDK 21.0.12.1 et Gradle 8.8 déjà présents, la commande
+`gradle --offline --no-daemon -Dorg.gradle.java.installations.auto-download=false test --tests com.oblixorprime.ioe.budding.BuddingRankTest`
+échoue en configuration après sept secondes : plugin `net.neoforged.moddev:2.0.80`
+absent du cache accessible. **Aucun test JUnit exécuté localement** ; aucune dépendance
+téléchargée ou installée localement. Le journal local est conservé dans
+`/workspace/scratch/ioe-pr62-qualification/gradle-offline.log`.
+
+La clarification du mandat autorise le workflow CI existant, ses dépendances
+normales, ses GameTests et ses artefacts internes GitHub Actions. Elle n'autorise
+aucun nouveau serveur/profil chez l'utilisateur ou dans un environnement de
+qualification distinct, ni publication GitHub Release/CurseForge. Aucun workflow
+n'est modifié et aucune dépendance supplémentaire n'est installée localement.
+Le push non destructif a été confirmé à
+`9c4952eae97bb7385aa44cefdacdd409b88d1b19`, contre la base actuelle
+`53cea49a2636939356c0bd2a8ce11c07a27f23af`. Les deux fichiers modifiés ont été
+relus octet pour octet à cette référence distante. La production et les workflows
+sont identiques à `main` ; seuls les trois tests et le présent relevé diffèrent.
+
+Preuves propres à **`9c4952eae97bb7385aa44cefdacdd409b88d1b19`** :
+
+- Arbre : `3c9ee6ec927aa9e12c6b44bddbbb3f96dcae7143`.
+- [CI push 40311596501](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/40311596501)
+  et [CI PR 40311599576](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/40311599576) :
+  succès à la tentative 1, **14/14 jobs réussis** au total, y compris les GameTests,
+  vérifications de ressources, builds et inspections d'artefacts existants.
+- Checkout de fusion PR : `1d8e794d2e433ffdb15dc2835567621b967941eb`,
+  arbre identique au commit source ci-dessus.
+- XML JUnit relus dans les artefacts de rapports `12646500782` (push) et
+  `12645602199` (PR), archives vérifiées contre leurs SHA256 GitHub :
+  **712 tests, zéro échec/erreur/ignoré dans chaque exécution** ; parmi eux,
+  **les trois tests de `BuddingRankTest` passent tous**, sans exclusion ni modification.
+
+Ce relevé final est un successeur documentaire de la source qualifiée ci-dessus.
+Son propre SHA se résout dans l'historique de ce fichier et le reçu distant de fin
+de session. Ses éventuelles CI sont attribuées à son SHA exact dans le reçu de PR,
+sans transférer silencieusement les résultats ou les artefacts d'un autre commit.
+
+La CI historique `37847941428` a été relue : sept jobs réussis à `239450e`,
+contre `dc020d6e338735ea298882f814a6ee7f1cd077cb`. Elle ne qualifie pas cette
+mise à jour de base. Statut de la qualification à `9c4952e` : **VERIFIED**.
+PR64, `main`, installations utilisateur et JAR rapporté sont préservés.
+Aucune fusion de PR, release, qualification de placement naturel ou stabilité 3.0
+n'est revendiquée.
+
 ### Prochaines étapes réelles
 
 1. Lier la CI et, si accessibles, les octets du JAR au head final de ce cycle dans
