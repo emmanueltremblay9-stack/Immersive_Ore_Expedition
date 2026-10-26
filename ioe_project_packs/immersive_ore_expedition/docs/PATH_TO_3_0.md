@@ -245,7 +245,7 @@ Proposition : revoir séparément son utilité par rapport à la couverture actu
 puis décider soit de la conserver pour intégration ultérieure, soit de la clore
 explicitement si jugée redondante. Ne pas la présenter comme déjà intégrée.
 
-#### Reprise bornée de PR62 — 2026-10-26, qualification CI autorisée
+#### Reprise bornée de PR62 — 2026-10-26, qualification CI vérifiée
 
 Le nouvel environnement cloud IOE est disponible. Le checkout initial `work` est
 propre à `53cea49a2636939356c0bd2a8ce11c07a27f23af`, égal à `main` distant.
@@ -275,13 +275,34 @@ normales, ses GameTests et ses artefacts internes GitHub Actions. Elle n'autoris
 aucun nouveau serveur/profil chez l'utilisateur ou dans un environnement de
 qualification distinct, ni publication GitHub Release/CurseForge. Aucun workflow
 n'est modifié et aucune dépendance supplémentaire n'est installée localement.
-Le push non destructif de cette branche et la CI du commit exact sont autorisés ;
-leur résultat doit être vérifié après exécution. Le présent état ne revendique
-pas encore de résultat CI pour la mise à jour de base.
+Le push non destructif a été confirmé à
+`9c4952eae97bb7385aa44cefdacdd409b88d1b19`, contre la base actuelle
+`53cea49a2636939356c0bd2a8ce11c07a27f23af`. Les deux fichiers modifiés ont été
+relus octet pour octet à cette référence distante. La production et les workflows
+sont identiques à `main` ; seuls les trois tests et le présent relevé diffèrent.
+
+Preuves propres à **`9c4952eae97bb7385aa44cefdacdd409b88d1b19`** :
+
+- Arbre : `3c9ee6ec927aa9e12c6b44bddbbb3f96dcae7143`.
+- [CI push 40311596501](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/40311596501)
+  et [CI PR 40311599576](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/40311599576) :
+  succès à la tentative 1, **14/14 jobs réussis** au total, y compris les GameTests,
+  vérifications de ressources, builds et inspections d'artefacts existants.
+- Checkout de fusion PR : `1d8e794d2e433ffdb15dc2835567621b967941eb`,
+  arbre identique au commit source ci-dessus.
+- XML JUnit relus dans les artefacts de rapports `12646500782` (push) et
+  `12645602199` (PR), archives vérifiées contre leurs SHA256 GitHub :
+  **712 tests, zéro échec/erreur/ignoré dans chaque exécution** ; parmi eux,
+  **les trois tests de `BuddingRankTest` passent tous**, sans exclusion ni modification.
+
+Ce relevé final est un successeur documentaire de la source qualifiée ci-dessus.
+Son propre SHA se résout dans l'historique de ce fichier et le reçu distant de fin
+de session. Ses éventuelles CI sont attribuées à son SHA exact dans le reçu de PR,
+sans transférer silencieusement les résultats ou les artefacts d'un autre commit.
 
 La CI historique `37847941428` a été relue : sept jobs réussis à `239450e`,
 contre `dc020d6e338735ea298882f814a6ee7f1cd077cb`. Elle ne qualifie pas cette
-mise à jour de base. Statut à ce checkpoint : **PARTIAL**, CI actuelle à vérifier.
+mise à jour de base. Statut de la qualification à `9c4952e` : **VERIFIED**.
 PR64, `main`, installations utilisateur et JAR rapporté sont préservés.
 Aucune fusion de PR, release, qualification de placement naturel ou stabilité 3.0
 n'est revendiquée.
