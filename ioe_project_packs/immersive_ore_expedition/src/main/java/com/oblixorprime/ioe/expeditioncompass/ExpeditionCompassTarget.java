@@ -58,6 +58,8 @@ public record ExpeditionCompassTarget(
         provinceId = provinceId == null ? Optional.empty() : provinceId;
         quality = quality == null ? Optional.empty() : quality;
         source = source == null ? Optional.empty() : source.map(String::trim).filter(value -> !value.isBlank());
+        // Also normalize older saved compass components when their codec decodes them.
+        if (source.filter(ExpeditionSite.RECOVERED_MINE_SOURCE::equals).isPresent()) quality = Optional.empty();
         placementState = placementState == null ? ExpeditionSitePlacementState.PLACED : placementState;
         placementReason = placementReason == null
                 ? Optional.empty()

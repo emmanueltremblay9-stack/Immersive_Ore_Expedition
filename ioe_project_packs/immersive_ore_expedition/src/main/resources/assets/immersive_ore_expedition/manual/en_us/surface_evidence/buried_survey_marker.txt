@@ -1,0 +1,11 @@
+Buried Survey Marker
+A marked point of access
+"Someone considered this location important enough to measure. Whether they were correct is another matter."
+<br><br>
+IOE’s survey marker combines chiseled stone bricks, a stone-brick wall and a lantern. A mossy stone border sits partly below the surface; stone paving and a wooden trapdoor cover the shaft opening.
+<br><br>
+Despite its name, the whole marker is not necessarily hidden underground. Look at the visible stonework and inspect the access rather than assuming every exposed stone marks a deposit.
+<br><br>
+The marker is a surface component of a connected expedition site. It provides a place to investigate, not a mineral assay or a guarantee of a productive chamber.
+<br><br>
+The general form described here supplies no hidden coordinates, resource identity or survey result. Establish those facts from the formation you actually examine.

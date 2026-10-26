@@ -4,6 +4,9 @@ import com.oblixorprime.ioe.compat.domum.DomumOrnamentumCompat;
 import com.oblixorprime.ioe.compat.ie.IoeExcavatorMotherDepositBridge;
 import com.oblixorprime.ioe.compat.ip.IoePetroleumReservoirBridge;
 import com.oblixorprime.ioe.core.ProvinceId;
+import com.oblixorprime.ioe.budding.BuddingSitePlan;
+import com.oblixorprime.ioe.budding.NativeCertusBudding;
+import com.oblixorprime.ioe.budding.DrySiteReward;
 import com.oblixorprime.ioe.core.SiteQuality;
 import com.oblixorprime.ioe.core.SiteQualityRoll;
 import net.minecraft.core.BlockPos;
@@ -15,7 +18,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
@@ -25,14 +27,11 @@ import net.neoforged.neoforge.common.Tags;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguration> {
-    private static final SiteQualityRoll PRODUCTIVE_SITE_QUALITY = new SiteQualityRoll(0, 25, 45, 17, 3);
     private static final int SURFACE_HAZARD_MARGIN = 2;
     private final ExpeditionSiteType siteType;
     private final ResourceProfileResolver resourceProfileResolver;
@@ -80,10 +79,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             return false;
         }
 
-        SiteQualityRoll qualityRoll = siteType == ExpeditionSiteType.MINER_CAMP
-                ? SiteQualityRoll.DEFAULT
-                : PRODUCTIVE_SITE_QUALITY;
-        SiteQuality quality = qualityRoll.roll(context.random());
+        SiteQuality quality = SiteQualityRoll.DEFAULT.roll(context.random());
         BlockPos origin = siteType.naturalSurfaceSite()
                 ? resolveSurfaceOrigin(context.level(), context.origin(), siteType, quality)
                 : context.origin();
@@ -103,6 +99,8 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         }
 
         long planSeed = context.random().nextLong();
+        boolean drySeedReward = siteType.naturalSurfaceSite() && ModList.get().isLoaded("ae2cs")
+                && DrySiteReward.roll(quality, RandomSource.create(planSeed ^ 0x53454544L));
         ProspectorCampContext prospectorCampContext = new ProspectorCampContext(
                 visualFamily,
                 planSeed,
@@ -132,6 +130,30 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
             }
             resourceProfile = resolution.profile().orElseThrow();
         }
+
+        var family = resourceProfile == null ? null : com.oblixorprime.ioe.budding.BuddingResourceFamily
+                .fromGeOreMaterial(resourceProfile.profileName()).orElse(null);
+        if (family != null && quality.isProductive() && !com.oblixorprime.ioe.budding.IoeGeOreBuddingBlocks.available(family)) {
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                    "Budding family dependencies, storage or growth blocks are unavailable: " + family.key());
+            return false;
+        }
+        boolean certus = resourceProfile != null && "certus".equals(resourceProfile.profileName());
+        if (certus && quality.isProductive() && !NativeCertusBudding.available()) {
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                    "Native Certus ranks, growth blocks or quartz material are unavailable");
+            return false;
+        }
+        var dryMaterial = certus ? NativeCertusBudding.QUARTZ : family == null ? null : family.pocketBlockId();
+        int dryOreCount = quality == SiteQuality.DRY ? com.oblixorprime.ioe.budding.DryPocketRoll.forSite(planSeed) : 0;
+        if (quality == SiteQuality.DRY && dryMaterial != null
+                && !net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(dryMaterial)) {
+            skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.RESOURCE_POLICY_DENIED,
+                    "Missing DRY pocket material: " + dryMaterial);
+            return false;
+        }
+        BuddingSitePlan familyBudget = (family != null || certus) && quality.isProductive()
+                ? BuddingSitePlan.forQuality(quality, RandomSource.create(planSeed ^ 0x49524f4eL), 0) : null;
 
         DepositPreparation depositPreparation = prepareExcavatorDeposit(
                 context.level().getLevel(),
@@ -165,17 +187,27 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     && prospectorCampContext.archetype() == ProspectorCampArchetype.ACTIVE
                     ? previewPlan
                     : structureOnlyPlan(siteType, origin, quality, planSeed, prospectorCampContext);
+            if (quality == SiteQuality.DRY && dryMaterial != null) {
+                plan = DrySitePockets.attach(plan, dryMaterial, dryOreCount, planSeed);
+            }
+            plan = DrySiteRewards.attach(plan, drySeedReward, planSeed);
+            if (familyBudget != null) {
+                if (quality != familyBudget.quality()) {
+                    familyBudget = familyBudget.downgradeTo(quality, 0);
+                }
+                plan = certus ? CertusBuddingSitePlans.plan(siteType, origin, familyBudget, planSeed, prospectorCampContext)
+                        : GeOreBuddingSitePlans.plan(family, siteType, origin, familyBudget, planSeed, prospectorCampContext);
+            }
             ArrayList<ExpeditionSiteBlockPlan> fallbackPlans = new ArrayList<>();
             if (depositReservation != null && depositReservation.requiredForSiteQuality()) {
                 SiteQuality lowerQuality = quality.directLower().orElse(null);
                 while (lowerQuality != null && lowerQuality.isProductive()) {
-                    fallbackPlans.add(structureOnlyPlan(
-                            siteType,
-                            origin,
-                            lowerQuality,
-                            planSeed,
-                            prospectorCampContext
-                    ));
+                    fallbackPlans.add(familyBudget == null
+                            ? structureOnlyPlan(siteType, origin, lowerQuality, planSeed, prospectorCampContext)
+                            : certus ? CertusBuddingSitePlans.plan(siteType, origin, familyBudget.downgradeTo(lowerQuality, 0),
+                                    planSeed, prospectorCampContext)
+                            : GeOreBuddingSitePlans.plan(family, siteType, origin, familyBudget.downgradeTo(lowerQuality, 0),
+                                    planSeed, prospectorCampContext));
                     lowerQuality = lowerQuality.directLower().orElse(null);
                 }
             }
@@ -184,7 +216,7 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                     || fallbackPlans.stream().anyMatch(fallbackPlan -> collidesWithStructure(
                             context.level(), fallbackPlan)))) {
                 skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.SURFACE_UNSUITABLE,
-                        "the prospector-camp volume collides with an existing structure");
+                        "the prospector-camp volume overlaps a structure or structure metadata is unavailable or capped");
                 return false;
             }
             if (siteType.naturalSurfaceSite() && !plan.isConnectedExpeditionSite()) {
@@ -576,26 +608,8 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
         return structureBounds.stream().anyMatch(candidateBounds::intersects);
     }
 
-    private static boolean collidesWithStructure(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
-        BoundingBox candidateBounds = expandedPlanBounds(plan.blocks().keySet());
-        Set<StructureStart> starts = new HashSet<>();
-        for (int chunkX = Math.floorDiv(candidateBounds.minX(), 16);
-             chunkX <= Math.floorDiv(candidateBounds.maxX(), 16);
-             chunkX++) {
-            for (int chunkZ = Math.floorDiv(candidateBounds.minZ(), 16);
-                 chunkZ <= Math.floorDiv(candidateBounds.maxZ(), 16);
-                 chunkZ++) {
-                starts.addAll(level.getLevel().structureManager().startsForStructure(
-                        new net.minecraft.world.level.ChunkPos(chunkX, chunkZ),
-                        ignored -> true
-                ));
-            }
-        }
-        List<BoundingBox> structureBounds = starts.stream()
-                .filter(StructureStart::isValid)
-                .map(StructureStart::getBoundingBox)
-                .toList();
-        return intersectsStructureBounds(plan.blocks().keySet(), structureBounds);
+    static boolean collidesWithStructure(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
+        return LoadedStructureCollision.blocksPlacement(level, expandedPlanBounds(plan.blocks().keySet()));
     }
 
     private static void skip(

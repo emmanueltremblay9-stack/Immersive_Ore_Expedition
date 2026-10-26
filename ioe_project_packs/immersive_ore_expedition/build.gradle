@@ -22,12 +22,27 @@ neoForge {
             type = "gameTestServer"
             gameDirectory = project.file("run/gametest-baseline")
             systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+            if (providers.gradleProperty('ioeDepth32Prototype').map { it.toBoolean() }.getOrElse(false)) {
+                systemProperty "ioe.depth32Prototype", "true"
+                systemProperty "ioe.depth32Pack", project.file("prototype/depth32").absolutePath
+            }
         }
         fullRuntimeGameTestServer {
             type = "gameTestServer"
             gameDirectory = project.file("run/gametest-full")
             systemProperty "neoforge.enabledGameTestNamespaces", mod_id
+            if (providers.gradleProperty('ioeDepth32Prototype').map { it.toBoolean() }.getOrElse(false)) {
+                systemProperty "ioe.depth32Prototype", "true"
+                systemProperty "ioe.depth32Pack", project.file("prototype/depth32").absolutePath
+            }
             systemProperty "ioe.expectDomumRuntime", "true"
+            if (providers.gradleProperty("ioePlayerStreamingQualification").isPresent())
+                systemProperty "neoforge.enabledGameTestNamespaces", "ioe_streaming"
+            if (providers.gradleProperty('ioeDepth32RestartPhase').isPresent()) {
+                def restartPhase = providers.gradleProperty('ioeDepth32RestartPhase').get()
+                systemProperty "ioe.depth32RestartPhase", restartPhase
+                if (restartPhase == 'resume') systemProperty "neoforge.enabledGameTestNamespaces", "ioe_restart"
+            }
             systemProperty "ioe.multiSeedReport", layout.buildDirectory.file(
                     "reports/ioe/multi-seed-biome-frequency.json"
             ).get().asFile.absolutePath
@@ -89,6 +104,7 @@ def replacementProperties = [
 ]
 
 tasks.named('processResources', ProcessResources).configure {
+    from('prototype/depth32') { into 'packs/ioe_depth32' }
     inputs.properties replacementProperties
     filesMatching('META-INF/neoforge.mods.toml') {
         expand replacementProperties
@@ -101,6 +117,10 @@ tasks.named('jar', Jar).configure {
 }
 
 dependencies {
+    compileOnly "maven.modrinth:nvQzSEkH:eYz2YBGT" // Jade 15.10.6, optional runtime integration
+    if (providers.gradleProperty('ioeIncludeJadeRuntime').map { it.toBoolean() }.getOrElse(false)) {
+        runtimeOnly "maven.modrinth:nvQzSEkH:eYz2YBGT"
+    }
     compileOnly group: 'info.journeymap', name: 'journeymap-api-neoforge', version: journeymap_api_version, changing: true
     compileOnly "blusunrize.immersiveengineering:ImmersiveEngineering:${ie_compile_version}"
     compileOnly "maven.modrinth:${ip_modrinth_project}:${ip_compile_version}"

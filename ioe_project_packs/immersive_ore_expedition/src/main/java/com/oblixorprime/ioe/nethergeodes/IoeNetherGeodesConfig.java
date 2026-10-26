@@ -18,6 +18,8 @@ public final class IoeNetherGeodesConfig {
         return ImmersiveOreExpeditionConfig.netherAllowRandomNetherGeodes();
     }
 
+    /** Legacy sample adapter only; the canonical planner uses the exact even-width window. */
+    @Deprecated
     public static int lavaSampleRadius() {
         return ImmersiveOreExpeditionConfig.netherLavaSampleRadius();
     }

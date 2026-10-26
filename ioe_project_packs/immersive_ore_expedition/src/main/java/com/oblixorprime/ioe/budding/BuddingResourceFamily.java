@@ -49,9 +49,30 @@ public enum BuddingResourceFamily {
 
     public ResourceLocation storageBlockId() {
         return switch (kind) {
-            case GEORE -> id("geore", key + "_block");
+            case GEORE -> requiresImmersiveEngineering() ? id("immersiveengineering", "storage_" + key) : id("minecraft", key + "_block");
             case CERTUS, EXTENDED_AE -> id("ae2", "quartz_block");
         };
+    }
+
+    public boolean requiresImmersiveEngineering() {
+        return switch (this) {
+            case GEORE_ALUMINUM, GEORE_LEAD, GEORE_NICKEL, GEORE_SILVER, GEORE_URANIUM -> true;
+            default -> false;
+        };
+    }
+
+    public boolean dependenciesPresent(java.util.function.Predicate<String> loaded) {
+        return kind == Kind.GEORE && loaded.test("ae2") && loaded.test("geore")
+                && (!requiresImmersiveEngineering() || loaded.test("immersiveengineering"));
+    }
+
+    public ResourceLocation pocketBlockId() {
+        if (kind != Kind.GEORE) throw new IllegalStateException("No GeOre pocket material for " + this);
+        return id("geore", key + "_block");
+    }
+
+    public ResourceLocation identity() {
+        return id(dependencyModId(), key);
     }
 
     public List<ResourceLocation> growthProductIds() {

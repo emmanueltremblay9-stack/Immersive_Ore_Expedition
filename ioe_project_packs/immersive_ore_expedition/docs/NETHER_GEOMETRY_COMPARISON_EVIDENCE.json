@@ -1,0 +1,2744 @@
+{
+  "source_commit": "bd6849ef08c1cdc6ba636dea4b15f748e25f2917",
+  "starting_checkpoint": "61f6f1c333b520a40e2694915b98b908d9b35aea",
+  "seed": 0,
+  "minecraft": "1.21.1",
+  "neoforge": "21.1.230",
+  "push_run": 38201536790,
+  "pr_run": 38201539982,
+  "scope": "paired read-only planner comparison; no production modification or placement proof",
+  "loading": "controlled 5x5 FULL, real fresh receipts, nonrepresentative player stream",
+  "sampling": "32 previous baseline candidates: first 16 FLOOR_BELOW_23, 8 FLOOR_START, 4 FLOOR_BOTTOM, 4 SURFACE from bounded256; stratified diagnostic, not prevalence estimate",
+  "protected_invariants": [
+    "LOWEST at candidate, no fallback",
+    "74x74 / connected-deep coverage 60%",
+    "15x15 first floor and soul-soil rule",
+    "native protection",
+    "same-turn shared capture, shared budget, full state/protection read-set revalidation",
+    "cavity radius 3, mineral shell radius 5 and original budgets",
+    "no edits, no production registration or persistent attempt ledger mutation"
+  ],
+  "control": "16/15 compared with canonical planner for status, connected columns and complete plan equality on each candidate",
+  "counts": {
+    "(16, 15)": {
+      "COVERAGE": 18,
+      "FLOOR": 9,
+      "HEIGHT": 1,
+      "SURFACE": 4
+    },
+    "(12, 15)": {
+      "COVERAGE": 18,
+      "FLOOR": 9,
+      "CRUST_OR_PROTECTION": 1,
+      "SURFACE": 4
+    },
+    "(8, 15)": {
+      "COVERAGE": 18,
+      "FLOOR": 9,
+      "CRUST_OR_PROTECTION": 1,
+      "SURFACE": 4
+    },
+    "(12, 13)": {
+      "COVERAGE": 18,
+      "FLOOR": 9,
+      "CRUST_OR_PROTECTION": 1,
+      "SURFACE": 4
+    }
+  },
+  "actual_writes": 0,
+  "read_total": 870244,
+  "max_candidate_actual_reads": 55338,
+  "log_sha256": "a9b956e7ff257ed867459b8b542c76ab24b9b33b31b3d470c723be6ac3e29ac8",
+  "rows": [
+    {
+      "region": [
+        -2006,
+        -2000
+      ],
+      "candidate": [
+        -513480,
+        -511976
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 2850,
+      "probes": 17142,
+      "extra_reads": 17129,
+      "cumulative_reads": 17129,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2006,
+        -2000
+      ],
+      "candidate": [
+        -513480,
+        -511976
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 2850,
+      "probes": 17142,
+      "extra_reads": 0,
+      "cumulative_reads": 17129,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2006,
+        -2000
+      ],
+      "candidate": [
+        -513480,
+        -511976
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 2850,
+      "probes": 17142,
+      "extra_reads": 0,
+      "cumulative_reads": 17129,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2006,
+        -2000
+      ],
+      "candidate": [
+        -513480,
+        -511976
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 2850,
+      "probes": 17142,
+      "extra_reads": 0,
+      "cumulative_reads": 17129,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2014,
+        -2000
+      ],
+      "candidate": [
+        -515528,
+        -511848
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 3592,
+      "probes": 20361,
+      "extra_reads": 20319,
+      "cumulative_reads": 20319,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2014,
+        -2000
+      ],
+      "candidate": [
+        -515528,
+        -511848
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 3592,
+      "probes": 20361,
+      "extra_reads": 0,
+      "cumulative_reads": 20319,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2014,
+        -2000
+      ],
+      "candidate": [
+        -515528,
+        -511848
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 3592,
+      "probes": 20361,
+      "extra_reads": 0,
+      "cumulative_reads": 20319,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2014,
+        -2000
+      ],
+      "candidate": [
+        -515528,
+        -511848
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "FLOOR",
+      "connected": 3592,
+      "probes": 20361,
+      "extra_reads": 0,
+      "cumulative_reads": 20319,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2024,
+        -2000
+      ],
+      "candidate": [
+        -517976,
+        -511976
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 126,
+      "probes": 10445,
+      "extra_reads": 10430,
+      "cumulative_reads": 10430,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2024,
+        -2000
+      ],
+      "candidate": [
+        -517976,
+        -511976
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 126,
+      "probes": 10445,
+      "extra_reads": 0,
+      "cumulative_reads": 10430,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2024,
+        -2000
+      ],
+      "candidate": [
+        -517976,
+        -511976
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 126,
+      "probes": 10445,
+      "extra_reads": 0,
+      "cumulative_reads": 10430,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2024,
+        -2000
+      ],
+      "candidate": [
+        -517976,
+        -511976
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 126,
+      "probes": 10445,
+      "extra_reads": 0,
+      "cumulative_reads": 10430,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2026,
+        -2000
+      ],
+      "candidate": [
+        -518568,
+        -511864
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 2185,
+      "probes": 17531,
+      "extra_reads": 17519,
+      "cumulative_reads": 17519,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2026,
+        -2000
+      ],
+      "candidate": [
+        -518568,
+        -511864
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 2185,
+      "probes": 17531,
+      "extra_reads": 0,
+      "cumulative_reads": 17519,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2026,
+        -2000
+      ],
+      "candidate": [
+        -518568,
+        -511864
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 2185,
+      "probes": 17531,
+      "extra_reads": 0,
+      "cumulative_reads": 17519,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2026,
+        -2000
+      ],
+      "candidate": [
+        -518568,
+        -511864
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 2185,
+      "probes": 17531,
+      "extra_reads": 0,
+      "cumulative_reads": 17519,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2028,
+        -2000
+      ],
+      "candidate": [
+        -518936,
+        -511848
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 4739,
+      "probes": 26387,
+      "extra_reads": 25945,
+      "cumulative_reads": 25945,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2028,
+        -2000
+      ],
+      "candidate": [
+        -518936,
+        -511848
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 4739,
+      "probes": 26387,
+      "extra_reads": 0,
+      "cumulative_reads": 25945,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2028,
+        -2000
+      ],
+      "candidate": [
+        -518936,
+        -511848
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 4739,
+      "probes": 26387,
+      "extra_reads": 0,
+      "cumulative_reads": 25945,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2028,
+        -2000
+      ],
+      "candidate": [
+        -518936,
+        -511848
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "FLOOR",
+      "connected": 4739,
+      "probes": 26387,
+      "extra_reads": 0,
+      "cumulative_reads": 25945,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2030,
+        -2000
+      ],
+      "candidate": [
+        -519560,
+        -511752
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 5366,
+      "probes": 27289,
+      "extra_reads": 27235,
+      "cumulative_reads": 27235,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2030,
+        -2000
+      ],
+      "candidate": [
+        -519560,
+        -511752
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 5366,
+      "probes": 27289,
+      "extra_reads": 0,
+      "cumulative_reads": 27235,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2030,
+        -2000
+      ],
+      "candidate": [
+        -519560,
+        -511752
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 5366,
+      "probes": 27289,
+      "extra_reads": 0,
+      "cumulative_reads": 27235,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2030,
+        -2000
+      ],
+      "candidate": [
+        -519560,
+        -511752
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "FLOOR",
+      "connected": 5366,
+      "probes": 27289,
+      "extra_reads": 0,
+      "cumulative_reads": 27235,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2034,
+        -2000
+      ],
+      "candidate": [
+        -520664,
+        -511992
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 5349,
+      "probes": 27978,
+      "extra_reads": 27669,
+      "cumulative_reads": 27669,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2034,
+        -2000
+      ],
+      "candidate": [
+        -520664,
+        -511992
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 5349,
+      "probes": 27978,
+      "extra_reads": 0,
+      "cumulative_reads": 27669,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2034,
+        -2000
+      ],
+      "candidate": [
+        -520664,
+        -511992
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 5349,
+      "probes": 27978,
+      "extra_reads": 0,
+      "cumulative_reads": 27669,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2034,
+        -2000
+      ],
+      "candidate": [
+        -520664,
+        -511992
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "FLOOR",
+      "connected": 5349,
+      "probes": 27978,
+      "extra_reads": 0,
+      "cumulative_reads": 27669,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2042,
+        -2000
+      ],
+      "candidate": [
+        -522712,
+        -511832
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "HEIGHT",
+      "connected": 4528,
+      "probes": 26951,
+      "extra_reads": 26029,
+      "cumulative_reads": 26029,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2042,
+        -2000
+      ],
+      "candidate": [
+        -522712,
+        -511832
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "CRUST_OR_PROTECTION",
+      "connected": 4528,
+      "probes": 26951,
+      "extra_reads": 1,
+      "cumulative_reads": 26030,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2042,
+        -2000
+      ],
+      "candidate": [
+        -522712,
+        -511832
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "CRUST_OR_PROTECTION",
+      "connected": 4528,
+      "probes": 26955,
+      "extra_reads": 5,
+      "cumulative_reads": 26035,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2042,
+        -2000
+      ],
+      "candidate": [
+        -522712,
+        -511832
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "CRUST_OR_PROTECTION",
+      "connected": 4528,
+      "probes": 26954,
+      "extra_reads": 4,
+      "cumulative_reads": 26039,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2048,
+        -2000
+      ],
+      "candidate": [
+        -524120,
+        -511800
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 5476,
+      "probes": 27451,
+      "extra_reads": 27426,
+      "cumulative_reads": 27426,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2048,
+        -2000
+      ],
+      "candidate": [
+        -524120,
+        -511800
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 5476,
+      "probes": 27451,
+      "extra_reads": 0,
+      "cumulative_reads": 27426,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2048,
+        -2000
+      ],
+      "candidate": [
+        -524120,
+        -511800
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 5476,
+      "probes": 27451,
+      "extra_reads": 0,
+      "cumulative_reads": 27426,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2048,
+        -2000
+      ],
+      "candidate": [
+        -524120,
+        -511800
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "FLOOR",
+      "connected": 5476,
+      "probes": 27451,
+      "extra_reads": 0,
+      "cumulative_reads": 27426,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2052,
+        -2000
+      ],
+      "candidate": [
+        -525096,
+        -511768
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 173,
+      "probes": 10859,
+      "extra_reads": 10847,
+      "cumulative_reads": 10847,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2052,
+        -2000
+      ],
+      "candidate": [
+        -525096,
+        -511768
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 173,
+      "probes": 10859,
+      "extra_reads": 0,
+      "cumulative_reads": 10847,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2052,
+        -2000
+      ],
+      "candidate": [
+        -525096,
+        -511768
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 173,
+      "probes": 10859,
+      "extra_reads": 0,
+      "cumulative_reads": 10847,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2052,
+        -2000
+      ],
+      "candidate": [
+        -525096,
+        -511768
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 173,
+      "probes": 10859,
+      "extra_reads": 0,
+      "cumulative_reads": 10847,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2058,
+        -2000
+      ],
+      "candidate": [
+        -526632,
+        -511832
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 264,
+      "probes": 10453,
+      "extra_reads": 10442,
+      "cumulative_reads": 10442,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2058,
+        -2000
+      ],
+      "candidate": [
+        -526632,
+        -511832
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 264,
+      "probes": 10453,
+      "extra_reads": 0,
+      "cumulative_reads": 10442,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2058,
+        -2000
+      ],
+      "candidate": [
+        -526632,
+        -511832
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 264,
+      "probes": 10453,
+      "extra_reads": 0,
+      "cumulative_reads": 10442,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2058,
+        -2000
+      ],
+      "candidate": [
+        -526632,
+        -511832
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 264,
+      "probes": 10453,
+      "extra_reads": 0,
+      "cumulative_reads": 10442,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2064,
+        -2000
+      ],
+      "candidate": [
+        -528376,
+        -511768
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 3888,
+      "probes": 22470,
+      "extra_reads": 22448,
+      "cumulative_reads": 22448,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2064,
+        -2000
+      ],
+      "candidate": [
+        -528376,
+        -511768
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 3888,
+      "probes": 22470,
+      "extra_reads": 0,
+      "cumulative_reads": 22448,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2064,
+        -2000
+      ],
+      "candidate": [
+        -528376,
+        -511768
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 3888,
+      "probes": 22470,
+      "extra_reads": 0,
+      "cumulative_reads": 22448,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2064,
+        -2000
+      ],
+      "candidate": [
+        -528376,
+        -511768
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "FLOOR",
+      "connected": 3888,
+      "probes": 22470,
+      "extra_reads": 0,
+      "cumulative_reads": 22448,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2068,
+        -2000
+      ],
+      "candidate": [
+        -529304,
+        -511992
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 9341,
+      "extra_reads": 9338,
+      "cumulative_reads": 9338,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2068,
+        -2000
+      ],
+      "candidate": [
+        -529304,
+        -511992
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 9341,
+      "extra_reads": 0,
+      "cumulative_reads": 9338,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2068,
+        -2000
+      ],
+      "candidate": [
+        -529304,
+        -511992
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 9341,
+      "extra_reads": 0,
+      "cumulative_reads": 9338,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2068,
+        -2000
+      ],
+      "candidate": [
+        -529304,
+        -511992
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 9341,
+      "extra_reads": 0,
+      "cumulative_reads": 9338,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2070,
+        -2000
+      ],
+      "candidate": [
+        -529752,
+        -511928
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 3003,
+      "probes": 19118,
+      "extra_reads": 19111,
+      "cumulative_reads": 19111,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2070,
+        -2000
+      ],
+      "candidate": [
+        -529752,
+        -511928
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 3003,
+      "probes": 19118,
+      "extra_reads": 0,
+      "cumulative_reads": 19111,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2070,
+        -2000
+      ],
+      "candidate": [
+        -529752,
+        -511928
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 3003,
+      "probes": 19118,
+      "extra_reads": 0,
+      "cumulative_reads": 19111,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2070,
+        -2000
+      ],
+      "candidate": [
+        -529752,
+        -511928
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 3003,
+      "probes": 19118,
+      "extra_reads": 0,
+      "cumulative_reads": 19111,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2076,
+        -2000
+      ],
+      "candidate": [
+        -531240,
+        -511912
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 40,
+      "probes": 8970,
+      "extra_reads": 8959,
+      "cumulative_reads": 8959,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2076,
+        -2000
+      ],
+      "candidate": [
+        -531240,
+        -511912
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 40,
+      "probes": 8970,
+      "extra_reads": 0,
+      "cumulative_reads": 8959,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2076,
+        -2000
+      ],
+      "candidate": [
+        -531240,
+        -511912
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 40,
+      "probes": 8970,
+      "extra_reads": 0,
+      "cumulative_reads": 8959,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2076,
+        -2000
+      ],
+      "candidate": [
+        -531240,
+        -511912
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 40,
+      "probes": 8970,
+      "extra_reads": 0,
+      "cumulative_reads": 8959,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2094,
+        -2000
+      ],
+      "candidate": [
+        -535928,
+        -511944
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 4081,
+      "probes": 22537,
+      "extra_reads": 22496,
+      "cumulative_reads": 22496,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2094,
+        -2000
+      ],
+      "candidate": [
+        -535928,
+        -511944
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 4081,
+      "probes": 22537,
+      "extra_reads": 0,
+      "cumulative_reads": 22496,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2094,
+        -2000
+      ],
+      "candidate": [
+        -535928,
+        -511944
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 4081,
+      "probes": 22537,
+      "extra_reads": 0,
+      "cumulative_reads": 22496,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2094,
+        -2000
+      ],
+      "candidate": [
+        -535928,
+        -511944
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "FLOOR",
+      "connected": 4081,
+      "probes": 22537,
+      "extra_reads": 0,
+      "cumulative_reads": 22496,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2004,
+        -2000
+      ],
+      "candidate": [
+        -512904,
+        -511896
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 4133,
+      "probes": 23587,
+      "extra_reads": 23558,
+      "cumulative_reads": 23558,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2004,
+        -2000
+      ],
+      "candidate": [
+        -512904,
+        -511896
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 4133,
+      "probes": 23587,
+      "extra_reads": 0,
+      "cumulative_reads": 23558,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2004,
+        -2000
+      ],
+      "candidate": [
+        -512904,
+        -511896
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 4133,
+      "probes": 23587,
+      "extra_reads": 0,
+      "cumulative_reads": 23558,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2004,
+        -2000
+      ],
+      "candidate": [
+        -512904,
+        -511896
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "FLOOR",
+      "connected": 4133,
+      "probes": 23587,
+      "extra_reads": 0,
+      "cumulative_reads": 23558,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2008,
+        -2000
+      ],
+      "candidate": [
+        -513960,
+        -511976
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5833,
+      "extra_reads": 5826,
+      "cumulative_reads": 5826,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2008,
+        -2000
+      ],
+      "candidate": [
+        -513960,
+        -511976
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5833,
+      "extra_reads": 0,
+      "cumulative_reads": 5826,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2008,
+        -2000
+      ],
+      "candidate": [
+        -513960,
+        -511976
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5833,
+      "extra_reads": 0,
+      "cumulative_reads": 5826,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2008,
+        -2000
+      ],
+      "candidate": [
+        -513960,
+        -511976
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5833,
+      "extra_reads": 0,
+      "cumulative_reads": 5826,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2010,
+        -2000
+      ],
+      "candidate": [
+        -514376,
+        -511976
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 6300,
+      "extra_reads": 6293,
+      "cumulative_reads": 6293,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2010,
+        -2000
+      ],
+      "candidate": [
+        -514376,
+        -511976
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 6300,
+      "extra_reads": 0,
+      "cumulative_reads": 6293,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2010,
+        -2000
+      ],
+      "candidate": [
+        -514376,
+        -511976
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 6300,
+      "extra_reads": 0,
+      "cumulative_reads": 6293,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2010,
+        -2000
+      ],
+      "candidate": [
+        -514376,
+        -511976
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 6300,
+      "extra_reads": 0,
+      "cumulative_reads": 6293,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2032,
+        -2000
+      ],
+      "candidate": [
+        -519960,
+        -511848
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 1,
+      "probes": 6077,
+      "extra_reads": 6062,
+      "cumulative_reads": 6062,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2032,
+        -2000
+      ],
+      "candidate": [
+        -519960,
+        -511848
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 1,
+      "probes": 6077,
+      "extra_reads": 0,
+      "cumulative_reads": 6062,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2032,
+        -2000
+      ],
+      "candidate": [
+        -519960,
+        -511848
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 1,
+      "probes": 6077,
+      "extra_reads": 0,
+      "cumulative_reads": 6062,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2032,
+        -2000
+      ],
+      "candidate": [
+        -519960,
+        -511848
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 1,
+      "probes": 6077,
+      "extra_reads": 0,
+      "cumulative_reads": 6062,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2036,
+        -2000
+      ],
+      "candidate": [
+        -521112,
+        -511800
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5984,
+      "extra_reads": 5979,
+      "cumulative_reads": 5979,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2036,
+        -2000
+      ],
+      "candidate": [
+        -521112,
+        -511800
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5984,
+      "extra_reads": 0,
+      "cumulative_reads": 5979,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2036,
+        -2000
+      ],
+      "candidate": [
+        -521112,
+        -511800
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5984,
+      "extra_reads": 0,
+      "cumulative_reads": 5979,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2036,
+        -2000
+      ],
+      "candidate": [
+        -521112,
+        -511800
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5984,
+      "extra_reads": 0,
+      "cumulative_reads": 5979,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2038,
+        -2000
+      ],
+      "candidate": [
+        -521672,
+        -511976
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 1061,
+      "probes": 14547,
+      "extra_reads": 14540,
+      "cumulative_reads": 14540,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2038,
+        -2000
+      ],
+      "candidate": [
+        -521672,
+        -511976
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 1061,
+      "probes": 14547,
+      "extra_reads": 0,
+      "cumulative_reads": 14540,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2038,
+        -2000
+      ],
+      "candidate": [
+        -521672,
+        -511976
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 1061,
+      "probes": 14547,
+      "extra_reads": 0,
+      "cumulative_reads": 14540,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2038,
+        -2000
+      ],
+      "candidate": [
+        -521672,
+        -511976
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 1061,
+      "probes": 14547,
+      "extra_reads": 0,
+      "cumulative_reads": 14540,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2044,
+        -2000
+      ],
+      "candidate": [
+        -523080,
+        -511896
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 8428,
+      "extra_reads": 8423,
+      "cumulative_reads": 8423,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2044,
+        -2000
+      ],
+      "candidate": [
+        -523080,
+        -511896
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 8428,
+      "extra_reads": 0,
+      "cumulative_reads": 8423,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2044,
+        -2000
+      ],
+      "candidate": [
+        -523080,
+        -511896
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 8428,
+      "extra_reads": 0,
+      "cumulative_reads": 8423,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2044,
+        -2000
+      ],
+      "candidate": [
+        -523080,
+        -511896
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 8428,
+      "extra_reads": 0,
+      "cumulative_reads": 8423,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2046,
+        -2000
+      ],
+      "candidate": [
+        -523752,
+        -511912
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5659,
+      "extra_reads": 5656,
+      "cumulative_reads": 5656,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2046,
+        -2000
+      ],
+      "candidate": [
+        -523752,
+        -511912
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5659,
+      "extra_reads": 0,
+      "cumulative_reads": 5656,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2046,
+        -2000
+      ],
+      "candidate": [
+        -523752,
+        -511912
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5659,
+      "extra_reads": 0,
+      "cumulative_reads": 5656,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2046,
+        -2000
+      ],
+      "candidate": [
+        -523752,
+        -511912
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 5659,
+      "extra_reads": 0,
+      "cumulative_reads": 5656,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2000,
+        -2000
+      ],
+      "candidate": [
+        -511896,
+        -511768
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 3625,
+      "probes": 21527,
+      "extra_reads": 21511,
+      "cumulative_reads": 21511,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2000,
+        -2000
+      ],
+      "candidate": [
+        -511896,
+        -511768
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 3625,
+      "probes": 21527,
+      "extra_reads": 0,
+      "cumulative_reads": 21511,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2000,
+        -2000
+      ],
+      "candidate": [
+        -511896,
+        -511768
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "FLOOR",
+      "connected": 3625,
+      "probes": 21527,
+      "extra_reads": 0,
+      "cumulative_reads": 21511,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2000,
+        -2000
+      ],
+      "candidate": [
+        -511896,
+        -511768
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "FLOOR",
+      "connected": 3625,
+      "probes": 21527,
+      "extra_reads": 0,
+      "cumulative_reads": 21511,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2002,
+        -2000
+      ],
+      "candidate": [
+        -512472,
+        -511864
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 2595,
+      "probes": 18216,
+      "extra_reads": 18204,
+      "cumulative_reads": 18204,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2002,
+        -2000
+      ],
+      "candidate": [
+        -512472,
+        -511864
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 2595,
+      "probes": 18216,
+      "extra_reads": 0,
+      "cumulative_reads": 18204,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2002,
+        -2000
+      ],
+      "candidate": [
+        -512472,
+        -511864
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 2595,
+      "probes": 18216,
+      "extra_reads": 0,
+      "cumulative_reads": 18204,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2002,
+        -2000
+      ],
+      "candidate": [
+        -512472,
+        -511864
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 2595,
+      "probes": 18216,
+      "extra_reads": 0,
+      "cumulative_reads": 18204,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2022,
+        -2000
+      ],
+      "candidate": [
+        -517560,
+        -511880
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 6898,
+      "extra_reads": 6895,
+      "cumulative_reads": 6895,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2022,
+        -2000
+      ],
+      "candidate": [
+        -517560,
+        -511880
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 6898,
+      "extra_reads": 0,
+      "cumulative_reads": 6895,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2022,
+        -2000
+      ],
+      "candidate": [
+        -517560,
+        -511880
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 6898,
+      "extra_reads": 0,
+      "cumulative_reads": 6895,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2022,
+        -2000
+      ],
+      "candidate": [
+        -517560,
+        -511880
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 0,
+      "probes": 6898,
+      "extra_reads": 0,
+      "cumulative_reads": 6895,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2074,
+        -2000
+      ],
+      "candidate": [
+        -530840,
+        -511800
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 3,
+      "probes": 7814,
+      "extra_reads": 7803,
+      "cumulative_reads": 7803,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2074,
+        -2000
+      ],
+      "candidate": [
+        -530840,
+        -511800
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 3,
+      "probes": 7814,
+      "extra_reads": 0,
+      "cumulative_reads": 7803,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2074,
+        -2000
+      ],
+      "candidate": [
+        -530840,
+        -511800
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "COVERAGE",
+      "connected": 3,
+      "probes": 7814,
+      "extra_reads": 0,
+      "cumulative_reads": 7803,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2074,
+        -2000
+      ],
+      "candidate": [
+        -530840,
+        -511800
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "COVERAGE",
+      "connected": 3,
+      "probes": 7814,
+      "extra_reads": 0,
+      "cumulative_reads": 7803,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2012,
+        -2000
+      ],
+      "candidate": [
+        -514920,
+        -511752
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 255,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2012,
+        -2000
+      ],
+      "candidate": [
+        -514920,
+        -511752
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2012,
+        -2000
+      ],
+      "candidate": [
+        -514920,
+        -511752
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2012,
+        -2000
+      ],
+      "candidate": [
+        -514920,
+        -511752
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2016,
+        -2000
+      ],
+      "candidate": [
+        -516072,
+        -511784
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 255,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2016,
+        -2000
+      ],
+      "candidate": [
+        -516072,
+        -511784
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2016,
+        -2000
+      ],
+      "candidate": [
+        -516072,
+        -511784
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2016,
+        -2000
+      ],
+      "candidate": [
+        -516072,
+        -511784
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2018,
+        -2000
+      ],
+      "candidate": [
+        -516536,
+        -511784
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 255,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2018,
+        -2000
+      ],
+      "candidate": [
+        -516536,
+        -511784
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2018,
+        -2000
+      ],
+      "candidate": [
+        -516536,
+        -511784
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2018,
+        -2000
+      ],
+      "candidate": [
+        -516536,
+        -511784
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2020,
+        -2000
+      ],
+      "candidate": [
+        -516936,
+        -511992
+      ],
+      "depth": 16,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 255,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2020,
+        -2000
+      ],
+      "candidate": [
+        -516936,
+        -511992
+      ],
+      "depth": 12,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2020,
+        -2000
+      ],
+      "candidate": [
+        -516936,
+        -511992
+      ],
+      "depth": 8,
+      "cube": 15,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    },
+    {
+      "region": [
+        -2020,
+        -2000
+      ],
+      "candidate": [
+        -516936,
+        -511992
+      ],
+      "depth": 12,
+      "cube": 13,
+      "status": "SURFACE",
+      "connected": 0,
+      "probes": 255,
+      "extra_reads": 0,
+      "cumulative_reads": 255,
+      "planned_writes": 0,
+      "actual_writes": 0
+    }
+  ],
+  "validation": [
+    {
+      "region": [
+        -2006,
+        -2000
+      ],
+      "capture_reads": 17129,
+      "revalidation_reads": 17129
+    },
+    {
+      "region": [
+        -2014,
+        -2000
+      ],
+      "capture_reads": 20319,
+      "revalidation_reads": 20319
+    },
+    {
+      "region": [
+        -2024,
+        -2000
+      ],
+      "capture_reads": 10430,
+      "revalidation_reads": 10430
+    },
+    {
+      "region": [
+        -2026,
+        -2000
+      ],
+      "capture_reads": 17519,
+      "revalidation_reads": 17519
+    },
+    {
+      "region": [
+        -2028,
+        -2000
+      ],
+      "capture_reads": 25945,
+      "revalidation_reads": 25945
+    },
+    {
+      "region": [
+        -2030,
+        -2000
+      ],
+      "capture_reads": 27235,
+      "revalidation_reads": 27235
+    },
+    {
+      "region": [
+        -2034,
+        -2000
+      ],
+      "capture_reads": 27669,
+      "revalidation_reads": 27669
+    },
+    {
+      "region": [
+        -2042,
+        -2000
+      ],
+      "capture_reads": 26039,
+      "revalidation_reads": 26039
+    },
+    {
+      "region": [
+        -2048,
+        -2000
+      ],
+      "capture_reads": 27426,
+      "revalidation_reads": 27426
+    },
+    {
+      "region": [
+        -2052,
+        -2000
+      ],
+      "capture_reads": 10847,
+      "revalidation_reads": 10847
+    },
+    {
+      "region": [
+        -2058,
+        -2000
+      ],
+      "capture_reads": 10442,
+      "revalidation_reads": 10442
+    },
+    {
+      "region": [
+        -2064,
+        -2000
+      ],
+      "capture_reads": 22448,
+      "revalidation_reads": 22448
+    },
+    {
+      "region": [
+        -2068,
+        -2000
+      ],
+      "capture_reads": 9338,
+      "revalidation_reads": 9338
+    },
+    {
+      "region": [
+        -2070,
+        -2000
+      ],
+      "capture_reads": 19111,
+      "revalidation_reads": 19111
+    },
+    {
+      "region": [
+        -2076,
+        -2000
+      ],
+      "capture_reads": 8959,
+      "revalidation_reads": 8959
+    },
+    {
+      "region": [
+        -2094,
+        -2000
+      ],
+      "capture_reads": 22496,
+      "revalidation_reads": 22496
+    },
+    {
+      "region": [
+        -2004,
+        -2000
+      ],
+      "capture_reads": 23558,
+      "revalidation_reads": 23558
+    },
+    {
+      "region": [
+        -2008,
+        -2000
+      ],
+      "capture_reads": 5826,
+      "revalidation_reads": 5826
+    },
+    {
+      "region": [
+        -2010,
+        -2000
+      ],
+      "capture_reads": 6293,
+      "revalidation_reads": 6293
+    },
+    {
+      "region": [
+        -2032,
+        -2000
+      ],
+      "capture_reads": 6062,
+      "revalidation_reads": 6062
+    },
+    {
+      "region": [
+        -2036,
+        -2000
+      ],
+      "capture_reads": 5979,
+      "revalidation_reads": 5979
+    },
+    {
+      "region": [
+        -2038,
+        -2000
+      ],
+      "capture_reads": 14540,
+      "revalidation_reads": 14540
+    },
+    {
+      "region": [
+        -2044,
+        -2000
+      ],
+      "capture_reads": 8423,
+      "revalidation_reads": 8423
+    },
+    {
+      "region": [
+        -2046,
+        -2000
+      ],
+      "capture_reads": 5656,
+      "revalidation_reads": 5656
+    },
+    {
+      "region": [
+        -2000,
+        -2000
+      ],
+      "capture_reads": 21511,
+      "revalidation_reads": 21511
+    },
+    {
+      "region": [
+        -2002,
+        -2000
+      ],
+      "capture_reads": 18204,
+      "revalidation_reads": 18204
+    },
+    {
+      "region": [
+        -2022,
+        -2000
+      ],
+      "capture_reads": 6895,
+      "revalidation_reads": 6895
+    },
+    {
+      "region": [
+        -2074,
+        -2000
+      ],
+      "capture_reads": 7803,
+      "revalidation_reads": 7803
+    },
+    {
+      "region": [
+        -2012,
+        -2000
+      ],
+      "capture_reads": 255,
+      "revalidation_reads": 255
+    },
+    {
+      "region": [
+        -2016,
+        -2000
+      ],
+      "capture_reads": 255,
+      "revalidation_reads": 255
+    },
+    {
+      "region": [
+        -2018,
+        -2000
+      ],
+      "capture_reads": 255,
+      "revalidation_reads": 255
+    },
+    {
+      "region": [
+        -2020,
+        -2000
+      ],
+      "capture_reads": 255,
+      "revalidation_reads": 255
+    }
+  ]
+}

@@ -1,5 +1,11 @@
 # Immersive Ore Expedition
 
+> Current consolidation: the active module is `ioe_project_packs/immersive_ore_expedition`,
+> version `0.2.50-alpha`, unpublished. The owner approved deferring Nether generation;
+> retained Nether planning code does not generate sites. Historical split-module and
+> installation records below are not qualification of the current candidate.
+> See [current scope and remaining validation](ioe_project_packs/immersive_ore_expedition/docs/PATH_TO_3_0.md).
+
 Immersive Ore Expedition is a consolidated NeoForge 1.21.1 / Java 21 mod focused on replacing random branch mining with structure- and province-anchored resource expeditions.
 
 The active mod source lives in `ioe_project_packs/immersive_ore_expedition` with the mod id `immersive_ore_expedition`. The older six source packs remain in the repository as legacy reference material and are not the active build target.

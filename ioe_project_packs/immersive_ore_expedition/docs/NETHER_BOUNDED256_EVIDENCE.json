@@ -1,0 +1,6189 @@
+{
+  "experiment_source_commit": "a0e7452239cb64b0fc00a0ef5be9881c1471a8c0",
+  "initial_checkpoint": "5d14b64366c6ef4da080e1ea1494b00787cef002",
+  "runtime_source": "46051a13febd676ef59d21d98dd6528b05915727",
+  "seed": 0,
+  "minecraft": "1.21.1",
+  "neoforge": "21.1.230",
+  "configuration": "baseline, existing hosted GameTest profile",
+  "loading": "controlled FULL 5x5; NOT representative player loading",
+  "limit": 256,
+  "sampled": 256,
+  "accepted": false,
+  "full_admissions": 0,
+  "natural_geode_writes": 0,
+  "read_total": 29871,
+  "read_max_per_candidate": 1511,
+  "first_failure_counts": {
+    "FLOOR_BOTTOM": 40,
+    "FLOOR_START": 76,
+    "FLOOR_BELOW_23": 76,
+    "SURFACE": 64
+  },
+  "ci_runs": [
+    {
+      "id": 38192711455,
+      "event": "push",
+      "attempt": 1,
+      "conclusion": "success",
+      "successful_jobs": 7,
+      "search_executed": true
+    },
+    {
+      "id": 38192716620,
+      "event": "pull_request",
+      "attempt": 1,
+      "conclusion": "success",
+      "successful_jobs": 7,
+      "search_executed": false
+    }
+  ],
+  "push_log_sha256": "49bd6473f25e2ad1bc74226b99b379bb8124c3c5ff7eed680d46470cf75015e8",
+  "qualification": "NOT_QUALIFIED; no natural placement accepted; constructed-soil fixture successes are excluded",
+  "candidates": [
+    {
+      "region": [
+        -2000,
+        -2000
+      ],
+      "candidate": [
+        -511896,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 85,
+      "admission_tick": 86,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 38,
+      "detail": "BlockPos{x=-511903, y=27, z=-511775} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2002,
+        -2000
+      ],
+      "candidate": [
+        -512472,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 88,
+      "admission_tick": 89,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 147,
+      "detail": "BlockPos{x=-512465, y=29, z=-511871} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2004,
+        -2000
+      ],
+      "candidate": [
+        -512904,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 91,
+      "admission_tick": 92,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-512911, y=31, z=-511903} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2006,
+        -2000
+      ],
+      "candidate": [
+        -513480,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 94,
+      "admission_tick": 95,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-513487, y=22, z=-511983} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2008,
+        -2000
+      ],
+      "candidate": [
+        -513960,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 97,
+      "admission_tick": 98,
+      "reason": "FLOOR_START",
+      "surface_y": 27,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 30,
+      "detail": "BlockPos{x=-513967, y=27, z=-511983} Cell[state=Block{minecraft:blackstone}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2010,
+        -2000
+      ],
+      "candidate": [
+        -514376,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 100,
+      "admission_tick": 101,
+      "reason": "FLOOR_START",
+      "surface_y": 21,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 24,
+      "detail": "BlockPos{x=-514383, y=21, z=-511983} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2012,
+        -2000
+      ],
+      "candidate": [
+        -514920,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 103,
+      "admission_tick": 104,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2014,
+        -2000
+      ],
+      "candidate": [
+        -515528,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 106,
+      "admission_tick": 107,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-515535, y=22, z=-511855} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2016,
+        -2000
+      ],
+      "candidate": [
+        -516072,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 109,
+      "admission_tick": 110,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2018,
+        -2000
+      ],
+      "candidate": [
+        -516536,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 112,
+      "admission_tick": 113,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2020,
+        -2000
+      ],
+      "candidate": [
+        -516936,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 115,
+      "admission_tick": 116,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2022,
+        -2000
+      ],
+      "candidate": [
+        -517560,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 118,
+      "admission_tick": 119,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 24,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 46,
+      "detail": "BlockPos{x=-517558, y=23, z=-511887} Cell[state=Block{minecraft:gravel}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2024,
+        -2000
+      ],
+      "candidate": [
+        -517976,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 121,
+      "admission_tick": 122,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 30,
+      "floor_y": 19,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-517983, y=19, z=-511983} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-4",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2026,
+        -2000
+      ],
+      "candidate": [
+        -518568,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 124,
+      "admission_tick": 125,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 133,
+      "detail": "BlockPos{x=-518565, y=22, z=-511871} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2028,
+        -2000
+      ],
+      "candidate": [
+        -518936,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 127,
+      "admission_tick": 128,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 19,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 46,
+      "detail": "BlockPos{x=-518943, y=19, z=-511855} Cell[state=Block{minecraft:blackstone}, protectedBlock=false] cubeMinY=-4",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2030,
+        -2000
+      ],
+      "candidate": [
+        -519560,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 130,
+      "admission_tick": 131,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-519567, y=22, z=-511759} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2032,
+        -2000
+      ],
+      "candidate": [
+        -519960,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 133,
+      "admission_tick": 134,
+      "reason": "FLOOR_START",
+      "surface_y": 12,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 15,
+      "detail": "BlockPos{x=-519967, y=12, z=-511855} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2034,
+        -2000
+      ],
+      "candidate": [
+        -520664,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 136,
+      "admission_tick": 137,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-520671, y=22, z=-511999} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2036,
+        -2000
+      ],
+      "candidate": [
+        -521112,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 139,
+      "admission_tick": 140,
+      "reason": "FLOOR_START",
+      "surface_y": 3,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 6,
+      "detail": "BlockPos{x=-521119, y=3, z=-511807} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2038,
+        -2000
+      ],
+      "candidate": [
+        -521672,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 142,
+      "admission_tick": 143,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 26,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 264,
+      "detail": "BlockPos{x=-521671, y=31, z=-511980} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2040,
+        -2000
+      ],
+      "candidate": [
+        -522200,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 145,
+      "admission_tick": 146,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2042,
+        -2000
+      ],
+      "candidate": [
+        -522712,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 148,
+      "admission_tick": 149,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 52,
+      "detail": "BlockPos{x=-522718, y=22, z=-511839} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2044,
+        -2000
+      ],
+      "candidate": [
+        -523080,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 151,
+      "admission_tick": 152,
+      "reason": "FLOOR_START",
+      "surface_y": 24,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 27,
+      "detail": "BlockPos{x=-523087, y=24, z=-511903} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2046,
+        -2000
+      ],
+      "candidate": [
+        -523752,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 154,
+      "admission_tick": 155,
+      "reason": "FLOOR_START",
+      "surface_y": 59,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 62,
+      "detail": "BlockPos{x=-523759, y=59, z=-511919} Cell[state=Block{minecraft:air}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2048,
+        -2000
+      ],
+      "candidate": [
+        -524120,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 157,
+      "admission_tick": 158,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-524127, y=22, z=-511807} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2050,
+        -2000
+      ],
+      "candidate": [
+        -524728,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 160,
+      "admission_tick": 161,
+      "reason": "FLOOR_START",
+      "surface_y": 2,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 5,
+      "detail": "BlockPos{x=-524735, y=2, z=-511839} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2052,
+        -2000
+      ],
+      "candidate": [
+        -525096,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 163,
+      "admission_tick": 164,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 30,
+      "floor_y": 20,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-525103, y=20, z=-511775} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-3",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2054,
+        -2000
+      ],
+      "candidate": [
+        -525640,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 166,
+      "admission_tick": 167,
+      "reason": "FLOOR_START",
+      "surface_y": 30,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 33,
+      "detail": "BlockPos{x=-525647, y=30, z=-511983} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2056,
+        -2000
+      ],
+      "candidate": [
+        -526152,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 169,
+      "admission_tick": 170,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 97,
+      "detail": "BlockPos{x=-526152, y=31, z=-511903} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2058,
+        -2000
+      ],
+      "candidate": [
+        -526632,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 172,
+      "admission_tick": 173,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 28,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 37,
+      "detail": "BlockPos{x=-526639, y=22, z=-511839} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2060,
+        -2000
+      ],
+      "candidate": [
+        -527256,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 175,
+      "admission_tick": 176,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 489,
+      "detail": "BlockPos{x=-527251, y=31, z=-511947} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2062,
+        -2000
+      ],
+      "candidate": [
+        -527736,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 178,
+      "admission_tick": 179,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-527743, y=31, z=-511935} Cell[state=Block{minecraft:soul_soil}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2064,
+        -2000
+      ],
+      "candidate": [
+        -528376,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 181,
+      "admission_tick": 182,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-528383, y=22, z=-511775} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2066,
+        -2000
+      ],
+      "candidate": [
+        -528696,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 184,
+      "admission_tick": 185,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2068,
+        -2000
+      ],
+      "candidate": [
+        -529304,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 187,
+      "admission_tick": 188,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 24,
+      "floor_y": 3,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 48,
+      "detail": "BlockPos{x=-529311, y=3, z=-511999} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-20",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2070,
+        -2000
+      ],
+      "candidate": [
+        -529752,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 190,
+      "admission_tick": 191,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 77,
+      "detail": "BlockPos{x=-529752, y=22, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2072,
+        -2000
+      ],
+      "candidate": [
+        -530296,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 193,
+      "admission_tick": 194,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2074,
+        -2000
+      ],
+      "candidate": [
+        -530840,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 196,
+      "admission_tick": 197,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 8,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 15,
+      "detail": "BlockPos{x=-530847, y=4, z=-511807} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2076,
+        -2000
+      ],
+      "candidate": [
+        -531240,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 199,
+      "admission_tick": 200,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 29,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 39,
+      "detail": "BlockPos{x=-531247, y=22, z=-511919} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2078,
+        -2000
+      ],
+      "candidate": [
+        -531928,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 202,
+      "admission_tick": 203,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 30,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 69,
+      "detail": "BlockPos{x=-531934, y=2, z=-511919} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2080,
+        -2000
+      ],
+      "candidate": [
+        -532232,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 205,
+      "admission_tick": 206,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 27,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 73,
+      "detail": "BlockPos{x=-532232, y=27, z=-511791} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2082,
+        -2000
+      ],
+      "candidate": [
+        -532984,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 208,
+      "admission_tick": 209,
+      "reason": "FLOOR_START",
+      "surface_y": 25,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 403,
+      "detail": "BlockPos{x=-532985, y=25, z=-511991} Cell[state=Block{minecraft:blackstone}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2084,
+        -2000
+      ],
+      "candidate": [
+        -533400,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 211,
+      "admission_tick": 212,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2086,
+        -2000
+      ],
+      "candidate": [
+        -533976,
+        -511960
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 214,
+      "admission_tick": 215,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 36,
+      "detail": "BlockPos{x=-533983, y=29, z=-511967} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2088,
+        -2000
+      ],
+      "candidate": [
+        -534312,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 217,
+      "admission_tick": 218,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 25,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 91,
+      "detail": "BlockPos{x=-534309, y=31, z=-511951} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2090,
+        -2000
+      ],
+      "candidate": [
+        -534808,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 220,
+      "admission_tick": 221,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-534815, y=31, z=-511903} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2092,
+        -2000
+      ],
+      "candidate": [
+        -535336,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 223,
+      "admission_tick": 224,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2094,
+        -2000
+      ],
+      "candidate": [
+        -535928,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 226,
+      "admission_tick": 227,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-535935, y=22, z=-511951} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2096,
+        -2000
+      ],
+      "candidate": [
+        -536520,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 229,
+      "admission_tick": 230,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-536527, y=22, z=-511759} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2098,
+        -2000
+      ],
+      "candidate": [
+        -537064,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 232,
+      "admission_tick": 233,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 1178,
+      "detail": "BlockPos{x=-537060, y=24, z=-511847} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2100,
+        -2000
+      ],
+      "candidate": [
+        -537416,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 235,
+      "admission_tick": 236,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2102,
+        -2000
+      ],
+      "candidate": [
+        -537976,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 238,
+      "admission_tick": 239,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 260,
+      "detail": "BlockPos{x=-537974, y=25, z=-511853} Cell[state=Block{minecraft:gravel}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2104,
+        -2000
+      ],
+      "candidate": [
+        -538408,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 241,
+      "admission_tick": 242,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-538415, y=31, z=-511887} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2106,
+        -2000
+      ],
+      "candidate": [
+        -539016,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 244,
+      "admission_tick": 245,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 15,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 82,
+      "detail": "BlockPos{x=-539016, y=15, z=-511839} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-8",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2108,
+        -2000
+      ],
+      "candidate": [
+        -539480,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 247,
+      "admission_tick": 248,
+      "reason": "FLOOR_START",
+      "surface_y": 19,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 22,
+      "detail": "BlockPos{x=-539487, y=19, z=-511791} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2110,
+        -2000
+      ],
+      "candidate": [
+        -540136,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 250,
+      "admission_tick": 251,
+      "reason": "FLOOR_START",
+      "surface_y": 28,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 31,
+      "detail": "BlockPos{x=-540143, y=28, z=-511791} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2112,
+        -2000
+      ],
+      "candidate": [
+        -540568,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 253,
+      "admission_tick": 254,
+      "reason": "FLOOR_START",
+      "surface_y": 3,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 6,
+      "detail": "BlockPos{x=-540575, y=3, z=-511919} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2114,
+        -2000
+      ],
+      "candidate": [
+        -541064,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 256,
+      "admission_tick": 257,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-541071, y=21, z=-511887} Cell[state=Block{minecraft:blackstone}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2116,
+        -2000
+      ],
+      "candidate": [
+        -541608,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 259,
+      "admission_tick": 260,
+      "reason": "FLOOR_START",
+      "surface_y": 33,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 36,
+      "detail": "BlockPos{x=-541615, y=33, z=-511791} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2118,
+        -2000
+      ],
+      "candidate": [
+        -542136,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 262,
+      "admission_tick": 263,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2120,
+        -2000
+      ],
+      "candidate": [
+        -542616,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 265,
+      "admission_tick": 266,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-542623, y=31, z=-511983} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2122,
+        -2000
+      ],
+      "candidate": [
+        -543064,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 268,
+      "admission_tick": 269,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-543071, y=22, z=-511999} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2124,
+        -2000
+      ],
+      "candidate": [
+        -543560,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 271,
+      "admission_tick": 272,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 38,
+      "detail": "BlockPos{x=-543567, y=27, z=-511983} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2126,
+        -2000
+      ],
+      "candidate": [
+        -544200,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 274,
+      "admission_tick": 275,
+      "reason": "FLOOR_START",
+      "surface_y": 19,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 22,
+      "detail": "BlockPos{x=-544207, y=19, z=-511871} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2128,
+        -2000
+      ],
+      "candidate": [
+        -544568,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 277,
+      "admission_tick": 278,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-544575, y=31, z=-511919} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2130,
+        -2000
+      ],
+      "candidate": [
+        -545240,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 280,
+      "admission_tick": 281,
+      "reason": "FLOOR_START",
+      "surface_y": 30,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 33,
+      "detail": "BlockPos{x=-545247, y=30, z=-511807} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2132,
+        -2000
+      ],
+      "candidate": [
+        -545656,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 283,
+      "admission_tick": 284,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-545663, y=22, z=-511855} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2134,
+        -2000
+      ],
+      "candidate": [
+        -546152,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 286,
+      "admission_tick": 287,
+      "reason": "FLOOR_START",
+      "surface_y": 9,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 12,
+      "detail": "BlockPos{x=-546159, y=9, z=-511871} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2136,
+        -2000
+      ],
+      "candidate": [
+        -546648,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 289,
+      "admission_tick": 290,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-546655, y=31, z=-511935} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2138,
+        -2000
+      ],
+      "candidate": [
+        -547240,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 292,
+      "admission_tick": 293,
+      "reason": "FLOOR_START",
+      "surface_y": 2,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 5,
+      "detail": "BlockPos{x=-547247, y=2, z=-511871} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2140,
+        -2000
+      ],
+      "candidate": [
+        -547672,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 295,
+      "admission_tick": 296,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 52,
+      "detail": "BlockPos{x=-547678, y=21, z=-511807} Cell[state=Block{minecraft:blackstone}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2142,
+        -2000
+      ],
+      "candidate": [
+        -548232,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 298,
+      "admission_tick": 299,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 129,
+      "detail": "BlockPos{x=-548227, y=22, z=-511839} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2144,
+        -2000
+      ],
+      "candidate": [
+        -548776,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 301,
+      "admission_tick": 302,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2146,
+        -2000
+      ],
+      "candidate": [
+        -549128,
+        -511960
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 304,
+      "admission_tick": 305,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 35,
+      "detail": "BlockPos{x=-549135, y=30, z=-511967} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2148,
+        -2000
+      ],
+      "candidate": [
+        -549752,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 307,
+      "admission_tick": 308,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-549759, y=21, z=-511775} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2150,
+        -2000
+      ],
+      "candidate": [
+        -550248,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 310,
+      "admission_tick": 311,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": true,
+      "selection_and_prefilter_reads": 70,
+      "detail": "BlockPos{x=-550252, y=22, z=-511759} Cell[state=Block{minecraft:soul_soil}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2152,
+        -2000
+      ],
+      "candidate": [
+        -550904,
+        -511816
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 313,
+      "admission_tick": 314,
+      "reason": "FLOOR_START",
+      "surface_y": 27,
+      "floor_y": 25,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-550905, y=27, z=-511823} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2154,
+        -2000
+      ],
+      "candidate": [
+        -551192,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 316,
+      "admission_tick": 317,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-551199, y=22, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2156,
+        -2000
+      ],
+      "candidate": [
+        -551880,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 319,
+      "admission_tick": 320,
+      "reason": "FLOOR_START",
+      "surface_y": 26,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 29,
+      "detail": "BlockPos{x=-551887, y=26, z=-511903} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2158,
+        -2000
+      ],
+      "candidate": [
+        -552424,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 322,
+      "admission_tick": 323,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-552431, y=21, z=-511807} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2160,
+        -2000
+      ],
+      "candidate": [
+        -552808,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 325,
+      "admission_tick": 326,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 26,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 82,
+      "detail": "BlockPos{x=-552806, y=31, z=-511999} Cell[state=Block{minecraft:crimson_nylium}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2162,
+        -2000
+      ],
+      "candidate": [
+        -553464,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 328,
+      "admission_tick": 329,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2164,
+        -2000
+      ],
+      "candidate": [
+        -553752,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 331,
+      "admission_tick": 332,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2166,
+        -2000
+      ],
+      "candidate": [
+        -554328,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 334,
+      "admission_tick": 335,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-554335, y=31, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2168,
+        -2000
+      ],
+      "candidate": [
+        -554952,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 337,
+      "admission_tick": 338,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-554959, y=22, z=-511919} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2170,
+        -2000
+      ],
+      "candidate": [
+        -555416,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 340,
+      "admission_tick": 341,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2172,
+        -2000
+      ],
+      "candidate": [
+        -555912,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 343,
+      "admission_tick": 344,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 15,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 50,
+      "detail": "BlockPos{x=-555919, y=15, z=-511919} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-8",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2174,
+        -2000
+      ],
+      "candidate": [
+        -556344,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 346,
+      "admission_tick": 347,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 105,
+      "detail": "BlockPos{x=-556343, y=22, z=-511999} Cell[state=Block{minecraft:blackstone}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2176,
+        -2000
+      ],
+      "candidate": [
+        -556840,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 349,
+      "admission_tick": 350,
+      "reason": "FLOOR_START",
+      "surface_y": 25,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 28,
+      "detail": "BlockPos{x=-556847, y=25, z=-511759} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2178,
+        -2000
+      ],
+      "candidate": [
+        -557400,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 352,
+      "admission_tick": 353,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2180,
+        -2000
+      ],
+      "candidate": [
+        -557896,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 355,
+      "admission_tick": 356,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2182,
+        -2000
+      ],
+      "candidate": [
+        -558488,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 358,
+      "admission_tick": 359,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-558495, y=22, z=-511855} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2184,
+        -2000
+      ],
+      "candidate": [
+        -558872,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 361,
+      "admission_tick": 362,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2186,
+        -2000
+      ],
+      "candidate": [
+        -559496,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 364,
+      "admission_tick": 365,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2188,
+        -2000
+      ],
+      "candidate": [
+        -559880,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 367,
+      "admission_tick": 368,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 20,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 45,
+      "detail": "BlockPos{x=-559887, y=20, z=-511983} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-3",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2190,
+        -2000
+      ],
+      "candidate": [
+        -560536,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 370,
+      "admission_tick": 371,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2192,
+        -2000
+      ],
+      "candidate": [
+        -560952,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 373,
+      "admission_tick": 374,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2194,
+        -2000
+      ],
+      "candidate": [
+        -561576,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 376,
+      "admission_tick": 377,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2196,
+        -2000
+      ],
+      "candidate": [
+        -562024,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 379,
+      "admission_tick": 380,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-562031, y=31, z=-511807} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2198,
+        -2000
+      ],
+      "candidate": [
+        -562616,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 382,
+      "admission_tick": 383,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2200,
+        -2000
+      ],
+      "candidate": [
+        -563192,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 385,
+      "admission_tick": 386,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 29,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 115,
+      "detail": "BlockPos{x=-563199, y=29, z=-511789} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2202,
+        -2000
+      ],
+      "candidate": [
+        -563496,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 388,
+      "admission_tick": 389,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2204,
+        -2000
+      ],
+      "candidate": [
+        -564008,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 391,
+      "admission_tick": 392,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-564015, y=22, z=-511791} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2206,
+        -2000
+      ],
+      "candidate": [
+        -564680,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 394,
+      "admission_tick": 395,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 28,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 37,
+      "detail": "BlockPos{x=-564687, y=22, z=-511887} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2208,
+        -2000
+      ],
+      "candidate": [
+        -565160,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 397,
+      "admission_tick": 398,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 52,
+      "detail": "BlockPos{x=-565166, y=22, z=-511983} Cell[state=Block{minecraft:blackstone}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2210,
+        -2000
+      ],
+      "candidate": [
+        -565576,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 400,
+      "admission_tick": 401,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 20,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 45,
+      "detail": "BlockPos{x=-565583, y=20, z=-511903} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-3",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2212,
+        -2000
+      ],
+      "candidate": [
+        -566088,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 403,
+      "admission_tick": 404,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-566095, y=21, z=-511983} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2214,
+        -2000
+      ],
+      "candidate": [
+        -566616,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 406,
+      "admission_tick": 407,
+      "reason": "FLOOR_START",
+      "surface_y": 22,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 25,
+      "detail": "BlockPos{x=-566623, y=22, z=-511791} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2216,
+        -2000
+      ],
+      "candidate": [
+        -567288,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 409,
+      "admission_tick": 410,
+      "reason": "FLOOR_START",
+      "surface_y": 24,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 27,
+      "detail": "BlockPos{x=-567295, y=24, z=-511839} Cell[state=Block{minecraft:blackstone}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2218,
+        -2000
+      ],
+      "candidate": [
+        -567576,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 412,
+      "admission_tick": 413,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 59,
+      "detail": "BlockPos{x=-567581, y=23, z=-511871} Cell[state=Block{minecraft:gravel}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2220,
+        -2000
+      ],
+      "candidate": [
+        -568120,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 415,
+      "admission_tick": 416,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-568127, y=31, z=-511919} Cell[state=Block{minecraft:blackstone}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2222,
+        -2000
+      ],
+      "candidate": [
+        -568584,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 418,
+      "admission_tick": 419,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 25,
+      "soul_soil_floor": true,
+      "selection_and_prefilter_reads": 68,
+      "detail": "BlockPos{x=-568585, y=31, z=-511887} Cell[state=Block{minecraft:soul_soil}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2224,
+        -2000
+      ],
+      "candidate": [
+        -569096,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 421,
+      "admission_tick": 422,
+      "reason": "FLOOR_START",
+      "surface_y": 2,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 5,
+      "detail": "BlockPos{x=-569103, y=2, z=-511983} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2226,
+        -2000
+      ],
+      "candidate": [
+        -569656,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 424,
+      "admission_tick": 425,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 19,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 46,
+      "detail": "BlockPos{x=-569663, y=19, z=-511871} Cell[state=Block{minecraft:blackstone}, protectedBlock=false] cubeMinY=-4",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2228,
+        -2000
+      ],
+      "candidate": [
+        -570200,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 427,
+      "admission_tick": 428,
+      "reason": "FLOOR_START",
+      "surface_y": 114,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 117,
+      "detail": "BlockPos{x=-570207, y=114, z=-511855} Cell[state=Block{minecraft:cave_air}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2230,
+        -2000
+      ],
+      "candidate": [
+        -570760,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 430,
+      "admission_tick": 431,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-570767, y=31, z=-511871} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2232,
+        -2000
+      ],
+      "candidate": [
+        -571240,
+        -511960
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 433,
+      "admission_tick": 434,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-571247, y=22, z=-511967} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2234,
+        -2000
+      ],
+      "candidate": [
+        -571752,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 436,
+      "admission_tick": 437,
+      "reason": "FLOOR_START",
+      "surface_y": 2,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 5,
+      "detail": "BlockPos{x=-571759, y=2, z=-511919} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2236,
+        -2000
+      ],
+      "candidate": [
+        -572360,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 439,
+      "admission_tick": 440,
+      "reason": "FLOOR_START",
+      "surface_y": 17,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 20,
+      "detail": "BlockPos{x=-572367, y=17, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2238,
+        -2000
+      ],
+      "candidate": [
+        -572712,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 442,
+      "admission_tick": 443,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 1511,
+      "detail": "BlockPos{x=-572718, y=24, z=-511796} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2240,
+        -2000
+      ],
+      "candidate": [
+        -573272,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 445,
+      "admission_tick": 446,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 62,
+      "detail": "BlockPos{x=-573279, y=3, z=-511999} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2242,
+        -2000
+      ],
+      "candidate": [
+        -573896,
+        -511960
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 448,
+      "admission_tick": 449,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2244,
+        -2000
+      ],
+      "candidate": [
+        -574344,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 451,
+      "admission_tick": 452,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 3,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 8,
+      "detail": "BlockPos{x=-574351, y=1, z=-511807} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2246,
+        -2000
+      ],
+      "candidate": [
+        -574840,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 454,
+      "admission_tick": 455,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 25,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 141,
+      "detail": "BlockPos{x=-574840, y=23, z=-511805} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2248,
+        -2000
+      ],
+      "candidate": [
+        -575448,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 457,
+      "admission_tick": 458,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 30,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 36,
+      "detail": "BlockPos{x=-575454, y=31, z=-511775} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2250,
+        -2000
+      ],
+      "candidate": [
+        -575816,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 460,
+      "admission_tick": 461,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 4,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 322,
+      "detail": "BlockPos{x=-575809, y=4, z=-511934} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-19",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2252,
+        -2000
+      ],
+      "candidate": [
+        -576264,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 463,
+      "admission_tick": 464,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 97,
+      "detail": "BlockPos{x=-576265, y=22, z=-511983} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2254,
+        -2000
+      ],
+      "candidate": [
+        -576920,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 466,
+      "admission_tick": 467,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 28,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 52,
+      "detail": "BlockPos{x=-576923, y=28, z=-511983} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2256,
+        -2000
+      ],
+      "candidate": [
+        -577448,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 469,
+      "admission_tick": 470,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2258,
+        -2000
+      ],
+      "candidate": [
+        -578008,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 472,
+      "admission_tick": 473,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 26,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 91,
+      "detail": "BlockPos{x=-578004, y=31, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2260,
+        -2000
+      ],
+      "candidate": [
+        -578392,
+        -511960
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 475,
+      "admission_tick": 476,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2262,
+        -2000
+      ],
+      "candidate": [
+        -578872,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 478,
+      "admission_tick": 479,
+      "reason": "FLOOR_START",
+      "surface_y": 17,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 20,
+      "detail": "BlockPos{x=-578879, y=17, z=-511871} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2264,
+        -2000
+      ],
+      "candidate": [
+        -579400,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 481,
+      "admission_tick": 482,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-579407, y=31, z=-511791} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2266,
+        -2000
+      ],
+      "candidate": [
+        -580056,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 484,
+      "admission_tick": 485,
+      "reason": "FLOOR_START",
+      "surface_y": 27,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 30,
+      "detail": "BlockPos{x=-580063, y=27, z=-511999} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2268,
+        -2000
+      ],
+      "candidate": [
+        -580536,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 487,
+      "admission_tick": 488,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-580543, y=22, z=-511887} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2270,
+        -2000
+      ],
+      "candidate": [
+        -581096,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 490,
+      "admission_tick": 491,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2272,
+        -2000
+      ],
+      "candidate": [
+        -581400,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 493,
+      "admission_tick": 494,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2274,
+        -2000
+      ],
+      "candidate": [
+        -582104,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 496,
+      "admission_tick": 497,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-582111, y=31, z=-511855} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2276,
+        -2000
+      ],
+      "candidate": [
+        -582648,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 499,
+      "admission_tick": 500,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 2,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 6,
+      "detail": "BlockPos{x=-582655, y=1, z=-511871} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2278,
+        -2000
+      ],
+      "candidate": [
+        -583096,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 502,
+      "admission_tick": 503,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 30,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 41,
+      "detail": "BlockPos{x=-583103, y=22, z=-511903} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2280,
+        -2000
+      ],
+      "candidate": [
+        -583640,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 505,
+      "admission_tick": 506,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2282,
+        -2000
+      ],
+      "candidate": [
+        -584072,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 508,
+      "admission_tick": 509,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 29,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 107,
+      "detail": "BlockPos{x=-584065, y=30, z=-511758} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2284,
+        -2000
+      ],
+      "candidate": [
+        -584632,
+        -511960
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 511,
+      "admission_tick": 512,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 26,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 456,
+      "detail": "BlockPos{x=-584639, y=26, z=-511962} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2286,
+        -2000
+      ],
+      "candidate": [
+        -585096,
+        -511816
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 514,
+      "admission_tick": 515,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2288,
+        -2000
+      ],
+      "candidate": [
+        -585512,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 517,
+      "admission_tick": 518,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 52,
+      "detail": "BlockPos{x=-585518, y=22, z=-511759} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2290,
+        -2000
+      ],
+      "candidate": [
+        -586200,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 520,
+      "admission_tick": 521,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-586207, y=22, z=-511951} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2292,
+        -2000
+      ],
+      "candidate": [
+        -586728,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 523,
+      "admission_tick": 524,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2294,
+        -2000
+      ],
+      "candidate": [
+        -587144,
+        -511816
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 526,
+      "admission_tick": 527,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 6,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 12,
+      "detail": "BlockPos{x=-587151, y=3, z=-511823} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2296,
+        -2000
+      ],
+      "candidate": [
+        -587544,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 529,
+      "admission_tick": 530,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 40,
+      "detail": "BlockPos{x=-587551, y=25, z=-511999} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2298,
+        -2000
+      ],
+      "candidate": [
+        -588088,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 532,
+      "admission_tick": 533,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 29,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 57,
+      "detail": "BlockPos{x=-588095, y=4, z=-511951} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2300,
+        -2000
+      ],
+      "candidate": [
+        -588664,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 535,
+      "admission_tick": 536,
+      "reason": "FLOOR_START",
+      "surface_y": 2,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 5,
+      "detail": "BlockPos{x=-588671, y=2, z=-511839} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2302,
+        -2000
+      ],
+      "candidate": [
+        -589160,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 538,
+      "admission_tick": 539,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 121,
+      "detail": "BlockPos{x=-589156, y=22, z=-511775} Cell[state=Block{minecraft:blackstone}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2304,
+        -2000
+      ],
+      "candidate": [
+        -589784,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 541,
+      "admission_tick": 542,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2306,
+        -2000
+      ],
+      "candidate": [
+        -590280,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 544,
+      "admission_tick": 545,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2308,
+        -2000
+      ],
+      "candidate": [
+        -590600,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 547,
+      "admission_tick": 548,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 25,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 51,
+      "detail": "BlockPos{x=-590604, y=31, z=-511919} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2310,
+        -2000
+      ],
+      "candidate": [
+        -591240,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 550,
+      "admission_tick": 551,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 18,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 47,
+      "detail": "BlockPos{x=-591247, y=18, z=-511903} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-5",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2312,
+        -2000
+      ],
+      "candidate": [
+        -591832,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 553,
+      "admission_tick": 554,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2314,
+        -2000
+      ],
+      "candidate": [
+        -592184,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 556,
+      "admission_tick": 557,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2316,
+        -2000
+      ],
+      "candidate": [
+        -592728,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 559,
+      "admission_tick": 560,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 17,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 48,
+      "detail": "BlockPos{x=-592735, y=17, z=-511855} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-6",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2318,
+        -2000
+      ],
+      "candidate": [
+        -593368,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 562,
+      "admission_tick": 563,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-593375, y=21, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2320,
+        -2000
+      ],
+      "candidate": [
+        -593752,
+        -511960
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 565,
+      "admission_tick": 566,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2322,
+        -2000
+      ],
+      "candidate": [
+        -594248,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 568,
+      "admission_tick": 569,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": true,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-594255, y=21, z=-511999} Cell[state=Block{minecraft:soul_soil}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2324,
+        -2000
+      ],
+      "candidate": [
+        -594712,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 571,
+      "admission_tick": 572,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2326,
+        -2000
+      ],
+      "candidate": [
+        -595336,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 574,
+      "admission_tick": 575,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 64,
+      "detail": "BlockPos{x=-595343, y=1, z=-511871} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2328,
+        -2000
+      ],
+      "candidate": [
+        -595944,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 577,
+      "admission_tick": 578,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 24,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 70,
+      "detail": "BlockPos{x=-595945, y=31, z=-511807} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2330,
+        -2000
+      ],
+      "candidate": [
+        -596344,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 580,
+      "admission_tick": 581,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 53,
+      "detail": "BlockPos{x=-596350, y=21, z=-511791} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2332,
+        -2000
+      ],
+      "candidate": [
+        -596984,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 583,
+      "admission_tick": 584,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 45,
+      "detail": "BlockPos{x=-596991, y=20, z=-511999} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2334,
+        -2000
+      ],
+      "candidate": [
+        -597464,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 586,
+      "admission_tick": 587,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2336,
+        -2000
+      ],
+      "candidate": [
+        -597784,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 589,
+      "admission_tick": 590,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2338,
+        -2000
+      ],
+      "candidate": [
+        -598296,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 592,
+      "admission_tick": 593,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2340,
+        -2000
+      ],
+      "candidate": [
+        -598888,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 595,
+      "admission_tick": 596,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-598895, y=31, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2342,
+        -2000
+      ],
+      "candidate": [
+        -599432,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 598,
+      "admission_tick": 599,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-599439, y=31, z=-511935} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2344,
+        -2000
+      ],
+      "candidate": [
+        -599832,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 601,
+      "admission_tick": 602,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-599839, y=21, z=-511791} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2346,
+        -2000
+      ],
+      "candidate": [
+        -600536,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 604,
+      "admission_tick": 605,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2348,
+        -2000
+      ],
+      "candidate": [
+        -601032,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 607,
+      "admission_tick": 608,
+      "reason": "FLOOR_START",
+      "surface_y": 28,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 31,
+      "detail": "BlockPos{x=-601039, y=28, z=-511999} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2350,
+        -2000
+      ],
+      "candidate": [
+        -601384,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 610,
+      "admission_tick": 611,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": true,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-601391, y=22, z=-511839} Cell[state=Block{minecraft:soul_soil}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2352,
+        -2000
+      ],
+      "candidate": [
+        -601912,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 613,
+      "admission_tick": 614,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2354,
+        -2000
+      ],
+      "candidate": [
+        -602568,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 616,
+      "admission_tick": 617,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-602575, y=31, z=-511999} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2356,
+        -2000
+      ],
+      "candidate": [
+        -602904,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 619,
+      "admission_tick": 620,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-602911, y=22, z=-511951} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2358,
+        -2000
+      ],
+      "candidate": [
+        -603544,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 622,
+      "admission_tick": 623,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2360,
+        -2000
+      ],
+      "candidate": [
+        -604040,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 625,
+      "admission_tick": 626,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-604047, y=31, z=-511999} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2362,
+        -2000
+      ],
+      "candidate": [
+        -604520,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 628,
+      "admission_tick": 629,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 53,
+      "detail": "BlockPos{x=-604526, y=21, z=-511983} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2364,
+        -2000
+      ],
+      "candidate": [
+        -605112,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 631,
+      "admission_tick": 632,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2366,
+        -2000
+      ],
+      "candidate": [
+        -605608,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 634,
+      "admission_tick": 635,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-605615, y=31, z=-511855} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2368,
+        -2000
+      ],
+      "candidate": [
+        -606072,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 637,
+      "admission_tick": 638,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-606079, y=31, z=-511791} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2370,
+        -2000
+      ],
+      "candidate": [
+        -606472,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 640,
+      "admission_tick": 641,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-606479, y=31, z=-511887} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2372,
+        -2000
+      ],
+      "candidate": [
+        -607112,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 643,
+      "admission_tick": 644,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-607119, y=31, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2374,
+        -2000
+      ],
+      "candidate": [
+        -607640,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 646,
+      "admission_tick": 647,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 15,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 50,
+      "detail": "BlockPos{x=-607647, y=15, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-8",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2376,
+        -2000
+      ],
+      "candidate": [
+        -608120,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 649,
+      "admission_tick": 650,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-608127, y=31, z=-511839} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2378,
+        -2000
+      ],
+      "candidate": [
+        -608760,
+        -511816
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 652,
+      "admission_tick": 653,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2380,
+        -2000
+      ],
+      "candidate": [
+        -609224,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 655,
+      "admission_tick": 656,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-609231, y=22, z=-511871} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2382,
+        -2000
+      ],
+      "candidate": [
+        -609736,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 658,
+      "admission_tick": 659,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2384,
+        -2000
+      ],
+      "candidate": [
+        -610296,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 661,
+      "admission_tick": 662,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 126,
+      "detail": "BlockPos{x=-610292, y=27, z=-511919} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2386,
+        -2000
+      ],
+      "candidate": [
+        -610648,
+        -511816
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 664,
+      "admission_tick": 665,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 27,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 39,
+      "detail": "BlockPos{x=-610654, y=31, z=-511823} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2388,
+        -2000
+      ],
+      "candidate": [
+        -611112,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 667,
+      "admission_tick": 668,
+      "reason": "FLOOR_START",
+      "surface_y": 29,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 32,
+      "detail": "BlockPos{x=-611119, y=29, z=-511919} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2390,
+        -2000
+      ],
+      "candidate": [
+        -611704,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 670,
+      "admission_tick": 671,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2392,
+        -2000
+      ],
+      "candidate": [
+        -612232,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 673,
+      "admission_tick": 674,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2394,
+        -2000
+      ],
+      "candidate": [
+        -612744,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 676,
+      "admission_tick": 677,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 91,
+      "detail": "BlockPos{x=-612744, y=31, z=-511807} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2396,
+        -2000
+      ],
+      "candidate": [
+        -613288,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 679,
+      "admission_tick": 680,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 20,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 42,
+      "detail": "BlockPos{x=-613295, y=1, z=-511775} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2398,
+        -2000
+      ],
+      "candidate": [
+        -613736,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 682,
+      "admission_tick": 683,
+      "reason": "FLOOR_START",
+      "surface_y": 30,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 33,
+      "detail": "BlockPos{x=-613743, y=30, z=-511951} Cell[state=Block{minecraft:blackstone}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2400,
+        -2000
+      ],
+      "candidate": [
+        -614264,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 685,
+      "admission_tick": 686,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2402,
+        -2000
+      ],
+      "candidate": [
+        -614776,
+        -511816
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 688,
+      "admission_tick": 689,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 38,
+      "detail": "BlockPos{x=-614783, y=27, z=-511823} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2404,
+        -2000
+      ],
+      "candidate": [
+        -615384,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 691,
+      "admission_tick": 692,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2406,
+        -2000
+      ],
+      "candidate": [
+        -615832,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 694,
+      "admission_tick": 695,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-615839, y=31, z=-511791} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2408,
+        -2000
+      ],
+      "candidate": [
+        -616360,
+        -511960
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 697,
+      "admission_tick": 698,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-616367, y=21, z=-511967} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2410,
+        -2000
+      ],
+      "candidate": [
+        -616728,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 700,
+      "admission_tick": 701,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 26,
+      "floor_y": 20,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 35,
+      "detail": "BlockPos{x=-616735, y=20, z=-511919} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-3",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2412,
+        -2000
+      ],
+      "candidate": [
+        -617304,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 703,
+      "admission_tick": 704,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 19,
+      "floor_y": 17,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 24,
+      "detail": "BlockPos{x=-617311, y=17, z=-511855} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-6",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2414,
+        -2000
+      ],
+      "candidate": [
+        -617976,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 706,
+      "admission_tick": 707,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 113,
+      "detail": "BlockPos{x=-617972, y=22, z=-511935} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2416,
+        -2000
+      ],
+      "candidate": [
+        -618424,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 709,
+      "admission_tick": 710,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-618431, y=31, z=-511999} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2418,
+        -2000
+      ],
+      "candidate": [
+        -618952,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 712,
+      "admission_tick": 713,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 27,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 97,
+      "detail": "BlockPos{x=-618947, y=27, z=-511871} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2420,
+        -2000
+      ],
+      "candidate": [
+        -619512,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 715,
+      "admission_tick": 716,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 44,
+      "detail": "BlockPos{x=-619519, y=21, z=-511983} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2422,
+        -2000
+      ],
+      "candidate": [
+        -619928,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 718,
+      "admission_tick": 719,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-619935, y=22, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2424,
+        -2000
+      ],
+      "candidate": [
+        -620536,
+        -511976
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 721,
+      "admission_tick": 722,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2426,
+        -2000
+      ],
+      "candidate": [
+        -620808,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 724,
+      "admission_tick": 725,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 30,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 38,
+      "detail": "BlockPos{x=-620813, y=31, z=-511951} Cell[state=Block{minecraft:crimson_nylium}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2428,
+        -2000
+      ],
+      "candidate": [
+        -621416,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 727,
+      "admission_tick": 728,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 36,
+      "detail": "BlockPos{x=-621423, y=29, z=-511855} Cell[state=Block{minecraft:gravel}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2430,
+        -2000
+      ],
+      "candidate": [
+        -622008,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 730,
+      "admission_tick": 731,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 26,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 62,
+      "detail": "BlockPos{x=-622009, y=31, z=-511791} Cell[state=Block{minecraft:crimson_nylium}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2432,
+        -2000
+      ],
+      "candidate": [
+        -622360,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 733,
+      "admission_tick": 734,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 45,
+      "detail": "BlockPos{x=-622367, y=20, z=-511903} Cell[state=Block{minecraft:gravel}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2434,
+        -2000
+      ],
+      "candidate": [
+        -622856,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 736,
+      "admission_tick": 737,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 45,
+      "detail": "BlockPos{x=-622863, y=20, z=-511807} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2436,
+        -2000
+      ],
+      "candidate": [
+        -623576,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 739,
+      "admission_tick": 740,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 8,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 57,
+      "detail": "BlockPos{x=-623583, y=8, z=-511999} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-15",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2438,
+        -2000
+      ],
+      "candidate": [
+        -624024,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 742,
+      "admission_tick": 743,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 25,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 94,
+      "detail": "BlockPos{x=-624023, y=26, z=-511855} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2440,
+        -2000
+      ],
+      "candidate": [
+        -624520,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 745,
+      "admission_tick": 746,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2442,
+        -2000
+      ],
+      "candidate": [
+        -625128,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 748,
+      "admission_tick": 749,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-625135, y=22, z=-511855} Cell[state=Block{minecraft:soul_sand}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2444,
+        -2000
+      ],
+      "candidate": [
+        -625624,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 751,
+      "admission_tick": 752,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-625631, y=22, z=-511871} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2446,
+        -2000
+      ],
+      "candidate": [
+        -626088,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 754,
+      "admission_tick": 755,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2448,
+        -2000
+      ],
+      "candidate": [
+        -626440,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 757,
+      "admission_tick": 758,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 26,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 33,
+      "detail": "BlockPos{x=-626447, y=22, z=-511999} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2450,
+        -2000
+      ],
+      "candidate": [
+        -626952,
+        -511960
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 760,
+      "admission_tick": 761,
+      "reason": "FLOOR_START",
+      "surface_y": 7,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 10,
+      "detail": "BlockPos{x=-626959, y=7, z=-511967} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2452,
+        -2000
+      ],
+      "candidate": [
+        -627528,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 763,
+      "admission_tick": 764,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2454,
+        -2000
+      ],
+      "candidate": [
+        -627976,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 766,
+      "admission_tick": 767,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 38,
+      "detail": "BlockPos{x=-627983, y=27, z=-511903} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2456,
+        -2000
+      ],
+      "candidate": [
+        -628568,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 769,
+      "admission_tick": 770,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-628575, y=22, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2458,
+        -2000
+      ],
+      "candidate": [
+        -629176,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 772,
+      "admission_tick": 773,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 31,
+      "floor_y": 23,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 122,
+      "detail": "BlockPos{x=-629173, y=27, z=-511935} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2460,
+        -2000
+      ],
+      "candidate": [
+        -629672,
+        -511816
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 775,
+      "admission_tick": 776,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2462,
+        -2000
+      ],
+      "candidate": [
+        -630104,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 778,
+      "admission_tick": 779,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2464,
+        -2000
+      ],
+      "candidate": [
+        -630728,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 781,
+      "admission_tick": 782,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 19,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 46,
+      "detail": "BlockPos{x=-630735, y=19, z=-511839} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false] cubeMinY=-4",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2466,
+        -2000
+      ],
+      "candidate": [
+        -631224,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 784,
+      "admission_tick": 785,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-631231, y=31, z=-511791} Cell[state=Block{minecraft:magma_block}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2468,
+        -2000
+      ],
+      "candidate": [
+        -631688,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 787,
+      "admission_tick": 788,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 19,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 46,
+      "detail": "BlockPos{x=-631695, y=19, z=-511839} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-4",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2470,
+        -2000
+      ],
+      "candidate": [
+        -632136,
+        -511848
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 790,
+      "admission_tick": 791,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2472,
+        -2000
+      ],
+      "candidate": [
+        -632648,
+        -511752
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 793,
+      "admission_tick": 794,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2474,
+        -2000
+      ],
+      "candidate": [
+        -633176,
+        -511992
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 796,
+      "admission_tick": 797,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 28,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 37,
+      "detail": "BlockPos{x=-633183, y=22, z=-511999} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2476,
+        -2000
+      ],
+      "candidate": [
+        -633752,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 799,
+      "admission_tick": 800,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 8,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 17,
+      "detail": "BlockPos{x=-633759, y=2, z=-511903} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2478,
+        -2000
+      ],
+      "candidate": [
+        -634248,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 802,
+      "admission_tick": 803,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-634255, y=31, z=-511775} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2480,
+        -2000
+      ],
+      "candidate": [
+        -634744,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 805,
+      "admission_tick": 806,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 34,
+      "detail": "BlockPos{x=-634751, y=31, z=-511791} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2482,
+        -2000
+      ],
+      "candidate": [
+        -635144,
+        -511896
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 808,
+      "admission_tick": 809,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 136,
+      "detail": "BlockPos{x=-635138, y=22, z=-511903} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2484,
+        -2000
+      ],
+      "candidate": [
+        -635816,
+        -511960
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 811,
+      "admission_tick": 812,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2486,
+        -2000
+      ],
+      "candidate": [
+        -636360,
+        -511816
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 814,
+      "admission_tick": 815,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2488,
+        -2000
+      ],
+      "candidate": [
+        -636792,
+        -511768
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 817,
+      "admission_tick": 818,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 43,
+      "detail": "BlockPos{x=-636799, y=22, z=-511775} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2490,
+        -2000
+      ],
+      "candidate": [
+        -637192,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 820,
+      "admission_tick": 821,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2492,
+        -2000
+      ],
+      "candidate": [
+        -637816,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 823,
+      "admission_tick": 824,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 28,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 38,
+      "detail": "BlockPos{x=-637823, y=21, z=-511807} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2494,
+        -2000
+      ],
+      "candidate": [
+        -638408,
+        -511800
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 826,
+      "admission_tick": 827,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2496,
+        -2000
+      ],
+      "candidate": [
+        -638840,
+        -511928
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 829,
+      "admission_tick": 830,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 29,
+      "floor_y": 11,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 50,
+      "detail": "BlockPos{x=-638847, y=11, z=-511935} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-12",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2498,
+        -2000
+      ],
+      "candidate": [
+        -639320,
+        -511912
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 832,
+      "admission_tick": 833,
+      "reason": "SURFACE",
+      "surface_y": null,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 255,
+      "detail": "no_LOWEST_source",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2500,
+        -2000
+      ],
+      "candidate": [
+        -639816,
+        -511880
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 835,
+      "admission_tick": 836,
+      "reason": "FLOOR_START",
+      "surface_y": 31,
+      "floor_y": 25,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 85,
+      "detail": "BlockPos{x=-639812, y=31, z=-511887} Cell[state=Block{minecraft:basalt}[axis=y], protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2502,
+        -2000
+      ],
+      "candidate": [
+        -640376,
+        -511864
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 838,
+      "admission_tick": 839,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 10,
+      "floor_y": 6,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 17,
+      "detail": "BlockPos{x=-640383, y=6, z=-511871} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-17",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2504,
+        -2000
+      ],
+      "candidate": [
+        -640920,
+        -511784
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 841,
+      "admission_tick": 842,
+      "reason": "FLOOR_BOTTOM",
+      "surface_y": 12,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 23,
+      "detail": "BlockPos{x=-640927, y=4, z=-511791} Cell[state=Block{minecraft:bedrock}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2506,
+        -2000
+      ],
+      "candidate": [
+        -641416,
+        -511944
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 844,
+      "admission_tick": 845,
+      "reason": "FLOOR_START",
+      "surface_y": 14,
+      "floor_y": null,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 17,
+      "detail": "BlockPos{x=-641423, y=14, z=-511951} Cell[state=Block{minecraft:netherrack}, protectedBlock=false]",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2508,
+        -2000
+      ],
+      "candidate": [
+        -641896,
+        -511832
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 847,
+      "admission_tick": 848,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 28,
+      "floor_y": 21,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 38,
+      "detail": "BlockPos{x=-641903, y=21, z=-511839} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-2",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    },
+    {
+      "region": [
+        -2510,
+        -2000
+      ],
+      "candidate": [
+        -642504,
+        -511816
+      ],
+      "quality": "UNRESOLVED",
+      "load_tick": 850,
+      "admission_tick": 851,
+      "reason": "FLOOR_BELOW_23",
+      "surface_y": 31,
+      "floor_y": 22,
+      "soul_soil_floor": false,
+      "selection_and_prefilter_reads": 79,
+      "detail": "BlockPos{x=-642507, y=22, z=-511823} Cell[state=Block{minecraft:netherrack}, protectedBlock=false] cubeMinY=-1",
+      "full_admission": "null",
+      "terrain_edits_before_admission": 0,
+      "injected_receipts": 0,
+      "planned_geode_writes": 0,
+      "actual_geode_writes": 0
+    }
+  ]
+}

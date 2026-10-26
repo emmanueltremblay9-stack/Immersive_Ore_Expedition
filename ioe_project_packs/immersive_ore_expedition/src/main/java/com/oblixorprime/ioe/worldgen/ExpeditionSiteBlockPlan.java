@@ -1,5 +1,7 @@
 package com.oblixorprime.ioe.worldgen;
 
+import com.oblixorprime.ioe.budding.BuddingBlockIdentity;
+import net.minecraft.world.level.block.Block;
 import com.oblixorprime.ioe.core.SiteQuality;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -68,7 +70,8 @@ public record ExpeditionSiteBlockPlan(
         if (hasAe2Geode && hasEntroizedFluixGeode) {
             throw new IllegalArgumentException("A mine cannot contain more than one special geode mode");
         }
-        if ((oreBlockId == null) != (oreNodeHeartBlockId == null)) {
+        boolean residualPocket = quality == SiteQuality.DRY && oreBlockId != null && oreNodeHeartBlockId == null;
+        if (!residualPocket && (oreBlockId == null) != (oreNodeHeartBlockId == null)) {
             throw new IllegalArgumentException("Embedded ore nodes require both material and budding-heart ids");
         }
         if (oreNodeCount > 0 && oreBlockId == null) {
@@ -116,8 +119,8 @@ public record ExpeditionSiteBlockPlan(
             return 0L;
         }
         return blocks.values().stream()
-                .map(state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()))
-                .filter(id -> id.equals(oreBlockId) || id.equals(oreNodeHeartBlockId))
+                .filter(state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(oreBlockId)
+                        || isOreNodeHeart(state))
                 .count();
     }
 
@@ -129,8 +132,20 @@ public record ExpeditionSiteBlockPlan(
             return oreNodeCount;
         }
         return blocks.values().stream()
-                .filter(state -> BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(oreNodeHeartBlockId))
+                .filter(this::isOreNodeHeart)
                 .count();
+    }
+
+    private boolean isOreNodeHeart(BlockState state) {
+        if (oreNodeHeartBlockId == null) return false;
+        BlockState primary = BuiltInRegistries.BLOCK.getOptional(oreNodeHeartBlockId)
+                .map(Block::defaultBlockState).orElse(null);
+        if (primary != null) {
+            var identity = BuddingBlockIdentity.of(primary.getBlock());
+            if (identity.isPresent()) return BuddingBlockIdentity.of(state.getBlock())
+                    .map(actual -> actual.family().equals(identity.orElseThrow().family())).orElse(false);
+        }
+        return BuiltInRegistries.BLOCK.getKey(state.getBlock()).equals(oreNodeHeartBlockId);
     }
 
     public boolean isConnectedExpeditionSite() {
