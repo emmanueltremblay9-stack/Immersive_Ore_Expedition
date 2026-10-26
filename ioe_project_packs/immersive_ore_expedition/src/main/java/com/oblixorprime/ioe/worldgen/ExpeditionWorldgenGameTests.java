@@ -143,8 +143,8 @@ public final class ExpeditionWorldgenGameTests {
             )), type.id() + " did not plan exactly one surface clue, connector, and chamber");
             helper.assertTrue(plan.oreBlockCount() == 0L && plan.oreNodeCount() == 0,
                     type.id() + " embedded a forbidden free resource in its structural chamber");
-            helper.assertTrue(plan.roomCenters().size() == 3,
-                    type.id() + " did not create the normal-quality three-room mine");
+            helper.assertTrue(plan.roomCenters().size() == 4,
+                    type.id() + " did not create the three catalogue terraces");
             assertRoomReachability(helper, plan);
             helper.assertTrue(plan.blocks().values().stream().anyMatch(state -> state.is(Blocks.CARTOGRAPHY_TABLE)),
                     type.id() + " did not create a survey room or village supply desk");
@@ -189,7 +189,7 @@ public final class ExpeditionWorldgenGameTests {
                     helper.assertTrue(plan.roomCenters().size() == expectedRoomCount(quality),
                             quality + " planned the wrong number of expedition rooms");
                     helper.assertTrue(plan.blocks().size() <= 2_500,
-                            quality + " exceeded the 2,500-block transaction cap");
+                            quality + " exceeded the 2,500-block transaction cap: " + plan.blocks().size());
                     helper.assertTrue(surfaceSpan(plan, qualityOrigin, true) >= 12,
                             quality + " surface outpost is not wide enough");
                     helper.assertTrue(surfaceSpan(plan, qualityOrigin, false) >= 10,
@@ -468,11 +468,8 @@ public final class ExpeditionWorldgenGameTests {
     }
 
     private static int expectedRoomCount(SiteQuality quality) {
-        return switch (quality) {
-            case DRY, POOR -> 2;
-            case NORMAL, RICH -> 3;
-            case MOTHERLODE -> 4;
-        };
+        return 4; // The catalogue replaces the old quality-dependent underground rooms.
+
     }
 
     private static int surfaceSpan(
@@ -1252,6 +1249,7 @@ public final class ExpeditionWorldgenGameTests {
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(64, 24, 64)));
         BlockPos requestedOrigin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
+        prepareCatalogueCampMetadata(level, requestedOrigin, seed);
 
         FeaturePlaceContext<NoneFeatureConfiguration> context = new FeaturePlaceContext<>(
                 Optional.empty(),
@@ -1338,6 +1336,7 @@ public final class ExpeditionWorldgenGameTests {
         long seed = 0;
         while (SiteQualityRoll.DEFAULT.roll(RandomSource.create(seed)) != SiteQuality.NORMAL) seed++;
         BiomeMineResourceProfile profile = testIronProfile(level);
+        prepareCatalogueCampMetadata(level, origin, seed);
         boolean staged = new ExpeditionSiteFeature(ExpeditionSiteType.MINER_CAMP,
                 (ignoredLevel, ignoredPos) -> new BiomeMineResourceProfile.Resolution(
                         Optional.of(profile), BiomeMineResourceProfile.Failure.NONE)).place(
@@ -1377,6 +1376,9 @@ public final class ExpeditionWorldgenGameTests {
                         .getOptional(definitionId).orElseThrow();
                 var profile = new BiomeMineResourceProfile(ResourceLocation.parse("minecraft:plains"), definitionId, definition, 1);
                 long seed = dry ? DRY_SEED : productiveSeed;
+                var bounds = prepareCatalogueCampMetadata(level, origin, seed);
+                helper.assertFalse(LoadedStructureCollision.blocksPlacement(level, bounds),
+                        "Family fixture lacks collision metadata: " + family + " dry=" + dry);
                 boolean staged = new ExpeditionSiteFeature(ExpeditionSiteType.MINER_CAMP,
                         (ignoredLevel, ignoredPos) -> new BiomeMineResourceProfile.Resolution(Optional.of(profile),
                                 BiomeMineResourceProfile.Failure.NONE)).place(new FeaturePlaceContext<>(Optional.empty(), level,
@@ -1826,6 +1828,12 @@ public final class ExpeditionWorldgenGameTests {
         ChunkPos testChunk = new ChunkPos(helper.absolutePos(new BlockPos(16, 24, 16)));
         BlockPos origin = new BlockPos(testChunk.getMinBlockX() + 4, 41, testChunk.getMinBlockZ() + 6);
         fillTestChunk(level, testChunk);
+        if (type == ExpeditionSiteType.MINER_CAMP) {
+            var bounds = prepareCatalogueCampMetadata(level, origin, PRODUCTIVE_SEED);
+            helper.assertFalse(LoadedStructureCollision.blocksPlacement(level, bounds),
+                    "Positive camp fixture metadata is unavailable or overlaps a structure");
+        }
+
 
         FeaturePlaceContext<NoneFeatureConfiguration> context = new FeaturePlaceContext<>(
                 Optional.empty(),
@@ -1971,6 +1979,21 @@ public final class ExpeditionWorldgenGameTests {
         helper.assertTrue(level.getBlockState(new BlockPos(chunk.getMinBlockX() + 4, 40, chunk.getMinBlockZ() + 6)).is(Blocks.STONE),
                 "Fixture did not retain its controlled platform");
         helper.succeed();
+    }
+
+    /** Allocate the exact metadata halo of a controlled positive fixture, never from production. */
+    static net.minecraft.world.level.levelgen.structure.BoundingBox prepareCatalogueCampMetadata(
+            ServerLevel level, BlockPos origin, long seed) {
+        RandomSource random = RandomSource.create(seed);
+        SiteQualityRoll.DEFAULT.roll(random);
+        RandomSource shape = RandomSource.create(random.nextLong());
+        ChunkPos chunk = new ChunkPos(origin);
+        BlockPos center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-20-shape.nextInt(9),chunk.getMinBlockZ()+7);
+        var variant = CatalogueTerraces.Variant.values()[shape.nextInt(CatalogueTerraces.Variant.values().length)];
+        var bounds = ExpeditionSiteFeature.expandedPlanBounds(CatalogueTerraces.geometry(center,variant).keySet());
+        for (int cx=Math.floorDiv(bounds.minX(),16);cx<=Math.floorDiv(bounds.maxX(),16);cx++)
+            for (int cz=Math.floorDiv(bounds.minZ(),16);cz<=Math.floorDiv(bounds.maxZ(),16);cz++) level.getChunk(cx,cz);
+        return bounds;
     }
 
     static void fillTestChunk(ServerLevel level, ChunkPos chunk) {

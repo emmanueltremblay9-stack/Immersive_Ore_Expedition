@@ -25,7 +25,7 @@ public final class JadeRuntimeChecks {
     public static void run(GameTestHelper helper) throws ReflectiveOperationException, java.io.IOException {
         for (BuddingResourceFamily family : BuddingResourceFamily.values()) {
             if (IoeGeOreBuddingBlocks.available(family)) checkFamily(helper, family.identity(),
-                    rank -> IoeGeOreBuddingBlocks.block(family, rank), "GeOre");
+                    rank -> IoeGeOreBuddingBlocks.block(family, rank), family.displayFamily());
         }
         checkFamily(helper, com.oblixorprime.ioe.budding.NativeCertusBudding.FAMILY,
                 com.oblixorprime.ioe.budding.NativeCertusBudding::block, "AE2");
@@ -66,7 +66,9 @@ public final class JadeRuntimeChecks {
                     }
                     throw new AssertionError("Unexpected Jade tooltip call " + method.getName());
                 });
-        for (BuddingRank rank : List.of(BuddingRank.FLAWED, BuddingRank.CHIPPED, BuddingRank.DAMAGED, BuddingRank.FLAWLESS)) {
+        var observedRanks = new ArrayList<>(com.oblixorprime.ioe.budding.NativeCertusBudding.ranks());
+        if (!displayFamily.equals("AE2")) observedRanks.add(BuddingRank.FULLY);
+        for (BuddingRank rank : observedRanks) {
             level.setBlockAndUpdate(pos, blocks.apply(rank).defaultBlockState());
             IoeBuddingProvider.INSTANCE.appendServerData(serverData, accessor);
             lines.clear();

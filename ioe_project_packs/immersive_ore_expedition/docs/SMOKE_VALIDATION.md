@@ -10,6 +10,36 @@ Natural expedition-site worldgen is active when `worldgen.global.naturalExpediti
 
 The four legacy proof controls remain separate and default `false`: `worldgen.runtimePlacementEnabled`, `worldgen.runtimePlacementDiagnostics`, `worldgen.runtimeProofFeatureEnabled`, and `worldgen.runtimeProofFeatureDiagnostics`. Historical controlled-smoke tags and proof procedures do not replace the current production path.
 
+The default-false `NetherWorldActivation.PRODUCTION_ENABLED` is specific to Nether
+depth32 production routing. It is not an IOE-wide production-off state. The existing
+GameTest prototype has its own restrictions; do not activate it for client qualification.
+
+`IoeNewChunkOreGuard` is registered independently of the natural-site and proof
+gates. It can replace/remove unauthorized resources in newly generated admitted
+chunks, even with natural sites disabled, including newly explored terrain in an
+existing world. Its loaded-chunk/admission/provenance protections remain in force;
+this is not retrogen of old chunks. Source defaults, effective configs and datapacks
+must be recorded separately. See [activation scopes](SERVER_CONFIG_EXAMPLES.md).
+
+**Current installed candidate (16 October, 09:10 UTC):** the owner thread confirms
+that the approved installer installed source `382e0b469358a7c9f32a3988632cd66c770f04c8`,
+JAR SHA256 `35feaf9658fb4e0b43ea3710633989f3d49adc88c9e47dbdc5d40d21067b9644`,
+into the existing Prism **1.21.1 TesT play 2** instance with one active IOE provider.
+The previous dc3bfa7 JAR was backed up; 148 other mods and 243 configs are unchanged.
+GeOre 6.2.4 is present, natural generation TRUE and retrogen FALSE are preserved.
+No world was launched. The old missing-GeOre installation hold is obsolete.
+
+Installation is complete: do not repeat it or create a new profile/server. The next
+missing evidence is client qualification of these already installed bytes, not
+another automated study. This receipt does not authorize any user-world operation.
+The following steps require a separately authorized world/scenario and responsible
+operator; no client/visual PASS follows from installation or hosted CI.
+
+For that authorized observation, record fresh launch logs, actual loaded versions
+and effective configs, Jade display/interaction (rank distinct from site quality),
+the implemented SITE_LOCATED/field-notes interaction, and save/exit/reopen behavior.
+Do not activate Nether/prototype gates, retrogen, or historical proof datapacks.
+
 Hosted GameTests validate automated scenarios in CI. They are not a manual client launch, dedicated-server smoke, newly generated world observation, or visual worldgen proof. Record each manual activity independently as `NOT_PERFORMED`, `PASS`, or `FAIL` and preserve a fresh `latest.log` plus observation details when it is run.
 
 ## Evidence To Record
@@ -19,7 +49,9 @@ Hosted GameTests validate automated scenarios in CI. They are not a manual clien
 - NeoForge version.
 - Java version.
 - IOE jar filename.
-- IOE jar SHA-256.
+- IOE jar SHA-256, source commit, and where/by whom the hash was computed.
+- Required dependency versions and effective config/datapacks.
+- Separate Overworld natural-site, legacy proof, new-chunk guard and Nether routing states.
 - Client or server log path.
 - Fresh `latest.log` copy or excerpt location.
 - Pass/fail status.
@@ -27,7 +59,7 @@ Hosted GameTests validate automated scenarios in CI. They are not a manual clien
 
 ## Client World-Entry Smoke
 
-1. Install the release jar into a controlled Minecraft 1.21.1 / NeoForge client profile.
+1. Verify the exact already-installed qualified JAR and dependency inventory in the existing authorized Minecraft 1.21.1 / NeoForge profile; do not reinstall it as part of this check.
 2. Start the client with a fresh log.
 3. Enter or create a test world.
 4. Confirm the mod loads without a crash.

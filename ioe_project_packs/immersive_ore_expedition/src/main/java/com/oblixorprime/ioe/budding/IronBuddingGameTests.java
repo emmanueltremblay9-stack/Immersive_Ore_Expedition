@@ -24,49 +24,10 @@ public final class IronBuddingGameTests {
     private IronBuddingGameTests() {
     }
 
-    /** Compare actual loaded AE2 behavior, including random draw order, with the Iron implementation. */
+    /** Real registered blocks follow four wearing phases plus permanent Flawless. */
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 200)
-    public static void ironGrowthMatchesLoadedAe2(GameTestHelper helper) {
-        BlockPos ironPos = helper.absolutePos(new BlockPos(4, 4, 4));
-        BlockPos certusPos = helper.absolutePos(new BlockPos(10, 4, 4));
-        for (BuddingRank rank : BuddingRank.values()) {
-            for (Direction direction : Direction.values()) {
-                for (int stage = -3; stage <= 5; stage++) {
-                    for (int growth : new int[]{0, 1}) {
-                        for (int decay : new int[]{0, 1}) {
-                            Block iron = IoeIronBuddingBlocks.block(rank);
-                            Block certus = block("ae2:" + rank.path() + "_budding_quartz");
-                            helper.getLevel().setBlockAndUpdate(ironPos, iron.defaultBlockState());
-                            helper.getLevel().setBlockAndUpdate(certusPos, certus.defaultBlockState());
-                            for (Direction face : Direction.values()) {
-                                helper.getLevel().setBlockAndUpdate(ironPos.relative(face), Blocks.STONE.defaultBlockState());
-                                helper.getLevel().setBlockAndUpdate(certusPos.relative(face), Blocks.STONE.defaultBlockState());
-                            }
-                            helper.getLevel().setBlockAndUpdate(ironPos.relative(direction), neighbor(true, stage, direction));
-                            helper.getLevel().setBlockAndUpdate(certusPos.relative(direction), neighbor(false, stage, direction));
-                            ScriptedRandom ironRandom = new ScriptedRandom(growth, direction.ordinal(), decay);
-                            ScriptedRandom certusRandom = new ScriptedRandom(growth, direction.ordinal(), decay);
-                            iron.defaultBlockState().randomTick(helper.getLevel(), ironPos, ironRandom);
-                            certus.defaultBlockState().randomTick(helper.getLevel(), certusPos, certusRandom);
-                            helper.assertTrue(ironRandom.bounds.equals(certusRandom.bounds), "Native random draw order differs");
-                            BlockState actualIron = helper.getLevel().getBlockState(ironPos);
-                            BlockState actualCertus = helper.getLevel().getBlockState(certusPos);
-                            String ironRank = actualIron.is(Blocks.IRON_BLOCK) ? "storage"
-                                    : ((IronBuddingBlock) actualIron.getBlock()).rank().path();
-                            String certusRank = actualCertus.is(block("ae2:quartz_block")) ? "storage"
-                                    : BuiltInRegistries.BLOCK.getKey(actualCertus.getBlock()).getPath().replace("_budding_quartz", "");
-                            helper.assertTrue(ironRank.equals(certusRank), "Native degradation differs for " + rank);
-                            BlockState ironGrowth = helper.getLevel().getBlockState(ironPos.relative(direction));
-                            BlockState certusGrowth = helper.getLevel().getBlockState(certusPos.relative(direction));
-                            String ironId = BuiltInRegistries.BLOCK.getKey(ironGrowth.getBlock()).getPath().replace("iron", "quartz");
-                            String certusId = BuiltInRegistries.BLOCK.getKey(certusGrowth.getBlock()).getPath();
-                            helper.assertTrue(ironId.equals(certusId) && ironGrowth.getValues().equals(certusGrowth.getValues()),
-                                    "Native growth stage, facing or waterlogging differs");
-                        }
-                    }
-                }
-            }
-        }
+    public static void ironGrowthUsesExtendedAeWearWithPermanentFlawless(GameTestHelper helper) {
+        BuddingWearRuntimeChecks.check(helper, BuddingResourceFamily.GEORE_IRON);
         helper.succeed();
     }
 
@@ -110,7 +71,7 @@ public final class IronBuddingGameTests {
     }
 
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
-    public static void ironRegistersFourDistinctBlocksAndItems(GameTestHelper helper) {
+    public static void ironRegistersFiveDistinctBlocksAndItems(GameTestHelper helper) {
         var blocks = new java.util.HashSet<Block>();
         var items = new java.util.HashSet<net.minecraft.world.item.Item>();
         for (BuddingRank rank : BuddingRank.values()) {
@@ -124,7 +85,7 @@ public final class IronBuddingGameTests {
             blocks.add(block);
             items.add(block.asItem());
         }
-        helper.assertTrue(blocks.size() == 4 && items.size() == 4, "Ranks must not alias one registered block/item");
+        helper.assertTrue(blocks.size() == 5 && items.size() == 5, "Ranks must not alias one registered block/item");
         helper.succeed();
     }
 

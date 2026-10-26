@@ -24,51 +24,12 @@ public final class GeOreBuddingGameTests {
     private GeOreBuddingGameTests() {
     }
 
-    /** Compare every available GeOre family against loaded AE2, including random draw order. */
+    /** Real registered blocks follow four wearing phases plus permanent Flawless. */
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 200)
-    public static void geOreGrowthMatchesLoadedAe2(GameTestHelper helper) {
+    public static void geOreGrowthUsesExtendedAeWearWithPermanentFlawless(GameTestHelper helper) {
         for (BuddingResourceFamily family : BuddingResourceFamily.values()) {
-            if (family.kind() != BuddingResourceFamily.Kind.GEORE || !IoeGeOreBuddingBlocks.available(family)) continue;
-            BlockPos geOrePos = helper.absolutePos(new BlockPos(4, 4, 4));
-            BlockPos certusPos = helper.absolutePos(new BlockPos(10, 4, 4));
-            for (BuddingRank rank : BuddingRank.values()) {
-                for (Direction direction : Direction.values()) {
-                    for (int stage = -3; stage <= 5; stage++) {
-                        for (int growth : new int[]{0, 1}) {
-                            for (int decay : new int[]{0, 1}) {
-                                Block geOre = IoeGeOreBuddingBlocks.block(family, rank);
-                                Block certus = block("ae2:" + rank.path() + "_budding_quartz");
-                                helper.getLevel().setBlockAndUpdate(geOrePos, geOre.defaultBlockState());
-                                helper.getLevel().setBlockAndUpdate(certusPos, certus.defaultBlockState());
-                                for (Direction face : Direction.values()) {
-                                    helper.getLevel().setBlockAndUpdate(geOrePos.relative(face), Blocks.STONE.defaultBlockState());
-                                    helper.getLevel().setBlockAndUpdate(certusPos.relative(face), Blocks.STONE.defaultBlockState());
-                                }
-                                helper.getLevel().setBlockAndUpdate(geOrePos.relative(direction), neighbor(family, stage, direction));
-                                helper.getLevel().setBlockAndUpdate(certusPos.relative(direction), neighbor(BuddingResourceFamily.CERTUS_QUARTZ, stage, direction));
-                                ScriptedRandom geOreRandom = new ScriptedRandom(growth, direction.ordinal(), decay);
-                                ScriptedRandom certusRandom = new ScriptedRandom(growth, direction.ordinal(), decay);
-                                geOre.defaultBlockState().randomTick(helper.getLevel(), geOrePos, geOreRandom);
-                                certus.defaultBlockState().randomTick(helper.getLevel(), certusPos, certusRandom);
-                                helper.assertTrue(geOreRandom.bounds.equals(certusRandom.bounds), "Native random draw order differs");
-                                BlockState actualGeOre = helper.getLevel().getBlockState(geOrePos);
-                                BlockState actualCertus = helper.getLevel().getBlockState(certusPos);
-                                String geOreRank = actualGeOre.is(block(family.storageBlockId().toString())) ? "storage"
-                                        : ((GeOreBuddingBlock) actualGeOre.getBlock()).rank().path();
-                                String certusRank = actualCertus.is(block("ae2:quartz_block")) ? "storage"
-                                        : BuiltInRegistries.BLOCK.getKey(actualCertus.getBlock()).getPath().replace("_budding_quartz", "");
-                                helper.assertTrue(geOreRank.equals(certusRank), "Native degradation differs for " + family + ": " + rank);
-                                BlockState geOreGrowth = helper.getLevel().getBlockState(geOrePos.relative(direction));
-                                BlockState certusGrowth = helper.getLevel().getBlockState(certusPos.relative(direction));
-                                String geOreId = BuiltInRegistries.BLOCK.getKey(geOreGrowth.getBlock()).getPath().replace(family.key(), "quartz");
-                                String certusId = BuiltInRegistries.BLOCK.getKey(certusGrowth.getBlock()).getPath();
-                                helper.assertTrue(geOreId.equals(certusId) && geOreGrowth.getValues().equals(certusGrowth.getValues()),
-                                        "Native growth stage, facing or waterlogging differs for " + family + ": " + rank + ": " + stage);
-                            }
-                        }
-                    }
-                }
-            }
+            if (family != BuddingResourceFamily.GEORE_IRON && IoeGeOreBuddingBlocks.available(family))
+                BuddingWearRuntimeChecks.check(helper, family);
         }
         helper.succeed();
     }
@@ -119,7 +80,7 @@ public final class GeOreBuddingGameTests {
     }
 
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
-    public static void geOreRegistersFourDistinctBlocksAndItems(GameTestHelper helper) {
+    public static void geOreRegistersFiveDistinctBlocksAndItems(GameTestHelper helper) {
         for (BuddingResourceFamily family : BuddingResourceFamily.values()) {
             if (family.kind() != BuddingResourceFamily.Kind.GEORE || !IoeGeOreBuddingBlocks.available(family)) continue;
             var blocks = new java.util.HashSet<Block>();
@@ -135,7 +96,7 @@ public final class GeOreBuddingGameTests {
                 blocks.add(block);
                 items.add(block.asItem());
             }
-            helper.assertTrue(blocks.size() == 4 && items.size() == 4, "Ranks must not alias one registered block/item");
+            helper.assertTrue(blocks.size() == 5 && items.size() == 5, "Ranks must not alias one registered block/item");
         }
         helper.succeed();
     }

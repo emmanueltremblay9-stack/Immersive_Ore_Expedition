@@ -1,0 +1,317 @@
+# Crystal Cave — contrat de préparation et mécanique vérifiée
+
+Statut : premier cycle du modèle à cinq rangs implémenté pour les familles GeOre IOE existantes ; cave et nouvelles familles non générées. Ce document poursuit le chantier Crystal Cave existant et ne remplace
+pas les contrats Nether, IE, Budding ou météorites par des hypothèses implicites.
+La validation visuelle/client demeure non prouvée.
+
+## Décisions confirmées
+
+- Crystal Caves de l'End ; poches organiques irrégulières d'environ 24–32 blocs
+  d'un bord à l'autre selon les axes, sans sphère parfaite ni axes égaux imposés.
+- Mélange de quartz, Certus, Fluix, Entro, Draconium, diamant, redstone, lapis,
+  émeraude, Glowstone et **améthyste**. La palette mixte remplace la séparation
+  des familles, sans imposer de pondérations égales.
+- Quartz fumé comme contraste sombre entre budding et end stone ; pas de blackstone.
+- **Intégrer ou créer les Budding Fluix, Draconium et Glowstone est autorisé.**
+  L'absence d'un fournisseur natif ne remet plus en question cette création.
+- Cible demandée : mécanique ExtendedAE appliquée à tous nos buddings, avec un
+  bloc distinct pour chaque phase de budding. La correspondance aux rangs IOE
+  est définie ci-dessous : croissance des cristaux, usure du cœur et
+  qualité du site sont trois notions différentes.
+- Les autres cristaux repérés restent des candidats, pas des ajouts autorisés.
+
+Provenance : fil vocal `01a11e32-a44d-7245-9778-b3d9dc4a90c4`, extraits retrouvés
+et vérifiés par le fil délégant. Géométrie : messages
+`01a136cb-6560-7179-9708-0526221a5d57` et
+`01a136cc-18a0-7531-b335-8e9c547230eb`. Quartz fumé :
+`01a136d1-e4da-704c-a96f-a629587cfa03`. End, Draconic Evolution et Fluix Budding :
+`01a136d8-f593-72ea-920d-16d28fc411e3`. Améthyste :
+`01a13b28-8ab8-71de-ab5d-0a4d0517bf3a`. Création des trois familles et mécanique :
+`01a13b29-47cb-775f-861b-48670fbfdc1c`, `01a13b29-72d4-744a-82a7-d52250526802`,
+`01a13b29-dc9f-7332-bad1-1cf52079f926`, `01a13b2d-2834-716f-bb4e-4157bbb95670`,
+`01a13b2d-80d2-717c-bb25-0daf9214abc7`, `01a13b2f-55db-74fb-84c2-724eda532bae`.
+Ces extraits ont été transmis à l'exécutant ; aucun accès direct au fil vocal ou
+au PC/Prism complet n'est revendiqué. « PR764 » est rectifié en PR64 dans le mandat.
+
+## ExtendedAE : faits de source, pas traduction arbitraire de qualité
+
+Référence : ExtendedAE **1.21-2.2.33-neoforge**, révision
+`90005ee29839fb9fa83bbe6544919c722f8b0dc6`, correspondant à la version épinglée.
+JAR inspecté : SHA256
+`6652ed1ea4b71f585d48c05a195a77594a7a2bd1ecea0fc805db2122aafad734`.
+
+Sources immuables :
+- [BlockBuddingEntro.java](https://github.com/GlodBlock/ExtendedAE/blob/90005ee29839fb9fa83bbe6544919c722f8b0dc6/src/main/java/com/glodblock/github/extendedae/common/blocks/BlockBuddingEntro.java)
+- [BlockEntroCluster.java](https://github.com/GlodBlock/ExtendedAE/blob/90005ee29839fb9fa83bbe6544919c722f8b0dc6/src/main/java/com/glodblock/github/extendedae/common/blocks/BlockEntroCluster.java)
+- [EAESingletons.java — déclarations et registres](https://github.com/GlodBlock/ExtendedAE/blob/90005ee29839fb9fa83bbe6544919c722f8b0dc6/src/main/java/com/glodblock/github/extendedae/common/EAESingletons.java)
+- [Licence LGPL version 3](https://github.com/GlodBlock/ExtendedAE/blob/90005ee29839fb9fa83bbe6544919c722f8b0dc6/LICENSE.txt)
+
+### Croissance du cristal adjacent
+
+À chaque random tick du cœur, une tentative a lieu avec probabilité **1/3**.
+Une des six directions est choisie. L'air ou l'eau source (quantité 8) permet
+un petit cristal. Sinon un cristal Entro orienté dans la même direction avance
+exactement d'un stade :
+
+`entro_cluster_small → entro_cluster_medium → entro_cluster_large → entro_cluster`
+
+Ce sont quatre **blocs de croissance**, tous sous `extendedae:`. Le cluster final
+n'avance plus. Un voisin incompatible arrête la tentative. Orientation et eau sont
+conservées dans l'état du nouveau cristal. Ce n'est pas une probabilité de 1/3 par
+seconde : les random ticks et la disponibilité de la face conditionnent le résultat.
+
+### Usure du cœur producteur
+
+Seulement après une croissance admissible et l'appel de placement du cristal,
+le code tire une probabilité **1/10** d'usure. Il ne vérifie pas le booléen renvoyé
+par `setBlockAndUpdate` avant ce tirage ; reproduire exactement cette subtilité
+ou imposer une croissance effectivement écrite devra être conscient et testé.
+
+`extendedae:entro_budding_fully → extendedae:entro_budding_mostly →`
+`extendedae:entro_budding_half → extendedae:entro_budding_hardly → ae2:quartz_block`
+
+Les quatre cœurs instancient la même classe. **Fully se dégrade aussi** ; aucune
+phase permanente n'est définie ici. Ces phases ne sont ni DRY/POOR/NORMAL/RICH/
+MOTHERLODE ni les quatre tailles du cristal. La destination finale est le **bloc
+Certus AE2**, pas Fluix ordinaire, Entro, ni air.
+
+Les cœurs et cristaux sont détruits par piston. Les cristaux ont FACING et
+WATERLOGGED, demandent un support solide et disparaissent si ce support disparaît.
+Leur lumière vaut respectivement 5/6/7/8. Le code ne fournit pas à lui seul une
+règle universelle de restauration ou un budget de site.
+
+Les loot tables du JAR distinguent également les formes : les quatre cœurs donnent
+`extendedae:entro_dust` ; les petits/moyens/grands cristaux donnent leur propre bloc
+avec Silk Touch, sinon `extendedae:entro_shard`. Le cluster mûr possède sa table
+séparée. Ces produits Entro ne doivent pas être copiés comme récompenses Fluix,
+Draconium, Glowstone ou améthyste. Aucun taux de loot IOE n'est déduit de cet inventaire.
+
+### Différence avec l'implémentation IOE actuelle
+
+Avant ce cycle, `GeOreBuddingBlock` utilisait une tentative 1/5 et une usure 1/12 ; les rangs étaient
+DAMAGED/CHIPPED/FLAWED/FLAWLESS. FLAWLESS est permanent et réservé aux Motherlodes.
+Les cœurs épuisés deviennent le stockage propre à leur famille. Certus utilise
+les blocs natifs AE2. Remplacer quelques constantes ne suffit donc pas à appliquer
+ExtendedAE à tous les buddings : mapping des phases, identité des blocs, restauration,
+Jade, sauvegardes et traitement des blocs natifs doivent être explicités.
+
+**Décision résolue : quatre rangs usurables puis un cinquième Flawless permanent.**
+Confirmation utilisateur « c'est ça », message `01a13b6f-6a6e-70ba-bee1-95d780921357`
+du même fil vocal. FULLY reste distinct de FLAWLESS. Dans IOE :
+`FULLY → FLAWED → CHIPPED → DAMAGED → stockage de famille`, avec FLAWLESS hors usure.
+Les anciens identifiants et ordinals sont conservés ; FULLY est ajouté, sans migration. Les règles Nether et Entro réservé à IE sont conservées.
+Réutiliser une mécanique ExtendedAE pour d'autres minéraux n'autorise pas une
+famille IOE Entro ni la génération naturelle de ses cristaux.
+
+## Blocs disponibles et créations nécessaires
+
+| Ressource approuvée | Disponible et forme réelle | Travail requis |
+| --- | --- | --- |
+| Améthyste | `minecraft:budding_amethyst`, `small_amethyst_bud`, `medium_amethyst_bud`, `large_amethyst_bud`, `amethyst_cluster`, `amethyst_block` (tous minecraft) ; item `minecraft:amethyst_shard` | Le vanilla fournit un seul cœur, pas quatre phases d'usure. Cinq cœurs IOE implémentés avec profil A ; cristaux et géodes vanilla inchangés. |
+| Quartz | `geore:budding_quartz`, `geore:small_quartz_bud`, `medium_quartz_bud`, `large_quartz_bud`, `quartz_cluster` (préfixe geore) | Produits disponibles, adaptation des phases requise ; distinct du Certus. |
+| Certus | `ae2:damaged_budding_quartz`, `chipped_budding_quartz`, `flawed_budding_quartz`, `flawless_budding_quartz` ; quatre produits natifs | Quatre rangs déjà disponibles, mais mécanique AE2 distincte. Préserver météorites/progression AE2 tant qu'aucun traitement natif précis n'est décidé. |
+| Diamant/redstone/lapis/émeraude | Familles IOE existantes à cinq rangs ; `geore:small_<famille>_bud`, `medium_<famille>_bud`, `large_<famille>_bud`, `<famille>_cluster` | Réutiliser les familles existantes ; ne pas doubler les registres. |
+| Fluix | `ae2:fluix_block` est un bloc ; `ae2:fluix_crystal` est un item | Cœurs à phases et cristaux de croissance Fluix à intégrer/créer : aucun fournisseur identifié dans les JAR inspectés. **Pas Entro.** |
+| Draconium | Source Draconic Evolution : `draconicevolution:end_draconium_ore`, `draconium_block` ; item `draconium_dust` (même namespace) | Fournisseur confirmé, JAR absent de l'inventaire cloud. Cœurs/cristaux à intégrer/créer ; version dépendance et produit final à fixer. Awakened non ajouté. |
+| Glowstone | `minecraft:glowstone` bloc et `minecraft:glowstone_dust` item | Cœurs à phases et produits cristallins à intégrer/créer. La création est autorisée ; la quantité de poussière par récolte ne l'est pas encore. |
+| Entro | Quatre cœurs et quatre cristaux ExtendedAE ci-dessus | Disponibilité ne vaut pas autorisation de génération IOE. Extraction IE conservée. |
+| Quartz fumé | Candidat source Botania `botania:smokey_quartz_block` | Rôle décoratif acquis ; distribution 1.21.1 NeoForge encore à qualifier, aucun JAR cloud présent. |
+
+Draconic Evolution, source vérifiée :
+[DEContent.java](https://github.com/Draconic-Inc/Draconic-Evolution/blob/6251e32bc93eb4bfcd910236ec1eaa6546516229/src/main/java/com/brandon3055/draconicevolution/init/DEContent.java).
+Botania : [source 1.21.1-porting](https://github.com/VazkiiMods/Botania/tree/f0367399c2c3897b9384da886e155b479e60b329).
+Aucun nouveau namespace/ID IOE n'est annoncé comme enregistré dans ce cycle.
+
+## Inventaire cloud et candidats supplémentaires
+
+[Inventaire reproductible des fichiers présents](CRYSTAL_CAVE_CLOUD_INVENTORY.json) :
+306 JAR repérés sous /workspace, caches cachés compris ; cinq dépendances mod uniques
+inspectables après exclusion des anciens artefacts IOE et outils de build :
+AE2 19.2.17, AE2CS 1.1.12, GeOre 6.2.2, ExtendedAE 2.2.33 et GeOre Additions 4.0.
+Ces cinq fichiers sont des téléchargements d'inspection, pas la preuve de mods
+installés ensemble. Le manifeste CI peut nommer d'autres mods sans que leurs JAR
+soient présents ici. **Ce n'est pas l'inventaire complet Prism/modpack du PC.**
+
+Vanilla : améthyste dispose effectivement des quatre formes de croissance.
+Quartz, diamant et émeraude vanilla sont des ressources/items/minerais, pas des
+familles budding vanilla. `minecraft:prismarine_crystals` est un item ;
+`minecraft:end_crystal` est un item plaçant une entité, pas un bloc de cluster.
+Ces deux derniers restent candidats d'inventaire, sans ajout à la cave.
+
+AE2CS expose notamment les blockstates `ae2cs:rose_quartz_block`,
+`ae2cs:ender_quartz_block`, `ae2cs:redstone_crystal_block`,
+`ae2cs:meteor_crystal_block`, `ae2cs:resonating_crystal_block`,
+`ae2cs:irradiated_crystal_block` et `ae2cs:quantum_crystal_block`.
+Ce sont des candidats de blocs, pas la preuve de budding correspondant.
+GeOre contient d'autres familles telles que ruby, sapphire, topaz, monazite,
+osmium et platinum ; présence d'assets ne prouve ni activation runtime ni accord
+pour les ajouter. Black quartz n'est pas une substitution au quartz fumé.
+GeOre Additions 4.0 ne contient que les deux blockstates d'extracteurs et n'apporte
+aucune des trois familles manquantes.
+
+## Licence et limites de réutilisation
+
+ExtendedAE est LGPL3 selon la licence à la révision inspectée ;
+[THIRD_PARTY_NOTICES](../THIRD_PARTY_NOTICES.md) conserve la provenance.
+Ce cycle décrit le comportement et référence les sources, sans copier Java, modèles,
+textures ou tables de loot dans IOE. Il n'étend pas cette licence aux assets des
+autres mods : AE2, AE2CS, GeOre, Botania et Draconic Evolution conservent leurs
+propres conditions. Pas d'extraction d'assets tiers pour fabriquer les nouvelles familles.
+
+## Décisions encore indispensables à l'implémentation
+
+1. **Restauration future** : le modèle quatre usurables + Flawless permanent est
+   décidé et implémenté pour les 13 familles existantes. Le plafond de restauration
+   FLAWED et les recettes existantes restent inchangés ; aucune recette FULLY ajoutée.
+2. **Portée native** : « tous nos buddings » inclut-il la modification des blocs
+   natifs AE2/GeOre/vanilla hors IOE, ou les variantes IOE seulement ? Préserver par
+   défaut leurs registres et les météorites ; ne pas migrer les anciens mondes.
+3. **Produits et épuisement** : produits finaux exacts et quantités de récolte,
+   Silk Touch/Fortune, stockage final des familles Fluix/Draconium. Pour Glowstone,
+   la mécanique commune et la récolte 2/1 sont confirmées
+   (voir décision et implémentation ci-dessous). Le profil A améthyste est approuvé.
+   Le quartz final d'ExtendedAE ne doit pas devenir automatiquement le résidu universel.
+4. **Budgets cave** : total et répartition par famille/qualité, phases initiales,
+   clusters préexistants, densité Glowstone, plage Y, biomes, fréquence et espacement.
+   End, forme approximative 24–32 et palette sont déjà décidés.
+5. **Dépendances** : qualifier les distributions Draconic Evolution et quartz fumé
+   avant référencement runtime. Aucun téléchargement/installation de mod supplémentaire
+   n'est nécessaire pour trancher les questions de gameplay ci-dessus.
+
+Proposition technique, non appliquée : séparer dans l'implémentation la taille du
+cristal, la phase d'usure du cœur et la qualité du site ; employer des noms Jade
+sans ambiguïté et réutiliser la persistance existante. Conserver les anciens identifiants des blocs sauvegardés et ne pas migrer les chunks. Ne créer aucun test isolé d'un modèle
+inventé pour donner l'impression que cette décision est déjà prise.
+
+## Premier cycle d'implémentation du modèle à cinq rangs
+
+Les 13 familles GeOre IOE enregistrent désormais cinq blocs/items distincts (65) :
+13 `fully_budding_<famille>` ajoutés aux 52 identités conservées. FULLY affiche un
+modèle avec moins de fractures que FLAWED, distinct du Flawless intact, et une
+traduction EN/FR. Jade lit son rang réel sans le confondre avec la qualité du site.
+La persistance de provenance reste inchangée : elle ne stocke pas de rang initial.
+
+La croissance des cœurs IOE suit les paramètres vérifiés ExtendedAE : tentative
+1/3, usure 1/10 après croissance, quatre étapes d'usure ; Flawless permanent est
+l'exception explicitement approuvée. Les produits GeOre et stockages finaux restent
+ceux du contrat de chaque famille. FULLY suit la règle de récolte déjà établie des
+rangs usurables : lui-même avec Silk Touch, rang inférieur FLAWED sinon. Aucun
+rendement de cristal, nouvelle recette ou récompense des nouvelles familles inventé.
+Flawless conserve sa récolte historique en FLAWED, jamais en item permanent.
+
+Les budgets/placements existants n'ajoutent pas FULLY naturellement. Aucune fréquence
+Crystal Cave ni cœur Fluix/Draconium/Glowstone enregistré dans ce premier cycle ; le cycle améthyste suivant est décrit ci-dessous.
+Les quatre rangs natifs Certus sont énumérés séparément ; aucune tentative de trouver
+un faux `ae2:fully_budding_quartz`. Les observations ExtendedAE associent fully à
+FULLY et ne déclarent plus un cœur natif permanent qui n'existe pas.
+
+GameTests adaptés : croissance, faces, eau, blocage, usure et permanence sur les
+blocs réels, comparaison aux quatre phases ExtendedAE lorsque ce mod est chargé,
+65 identités/items, récolte/restauration existantes, Jade avec rechargement des
+métadonnées. Tests unitaires de compatibilité des quatre anciennes identités,
+chaîne complète et séparation des phases natives. Validation des 65 modèles et
+ressources. Résultats exacts consignés dans la PR, sans qualification visuelle.
+Routage de production Nether OFF ; sites Overworld activés par défaut, aucun profil/serveur nouveau, ancien monde modifié ou chargement forcé.
+
+## Améthyste — profil A approuvé et implémenté
+
+Validation utilisateur du 14 octobre 2026 à 22:27 UTC : « Pr64 IOE A », message
+`Sentinel_4d0d913a968c8191831bc29dfcfe7479`, en réponse au choix proposé à 21:13 UTC.
+Cette décision remplace la question de récolte/résidu améthyste, sans modifier les
+choix encore ouverts pour Fluix/Draconium/Glowstone ou les budgets de cave.
+
+Cinq blocs/items IOE distincts : `damaged_budding_amethyst`,
+`chipped_budding_amethyst`, `flawed_budding_amethyst`, `fully_budding_amethyst`,
+`flawless_budding_amethyst`, sous `immersive_ore_expedition:`. Les 65 identités
+antérieures sont préservées ; 14 familles IOE et 70 cœurs sont désormais définis.
+L'améthyste utilise uniquement des ressources Minecraft, sans nouvelle dépendance.
+
+Chaîne d'usure et chances identiques au moteur IOE existant : FULLY → FLAWED →
+CHIPPED → DAMAGED → `minecraft:amethyst_block`, avec Flawless permanent. Récolte
+des cœurs : usurable lui-même avec Silk Touch, rang inférieur sinon, stockage
+pour DAMAGED ; Flawless donne toujours le cœur FLAWED. Les cristaux produits sont
+les quatre blocs vanilla exacts : small/medium/large_amethyst_bud et amethyst_cluster.
+Leurs tables vanilla (dont Silk Touch et Fortune) ne sont ni copiées ni modifiées.
+`minecraft:budding_amethyst` conserve son comportement et sa récolte vide.
+
+La famille conserve une identité de ressource `minecraft:amethyst`. Jade affiche
+Minecraft, le rang courant et uniquement la provenance de site réellement enregistrée.
+Le bloc vanilla natif n'est pas adopté comme cœur IOE. L'enregistrement et la
+validation des ressources réutilisent le moteur commun ; le chemin de placement
+GeOre n'accepte pas cette famille et aucune politique de poche n'est créée.
+Aucune recette de cœur améthyste, notamment FULLY, et aucune distribution naturelle
+ne sont ajoutées. Les modèles et traductions EN/FR couvrent les cinq rangs.
+
+Tests adaptés : croissance/usure partagées incluant l'améthyste, cinq identités et
+récoltes réelles des cœurs, blocs/loots vanilla conservés, absence de recettes,
+validation de dépendances/ressources et exclusion du sélecteur de matériau GeOre,
+Jade et rechargement de provenance existants. Validation statique de 70 modèles.
+CI au commit exact consignée dans PR64 ; aucune preuve visuelle/client déduite.
+
+
+## Réconciliation Glowstone — décision vocale retrouvée le 15 octobre
+
+Le message `01a13d3d-1027-76e8-92a5-198b72c3ae3d` demande que Glowstone
+suive les mêmes règles que les autres familles IOE. La proposition spéciale
+« aucun drop immature / quatre poussières matures / Fortune améthyste » n'est
+pas approuvée. Le message `01a13f24-ab7f-7654-a28b-0effd54eba6f` autorise la
+poursuite des travaux déterminés ; il ne fixe pas de nouveaux rendements.
+
+La mécanique commune est acquise : cinq cœurs, FULLY → FLAWED → CHIPPED →
+DAMAGED → stockage de famille, Flawless permanent, tentative 1/3 et usure 1/10,
+récolte des cœurs usurables avec Silk Touch ou rang inférieur sans Silk Touch,
+Flawless récolté en FLAWED. Elle réutilise le moteur existant, sans second moteur.
+Le principe du stockage de famille désigne le bloc ordinaire Glowstone ; aucune
+exception d'usure ou récompense spéciale n'est introduite.
+
+Le seul profil de données encore non déterminé pour rendre les cristaux Glowstone
+récoltables est leur produit de récolte et sa table (quantité et enchantements).
+Les familles existantes délèguent ces données à leurs fournisseurs : GeOre utilise
+notamment des shards propres aux familles, l'améthyste ses loots vanilla. La règle
+commune ne transforme pas quatre shards en quatre poussières. Ne pas traiter
+cette lacune comme un veto sur les corrections du moteur partagé ; ne pas livrer
+non plus des cristaux sans loot, ce qui imposerait silencieusement zéro récolte.
+Les recettes et budgets de cave restent hors de ce cycle.
+
+Correction indépendante du moteur : une tentative dirigée vers un chunk absent
+s'arrête avant sa lecture et avant le tirage d'usure. Un GameTest appelle le vrai
+randomTick avec une destination absente, pour chaque famille/rang disponible,
+et vérifie l'absence de chargement et de tirage d'usure. Les tests existants
+conservent la comparaison ExtendedAE lorsque les voisins sont chargés.
+
+La piste AE2CS communiquée à la révision `62cfb60d5d9e2c760855e5edd0d6fae77b7bfb60`
+(`fluix_mother_rock`, quatre stades, produit `purified_fluix_crystal`) est un
+candidat distinct du Fluix AE2 ordinaire, pas une intégration approuvée. L'ancien
+inventaire des JAR inspectés ne permet pas de conclure qu'aucun fournisseur existe.
+
+
+## Glowstone — récolte 2/1 approuvée et implémentée
+
+Décision vocale `01a14246-770a-729f-9495-94c30efb2f87` : « Juste commence à deux
+poussières avec pioche, puis une autrement ». Cette décision remplace la proposition
+4/2 et résout la lacune de récolte décrite plus haut. Produit : `minecraft:glowstone_dust`.
+
+Cinq cœurs IOE `damaged/chipped/flawed/fully/flawless_budding_glowstone` et quatre
+produits IOE `small/medium/large_glowstone_bud`, `glowstone_cluster`. Le moteur commun
+est réutilisé : 1/3 tentative, 1/10 usure après croissance, quatre rangs usurables,
+Flawless permanent, épuisement en `minecraft:glowstone`. Récupération des cœurs
+identique aux autres familles IOE ; aucune nouvelle recette ni distribution naturelle.
+
+Grappe mûre : base 2 poussières avec un outil du tag vanilla
+`minecraft:cluster_max_harvestables` (les six pioches vanilla), 1 autrement.
+Fortune conserve `minecraft:ore_drops` sur la branche pioche : multiples de 2,
+maximum 4/6/8 pour Fortune I/II/III ; aucun bonus sur la branche autre outil.
+Silk Touch rend le bloc du stade exact et prend priorité. Les trois stades immatures
+ne donnent rien sans Silk Touch. Les rangs/qualités ne multiplient pas le loot.
+La physique des quatre produits reprend AmethystClusterBlock, ses dimensions et
+propriétés vanilla correspondantes (faces, eau, support, lumière par stade).
+Modèles originaux à prismes, texture vanilla Glowstone référencée sans copie d'asset.
+
+Jade affiche la ressource Minecraft, le rang réel et la provenance persistante
+existante ; aucun bloc Glowstone vanilla adopté comme cœur. Tests runtime :
+croissance/usure partagée, identités/items, récolte des cœurs, 2/1, immatures, Silk
+Touch et comparaison Fortune à l'améthyste chargée avec graines explicites.
+Pas de mutation du RNG du monde pour cette comparaison. Validation statique :
+75 cœurs et quatre produits ; CI exacte consignée dans PR64.
+AE2CS Fluix purifié, Draconium et budgets de cave restent hors de ce cycle.
+Routage de production Nether OFF ; sites Overworld activés par défaut ; validation visuelle/client non prouvée.

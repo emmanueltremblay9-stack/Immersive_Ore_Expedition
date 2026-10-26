@@ -17,7 +17,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-/** Pre-register stable identities by loaded dependencies; activate only after validating real registry blocks. */
+/** Shared registry for IOE GeOre and vanilla-backed hearts. Pre-register stable identities by loaded dependencies; activate only after validating real registry blocks. */
 public final class IoeGeOreBuddingBlocks {
     private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ImmersiveOreExpeditionMod.MODID);
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(ImmersiveOreExpeditionMod.MODID);
@@ -26,6 +26,11 @@ public final class IoeGeOreBuddingBlocks {
     private IoeGeOreBuddingBlocks() { }
 
     public static void register(IEventBus bus) {
+        // Vanilla cluster geometry/physics; owned identities and approved Glowstone loot.
+        registerGlowstoneProduct("small_glowstone_bud", 3, 4, Blocks.SMALL_AMETHYST_BUD);
+        registerGlowstoneProduct("medium_glowstone_bud", 4, 3, Blocks.MEDIUM_AMETHYST_BUD);
+        registerGlowstoneProduct("large_glowstone_bud", 5, 3, Blocks.LARGE_AMETHYST_BUD);
+        registerGlowstoneProduct("glowstone_cluster", 7, 3, Blocks.AMETHYST_CLUSTER);
         for (BuddingResourceFamily family : BuddingResourceFamily.values()) {
             if (!family.dependenciesPresent(ModList.get()::isLoaded)) continue;
             Map<BuddingRank, DeferredBlock<GeOreBuddingBlock>> ranks = new EnumMap<>(BuddingRank.class);
@@ -45,10 +50,16 @@ public final class IoeGeOreBuddingBlocks {
         ITEMS.register(bus);
     }
 
+    private static void registerGlowstoneProduct(String name, int height, int offset, Block template) {
+        var block = BLOCKS.register(name, () -> new AmethystClusterBlock(height, offset,
+                BlockBehaviour.Properties.ofFullCopy(template)));
+        ITEMS.registerSimpleBlockItem(name, block);
+    }
+
     public static boolean resourcesPresent(BuddingResourceFamily family, Predicate<String> loaded,
                                             Predicate<ResourceLocation> present, Predicate<ResourceLocation> growthCompatible) {
         return family.dependenciesPresent(loaded) && present.test(family.storageBlockId())
-                && present.test(family.pocketBlockId()) && family.growthProductIds().stream().allMatch(growthCompatible);
+                && (family.kind() != BuddingResourceFamily.Kind.GEORE || present.test(family.pocketBlockId())) && family.growthProductIds().stream().allMatch(growthCompatible);
     }
 
     public static boolean available(BuddingResourceFamily family) {

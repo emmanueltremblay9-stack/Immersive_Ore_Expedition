@@ -225,12 +225,12 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 return false;
             }
             if (fallbackPlans.stream().anyMatch(fallbackPlan -> !fallbackPlan.isConnectedExpeditionSite()
-                    || !withinBuildHeight(context.level(), fallbackPlan))) {
+                    || !withinPlacementEnvelope(context.level(), fallbackPlan))) {
                 skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
                         "a lower-tier quality plan could not satisfy the connected build envelope");
                 return false;
             }
-            if (!withinBuildHeight(context.level(), plan)) {
+            if (!withinPlacementEnvelope(context.level(), plan)) {
                 skip(origin, IoeWorldgenRuntimeDiagnostics.SiteSkipReason.UNSAFE_WRITE,
                         "the connected block plan could not be written safely");
                 return false;
@@ -565,10 +565,11 @@ public final class ExpeditionSiteFeature extends Feature<NoneFeatureConfiguratio
                 && IoeWorldgenConfig.oreLoadChamberEnabled();
     }
 
-    private static boolean withinBuildHeight(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
+    private static boolean withinPlacementEnvelope(WorldGenLevel level, ExpeditionSiteBlockPlan plan) {
         int minBuildHeight = level.getMinBuildHeight();
         int maxBuildHeight = level.getMaxBuildHeight();
-        return plan.blocks().keySet().stream()
+        return plan.blocks().size() <= ExpeditionSiteBlueprints.MAX_PLANNED_BLOCKS
+                && plan.blocks().keySet().stream()
                 .allMatch(pos -> pos.getY() >= minBuildHeight && pos.getY() < maxBuildHeight);
     }
 

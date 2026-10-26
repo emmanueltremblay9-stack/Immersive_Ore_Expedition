@@ -71,3 +71,29 @@ block's family identity to the stored node, for every available family.
 The approved DRY count is uniform 0–5 for the whole pocket. GeOre profiles use their
 existing `geore:<material>_block` pocket material, not their exhausted storage target.
 See `BUDDING_FAMILY_IMPLEMENTATION.md` for scope, tests and remaining special-profile limits.
+
+## PR64: five IOE ranks
+
+IOE GeOre hearts now include FULLY (wearing) above FLAWED, with permanent FLAWLESS
+separate. Jade reads FULLY from the actual block, using EN/FR labels, after the
+existing node metadata reload. No saved rank field or old-world migration is added.
+Native Certus still exposes its four actual AE2 blocks; native ExtendedAE fully
+is not a permanent Flawless. Entro remains excluded from IOE generated-node Jade
+provenance. This does not constitute visual/client acceptance.
+
+## Amethyst profile A
+
+The five IOE amethyst hearts use resource identity `minecraft:amethyst` and display
+family Minecraft in Jade. Current rank and existing saved provenance are handled
+by the shared provider; native `minecraft:budding_amethyst` remains outside IOE
+node recognition. The existing Jade runtime check includes all five amethyst ranks
+and metadata reload. This is not visual acceptance or proof of natural generation.
+
+## Glowstone 2/1 — PR64
+
+Cinq cœurs Glowstone IOE et quatre stades propres à IOE, source minérale Minecraft.
+Jade distingue le rang courant de la qualité/provenance du site. Le moteur commun
+et les tests Jade avec rechargement de provenance incluent cette famille.
+La quantité récoltée ne dépend pas du rang : 2 poussières à la pioche, 1 autrement,
+Fortune commun sur la branche pioche ; Silk Touch récupère le stade exact.
+Pas de preuve visuelle déduite des modèles ou des GameTests.

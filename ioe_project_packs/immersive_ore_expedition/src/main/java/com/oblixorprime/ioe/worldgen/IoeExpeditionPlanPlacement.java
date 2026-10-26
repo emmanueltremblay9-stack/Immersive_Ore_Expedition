@@ -2,11 +2,13 @@ package com.oblixorprime.ioe.worldgen;
 
 import com.oblixorprime.ioe.compat.domum.DomumOrnamentumCompat;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootTable;
 
@@ -123,6 +125,9 @@ final class IoeExpeditionPlanPlacement {
         private final ExpeditionSiteBlockPlan plan;
         private final Map<BlockPos, BlockState> previousStates;
         private final AtomicBoolean active;
+        private final Map<BlockPos, BlockState> expectedRollbackStates = new LinkedHashMap<>();
+        private final java.util.Set<BlockPos> uncertainRollbackStates = new java.util.HashSet<>();
+        private final java.util.Set<BlockPos> observedRollbackOwnership = new java.util.HashSet<>();
 
         private AppliedPlan(
                 ExpeditionSiteBlockPlan plan,
@@ -130,7 +135,8 @@ final class IoeExpeditionPlanPlacement {
                 boolean active
         ) {
             this.plan = Objects.requireNonNull(plan, "plan");
-            this.previousStates = Map.copyOf(Objects.requireNonNull(previousStates, "previousStates"));
+            this.previousStates = java.util.Collections.unmodifiableMap(
+                    new LinkedHashMap<>(Objects.requireNonNull(previousStates, "previousStates")));
             this.active = new AtomicBoolean(active);
         }
 
@@ -148,11 +154,37 @@ final class IoeExpeditionPlanPlacement {
                 return true;
             }
             boolean restored = true;
-            for (Map.Entry<BlockPos, BlockState> previous : previousStates.entrySet()) {
+            // Take exact ownership before any restoration can update a neighbour's derived state.
+            // A pre-existing foreign edit is never admitted into this journal afterwards.
+            var expectedOwnedStates = expectedRollbackStates;
+            for (var previous : previousStates.entrySet()) {
+                if (observedRollbackOwnership.contains(previous.getKey())) continue;
+                try {
+                    var current = level.getBlockState(previous.getKey());
+                    var target = plan.blocks().get(previous.getKey());
+                    if (!current.equals(previous.getValue()) && current.equals(target))
+                        expectedOwnedStates.put(previous.getKey(), target);
+                    observedRollbackOwnership.add(previous.getKey());
+                } catch (RuntimeException | LinkageError failure) {
+                    restored = false;
+                }
+            }
+            if (!restored) return false; // Do not mutate neighbours before ownership capture is complete.
+            // Undo in reverse write order: restore neighbor-dependent blocks before their supports.
+            // Only our own synchronous native stair-shape updates can advance an owned expectation.
+            var restorationOrder = new java.util.ArrayList<>(previousStates.entrySet());
+            java.util.Collections.reverse(restorationOrder);
+            for (Map.Entry<BlockPos, BlockState> previous : restorationOrder) {
                 try {
                     BlockPos pos = previous.getKey();
-                    BlockState target = plan.blocks().get(pos);
+                    BlockState target = expectedOwnedStates.get(pos);
+                    if (target == null) continue;
                     BlockState current = level.getBlockState(pos);
+                    if (uncertainRollbackStates.contains(pos)) {
+                        if (current.equals(previous.getValue())) uncertainRollbackStates.remove(pos);
+                        else restored = false;
+                        continue;
+                    }
                     if (current.equals(previous.getValue()) || !current.equals(target)) {
                         continue;
                     }
@@ -165,9 +197,32 @@ final class IoeExpeditionPlanPlacement {
                         container.clearContent();
                         container.setChanged();
                     }
-                    boolean changed = level.setBlock(pos, previous.getValue(), BLOCK_UPDATE_FLAGS);
-                    if (!changed && !level.getBlockState(pos).equals(previous.getValue())) {
-                        restored = false;
+                    var neighbourStairs = new LinkedHashMap<BlockPos, BlockState>();
+                    for (Direction direction : java.util.List.of(Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST)) {
+                        var neighbour = pos.relative(direction);
+                        var expected = expectedOwnedStates.get(neighbour);
+                        if (expected != null && expected.getBlock() instanceof StairBlock
+                                && level.getBlockState(neighbour).equals(expected))
+                            neighbourStairs.put(neighbour, expected);
+                    }
+                    try {
+                        boolean changed = level.setBlock(pos, previous.getValue(), BLOCK_UPDATE_FLAGS);
+                        if (!changed && !level.getBlockState(pos).equals(previous.getValue())) restored = false;
+                    } finally {
+                        // A write may take effect before throwing. Observe every owned neighbour even then.
+                        for (var neighbour : neighbourStairs.entrySet()) {
+                            try {
+                                var after = level.getBlockState(neighbour.getKey());
+                                if (after.getBlock() instanceof StairBlock
+                                        && neighbour.getValue().setValue(StairBlock.SHAPE, after.getValue(StairBlock.SHAPE)).equals(after))
+                                    expectedOwnedStates.put(neighbour.getKey(), after);
+                            } catch (RuntimeException | LinkageError failure) {
+                                // A later read cannot distinguish our native update from an intervening foreign edit.
+                                // Retain incomplete status instead of reclaiming that cell or declaring success.
+                                uncertainRollbackStates.add(neighbour.getKey());
+                                restored = false;
+                            }
+                        }
                     }
                 } catch (RuntimeException | LinkageError failure) {
                     restored = false;
