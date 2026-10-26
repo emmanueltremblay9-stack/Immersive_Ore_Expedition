@@ -245,6 +245,46 @@ Proposition : revoir séparément son utilité par rapport à la couverture actu
 puis décider soit de la conserver pour intégration ultérieure, soit de la clore
 explicitement si jugée redondante. Ne pas la présenter comme déjà intégrée.
 
+#### Reprise bornée de PR62 — 2026-10-26, état partiel local
+
+Le nouvel environnement cloud IOE est disponible. Le checkout initial `work` est
+propre à `53cea49a2636939356c0bd2a8ce11c07a27f23af`, égal à `main` distant.
+Les révisions distantes ont été contrôlées avant et après préparation : PR62 reste
+à `239450e75a5095d2d27845cc79c8e0ca0db7b420` et PR64 à
+`13a7d5541b6556226f9fcd4d005ce702c3093067`. Aucun fichier de l'ancien conteneur
+inaccessible ni son JAR rapporté n'est présenté comme récupéré ou vérifié.
+
+La branche existante de PR62 est reprise dans `/workspace/ioe-pr62`. Le commit
+source local `4e953a521f97de8ba664ce8e26e1e1ae21d94b41` intègre `main` avec
+deux parents, l'ancien head de PR62 puis `53cea49a2636939356c0bd2a8ce11c07a27f23af` :
+aucun conflit, commit supprimé ou réécriture d'historique. Son arbre est
+`abb1028151a97aac48f34814531dfc0758b374a1`. Le diff contre `main` reste exactement
+`BuddingRankTest.java`, trois tests et 28 lignes. `git diff --check` réussit.
+Le blob de `BuddingRank.java` demeure `0623a9d1d0430c17d3800a10664d170a23c9d180`.
+Le présent relevé est un successeur documentaire local, distinct de cette source.
+
+Avec OpenJDK 21.0.12.1 et Gradle 8.8 déjà présents, la commande
+`gradle --offline --no-daemon -Dorg.gradle.java.installations.auto-download=false test --tests com.oblixorprime.ioe.budding.BuddingRankTest`
+échoue en configuration après sept secondes : plugin `net.neoforged.moddev:2.0.80`
+absent du cache accessible. **Aucun test JUnit exécuté** ; aucune dépendance
+téléchargée ou installée. Le journal local est conservé dans
+`/workspace/scratch/ioe-pr62-qualification/gradle-offline.log`.
+
+Le push et la CI du nouveau commit restent **non exécutés, en attente de clarification**.
+Le workflow existant `.github/workflows/ci.yml` se déclenche sur tout push/PR ; il
+installe ses outils/dépendances, lance les GameTests avec prototype depth32,
+`qualify_depth32_restart.py` (terrain naturel et redémarrage), puis téléverse un JAR.
+Il ne propose pas de sélection limitée à ces trois tests. L'autorisation générale
+de CI doit être conciliée avec l'interdiction explicite des installations, études
+de terrain et uploads de ce mandat avant de le déclencher. Aucun workflow n'est modifié.
+
+La CI historique `37847941428` a été relue : sept jobs réussis à `239450e`,
+contre `dc020d6e338735ea298882f814a6ee7f1cd077cb`. Elle ne qualifie pas cette
+mise à jour de base. Statut de cette reprise : **PARTIAL**, commits locaux sans
+reçu distant. PR64, `main`, installations, génération et JAR rapporté sont préservés.
+Aucune fusion de PR, release, qualification de placement naturel ou stabilité 3.0
+n'est revendiquée.
+
 ### Prochaines étapes réelles
 
 1. Lier la CI et, si accessibles, les octets du JAR au head final de ce cycle dans
