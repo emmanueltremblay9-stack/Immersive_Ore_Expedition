@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "geore:block/diamond_block",
+    "side": "geore:block/budding_diamond",
+    "top": "geore:block/budding_diamond"
+  }
+}

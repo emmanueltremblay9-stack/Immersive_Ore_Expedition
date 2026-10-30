@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "geore:block/lapis_block",
+    "side": "geore:block/lapis_block",
+    "top": "geore:block/budding_lapis"
+  }
+}

@@ -1,6 +1,7 @@
 package com.oblixorprime.ioe.expeditioncompass;
 
 import com.oblixorprime.ioe.ImmersiveOreExpeditionMod;
+import com.oblixorprime.ioe.budding.IoeBuddingBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -17,7 +18,10 @@ public final class IoeCreativeModeTabs {
             CREATIVE_MODE_TABS.register("immersive_ore_expedition", () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.immersive_ore_expedition"))
                     .icon(() -> new ItemStack(IoeItems.EXPEDITION_COMPASS.get()))
-                    .displayItems((parameters, output) -> output.accept(IoeItems.EXPEDITION_COMPASS.get()))
+                    .displayItems((parameters, output) -> {
+                        output.accept(IoeItems.EXPEDITION_COMPASS.get());
+                        IoeBuddingBlocks.blockItems().forEach(item -> output.accept(item.get()));
+                    })
                     .build());
 
     private IoeCreativeModeTabs() {

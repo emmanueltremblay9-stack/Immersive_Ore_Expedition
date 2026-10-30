@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "geore:block/coal_block",
+    "side": "geore:block/budding_coal",
+    "top": "geore:block/budding_coal"
+  }
+}

@@ -14,10 +14,28 @@ base { archivesName = mod_id }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
+sourceSets {
+    visualQa {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += output + compileClasspath + sourceSets.main.runtimeClasspath
+    }
+}
+
+configurations {
+    visualQaCompileOnly.extendsFrom compileOnly
+    visualQaImplementation.extendsFrom implementation
+    visualQaRuntimeOnly.extendsFrom runtimeOnly
+}
+
 neoForge {
     version = neo_version
 
     runs {
+        surface02VisualQaClient {
+            type = "client"
+            gameDirectory = project.file("run/client-visual-qa")
+            systemProperty "ioe.surface02.visualQa", "true"
+        }
         gameTestServer {
             type = "gameTestServer"
             gameDirectory = project.file("run/gametest-baseline")
@@ -36,6 +54,7 @@ neoForge {
     mods {
         immersive_ore_expedition {
             sourceSet sourceSets.main
+            sourceSet sourceSets.visualQa
         }
     }
 }
