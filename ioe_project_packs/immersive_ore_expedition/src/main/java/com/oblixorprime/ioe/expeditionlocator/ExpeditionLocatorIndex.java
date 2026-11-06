@@ -210,6 +210,7 @@ public final class ExpeditionLocatorIndex {
         nodes.clear();
         naturalAnchors.clear();
         discoveryChunks.clear();
+        chamberChunks.clear();
     }
 
     public static long distanceSquared(BlockPos first, BlockPos second) {

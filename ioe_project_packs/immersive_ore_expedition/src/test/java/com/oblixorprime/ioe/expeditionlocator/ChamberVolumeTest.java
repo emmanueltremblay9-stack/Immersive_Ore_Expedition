@@ -56,6 +56,10 @@ class ChamberVolumeTest {
         }
         assertEquals(33,seen.size());
         assertTrue(index.chamberCandidates(Level.NETHER,new BlockPos(-16,40,-16),Long.MIN_VALUE).isEmpty());
+        index.clear();
+        assertTrue(index.chamberCandidates(Level.OVERWORLD,new BlockPos(-16,40,-16),Long.MIN_VALUE).isEmpty());
+        index.record(site(ANCHOR));
+        assertEquals(1,index.chamberCandidates(Level.OVERWORLD,new BlockPos(-16,40,-16),Long.MIN_VALUE).size());
         var one=new ExpeditionLocatorIndex();one.record(site(ANCHOR));
         one.record(site(ANCHOR).withChamberVolume(ChamberVolume.EMPTY));
         assertTrue(one.chamberCandidates(Level.OVERWORLD,new BlockPos(-16,40,-16),Long.MIN_VALUE).isEmpty());
