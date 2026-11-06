@@ -395,6 +395,11 @@ public final class CatalogueTerracesGameTests {
             var shapeRandom = net.minecraft.util.RandomSource.create(planSeed);
             int depth = 20+shapeRandom.nextInt(9);
             var center = new BlockPos(chunk.getMinBlockX()+7,origin.getY()-depth,chunk.getMinBlockZ()+7);
+            var indexed = com.oblixorprime.ioe.expeditionlocator.ExpeditionLocatorService.index(level)
+                    .chamberCandidates(level.dimension(), center, Long.MIN_VALUE);
+            helper.assertTrue(indexed.stream().anyMatch(site -> site.pos().equals(origin)
+                            && site.chamberVolume().contains(net.minecraft.world.phys.Vec3.atCenterOf(center))),
+                    "Confirmed DRY transaction lost its chamber volume");
             if (variant.isRails() || variant.isPearls() || variant.isEight() || variant.isBayonet() || variant.isRoots() || variant.isCells() || variant.isComb() || variant.isTeeth() || variant.isChimney() || variant.isAxial() || variant.isMushroom() || variant.isSlab() || variant.isHourglass() || variant.isBell() || variant.isBipyramid() || variant.isArch() || variant.isTraverse() || variant.isNave() || variant.isTrihedral() || variant.isShells() || variant.isAnnulus() || variant.isHorn() || variant.isVolute() || variant.isWedge() || variant.isCage() || variant.isVault() || variant.isIslands() || variant.isNetworks() || variant.isHelix() || variant.isGrid() || variant.isPages() || variant.isWheel() || variant.isKnot() || variant.isDelta() || variant.isSaddle() || variant.isWaves() || variant.isLens()) {
                 var actual = new LinkedHashMap<BlockPos,BlockState>();
                 CatalogueTerraces.geometry(center,variant).keySet().forEach(p -> actual.put(p,level.getBlockState(p)));

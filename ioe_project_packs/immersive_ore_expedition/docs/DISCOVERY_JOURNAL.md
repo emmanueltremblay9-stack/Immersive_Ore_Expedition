@@ -8,6 +8,34 @@ subsequently resumed bounded technical cycles. Governance PR5 was merged on
 integrating the handoff into governance main. This does not authorize technical PR
 merges or modify technical FINAL_DESIGN contracts.
 
+## Chamber entry — independent exploration evidence
+
+The user's choice is entering the final chamber, including DRY chambers. Catalogue
+plans now carry explicit authored chamber free-space cells, clipped to their final
+collision geometry, separately from exterior access and the intermediate survey
+room. Only the final committed locator entry exposes this volume. Old sites and
+non-catalogue plans without explicit geometry do not earn entry by approximation.
+
+The server checks the player's feet in half-open volume boxes using the existing
+bounded player scheduler (8 players/tick, at least 20 ticks between scans per player).
+Each scan reads at most 16 indexed candidates in the occupied chunk; rotation is
+per player, so other players cannot starve a candidate. No terrain reads or chunk
+loads are performed. This is sampled presence: a visit entirely between scans is
+not observed; it does not infer a crossed path or require a previous outside sample.
+Reconnecting inside can earn entry. Dead and spectator players are excluded.
+
+Journal format v2 persists entry independently of ordered stages, even when exterior
+observations have not occurred. The personal view shows exploration only once
+SITE_LOCATED has been earned; entry never manufactures that prerequisite. It reveals
+no resource, hidden quality or IE/Core Sample proof. Historical SITE_SURVEYED remains
+historical quality evidence, not a new IE Survey assertion. Migration preserves v1
+record UUIDs and fields without deriving entry. Unknown journal versions stay read-only.
+Locator format v3 retains v2 sites with no invented volume. Journal protocol v2 adds
+only the stage-gated entry boolean; volume geometry is not sent to the client.
+
+Validation is hosted CI only. The new detection fixture and existing 480 prepared
+DRY placements are not proof of naturally generated terrain or client exploration.
+
 ## Server persistence core
 
 The consolidated mod registers a server-start listener that opens world SavedData

@@ -39,7 +39,7 @@ public final class ProximityDiscovery {
         NeoForge.EVENT_BUS.addListener(ProximityDiscovery::stop);
     }
 
-    private static void stop(ServerStoppedEvent event) { LAST_SCAN.clear(); cursor = 0; }
+    private static void stop(ServerStoppedEvent event) { LAST_SCAN.clear(); ChamberEntryDiscovery.clear(); cursor = 0; }
 
     private static void tick(ServerTickEvent.Post event) {
         var players = event.getServer().getPlayerList().getPlayers();

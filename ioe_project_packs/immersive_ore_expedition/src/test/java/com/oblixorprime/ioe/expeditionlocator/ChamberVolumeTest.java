@@ -48,14 +48,16 @@ class ChamberVolumeTest {
         var index=new ExpeditionLocatorIndex();
         for(int i=0;i<33;i++) index.record(site(ANCHOR.offset(i,0,0)));
         var seen=new java.util.HashSet<BlockPos>();
+        long cursor = Long.MIN_VALUE;
         for(int i=0;i<3;i++) {
-            var batch=index.chamberCandidates(Level.OVERWORLD,new BlockPos(-16,40,-16));
+            var batch=index.chamberCandidates(Level.OVERWORLD,new BlockPos(-16,40,-16), cursor);
             assertTrue(batch.size()<=16);batch.forEach(s->seen.add(s.pos()));
+            cursor = batch.getLast().pos().asLong();
         }
         assertEquals(33,seen.size());
-        assertTrue(index.chamberCandidates(Level.NETHER,new BlockPos(-16,40,-16)).isEmpty());
+        assertTrue(index.chamberCandidates(Level.NETHER,new BlockPos(-16,40,-16),Long.MIN_VALUE).isEmpty());
         var one=new ExpeditionLocatorIndex();one.record(site(ANCHOR));
         one.record(site(ANCHOR).withChamberVolume(ChamberVolume.EMPTY));
-        assertTrue(one.chamberCandidates(Level.OVERWORLD,new BlockPos(-16,40,-16)).isEmpty());
+        assertTrue(one.chamberCandidates(Level.OVERWORLD,new BlockPos(-16,40,-16),Long.MIN_VALUE).isEmpty());
     }
 }

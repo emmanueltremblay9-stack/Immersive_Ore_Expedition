@@ -25,7 +25,8 @@ public final class ChamberVolume {
             if (!Double.isFinite(b.minX) || !Double.isFinite(b.minY) || !Double.isFinite(b.minZ)
                     || !Double.isFinite(b.maxX) || !Double.isFinite(b.maxY) || !Double.isFinite(b.maxZ)
                     || b.getXsize() <= 0 || b.getYsize() <= 0 || b.getZsize() <= 0
-                    || b.getXsize() > 1 || b.getYsize() > 1 || b.getZsize() > 1)
+                    || b.getXsize() > 1 || b.getYsize() > 1 || b.getZsize() > 1
+                    || b.maxX > Math.floor(b.minX)+1 || b.maxY > Math.floor(b.minY)+1 || b.maxZ > Math.floor(b.minZ)+1)
                 throw new IllegalArgumentException("Invalid chamber cell");
             indexed.computeIfAbsent(BlockPos.containing(b.minX,b.minY,b.minZ), ignored -> new ArrayList<>()).add(b);
         }
