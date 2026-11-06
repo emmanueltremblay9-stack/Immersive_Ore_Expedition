@@ -20,6 +20,40 @@ import java.util.UUID;
 @GameTestHolder(ImmersiveOreExpeditionMod.MODID)
 @PrefixGameTestTemplate(false)
 public final class ProximityDiscoveryGameTests {
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void chamberEntryUsesCommittedVolumeWithoutGrantingSurvey(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var player = FakePlayerFactory.get(level, new GameProfile(UUID.randomUUID(), "ioe_chamber"));
+        BlockPos anchor = new BlockPos(12000008,80,12000008);
+        var plan = com.oblixorprime.ioe.worldgen.ExpeditionSiteBlueprints.plan(
+                com.oblixorprime.ioe.worldgen.ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
+                anchor,SiteQuality.DRY,null,null,net.minecraft.util.RandomSource.create(19));
+        var site = ExpeditionSite.anchor(level.dimension(),anchor,
+                ResourceLocation.parse("immersive_ore_expedition:tiny_vertical_mine_entrance"),null,SiteQuality.DRY,
+                "natural_connected_expedition_site").withChamberVolume(plan.chamberVolume());
+        var key = DiscoverySiteKey.from(site);
+        var point = net.minecraft.world.phys.Vec3.atCenterOf(plan.chamberCenter());
+        player.setPos(point.x,point.y,point.z);
+        helper.assertFalse(ChamberEntryDiscovery.scan(player), "Uncommitted plan granted entry");
+        // Fixture supplies committed metadata only; this tests detection, not natural world placement.
+        ExpeditionLocatorService.record(level, site);
+        helper.assertTrue(ChamberEntryDiscovery.scan(player), "DRY chamber did not grant entry");
+        helper.assertFalse(ChamberEntryDiscovery.scan(player), "Duplicate entry was recorded");
+        var data = DiscoveryJournalService.data(level.getServer());
+        helper.assertTrue(data.stage(player.getUUID(),key).isEmpty(), "Entry manufactured exterior discovery");
+        helper.assertTrue(data.views(player.getUUID()).isEmpty(), "Entry leaked a hidden site");
+        var loaded = DiscoveryJournalData.FACTORY.deserializer().apply(data.save(new net.minecraft.nbt.CompoundTag(),level.registryAccess()),level.registryAccess());
+        helper.assertTrue(loaded.enteredChamber(player.getUUID(),key), "Entry lost on restart");
+        helper.assertFalse(level.getChunkSource().hasChunk(anchor.getX()>>4,anchor.getZ()>>4), "Entry scanner forced a chunk");
+        var other = FakePlayerFactory.get(level,new GameProfile(UUID.randomUUID(),"ioe_boundary"));
+        other.setPos(anchor.getX()+0.5,anchor.getY()+0.5,anchor.getZ()+0.5);
+        helper.assertFalse(ChamberEntryDiscovery.scan(other), "Exterior entrance counted as chamber");
+        ExpeditionLocatorService.record(level,site.withChamberVolume(ChamberVolume.EMPTY));
+        other.setPos(point.x,point.y,point.z);
+        helper.assertFalse(ChamberEntryDiscovery.scan(other), "Legacy site invented geometry");
+        helper.succeed();
+    }
+
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 200)
     public static void actualBlueprintsRetainRecognizableSurfaceWitnesses(GameTestHelper helper) {
         var level = helper.getLevel();

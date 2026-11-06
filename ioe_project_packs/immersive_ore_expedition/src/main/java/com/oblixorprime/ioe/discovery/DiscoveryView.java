@@ -10,4 +10,13 @@ import java.util.UUID;
 public record DiscoveryView(UUID id, DiscoveryStage stage, ResourceLocation dimension,
                             ResourceLocation clueType, BlockPos clueLocation,
                             Optional<BlockPos> siteLocation, Optional<ResourceLocation> resource,
-                            Optional<SiteQuality> quality) { }
+                            Optional<SiteQuality> quality, boolean chamberEntered) {
+    public DiscoveryView(UUID id, DiscoveryStage stage, ResourceLocation dimension, ResourceLocation clueType,
+            BlockPos clueLocation, Optional<BlockPos> siteLocation, Optional<ResourceLocation> resource,
+            Optional<SiteQuality> quality) {
+        this(id, stage, dimension, clueType, clueLocation, siteLocation, resource, quality, false);
+    }
+    public DiscoveryView withChamberEntered(boolean entered) {
+        return new DiscoveryView(id, stage, dimension, clueType, clueLocation, siteLocation, resource, quality, entered);
+    }
+}

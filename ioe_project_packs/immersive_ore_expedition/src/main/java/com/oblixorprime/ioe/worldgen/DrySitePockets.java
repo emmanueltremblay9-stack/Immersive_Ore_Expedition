@@ -41,6 +41,6 @@ final class DrySitePockets {
         candidates.stream().limit(count).forEach(pos -> blocks.put(pos, ore.defaultBlockState()));
         return new ExpeditionSiteBlockPlan(shape.requestedFeatureId(), shape.anchorPos(), shape.connectorEnd(),
                 center, shape.quality(), 0, oreId, null, shape.roomCenters(), shape.generatedComponents(),
-                blocks, shape.blockEntityPayloads());
+                blocks, shape.blockEntityPayloads(), shape.chamberVolume().clipTo(blocks));
     }
 }

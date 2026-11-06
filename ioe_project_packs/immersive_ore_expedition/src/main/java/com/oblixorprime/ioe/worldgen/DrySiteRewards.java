@@ -30,6 +30,6 @@ final class DrySiteRewards {
         payloads.put(cache, ExpeditionBlockEntityPayload.loot(LOOT, lootSeed));
         return new ExpeditionSiteBlockPlan(plan.requestedFeatureId(), plan.anchorPos(), plan.connectorEnd(),
                 plan.chamberCenter(), plan.quality(), plan.oreNodeCount(), plan.oreBlockId(), plan.oreNodeHeartBlockId(),
-                plan.roomCenters(), plan.generatedComponents(), blocks, payloads);
+                plan.roomCenters(), plan.generatedComponents(), blocks, payloads, plan.chamberVolume().clipTo(blocks));
     }
 }

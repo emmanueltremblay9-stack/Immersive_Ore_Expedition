@@ -17,6 +17,18 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JournalConsultationTest {
+    @Test void enteredDryChamberRoundTripsWithoutResourceOrQuality() {
+        var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY);
+        try {
+            var v = new DiscoveryView(UUID.randomUUID(), DiscoveryStage.SITE_LOCATED, Level.OVERWORLD.location(),
+                    ResourceLocation.parse("immersive_ore_expedition:miner_camp"), BlockPos.ZERO,
+                    Optional.of(BlockPos.ZERO), Optional.empty(), Optional.empty(), true);
+            JournalResponse.CODEC.encode(buf, new JournalResponse(1,new DiscoveryPage(0,1,Optional.of(v))));
+            assertEquals(v,JournalResponse.CODEC.decode(buf).page().entry().orElseThrow());
+            assertEquals(0,buf.readableBytes());
+        } finally { buf.release(); }
+    }
+
     @Test void indexedPaginationIsPrivateBoundedAndStableAfterReload() {
         var data = new DiscoveryJournalData();
         var a = UUID.randomUUID(); var b = UUID.randomUUID();

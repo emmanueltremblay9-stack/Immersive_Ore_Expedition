@@ -26,9 +26,11 @@ public record ExpeditionSiteBlockPlan(
         List<BlockPos> roomCenters,
         List<ResourceLocation> generatedComponents,
         Map<BlockPos, BlockState> blocks,
-        Map<BlockPos, ExpeditionBlockEntityPayload> blockEntityPayloads
+        Map<BlockPos, ExpeditionBlockEntityPayload> blockEntityPayloads,
+        com.oblixorprime.ioe.expeditionlocator.ChamberVolume chamberVolume
 ) {
     public ExpeditionSiteBlockPlan {
+        Objects.requireNonNull(chamberVolume, "chamberVolume");
         Objects.requireNonNull(requestedFeatureId, "requestedFeatureId");
         Objects.requireNonNull(anchorPos, "anchorPos");
         Objects.requireNonNull(connectorEnd, "connectorEnd");
@@ -112,6 +114,14 @@ public record ExpeditionSiteBlockPlan(
                 blocks,
                 Map.of()
         );
+    }
+
+    public ExpeditionSiteBlockPlan(ResourceLocation feature, BlockPos anchor, BlockPos connector,
+            BlockPos center, SiteQuality quality, int nodes, ResourceLocation ore, ResourceLocation heart,
+            List<BlockPos> rooms, List<ResourceLocation> components, Map<BlockPos, BlockState> blocks,
+            Map<BlockPos, ExpeditionBlockEntityPayload> payloads) {
+        this(feature, anchor, connector, center, quality, nodes, ore, heart, rooms, components,
+                blocks, payloads, com.oblixorprime.ioe.expeditionlocator.ChamberVolume.EMPTY);
     }
 
     public long oreBlockCount() {

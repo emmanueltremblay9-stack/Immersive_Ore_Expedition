@@ -1,5 +1,27 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
+## Journal — preuve d'entrée en chambre, cycle en qualification
+
+Décision utilisateur : entrer dans la chambre suffit à prouver son exploration,
+DRY compris. Le fait persistant est indépendant des stades historiques et n'accorde
+ni ressource, ni qualité cachée, ni Survey IE/Core Sample. Il reste masqué dans
+la projection tant que la localisation extérieure n'a pas été acquise.
+
+Le catalogue conserve son espace intérieur planifié (120 variantes), distinct du
+puits, du raccord et de la galerie Survey. Le volume du plan final, après éventuel
+déclassement, accompagne la transaction locator. Les copies DRY/récompenses le
+conservent et excluent les cellules occupées. Détection serveur par position des
+pieds, frontières semi-ouvertes, index spatial borné à 16 candidats par passage,
+rotation équitable ; aucun accès au terrain ni chargement forcé.
+
+Journal v1 → v2 : identifiants, stades et détails historiquement acquis conservés ;
+aucune entrée ni preuve IE déduite du stade SITE_SURVEYED. Locator v2 → v3 : sites
+conservés sans volume inventé. Anciens sites, reindex et plans hors catalogue sans
+volume explicite ne produisent pas cette nouvelle preuve. Protocole journal v2.
+Tests de migration, limites, réseau, index et détection ajoutés ; matrice catalogue
+existante enrichie. CI du SHA exact à consigner après exécution ; aucune validation
+client ou qualification de placement naturel revendiquée. Crystal Fixer inchangé.
+
 ## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC
 
 Statut : **signalée, non reproduite, non résolue**. Retour utilisateur

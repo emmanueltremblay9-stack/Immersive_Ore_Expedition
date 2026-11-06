@@ -60,6 +60,7 @@ public final class JournalScreen extends Screen {
             text.add(text("clue_location", v.clueLocation().toShortString()));
             v.siteLocation().ifPresent(pos -> text.add(text("site_location", pos.toShortString())));
             v.resource().ifPresent(id -> text.add(text("resource", id.toString())));
+            if (v.chamberEntered()) text.add(text("chamber_entered"));
             v.quality().ifPresent(q -> text.add(text("quality", Component.translatable("budding.ioe.quality." + q.name().toLowerCase(Locale.ROOT)))));
         }
         lines = text.stream().flatMap(line -> font.split(line, Math.max(80, width - 40)).stream()).toList();

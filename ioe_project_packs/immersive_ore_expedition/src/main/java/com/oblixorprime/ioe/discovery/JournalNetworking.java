@@ -15,7 +15,7 @@ public final class JournalNetworking {
         if (FMLEnvironment.dist == Dist.CLIENT) invoke("register", IEventBus.class, bus);
     }
     private static void payloads(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("ioe-journal-1");
+        var registrar = event.registrar("ioe-journal-2");
         registrar.playToServer(JournalRequest.TYPE, JournalRequest.CODEC, (request, context) -> {
             if (context.player() instanceof ServerPlayer player)
                 PacketDistributor.sendToPlayer(player, response(player, request));

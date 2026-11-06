@@ -244,6 +244,13 @@ public final class CatalogueTerracesGameTests {
                     int direction = Math.floorMod(origin.getX(),16) <= 7 ? 1 : -1;
                     int zDirection = Math.floorMod(origin.getZ(),16) <= 7 ? 1 : -1;
                     BlockPos survey = origin.offset(direction*5,-8,zDirection*3);
+                    helper.assertTrue(!plan.chamberVolume().boxes().isEmpty(), "Catalogue chamber volume missing");
+                    helper.assertFalse(plan.chamberVolume().contains(net.minecraft.world.phys.Vec3.atCenterOf(survey)),
+                            "Intermediate survey gallery is not the final chamber");
+                    helper.assertFalse(plan.chamberVolume().contains(net.minecraft.world.phys.Vec3.atCenterOf(origin)),
+                            "Surface entrance must not prove chamber entry");
+                    helper.assertTrue(plan.chamberVolume().contains(net.minecraft.world.phys.Vec3.atCenterOf(plan.chamberCenter())),
+                            "Final chamber center missing from entry volume");
                     helper.assertTrue(plan.roomCenters().size()==4 && plan.roomCenters().contains(survey),
                             "Catalogue removed the survey room");
                     helper.assertTrue(plan.blocks().get(survey.offset(-direction,-2,-zDirection)).is(Blocks.CARTOGRAPHY_TABLE)

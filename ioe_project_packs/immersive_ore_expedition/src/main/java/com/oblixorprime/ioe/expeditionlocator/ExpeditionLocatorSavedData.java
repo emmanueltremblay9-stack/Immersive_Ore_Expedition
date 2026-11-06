@@ -22,7 +22,7 @@ final class ExpeditionLocatorSavedData extends SavedData {
             ExpeditionLocatorSavedData::load
     );
 
-    private static final int DATA_VERSION = 2;
+    private static final int DATA_VERSION = 3;
     private static final String NATURAL_CONNECTED_SITE_SOURCE = "natural_connected_expedition_site";
     private static final String LEGACY_UNVERIFIED_REASON = "legacy_site_requires_bounded_reindex";
     private static final String SITES = "sites";
@@ -62,6 +62,7 @@ final class ExpeditionLocatorSavedData extends SavedData {
             ListTag nodes = new ListTag();
             site.buddingNodes().forEach(node -> nodes.add(node.save()));
             entry.put("budding_nodes", nodes);
+            entry.put("chamber_volume", site.chamberVolume().save());
             sites.add(entry);
         }
         tag.put(SITES, sites);
@@ -75,6 +76,8 @@ final class ExpeditionLocatorSavedData extends SavedData {
         for (int index = 0; index < sites.size(); index++) {
             CompoundTag siteTag = sites.getCompound(index);
             readSite(siteTag)
+                    .map(site -> loadedVersion == 3 ? site.withChamberVolume(ChamberVolume.load(
+                            siteTag.getList("chamber_volume", Tag.TAG_COMPOUND), site.pos())) : site)
                     .map(site -> migrateLegacyNaturalSite(site, loadedVersion))
                     .ifPresent(site -> {
                         data.index.record(site);
@@ -91,7 +94,7 @@ final class ExpeditionLocatorSavedData extends SavedData {
     }
 
     private static ExpeditionSite migrateLegacyNaturalSite(ExpeditionSite site, int loadedVersion) {
-        if (loadedVersion >= DATA_VERSION
+        if (loadedVersion >= 2
                 || site.source().filter(NATURAL_CONNECTED_SITE_SOURCE::equals).isEmpty()
                 || !site.playable()) {
             return site;

@@ -52,6 +52,7 @@ public final class ProximityDiscovery {
             Integer last = LAST_SCAN.get(player);
             if (last != null && now - last >= 0 && now - last < INTERVAL) continue;
             LAST_SCAN.put(player, now);
+            ChamberEntryDiscovery.scan(player);
             scan(player, player::sendSystemMessage);
         }
     }

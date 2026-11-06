@@ -22,6 +22,8 @@ public final class ExpeditionLocatorIndex {
 
     private final java.util.Map<NodeKey, ExpeditionSite> naturalAnchors = new java.util.HashMap<>();
     private final java.util.Map<ChunkKey, LinkedHashMap<NodeKey, ExpeditionSite>> discoveryChunks = new java.util.HashMap<>();
+    private final java.util.Map<ChunkKey, java.util.NavigableMap<Long, ExpeditionSite>> chamberChunks = new java.util.HashMap<>();
+    private final java.util.Map<ChunkKey, Long> chamberCursors = new java.util.HashMap<>();
     private record ChunkKey(ResourceKey<Level> dimension, int x, int z) { }
 
     public record NodeContext(ExpeditionSite site, com.oblixorprime.ioe.budding.BuddingNodeInfo node) { }
@@ -48,6 +50,18 @@ public final class ExpeditionLocatorIndex {
                     site.pos().getZ() >> 4), ignored -> new LinkedHashMap<>()).put(key, site);
         }
         ExpeditionSite previous = sites.put(SiteKey.from(site), site);
+        if (previous != null) for (long chunk : previous.chamberVolume().chunks()) {
+            var key = new ChunkKey(previous.dimension(), net.minecraft.world.level.ChunkPos.getX(chunk), net.minecraft.world.level.ChunkPos.getZ(chunk));
+            var bucket = chamberChunks.get(key);
+            if (bucket != null) {
+                bucket.remove(previous.pos().asLong());
+                if (bucket.isEmpty()) { chamberChunks.remove(key); chamberCursors.remove(key); }
+            }
+        }
+        if (naturalDiscoveryAnchor(site)) for (long chunk : site.chamberVolume().chunks()) {
+            var key = new ChunkKey(site.dimension(), net.minecraft.world.level.ChunkPos.getX(chunk), net.minecraft.world.level.ChunkPos.getZ(chunk));
+            chamberChunks.computeIfAbsent(key, ignored -> new java.util.TreeMap<>()).put(site.pos().asLong(), site);
+        }
         if (previous != null) previous.buddingNodes().forEach(node -> nodes.remove(new NodeKey(previous.dimension(), node.pos()), new NodeContext(previous, node)));
         if (site.playable() && site.quality().isPresent()) {
             site.buddingNodes().forEach(node -> nodes.put(new NodeKey(site.dimension(), node.pos()), new NodeContext(site, node)));
@@ -162,6 +176,22 @@ public final class ExpeditionLocatorIndex {
                 result.add(site);
             }
         }
+        return List.copyOf(result);
+    }
+
+    /** Bounded, rotating candidates in the occupied chunk. No terrain or chunk-source access. */
+    public synchronized List<ExpeditionSite> chamberCandidates(ResourceKey<Level> dimension, BlockPos feet) {
+        var key = new ChunkKey(dimension, feet.getX() >> 4, feet.getZ() >> 4);
+        var bucket = chamberChunks.get(key);
+        if (bucket == null || bucket.isEmpty()) return List.of();
+        var result = new java.util.ArrayList<ExpeditionSite>();
+        long cursor = chamberCursors.getOrDefault(key, Long.MIN_VALUE);
+        for (int i = 0; i < Math.min(16, bucket.size()); i++) {
+            var next = bucket.higherEntry(cursor);
+            if (next == null) next = bucket.firstEntry();
+            result.add(next.getValue()); cursor = next.getKey();
+        }
+        chamberCursors.put(key, cursor);
         return List.copyOf(result);
     }
 

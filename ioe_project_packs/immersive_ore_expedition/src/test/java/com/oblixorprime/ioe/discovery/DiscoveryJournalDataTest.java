@@ -29,6 +29,43 @@ class DiscoveryJournalDataTest {
         return DiscoveryJournalData.FACTORY.deserializer().apply(data.save(new CompoundTag(), null), null);
     }
 
+    @Test void chamberEntryIsIndependentPersistentPrivateAndIdempotent() {
+        var data = new DiscoveryJournalData();
+        assertTrue(data.recordChamberEntry(PLAYER, KEY));
+        assertTrue(data.views(PLAYER).isEmpty());
+        assertTrue(data.stage(PLAYER, KEY).isEmpty());
+        data = reload(data);
+        assertTrue(data.enteredChamber(PLAYER, KEY));
+        data.setDirty(false);
+        assertFalse(data.recordChamberEntry(PLAYER, KEY));
+        assertFalse(data.isDirty());
+        assertFalse(data.enteredChamber(UUID.randomUUID(), KEY));
+        assertFalse(data.enteredChamber(PLAYER, new DiscoverySiteKey(Level.NETHER.location(), KEY.anchor())));
+        data.advance(PLAYER, KEY, evidence(DiscoveryStage.EVIDENCE_DISCOVERED));
+        assertFalse(data.views(PLAYER).getFirst().chamberEntered());
+        var id = data.views(PLAYER).getFirst().id();
+        data.advance(PLAYER, KEY, evidence(DiscoveryStage.SITE_LOCATED));
+        var view = reload(data).views(PLAYER).getFirst();
+        assertEquals(id, view.id());
+        assertTrue(view.chamberEntered());
+        assertEquals(DiscoveryStage.SITE_LOCATED, view.stage());
+        assertTrue(view.resource().isEmpty());
+        assertTrue(view.quality().isEmpty());
+    }
+
+    @Test void legacySurveyRetainsIdentityAndHistoryButProvesNoChamberEntry() {
+        var data = new DiscoveryJournalData();
+        for (var stage : DiscoveryStage.values()) data.advance(PLAYER, KEY, evidence(stage));
+        var before = data.views(PLAYER).getFirst();
+        data.recordChamberEntry(PLAYER, KEY);
+        var legacy = data.save(new CompoundTag(), null);
+        legacy.putInt("version", 1); // A v1 file cannot assert the new fact, even with injected fields.
+        var loaded = DiscoveryJournalData.FACTORY.deserializer().apply(legacy, null);
+        assertEquals(before, loaded.views(PLAYER).getFirst());
+        assertFalse(loaded.enteredChamber(PLAYER, KEY));
+        assertEquals(2, loaded.save(new CompoundTag(), null).getInt("version"));
+    }
+
     @Test void stagesAreOrderedMonotoneAndRepeatedEvidenceDoesNotDirtyOrDuplicate() {
         var data = new DiscoveryJournalData();
         assertFalse(data.advance(PLAYER, KEY, evidence(DiscoveryStage.SITE_SURVEYED)));
@@ -98,10 +135,11 @@ class DiscoveryJournalDataTest {
         entries.add(malformed);
         var loaded = DiscoveryJournalData.FACTORY.deserializer().apply(tag, null);
         assertEquals(data.views(PLAYER), loaded.views(PLAYER));
-        tag.putInt("version", 2);
+        tag.putInt("version", 99);
         var future = DiscoveryJournalData.FACTORY.deserializer().apply(tag, null);
         assertTrue(future.views(PLAYER).isEmpty());
         assertFalse(future.advance(PLAYER, KEY, evidence(DiscoveryStage.EVIDENCE_DISCOVERED)));
+        assertFalse(future.recordChamberEntry(PLAYER, KEY));
         assertEquals(tag, future.save(new CompoundTag(), null));
     }
 

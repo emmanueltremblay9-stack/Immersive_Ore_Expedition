@@ -39,6 +39,6 @@ final class CanonicalBuddingSitePlans {
         }
         return new ExpeditionSiteBlockPlan(shape.requestedFeatureId(), shape.anchorPos(), shape.connectorEnd(),
                 shape.chamberCenter(), shape.quality(), node, shape.oreBlockId(), shape.oreNodeHeartBlockId(),
-                shape.roomCenters(), shape.generatedComponents(), blocks, shape.blockEntityPayloads());
+                shape.roomCenters(), shape.generatedComponents(), blocks, shape.blockEntityPayloads(), shape.chamberVolume());
     }
 }

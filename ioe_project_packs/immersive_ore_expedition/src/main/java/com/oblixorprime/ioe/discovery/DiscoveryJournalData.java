@@ -18,10 +18,11 @@ final class DiscoveryJournalData extends SavedData {
     private final Map<Key, DiscoveryView> records = new LinkedHashMap<>();
     private final Map<UUID, List<Key>> playerRows = new HashMap<>();
     private CompoundTag unsupportedData;
+    private final Set<Key> chamberEntries = new HashSet<>();
 
     List<DiscoveryView> views(UUID player) {
         return records.entrySet().stream().filter(e -> e.getKey().player().equals(player))
-                .map(Map.Entry::getValue).toList();
+                .map(e -> project(e.getKey(), e.getValue())).toList();
     }
 
     DiscoveryPage page(UUID player, int requestedOffset) {
@@ -29,7 +30,19 @@ final class DiscoveryJournalData extends SavedData {
         List<Key> rows = playerRows.getOrDefault(player, List.of());
         if (rows.isEmpty()) return new DiscoveryPage(0, 0, Optional.empty());
         int offset = Math.min(requestedOffset, rows.size() - 1);
-        return new DiscoveryPage(offset, rows.size(), Optional.of(records.get(rows.get(offset))));
+        return new DiscoveryPage(offset, rows.size(), Optional.of(project(rows.get(offset), records.get(rows.get(offset)))));
+    }
+
+    private DiscoveryView project(Key key, DiscoveryView view) {
+        return view.withChamberEntered(view.siteLocation().isPresent() && chamberEntries.contains(key));
+    }
+
+    boolean enteredChamber(UUID player, DiscoverySiteKey site) { return chamberEntries.contains(new Key(player, site)); }
+
+    boolean recordChamberEntry(UUID player, DiscoverySiteKey site) {
+        if (unsupportedData != null || !chamberEntries.add(new Key(Objects.requireNonNull(player), Objects.requireNonNull(site)))) return false;
+        setDirty();
+        return true;
     }
 
     boolean contains(UUID player, DiscoverySiteKey site) { return records.containsKey(new Key(player, site)); }
@@ -66,7 +79,7 @@ final class DiscoveryJournalData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         if (unsupportedData != null) return tag.merge(unsupportedData.copy());
-        tag.putInt("version", 1);
+        tag.putInt("version", 2);
         ListTag entries = new ListTag();
         records.forEach((key, view) -> {
             CompoundTag entry = new CompoundTag();
@@ -83,12 +96,19 @@ final class DiscoveryJournalData extends SavedData {
             entries.add(entry);
         });
         tag.put("entries", entries);
+        ListTag entered = new ListTag();
+        chamberEntries.forEach(key -> {
+            CompoundTag row = new CompoundTag();
+            row.putUUID("player", key.player()); row.putString("dimension", key.site().dimension().toString());
+            row.putLong("anchor", key.site().anchor().asLong()); entered.add(row);
+        });
+        tag.put("chamber_entries", entered);
         return tag;
     }
 
     private static DiscoveryJournalData load(CompoundTag tag, HolderLookup.Provider registries) {
         DiscoveryJournalData data = new DiscoveryJournalData();
-        if (tag.getInt("version") != 1) {
+        if (tag.getInt("version") != 1 && tag.getInt("version") != 2) {
             // Throwing here lets DimensionDataStorage replace an unreadable file with fresh data.
             // Preserve unknown formats intact and refuse progression instead.
             data.unsupportedData = tag.copy();
@@ -127,6 +147,14 @@ final class DiscoveryJournalData extends SavedData {
                 // One malformed entry cannot discard other players' journals.
             }
         }
+        if (tag.getInt("version") == 2) for (Tag value : tag.getList("chamber_entries", Tag.TAG_COMPOUND)) {
+            CompoundTag row = (CompoundTag) value;
+            ResourceLocation dimension = ResourceLocation.tryParse(row.getString("dimension"));
+            if (row.hasUUID("player") && row.contains("anchor", Tag.TAG_LONG) && dimension != null)
+                data.chamberEntries.add(new Key(row.getUUID("player"),
+                        new DiscoverySiteKey(dimension, BlockPos.of(row.getLong("anchor")))));
+        }
+        if (tag.getInt("version") == 1) data.setDirty();
         return data;
     }
 }

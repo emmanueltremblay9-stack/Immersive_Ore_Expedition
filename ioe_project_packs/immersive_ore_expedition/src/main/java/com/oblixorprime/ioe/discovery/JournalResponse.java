@@ -22,6 +22,7 @@ public record JournalResponse(long token, DiscoveryPage page) implements CustomP
         if (v.stage().ordinal() >= 1) b.writeBlockPos(v.siteLocation().orElseThrow());
         if (v.stage().ordinal() >= 2) b.writeUtf(v.resource().orElseThrow().toString(), MAX_ID);
         if (v.stage().ordinal() >= 3) b.writeEnum(v.quality().orElseThrow());
+        b.writeBoolean(v.stage().ordinal() >= 1 && v.chamberEntered());
     }
     private static JournalResponse read(RegistryFriendlyByteBuf b) {
         long token = b.readLong(); int offset = b.readVarInt(); int total = b.readVarInt();
@@ -34,7 +35,7 @@ public record JournalResponse(long token, DiscoveryPage page) implements CustomP
         var resource = stage.ordinal() >= 2 ? Optional.of(ResourceLocation.parse(b.readUtf(MAX_ID))) : Optional.<ResourceLocation>empty();
         var quality = stage.ordinal() >= 3 ? Optional.of(b.readEnum(SiteQuality.class)) : Optional.<SiteQuality>empty();
         return new JournalResponse(token, new DiscoveryPage(offset, total,
-                Optional.of(new DiscoveryView(id, stage, dimension, type, clue, location, resource, quality))));
+                Optional.of(new DiscoveryView(id, stage, dimension, type, clue, location, resource, quality, b.readBoolean() && stage.ordinal() >= 1))));
     }
     @Override public Type<JournalResponse> type() { return TYPE; }
 }

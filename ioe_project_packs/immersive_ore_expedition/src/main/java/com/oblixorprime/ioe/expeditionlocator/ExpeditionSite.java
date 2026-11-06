@@ -21,11 +21,13 @@ public record ExpeditionSite(
         Optional<String> source,
         ExpeditionSitePlacementState placementState,
         Optional<String> placementReason,
-        List<BuddingNodeInfo> buddingNodes
+        List<BuddingNodeInfo> buddingNodes,
+        ChamberVolume chamberVolume
 ) {
     public static final String RECOVERED_MINE_SOURCE = "bounded_admin_reindex_mine_signature";
 
     public ExpeditionSite {
+        Objects.requireNonNull(chamberVolume, "chamberVolume");
         Objects.requireNonNull(dimension, "dimension");
         Objects.requireNonNull(pos, "pos");
         Objects.requireNonNull(kind, "kind");
@@ -52,9 +54,21 @@ public record ExpeditionSite(
         this(dimension, pos, kind, anchorId, provinceId, quality, source, placementState, placementReason, List.of());
     }
 
+    public ExpeditionSite(ResourceKey<Level> dimension, BlockPos pos, ExpeditionSiteKind kind,
+            Optional<ResourceLocation> anchorId, Optional<ResourceLocation> provinceId, Optional<SiteQuality> quality,
+            Optional<String> source, ExpeditionSitePlacementState state, Optional<String> reason,
+            List<BuddingNodeInfo> nodes) {
+        this(dimension, pos, kind, anchorId, provinceId, quality, source, state, reason, nodes, ChamberVolume.EMPTY);
+    }
+
+    public ExpeditionSite withChamberVolume(ChamberVolume volume) {
+        return new ExpeditionSite(dimension, pos, kind, anchorId, provinceId, quality, source,
+                placementState, placementReason, buddingNodes, volume);
+    }
+
     public ExpeditionSite withBuddingNodes(List<BuddingNodeInfo> nodes) {
         return new ExpeditionSite(dimension, pos, kind, anchorId, provinceId, quality, source,
-                placementState, placementReason, nodes);
+                placementState, placementReason, nodes, chamberVolume);
     }
 
     public ExpeditionSite(

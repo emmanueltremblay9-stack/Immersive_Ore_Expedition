@@ -244,6 +244,7 @@ public final class ExpeditionSiteBlueprints {
         BlockPos connectorEnd = origin;
         BlockPos chamberCenter = origin;
         List<BlockPos> roomCenters = new ArrayList<>();
+        java.util.Set<BlockPos> chamberCells = new java.util.HashSet<>();
         int oreNodeCount = 0;
         boolean catalogue = requestedType.naturalSurfaceSite() && !hasSpecialGeode
                 && (oreNodeHeartState == null || BuddingBlockIdentity.isCanonical(oreNodeHeartState.getBlock()));
@@ -262,6 +263,10 @@ public final class ExpeditionSiteBlueprints {
                         zDirectionTowardChunkCenter(origin), GalleryTheme.SURVEY));
                 connectorEnd = origin.below(shaftDepth);
                 var geometry = CatalogueTerraces.geometry(chamberCenter,variant);
+                geometry.forEach((p, state) -> {
+                    if (state.isAir() || state.is(Blocks.LADDER) || state.getBlock() instanceof net.minecraft.world.level.block.StairBlock)
+                        chamberCells.add(p);
+                });
                 geometry.forEach(builder::put);
                 CatalogueTerraces.access(chamberCenter,connectorEnd,geometry).forEach(builder::put);
                 // Reopen the two original shaft cells through the overhead connector's roof.
@@ -368,8 +373,25 @@ public final class ExpeditionSiteBlueprints {
                 roomCenters,
                 List.copyOf(components),
                 builder.blocks(),
-                builder.blockEntityPayloads()
+                builder.blockEntityPayloads(),
+                chamberVolume(chamberCells, builder.blocks())
         );
+    }
+
+    private static com.oblixorprime.ioe.expeditionlocator.ChamberVolume chamberVolume(
+            java.util.Set<BlockPos> cells, Map<BlockPos, BlockState> finalBlocks) {
+        var boxes = new ArrayList<net.minecraft.world.phys.AABB>();
+        for (BlockPos p : cells.stream().sorted(java.util.Comparator.comparingLong(BlockPos::asLong)).toList()) {
+            BlockState state = finalBlocks.get(p);
+            if (state == null) continue;
+            // Catalogue cells use vanilla air, ladders and resolved stairs; these shapes need no world read.
+            var solid = state.getCollisionShape(net.minecraft.world.level.EmptyBlockGetter.INSTANCE, p);
+            var free = net.minecraft.world.phys.shapes.Shapes.joinUnoptimized(
+                    net.minecraft.world.phys.shapes.Shapes.block(), solid,
+                    net.minecraft.world.phys.shapes.BooleanOp.ONLY_FIRST);
+            for (var box : free.toAabbs()) boxes.add(box.move(p));
+        }
+        return new com.oblixorprime.ioe.expeditionlocator.ChamberVolume(boxes);
     }
 
     private static int directionTowardChunkCenter(BlockPos origin) {

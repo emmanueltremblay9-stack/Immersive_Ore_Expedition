@@ -297,7 +297,8 @@ final class IoePendingExpeditionSites {
 
             try {
                 ExpeditionLocatorService.record(level,
-                        effectiveSite.site().withBuddingNodes(BuddingPlanMetadata.nodes(effectiveSite.plan())));
+                        effectiveSite.site().withBuddingNodes(BuddingPlanMetadata.nodes(effectiveSite.plan()))
+                                .withChamberVolume(effectiveSite.plan().chamberVolume()));
             } catch (RuntimeException | LinkageError failure) {
                 rejectedSites++;
                 rollbackReservationBestEffort(effectiveSite, "locator failure after reservation commit");
