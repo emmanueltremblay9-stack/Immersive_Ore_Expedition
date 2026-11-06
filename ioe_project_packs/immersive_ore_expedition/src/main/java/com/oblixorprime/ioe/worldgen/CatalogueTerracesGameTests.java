@@ -27,6 +27,10 @@ public final class CatalogueTerracesGameTests {
         var plan = ExpeditionSiteBlueprints.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
                 origin, com.oblixorprime.ioe.core.SiteQuality.DRY, null, null,
                 net.minecraft.util.RandomSource.create(19));
+        var connectorRoof = plan.chamberCenter().offset(0,3,-6);
+        helper.assertTrue(plan.blocks().get(connectorRoof).is(Blocks.LADDER), "Fixture lacks pierced roof ladder");
+        helper.assertFalse(plan.chamberVolume().contains(net.minecraft.world.phys.Vec3.atCenterOf(connectorRoof)),
+                "Exterior connector through the roof must not grant chamber entry");
         var floor = plan.chamberCenter().below();
         var onChest = net.minecraft.world.phys.Vec3.atLowerCornerOf(floor).add(0.5,0.9,0.5);
         helper.assertFalse(plan.chamberVolume().contains(onChest), "Solid original floor counted as interior");

@@ -26,7 +26,9 @@ conserve une photographie immuable du plan et développe les boîtes exactes une
 seule fois à la confirmation/persistance ; les prévisualisations et la matrice ne
 recalculent plus tout le volume pour chaque point observé. Équivalence avant/après
 matérialisation testée, seuils CI et scénarios inchangés. Nouvelle qualification
-au SHA de cette correction requise. CI du SHA exact à consigner après exécution ; aucune validation
+au SHA de cette correction requise. Le domaine intérieur exclut aussi la coque
+initialement pleine du plafond percée par le raccord : une assertion vérifie que
+les pieds dans ce raccord ne valent pas encore entrée dans la chambre. CI du SHA exact à consigner après exécution ; aucune validation
 client ou qualification de placement naturel revendiquée. Crystal Fixer inchangé.
 
 ## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC

@@ -263,7 +263,13 @@ public final class ExpeditionSiteBlueprints {
                         zDirectionTowardChunkCenter(origin), GalleryTheme.SURVEY));
                 connectorEnd = origin.below(shaftDepth);
                 var geometry = CatalogueTerraces.geometry(chamberCenter,variant);
-                chamberCells.addAll(geometry.keySet());
+                BlockPos floorMarker = chamberCenter.below();
+                geometry.forEach((p, state) -> {
+                    // The access pass may pierce the roof; its formerly solid shell is not chamber interior.
+                    if (state.isAir() || state.is(Blocks.LADDER)
+                            || state.getBlock() instanceof net.minecraft.world.level.block.StairBlock
+                            || p.equals(floorMarker)) chamberCells.add(p);
+                });
                 geometry.forEach(builder::put);
                 CatalogueTerraces.access(chamberCenter,connectorEnd,geometry).forEach(builder::put);
                 // Reopen the two original shaft cells through the overhead connector's roof.
