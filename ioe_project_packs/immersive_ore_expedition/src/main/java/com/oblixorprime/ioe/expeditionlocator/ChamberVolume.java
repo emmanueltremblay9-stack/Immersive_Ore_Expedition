@@ -11,13 +11,16 @@ import java.util.*;
 /** Exact planned free-space boxes, never inferred from an anchor or surviving nodes. */
 public final class ChamberVolume {
     private final List<AABB> boxes;
+    private final Set<BlockPos> plannedCells;
     private final Map<BlockPos, List<AABB>> cells;
     public List<AABB> boxes() { return boxes; }
     @Override public boolean equals(Object other) { return other instanceof ChamberVolume v && boxes.equals(v.boxes); }
     @Override public int hashCode() { return boxes.hashCode(); }
     public static final ChamberVolume EMPTY = new ChamberVolume(List.of());
     public static final int MAX_BOXES = 20000;
-    public ChamberVolume(List<AABB> boxes) {
+    public ChamberVolume(List<AABB> boxes) { this(boxes, null); }
+    private ChamberVolume(List<AABB> boxes, Set<BlockPos> plannedCells) {
+        this.plannedCells = plannedCells == null ? null : Set.copyOf(plannedCells);
         this.boxes = List.copyOf(boxes);
         Map<BlockPos,List<AABB>> indexed = new HashMap<>();
         if (boxes.size() > MAX_BOXES) throw new IllegalArgumentException("Oversized chamber volume");
@@ -36,9 +39,18 @@ public final class ChamberVolume {
     }
     /** Half-open boxes: a boundary belongs to only the cell on its positive side. */
     public boolean contains(Vec3 feet) { return cells.getOrDefault(BlockPos.containing(feet), List.of()).stream().anyMatch(b -> b.contains(feet)); }
+    /** Retain the authored domain during plan composition, including floors later replaced by a chest. */
+    public static ChamberVolume planned(Set<BlockPos> cells,
+            java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> blocks) {
+        if (cells.size() > 2500) throw new IllegalArgumentException("Oversized chamber domain");
+        return new ChamberVolume(List.of(), cells).clipTo(blocks);
+    }
+
     public ChamberVolume clipTo(java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> blocks) {
         List<AABB> result = new ArrayList<>();
-        for (AABB box : boxes) {
+        List<AABB> source = plannedCells == null ? boxes : plannedCells.stream()
+                .sorted(java.util.Comparator.comparingLong(BlockPos::asLong)).map(AABB::new).toList();
+        for (AABB box : source) {
             BlockPos p = BlockPos.containing(box.minX,box.minY,box.minZ);
             var state = blocks.get(p);
             if (state == null) continue;
@@ -48,7 +60,7 @@ public final class ChamberVolume {
                     solid, net.minecraft.world.phys.shapes.BooleanOp.ONLY_FIRST);
             for (AABB part : free.toAabbs()) result.add(part.move(p));
         }
-        return new ChamberVolume(result);
+        return new ChamberVolume(result, plannedCells);
     }
 
     public Set<Long> chunks() {

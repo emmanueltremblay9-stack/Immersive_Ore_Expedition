@@ -21,6 +21,24 @@ import java.util.Set;
 @GameTestHolder(ImmersiveOreExpeditionMod.MODID)
 @PrefixGameTestTemplate(false)
 public final class CatalogueTerracesGameTests {
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void dryRewardPreservesExactChamberFloorFreeSpace(GameTestHelper helper) {
+        var origin = new BlockPos(8,90,8);
+        var plan = ExpeditionSiteBlueprints.plan(ExpeditionSiteType.TINY_VERTICAL_MINE_ENTRANCE,
+                origin, com.oblixorprime.ioe.core.SiteQuality.DRY, null, null,
+                net.minecraft.util.RandomSource.create(19));
+        var floor = plan.chamberCenter().below();
+        var onChest = net.minecraft.world.phys.Vec3.atLowerCornerOf(floor).add(0.5,0.9,0.5);
+        helper.assertFalse(plan.chamberVolume().contains(onChest), "Solid original floor counted as interior");
+        var rewarded = DrySiteRewards.attach(plan,true,19);
+        helper.assertTrue(rewarded.chamberVolume().contains(onChest), "Free space above final chest was lost");
+        helper.assertFalse(rewarded.chamberVolume().contains(net.minecraft.world.phys.Vec3.atCenterOf(floor)),
+                "Solid chest body counted as interior");
+        helper.assertTrue(com.oblixorprime.ioe.expeditionlocator.ChamberVolume.load(
+                rewarded.chamberVolume().save(),origin).contains(onChest), "Final floor geometry lost on save");
+        helper.succeed();
+    }
+
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 200)
     public static void terracesHaveSupportedRoutesAndExactMasks(GameTestHelper helper) {
         BlockPos center = new BlockPos(7,15,7);
