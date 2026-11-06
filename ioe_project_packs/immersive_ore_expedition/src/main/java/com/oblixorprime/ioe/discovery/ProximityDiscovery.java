@@ -49,10 +49,10 @@ public final class ProximityDiscovery {
         for (int i = 0; i < Math.min(size, PLAYERS_PER_TICK); i++) {
             if (cursor >= size) cursor = 0;
             ServerPlayer player = players.get(cursor++);
+            ChamberEntryDiscovery.scan(player);
             Integer last = LAST_SCAN.get(player);
             if (last != null && now - last >= 0 && now - last < INTERVAL) continue;
             LAST_SCAN.put(player, now);
-            ChamberEntryDiscovery.scan(player);
             scan(player, player::sendSystemMessage);
         }
     }

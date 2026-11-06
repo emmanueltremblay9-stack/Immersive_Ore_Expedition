@@ -17,7 +17,9 @@ room. Only the final committed locator entry exposes this volume. Old sites and
 non-catalogue plans without explicit geometry do not earn entry by approximation.
 
 The server checks the player's feet in half-open volume boxes using the existing
-bounded player scheduler (8 players/tick, at least 20 ticks between scans per player).
+bounded player scheduler (8 players/tick, round-robin). Chamber presence is checked
+on every scheduled player visit, before the separate 20-tick surface-observation
+debounce. With at most eight online players, presence is sampled every server tick.
 Each scan reads at most 16 indexed candidates in the occupied chunk; rotation is
 per player, so other players cannot starve a candidate. No terrain reads or chunk
 loads are performed. This is sampled presence: a visit entirely between scans is
