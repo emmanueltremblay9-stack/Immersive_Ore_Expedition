@@ -1,6 +1,6 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
-## Journal — preuve d'entrée en chambre, cycle en qualification
+## Journal — preuve d'entrée en chambre qualifiée automatiquement, brouillon bloqué
 
 Décision utilisateur : entrer dans la chambre suffit à prouver son exploration,
 DRY compris. Le fait persistant est indépendant des stades historiques et n'accorde
@@ -26,10 +26,37 @@ conserve une photographie immuable du plan et développe les boîtes exactes une
 seule fois à la confirmation/persistance ; les prévisualisations et la matrice ne
 recalculent plus tout le volume pour chaque point observé. Équivalence avant/après
 matérialisation testée, seuils CI et scénarios inchangés. Nouvelle qualification
-au SHA de cette correction requise. Le domaine intérieur exclut aussi la coque
+au SHA final ci-dessous obtenue. Le domaine intérieur exclut aussi la coque
 initialement pleine du plafond percée par le raccord : une assertion vérifie que
-les pieds dans ce raccord ne valent pas encore entrée dans la chambre. CI du SHA exact à consigner après exécution ; aucune validation
-client ou qualification de placement naturel revendiquée. Crystal Fixer inchangé.
+les pieds dans ce raccord ne valent pas encore entrée dans la chambre. La remise
+à zéro du locator efface également les candidats de chambre ; le test vérifie leur
+absence après clear et leur reconstruction sans doublon.
+
+Source runtime testé : `ea7c1c4722682b393b0d4b996bca2244009d73c6`, branche unique
+`codex/journal-chamber-entry`. Les huit jobs sont réussis :
+- [Baseline, sept jobs](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42283793832).
+- [TesT play2, un job](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42283793850).
+
+Dans chacune des deux configurations : **726 JUnit**, zéro échec/erreur/ignoré,
+**166 GameTests minimaux + 166 complets**, puis les scénarios existants de streaming
+et de reprise (un GameTest chacun) réussis. Le contrôle TesT play2 des hashes et
+des descripteurs publics API/ABI porte sur huit classes. Les rapports JUnit et
+reçus ont été relus ; le reçu de reprise porte le source exact. Ces scénarios
+existants ne constituent pas une preuve d'exploration client du Journal.
+
+[JAR baseline CI](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42283793832/artifacts/13537726738) :
+`immersive_ore_expedition-0.2.50-alpha-neoforge-1.21.1.jar`, 512 classes et métadonnées
+NeoForge vérifiées, SHA256 recalculé
+`96fbd146b9a8cacc15cebcb749f99d761d1af52ff7b51c78b23b83410acb8da1`.
+Aucune installation. Ce reçu documentaire est un successeur du source runtime
+ci-dessus ; il ne change ni l'identité du JAR ni le SHA qualifié.
+
+Création de PR brouillon refusée par la revue automatique : elle classe le Journal
+hors du cycle Overworld autorisé et assimile le brouillon à une publication interdite.
+Aucune PR créée et aucun contournement ; clarification d'autorisation demandée,
+sans réponse reçue au moment de ce reçu. Le code est conservé sur la même branche.
+Aucune validation client ou qualification de placement naturel revendiquée.
+Crystal Fixer inchangé ; aucune fusion, release ni activation modifiée.
 
 ## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC
 
