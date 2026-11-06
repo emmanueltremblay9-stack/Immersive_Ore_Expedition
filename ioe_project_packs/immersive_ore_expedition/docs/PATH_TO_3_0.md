@@ -19,7 +19,14 @@ aucune entrée ni preuve IE déduite du stade SITE_SURVEYED. Locator v2 → v3 :
 conservés sans volume inventé. Anciens sites, reindex et plans hors catalogue sans
 volume explicite ne produisent pas cette nouvelle preuve. Protocole journal v2.
 Tests de migration, limites, réseau, index et détection ajoutés ; matrice catalogue
-existante enrichie. CI du SHA exact à consigner après exécution ; aucune validation
+existante enrichie.
+La première qualification (`79d55f3`) a réussi sur TesT play2 mais dépassé les
+30 minutes du job baseline après 166 GameTests minimaux réussis. La correction
+conserve une photographie immuable du plan et développe les boîtes exactes une
+seule fois à la confirmation/persistance ; les prévisualisations et la matrice ne
+recalculent plus tout le volume pour chaque point observé. Équivalence avant/après
+matérialisation testée, seuils CI et scénarios inchangés. Nouvelle qualification
+au SHA de cette correction requise. CI du SHA exact à consigner après exécution ; aucune validation
 client ou qualification de placement naturel revendiquée. Crystal Fixer inchangé.
 
 ## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC

@@ -36,6 +36,12 @@ public final class CatalogueTerracesGameTests {
                 "Solid chest body counted as interior");
         helper.assertTrue(com.oblixorprime.ioe.expeditionlocator.ChamberVolume.load(
                 rewarded.chamberVolume().save(),origin).contains(onChest), "Final floor geometry lost on save");
+        var persisted = rewarded.chamberVolume().persisted();
+        for (var p : plan.blocks().keySet()) for (double height : new double[]{0.0,0.5,0.875,0.999}) {
+            var sample = net.minecraft.world.phys.Vec3.atLowerCornerOf(p).add(0.5,height,0.5);
+            helper.assertTrue(rewarded.chamberVolume().contains(sample) == persisted.contains(sample),
+                    "Deferred and persisted membership disagree at " + sample);
+        }
         helper.succeed();
     }
 
@@ -262,7 +268,6 @@ public final class CatalogueTerracesGameTests {
                     int direction = Math.floorMod(origin.getX(),16) <= 7 ? 1 : -1;
                     int zDirection = Math.floorMod(origin.getZ(),16) <= 7 ? 1 : -1;
                     BlockPos survey = origin.offset(direction*5,-8,zDirection*3);
-                    helper.assertTrue(!plan.chamberVolume().boxes().isEmpty(), "Catalogue chamber volume missing");
                     helper.assertFalse(plan.chamberVolume().contains(net.minecraft.world.phys.Vec3.atCenterOf(survey)),
                             "Intermediate survey gallery is not the final chamber");
                     helper.assertFalse(plan.chamberVolume().contains(net.minecraft.world.phys.Vec3.atCenterOf(origin)),

@@ -12,15 +12,17 @@ import java.util.*;
 public final class ChamberVolume {
     private final List<AABB> boxes;
     private final Set<BlockPos> plannedCells;
+    private final Map<BlockPos, net.minecraft.world.level.block.state.BlockState> plannedBlocks;
+    private volatile ChamberVolume materialized;
     private final Map<BlockPos, List<AABB>> cells;
-    public List<AABB> boxes() { return boxes; }
-    @Override public boolean equals(Object other) { return other instanceof ChamberVolume v && boxes.equals(v.boxes); }
-    @Override public int hashCode() { return boxes.hashCode(); }
+    public List<AABB> boxes() { return persisted().boxes; }
+    @Override public boolean equals(Object other) { return other instanceof ChamberVolume v && boxes().equals(v.boxes()); }
+    @Override public int hashCode() { return boxes().hashCode(); }
     public static final ChamberVolume EMPTY = new ChamberVolume(List.of());
     public static final int MAX_BOXES = 20000;
-    public ChamberVolume(List<AABB> boxes) { this(boxes, null); }
-    private ChamberVolume(List<AABB> boxes, Set<BlockPos> plannedCells) {
-        this.plannedCells = plannedCells == null ? null : Set.copyOf(plannedCells);
+    public ChamberVolume(List<AABB> boxes) {
+        this.plannedCells = null;
+        this.plannedBlocks = null;
         this.boxes = List.copyOf(boxes);
         Map<BlockPos,List<AABB>> indexed = new HashMap<>();
         if (boxes.size() > MAX_BOXES) throw new IllegalArgumentException("Oversized chamber volume");
@@ -37,20 +39,62 @@ public final class ChamberVolume {
         indexed.forEach((p, v) -> frozen.put(p, List.copyOf(v)));
         cells = Map.copyOf(frozen);
     }
-    /** Half-open boxes: a boundary belongs to only the cell on its positive side. */
-    public boolean contains(Vec3 feet) { return cells.getOrDefault(BlockPos.containing(feet), List.of()).stream().anyMatch(b -> b.contains(feet)); }
-    /** Retain the authored domain during plan composition, including floors later replaced by a chest. */
-    public static ChamberVolume planned(Set<BlockPos> cells,
-            java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> blocks) {
-        if (cells.size() > 2500) throw new IllegalArgumentException("Oversized chamber domain");
-        return new ChamberVolume(List.of(), cells).clipTo(blocks);
+    private ChamberVolume(Set<BlockPos> domain,
+            Map<BlockPos, net.minecraft.world.level.block.state.BlockState> blocks) {
+        if (domain.size() > 2500) throw new IllegalArgumentException("Oversized chamber domain");
+        plannedCells = Set.copyOf(domain);
+        Map<BlockPos, net.minecraft.world.level.block.state.BlockState> snapshot = new HashMap<>();
+        for (BlockPos p : domain) if (blocks.containsKey(p)) snapshot.put(p, blocks.get(p));
+        plannedBlocks = Map.copyOf(snapshot);
+        boxes = List.of(); cells = Map.of();
     }
 
-    public ChamberVolume clipTo(java.util.Map<BlockPos, net.minecraft.world.level.block.state.BlockState> blocks) {
+    /** Half-open membership can inspect one immutable planned cell without expanding the whole volume. */
+    public boolean contains(Vec3 feet) {
+        BlockPos p = BlockPos.containing(feet);
+        if (plannedCells == null)
+            return cells.getOrDefault(p, List.of()).stream().anyMatch(b -> b.contains(feet));
+        var state = plannedBlocks.get(p);
+        if (state == null) return false;
+        if (state.isAir()) return true;
+        var solid = state.getCollisionShape(net.minecraft.world.level.EmptyBlockGetter.INSTANCE, p);
+        Vec3 local = feet.subtract(p.getX(),p.getY(),p.getZ());
+        return solid.toAabbs().stream().noneMatch(b -> b.contains(local));
+    }
+
+    /** Expand once at the transaction/persistence boundary, not for every preview or matrix plan. */
+    public ChamberVolume persisted() {
+        if (plannedCells == null) return this;
+        ChamberVolume result = materialized;
+        if (result == null) synchronized (this) {
+            result = materialized;
+            if (result == null) {
+                List<AABB> expanded = new ArrayList<>();
+                for (BlockPos p : plannedBlocks.keySet().stream()
+                        .sorted(java.util.Comparator.comparingLong(BlockPos::asLong)).toList()) {
+                    var state = plannedBlocks.get(p);
+                    var solid = state.getCollisionShape(net.minecraft.world.level.EmptyBlockGetter.INSTANCE, p);
+                    var free = net.minecraft.world.phys.shapes.Shapes.joinUnoptimized(
+                            net.minecraft.world.phys.shapes.Shapes.block(), solid,
+                            net.minecraft.world.phys.shapes.BooleanOp.ONLY_FIRST);
+                    for (AABB part : free.toAabbs()) expanded.add(part.move(p));
+                }
+                result = new ChamberVolume(expanded);
+                materialized = result;
+            }
+        }
+        return result;
+    }
+
+    public static ChamberVolume planned(Set<BlockPos> domain,
+            Map<BlockPos, net.minecraft.world.level.block.state.BlockState> blocks) {
+        return new ChamberVolume(domain, blocks);
+    }
+
+    public ChamberVolume clipTo(Map<BlockPos, net.minecraft.world.level.block.state.BlockState> blocks) {
+        if (plannedCells != null) return new ChamberVolume(plannedCells, blocks);
         List<AABB> result = new ArrayList<>();
-        List<AABB> source = plannedCells == null ? boxes : plannedCells.stream()
-                .sorted(java.util.Comparator.comparingLong(BlockPos::asLong)).map(AABB::new).toList();
-        for (AABB box : source) {
+        for (AABB box : boxes) {
             BlockPos p = BlockPos.containing(box.minX,box.minY,box.minZ);
             var state = blocks.get(p);
             if (state == null) continue;
@@ -60,18 +104,18 @@ public final class ChamberVolume {
                     solid, net.minecraft.world.phys.shapes.BooleanOp.ONLY_FIRST);
             for (AABB part : free.toAabbs()) result.add(part.move(p));
         }
-        return new ChamberVolume(result, plannedCells);
+        return new ChamberVolume(result);
     }
 
     public Set<Long> chunks() {
         Set<Long> result = new HashSet<>();
-        for (AABB b : boxes) result.add(net.minecraft.world.level.ChunkPos.asLong(
+        for (AABB b : boxes()) result.add(net.minecraft.world.level.ChunkPos.asLong(
                 net.minecraft.util.Mth.floor(b.minX) >> 4, net.minecraft.util.Mth.floor(b.minZ) >> 4));
         return Set.copyOf(result);
     }
     public ListTag save() {
         ListTag result = new ListTag();
-        for (AABB b : boxes) {
+        for (AABB b : boxes()) {
             CompoundTag t = new CompoundTag();
             t.putDouble("x0", b.minX); t.putDouble("y0", b.minY); t.putDouble("z0", b.minZ);
             t.putDouble("x1", b.maxX); t.putDouble("y1", b.maxY); t.putDouble("z1", b.maxZ);

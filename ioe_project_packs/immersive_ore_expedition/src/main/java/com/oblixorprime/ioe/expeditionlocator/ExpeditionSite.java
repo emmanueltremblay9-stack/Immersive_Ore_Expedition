@@ -63,7 +63,7 @@ public record ExpeditionSite(
 
     public ExpeditionSite withChamberVolume(ChamberVolume volume) {
         return new ExpeditionSite(dimension, pos, kind, anchorId, provinceId, quality, source,
-                placementState, placementReason, buddingNodes, volume);
+                placementState, placementReason, buddingNodes, volume.persisted());
     }
 
     public ExpeditionSite withBuddingNodes(List<BuddingNodeInfo> nodes) {
