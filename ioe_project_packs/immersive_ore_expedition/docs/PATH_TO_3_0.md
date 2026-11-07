@@ -1,6 +1,6 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
-## Crystal Fixer — correction contractuelle en qualification
+## Crystal Fixer — correction contractuelle qualifiée, PR65 brouillon
 
 Le contrat Budding §3 interdit toute fabrication de Flawless, y compris Certus
 natif, et plafonne la restauration à FLAWED. Les archives ExtendedAE 2.2.33 et
@@ -11,9 +11,28 @@ utilisée pour l'Aggregator AE2CS. Aucun autre traitement ExtendedAE n'est modif
 Une régression GameTest vérifie son absence du RecipeManager et, lorsque
 ExtendedAE est chargé, la présence et le type Crystal Fixer des cinq recettes
 conservées : certus_damage, certus_chipped, entro_hardly, entro_half, entro_mostly.
-Les deux runtimes CI existants couvrent les deux versions supportées. Résultats du
-SHA exact à consigner après exécution ; aucune fabrication effective en machine
-ni validation client revendiquée. Aucune nouvelle recette pour les 75 cœurs.
+Les deux runtimes CI existants couvrent les deux versions supportées. Source testé :
+`33fec1977cdff5911da774e96ef020e25adcf923`. Dans chacune des deux configurations push :
+719 JUnit (zéro échec, erreur ou ignoré), 165 GameTests minimaux + 165 complets,
+puis streaming et reprise (un test chacun) réussis. Les reçus de reprise portent
+ce source exact. Les journaux GameTests sont agrégés, sans détail par test réussi.
+
+- Push baseline : https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42390387427
+- Push TesT play2 : https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42390387882
+- PR baseline : https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42390410524
+- PR TesT play2 : https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42390410550
+
+Les 16 jobs sont verts. Les runs PR vérifient le checkout temporaire de fusion
+`0bd068e0b9c9f2095e14e461fc62ae77bf97617c`, distinct du source push ci-dessus.
+[PR65](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/pull/65)
+reste en brouillon, non fusionnée. Le présent reçu est un successeur uniquement
+documentaire ; il ne transfère pas les preuves runtime à son propre SHA.
+
+[JAR du source push](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42390387427/artifacts/13582385360) :
+509 classes, métadonnées NeoForge et overlay embarqué vérifiés. SHA256 recalculé :
+`4fb72231ea51a4a1a43a2b2bc52c048df72f21747110f5f99c946178d2bb219a`.
+Aucune fabrication effective en machine ni validation client revendiquée.
+Aucune nouvelle recette pour les 75 cœurs.
 Cycle indépendant basé sur main ; la branche Journal et la sauvegarde PC restent
 intactes. Aucune installation, activation, fusion ou release.
 
