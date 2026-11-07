@@ -32,6 +32,25 @@ public final class IronBuddingGameTests {
     }
 
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void crystalFixerCannotCreateFlawlessButRetainsOtherRepairs(GameTestHelper helper) {
+        var recipes = helper.getLevel().getRecipeManager();
+        helper.assertTrue(recipes.byKey(id("extendedae:fixer/certus_flawed")).isEmpty(),
+                "Crystal Fixer must not manufacture native Flawless Certus");
+        if (net.neoforged.fml.ModList.get().isLoaded("extendedae")) {
+            // Exact remaining recipe IDs in both supported ExtendedAE 2.2.33 and 2.2.41 archives.
+            for (String path : List.of("certus_damage", "certus_chipped", "entro_hardly", "entro_half", "entro_mostly")) {
+                var recipe = recipes.byKey(id("extendedae:fixer/" + path));
+                helper.assertTrue(recipe.isPresent(), "Unrelated Crystal Fixer repair missing: " + path);
+                helper.assertTrue(id("extendedae:crystal_fixer").equals(
+                        BuiltInRegistries.RECIPE_TYPE.getKey(recipe.orElseThrow().value().getType())),
+                        "Repair no longer belongs to Crystal Fixer: " + path);
+            }
+        }
+        // RecipeManager admission only: this does not operate a Crystal Fixer machine.
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
     public static void ironRecipesLoadAndCannotRestoreFlawless(GameTestHelper helper) {
         for (String path : List.of("aggregator/damaged_budding_iron", "transform/chipped_budding_iron", "transform/flawed_budding_iron")) {
             helper.assertTrue(helper.getLevel().getRecipeManager().byKey(id("immersive_ore_expedition:" + path)).isPresent(),

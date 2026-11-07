@@ -1,5 +1,22 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
+## Crystal Fixer — correction contractuelle en qualification
+
+Le contrat Budding §3 interdit toute fabrication de Flawless, y compris Certus
+natif, et plafonne la restauration à FLAWED. Les archives ExtendedAE 2.2.33 et
+2.2.41 fournissent `extendedae:fixer/certus_flawed` (Flawed → Flawless, chance 500).
+IOE neutralise uniquement cet identifiant avec la condition NeoForge false déjà
+utilisée pour l'Aggregator AE2CS. Aucun autre traitement ExtendedAE n'est modifié.
+
+Une régression GameTest vérifie son absence du RecipeManager et, lorsque
+ExtendedAE est chargé, la présence et le type Crystal Fixer des cinq recettes
+conservées : certus_damage, certus_chipped, entro_hardly, entro_half, entro_mostly.
+Les deux runtimes CI existants couvrent les deux versions supportées. Résultats du
+SHA exact à consigner après exécution ; aucune fabrication effective en machine
+ni validation client revendiquée. Aucune nouvelle recette pour les 75 cœurs.
+Cycle indépendant basé sur main ; la branche Journal et la sauvegarde PC restent
+intactes. Aucune installation, activation, fusion ou release.
+
 ## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC
 
 Statut : **signalée, non reproduite, non résolue**. Retour utilisateur
