@@ -46,7 +46,7 @@ public final class FlawlessFixerGameTests {
         };
         for (int i=0;i<20;i++) {
             level.removeBlock(pos.below(),false);
-            block.randomTick(block.defaultBlockState(),level,pos,growth);
+            ((EntroFlawlessBuddingBlock) block).randomTick(block.defaultBlockState(),level,pos,growth);
             helper.assertTrue(level.getBlockState(pos.below()).is(BuiltInRegistries.BLOCK.get(id("extendedae:entro_cluster_small"))),
                     "Entro growth changed family");
             helper.assertTrue(level.getBlockState(pos).is(block),"Permanent Entro degraded");
