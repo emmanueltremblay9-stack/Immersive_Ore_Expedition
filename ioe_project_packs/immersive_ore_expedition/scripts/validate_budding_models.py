@@ -40,8 +40,14 @@ def validate_data(family, read):
         for tag in ('c/tags/block/budding_blocks', 'minecraft/tags/block/mineable/pickaxe'):
             values = json.loads(read(f'data/{tag}.json'))['values']
             assert {'id': f'{MOD}:{name}', 'required': False} in values, name
+    fixer = data(f'recipe/fixer/flawless_budding_{family}', ('extendedae', 'ae2'))
+    assert fixer['type'] == 'extendedae:crystal_fixer' and fixer['chance'] == 500
+    assert fixer['input'] == {'count': 1, 'id': f'{MOD}:flawed_budding_{family}'}
+    assert fixer['output'] == {'count': 1, 'id': f'{MOD}:flawless_budding_{family}'}
+    assert fixer['fuel'] == {'ingredient': {'item': 'ae2:charged_certus_quartz_crystal'}}
     if family in ('amethyst', 'glowstone'):
-        assert not list((ROOT / f'data/{MOD}/recipe').rglob(f'*budding_{family}.json'))
+        assert all(p.parent.name == 'fixer' and p.name == f'flawless_budding_{family}.json'
+                   for p in (ROOT / f'data/{MOD}/recipe').rglob(f'*budding_{family}.json'))
         return
     for previous, rank in (('damaged', 'chipped'), ('chipped', 'flawed')):
         recipe = data(f'recipe/transform/{rank}_budding_{family}')
@@ -95,6 +101,12 @@ def validate(jars=()):
         return textures
 
     try:
+        entro = json.loads(read(f'data/{MOD}/recipe/fixer/flawless_budding_entroized_fluix.json'))
+        assert {c['modid'] for c in entro['neoforge:conditions']} == {'extendedae', 'ae2'}
+        assert entro['type'] == 'extendedae:crystal_fixer' and entro['chance'] == 500
+        assert entro['input'] == {'count': 1, 'id': 'extendedae:entro_budding_mostly'}
+        assert entro['output'] == {'count': 1, 'id': f'{MOD}:flawless_budding_entroized_fluix'}
+        assert entro['fuel'] == {'ingredient': {'item': 'ae2:charged_certus_quartz_crystal'}}
         for name in ('small_glowstone_bud', 'medium_glowstone_bud', 'large_glowstone_bud', 'glowstone_cluster'):
             model_id = f'{MOD}:block/{name}'
             state = json.loads(read(f'assets/{MOD}/blockstates/{name}.json'))

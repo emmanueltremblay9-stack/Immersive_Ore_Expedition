@@ -87,7 +87,8 @@ public final class GlowstoneBuddingGameTests {
         }
         for (var recipe : level.getRecipeManager().getRecipes()) {
             var output = recipe.value().getResultItem(level.registryAccess());
-            helper.assertTrue(hearts.stream().noneMatch(heart -> output.is(heart.asItem())), "Unapproved glowstone-heart recipe");
+            helper.assertTrue(hearts.stream().noneMatch(heart -> output.is(heart.asItem()))
+                            || recipe.id().toString().equals("immersive_ore_expedition:fixer/flawless_budding_glowstone"), "Unapproved glowstone-heart recipe");
         }
         helper.succeed();
     }

@@ -1,5 +1,90 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
+## Crystal Fixer — fabrication normalisée, qualification du candidat courant
+
+La demande du 8 novembre remplace la neutralisation de Certus : coût configurable
+par défaut 1 000 000 RF/FE, combustible et tirage natifs conservés. « Par tentative »
+est l'interprétation de la proposition acceptée, pas une citation littérale isolée.
+Le premier raccord vise le Certus natif Flawed → Flawless (5 %, combustible natif).
+L'Aggregator AE2CS reste neutralisé. Les réparations ordinaires restent natives.
+
+Le paiement est comptabilisé en FE réels, convertis via PowerUnit, sans multiplier
+une seconde fois le coût par le réglage global AE2. Le débit par passage reprend
+50 AE × progression native aléatoire (2 ou 3). Seuls les montants effectivement
+extraits sont crédités. Budget initial, cible et crédit sont persistés dans le NBT
+NeoForge de la machine ; un changement de cible invalide le crédit, une pénurie
+interrompt le paiement. Le tirage natif consomme le combustible une fois le coût
+payé, même si le tirage échoue. Pas de débit natif supplémentaire sur cette voie.
+Ce mécanisme ne garantit pas une transaction atomique face à un crash disque.
+Le crédit IOE utilise des hooks NBT explicites. La vérification du bytecode épinglé
+confirme les appels parents ExtendedAE de sauvegarde/chargement (la note précédente
+les déclarant absents était incorrecte). Le test de reprise ne réapprovisionne ni
+combustible ni énergie : il vérifie aussi leur conservation avant de poursuivre.
+
+Le coût serveur `flawlessAttemptCostFE` est configurable de 1 à 2147483647 FE,
+valeur initiale 1000000. Les tentatives en cours conservent leur budget initial.
+Les tests ajoutés couvrent le registre des recettes, le paiement partiel, son NBT,
+la reprise, le total débité, le tirage natif et les dépendances absentes. CI du
+nouveau source requise ; les anciens verts ne qualifient pas ce comportement.
+
+Les quinze familles IOE possèdent une recette Flawed → Flawless à 5 %, avec un
+cristal Certus chargé : continuité des restaurations GeOre et du Fixer Certus.
+Pour Améthyste/Glowstone, ce combustible est une hypothèse de normalisation choisie
+selon la délégation reçue, pas une ancienne recette native. Aucun rang usurable
+supplémentaire n'est rendu fabricable. Les conditions suivent les dépendances réelles.
+
+Entro possède une identité IOE Flawless distincte, croissance native 1/3 sans usure,
+récolte en Mostly même avec Silk Touch, métadonnées Jade via la famille existante.
+Son Fully natif reste usurable. La décision « Normalize every aspect » résout la
+collision : Mostly (rang Flawed) + un cristal Certus chargé → Flawless à 5 %, avec
+le même paiement configurable de 1 M FE par tentative. Mostly + poussière du tag
+c:dusts/ender_pearl → Fully à 70 % reste la réparation native, sans coût premium.
+Le combustible est le sélecteur existant ; aucun mode, priorité ou rang d'entrée
+supplémentaire n'est ajouté. Les tests vérifient l'unicité de la recette admissible
+pour chaque poussière chargée dans le tag et pour le Certus chargé, y compris le
+changement de combustible dans une même machine. Aucun site Entro ajouté.
+Le cache natif conserve sa recette lors d'un changement d'inventaire : le raccord
+redemande donc la sélection native avant tout débit si une recette Flawless ou la
+réparation Entro Mostly ne correspond plus au combustible. Une absence de combustible
+conserve le crédit payé et suspend le débit ; sélectionner une réparation ordinaire
+ne réutilise pas le crédit d'une fabrication Flawless.
+
+Les GameTests candidats vérifient le paiement/rechargement pour Certus et chaque
+famille disponible, Entro compris, plus sa sélection par combustible, sa croissance
+complète sans usure et sa récolte. Ils nécessitent la CI
+du nouveau SHA : les suites du prédécesseur partiel ne leur servent pas de preuve.
+Aucune activation, modification PC, fusion ou release. PR65 reste brouillon sur sa
+branche existante. Journal et sauvegarde sont préservés.
+
+### Qualification supplémentaire — client cloud et réseau AE
+
+Le checkout cloud est disponible, mais sans runtime Minecraft, compilateur Java,
+Gradle, lanceur ou affichage X/Wayland. Les deux profils existants de build.gradle
+sont des GameTestServer ; aucun profil client n'est configuré. Le contrôle ruOS
+ne trouve aucun bureau cloud complet existant, uniquement un navigateur léger.
+Aucune installation ni provision de remplacement n'est effectuée : la preuve
+visuelle client reste indisponible dans ces moyens.
+
+Un GameTest supplémentaire utilise six paires physiques Fixer/cellule AE dans la
+structure isolée déjà utilisée en CI : Certus, Fer, Améthyste, Glowstone, Entro
+Flawless et réparation Entro native. Les nœuds se créent et se connectent par leur
+cycle natif ; après amorçage sans énergie, le vrai tick manager AE conduit les
+tentatives. Seule la cellule est alimentée, le tampon interne du Fixer doit rester
+vide. Les assertions portent sur le débit réseau exact des tentatives Flawless,
+le coût natif de la réparation Entro, la consommation du combustible, les sorties
+compatibles avec le tirage et l'absence de second débit après achèvement.
+Le cycle suivant utilise le budget réel par défaut de 1 000 000 FE, sans modifier
+la configuration : cinq tentatives premium et la réparation native sur six réseaux
+isolés, alimentés par cellules denses. Le délai borné du test est adapté aux ticks
+natifs nécessaires ; les jobs existants disposent de 45 minutes, sans nouveau profil.
+Une seconde fixture laisse un générateur thermoélectrique IE natif (magma/glace
+bleue) alimenter un accepteur FE AE, sa cellule et une réparation Entro native.
+Elle n'injecte aucune énergie par API et ne force aucun tick de génération. Cette
+preuve externe est distincte du paiement million-FE depuis une cellule préchargée.
+Ces assertions nécessitent une nouvelle CI exacte ; les verts de 4b10f939 ne les
+qualifient pas. La recherche client cloud a été répétée sans trouver de client,
+affichage ou bureau complet existant. Aucune installation, aucun monde personnel.
+
 ## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC
 
 Statut : **signalée, non reproduite, non résolue**. Retour utilisateur

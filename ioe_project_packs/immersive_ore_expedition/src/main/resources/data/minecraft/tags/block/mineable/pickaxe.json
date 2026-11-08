@@ -316,6 +316,10 @@
     {
       "id": "immersive_ore_expedition:glowstone_cluster",
       "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_entroized_fluix",
+      "required": false
     }
   ]
 }

@@ -9,7 +9,7 @@ jobs:
   current-pack:
     name: Current pack runtime qualification
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: ioe_project_packs/immersive_ore_expedition

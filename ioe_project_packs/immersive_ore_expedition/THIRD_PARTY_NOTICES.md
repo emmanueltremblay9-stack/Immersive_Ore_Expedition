@@ -93,6 +93,12 @@ IOE applies an original event-level restriction when the separately installed ad
 
 IOE references `extendedae:entro_crystal` as a rare Immersive Engineering mineral-mix output. PR64 also independently implements the verified ExtendedAE growth timing and four wearing-heart phases for existing IOE GeOre families, with the owner-approved permanent Flawless exception; see `docs/CRYSTAL_CAVE_CONTRACT.md` for immutable source links. It creates no ExtendedAE geode or budding-heart formation. No ExtendedAE Java source, model, texture, sound, recipe, language file, loot table, or generated resource is copied into IOE.
 
+IOE's Crystal Fixer extension adds an original FE payment ledger around the separately
+installed native executor, preserving native fuel consumption and success rolls.
+The optional permanent Entro identity references the upstream Fully block model by
+resource ID; the model and textures are not bundled. Native Fully is not renamed.
+No natural Entro formation or IE extraction change is introduced.
+
 ## Immersive Engineering
 
 - Project: Immersive Engineering

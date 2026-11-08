@@ -97,3 +97,15 @@ et les tests Jade avec rechargement de provenance incluent cette famille.
 La quantité récoltée ne dépend pas du rang : 2 poussières à la pioche, 1 autrement,
 Fortune commun sur la branche pioche ; Silk Touch récupère le stade exact.
 Pas de preuve visuelle déduite des modèles ou des GameTests.
+
+### Crystal Fixer / Entro permanent — candidat du 8 novembre 2026
+
+Le nouveau `immersive_ore_expedition:flawless_budding_entroized_fluix` expose la
+famille ExtendedAE Entro et le rang FLAWLESS via le même inspecteur IOE. Il ne
+reclasse pas le Fully natif et ne reçoit aucune provenance de site par fabrication.
+La récolte retourne Mostly. Son modèle référence le Fully ExtendedAE ; les libellés
+restent distincts. Aucun contrôle visuel client n'est revendiqué pour cette identité.
+
+La fabrication Entro normalisée utilise Mostly + Certus chargé, 5 % et le même
+coût FE par tentative. La poussière de perle conserve la réparation native vers
+Fully à 70 % ; le combustible sélectionne la voie sans nouveau mode de machine.

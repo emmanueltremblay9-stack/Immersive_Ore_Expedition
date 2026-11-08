@@ -21,6 +21,8 @@ public final class ImmersiveOreExpeditionMod {
     public static final Logger LOGGER = LoggerFactory.getLogger("Immersive Ore Expedition");
 
     public ImmersiveOreExpeditionMod(ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.SERVER, com.oblixorprime.ioe.budding.FlawlessFixerConfig.SPEC,
+                "immersive_ore_expedition-fixer.toml");
         modContainer.registerConfig(ModConfig.Type.COMMON, ImmersiveOreExpeditionConfig.SPEC,
                 "immersive_ore_expedition-common.toml");
         IoeExpeditionCompassMod.bootstrap(modContainer.getEventBus());
