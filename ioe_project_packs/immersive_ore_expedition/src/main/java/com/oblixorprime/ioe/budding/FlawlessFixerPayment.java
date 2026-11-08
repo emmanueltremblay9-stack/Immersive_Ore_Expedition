@@ -12,6 +12,14 @@ public final class FlawlessFixerPayment {
     private static final String KEY = "ioe_flawless_payment";
     private FlawlessFixerPayment() { }
 
+    public static void save(BlockEntity host, CompoundTag tag) {
+        if (host.getPersistentData().contains(KEY)) tag.put(KEY, host.getPersistentData().getCompound(KEY).copy());
+    }
+    public static void load(BlockEntity host, CompoundTag tag) {
+        host.getPersistentData().remove(KEY);
+        if (tag.contains(KEY)) host.getPersistentData().put(KEY, tag.getCompound(KEY).copy());
+    }
+
     /** Null delegates ordinary repairs to the unmodified ExtendedAE executor. */
     public static Object tick(BlockEntity host) {
         try {

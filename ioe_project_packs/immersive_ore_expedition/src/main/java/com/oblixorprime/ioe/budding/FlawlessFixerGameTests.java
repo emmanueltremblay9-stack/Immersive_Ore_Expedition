@@ -45,6 +45,7 @@ public final class FlawlessFixerGameTests {
             double before = (double) invoke(host, "getAECurrentPower");
             tick(host);
             double paid = host.getPersistentData().getCompound("ioe_flawless_payment").getDouble("paid");
+            double firstDebit = before - (double) invoke(host, "getAECurrentPower");
             helper.assertTrue(paid > 0 && paid < 1000, "Expected partial FE payment");
             var nbt = host.saveWithFullMetadata(level.registryAccess());
             level.removeBlockEntity(pos);
@@ -52,10 +53,17 @@ public final class FlawlessFixerGameTests {
             level.setBlockEntity(host);
             helper.assertTrue(host.getPersistentData().getCompound("ioe_flawless_payment").getDouble("paid")==paid,
                     "Partial payment lost during serialization");
+            // Isolate IOE credit persistence: native ExtendedAE omits parent energy/inventory persistence.
+            // Re-supply the fixture, without adding any credit to the paid ledger.
+            inv = invoke(host, "getInternalInventory");
+            invoke(inv, "setItemDirect", new Class<?>[]{int.class, ItemStack.class}, 0, new ItemStack(fuel));
+            invoke(host,"onChanged");
+            invoke(host,"injectExternalPower",new Class<?>[]{ae.getClass(),double.class,modulate.getClass()},ae,4000.0,modulate);
+            before = (double) invoke(host, "getAECurrentPower");
             FlawlessFixerConfig.COST_FE.set(2000); // In-flight attempt keeps its original 1000 FE budget.
             for (int i=0;i<20;i++) tick(host);
             double after = (double) invoke(host, "getAECurrentPower");
-            helper.assertTrue(Math.abs(FlawlessFixerPayment.convert("AE","FE",before-after)-1000)<0.000001,
+            helper.assertTrue(Math.abs(FlawlessFixerPayment.convert("AE","FE",firstDebit+before-after)-1000)<0.000001,
                     "Attempt charged a different FE total or charged twice after reload");
             inv = invoke(host,"getInternalInventory");
             helper.assertTrue(((ItemStack) invoke(inv,"getStackInSlot",new Class<?>[]{int.class},0)).isEmpty(),
