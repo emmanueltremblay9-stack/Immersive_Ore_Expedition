@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Pseudo
 @Mixin(targets = "com.glodblock.github.extendedae.common.tileentities.TileCrystalFixer", remap = false)
 abstract class IoeCrystalFixerMixin {
-    // The supported native class does not call its parent's saveAdditional/loadTag.
+    // Persist the IOE ledger explicitly alongside the native machine's saved state.
     @Inject(method = "saveAdditional", at = @At("TAIL"))
     private void ioe$savePayment(CompoundTag tag, HolderLookup.Provider registries, CallbackInfo callback) {
         FlawlessFixerPayment.save((BlockEntity) (Object) this, tag);
