@@ -43,6 +43,7 @@ public final class FlawlessFixerPayment {
                 clear(host);
                 return null;
             }
+            call(host, "markForUpdate"); // Preserve the native tick's client synchronization.
             Object urgent = enumValue("appeng.api.networking.ticking.TickRateModulation", "URGENT");
             var front = (net.minecraft.core.Direction) call(host, "getFront");
             BlockPos target = host.getBlockPos().relative(front);
