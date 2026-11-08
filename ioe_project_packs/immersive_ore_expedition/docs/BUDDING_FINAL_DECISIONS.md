@@ -287,3 +287,11 @@ voies ; le plafond de restauration ordinaire reste FLAWED. Le raccord Certus nat
 est en qualification ; familles IOE et Entro restent partiels selon PATH_TO_3_0.
 Entro doit recevoir une identité permanente distincte de son Fully natif usurable,
 sans déduire de cette fabrication une génération naturelle ou un changement IE.
+
+Précision reçue : la récolte du nouveau Flawless Entro retourne Mostly, analogue
+au Flawed IOE. Son combustible de fabrication doit conserver c:dusts/ender_pearl ;
+le taux proposé pour Flawless est 5 %, distinct des réparations Entro natives à 70 %.
+La collision Mostly → Fully / Mostly → Flawless avec entrée et combustible identiques
+reste à résoudre explicitement ; la réparation native n'est pas supprimée implicitement.
+Les quinze recettes IOE reprennent le cristal Certus chargé des restaurations GeOre ;
+son extension Améthyste/Glowstone est l'hypothèse de normalisation documentée.

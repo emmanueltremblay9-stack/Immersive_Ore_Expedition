@@ -27,12 +27,26 @@ Les tests ajoutés couvrent le registre des recettes, le paiement partiel, son N
 la reprise, le total débité, le tirage natif et les dépendances absentes. CI du
 nouveau source requise ; les anciens verts ne qualifient pas ce comportement.
 
-Les 15 familles IOE et Entro sont demandés mais pas encore raccordés : combustible
-inexistant à préciser pour les nouvelles recettes IOE ; récolte du nouveau cœur
-Flawless Entro à choisir (retour à Mostly selon rang IOE, ou poussière native).
-Entro Fully reste usurable ; il n'est pas renommé Flawless. Aucune activation de
-sites Entro, modification Nether, installation, fusion ou release. PR65 reste
-brouillon sur sa branche existante. Journal et sauvegarde sont préservés.
+Les quinze familles IOE possèdent une recette Flawed → Flawless à 5 %, avec un
+cristal Certus chargé : continuité des restaurations GeOre et du Fixer Certus.
+Pour Améthyste/Glowstone, ce combustible est une hypothèse de normalisation choisie
+selon la délégation reçue, pas une ancienne recette native. Aucun rang usurable
+supplémentaire n'est rendu fabricable. Les conditions suivent les dépendances réelles.
+
+Entro possède une identité IOE Flawless distincte, croissance native 1/3 sans usure,
+récolte en Mostly même avec Silk Touch, métadonnées Jade via la famille existante.
+Son Fully natif reste usurable. La recette Flawless Entro reste à raccorder : le
+couple Mostly + c:dusts/ender_pearl sélectionne déjà Mostly → Fully à 70 %. Ajouter
+une seconde recette identique à 5 % rendrait la sélection ambiguë. Il faut choisir
+entre remplacer cette seule réparation et définir une sélection explicite ; aucune
+priorité silencieuse ni nouveau combustible n'est inventé. Les cinq réparations
+natives demeurent présentes pendant cette clarification. Aucun site Entro ajouté.
+
+Les GameTests candidats vérifient le paiement/rechargement pour Certus et chaque
+famille disponible, plus la permanence et la récolte Entro. Ils nécessitent la CI
+du nouveau SHA : les suites du prédécesseur partiel ne leur servent pas de preuve.
+Aucune activation, modification PC, fusion ou release. PR65 reste brouillon sur sa
+branche existante. Journal et sauvegarde sont préservés.
 
 ## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC
 

@@ -93,6 +93,8 @@ public final class FlawlessFixerPayment {
     }
 
     public static boolean isFlawlessAttempt(Block input, Block output) {
+        if (output instanceof EntroFlawlessBuddingBlock)
+            return BuiltInRegistries.BLOCK.getKey(input).toString().equals("extendedae:entro_budding_mostly");
         if (input instanceof GeOreBuddingBlock a && output instanceof GeOreBuddingBlock b)
             return a.family() == b.family() && a.rank() == BuddingRank.FLAWED && b.rank() == BuddingRank.FLAWLESS;
         return BuiltInRegistries.BLOCK.getKey(input).toString().equals("ae2:flawed_budding_quartz")

@@ -61,8 +61,9 @@ public final class IronBuddingGameTests {
                 "AE2CS Flawless recipe must be disabled");
         for (var recipe : helper.getLevel().getRecipeManager().getRecipes()) {
             var result = recipe.value().getResultItem(helper.getLevel().registryAccess());
-            helper.assertTrue(!result.is(IoeIronBuddingBlocks.block(BuddingRank.FLAWLESS).asItem()),
-                    "No recipe may create Flawless Iron");
+            helper.assertTrue(!result.is(IoeIronBuddingBlocks.block(BuddingRank.FLAWLESS).asItem())
+                            || id("extendedae:crystal_fixer").equals(BuiltInRegistries.RECIPE_TYPE.getKey(recipe.value().getType())),
+                    "Only the paid Crystal Fixer may create Flawless Iron");
         }
         helper.succeed();
     }

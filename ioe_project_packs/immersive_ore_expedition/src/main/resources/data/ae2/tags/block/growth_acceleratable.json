@@ -17,6 +17,10 @@
     {
       "id": "extendedae:entro_budding_fully",
       "required": false
+    },
+    {
+      "id": "immersive_ore_expedition:flawless_budding_entroized_fluix",
+      "required": false
     }
   ]
 }

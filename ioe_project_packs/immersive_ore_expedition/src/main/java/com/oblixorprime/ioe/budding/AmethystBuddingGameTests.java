@@ -95,7 +95,8 @@ public final class AmethystBuddingGameTests {
                 "Native budding loot must remain untouched");
         for (var recipe : level.getRecipeManager().getRecipes()) {
             var output = recipe.value().getResultItem(level.registryAccess());
-            helper.assertTrue(hearts.stream().noneMatch(heart -> output.is(heart.asItem())), "Unapproved amethyst-heart recipe");
+            helper.assertTrue(hearts.stream().noneMatch(heart -> output.is(heart.asItem()))
+                            || recipe.id().toString().equals("immersive_ore_expedition:fixer/flawless_budding_amethyst"), "Unapproved amethyst-heart recipe");
         }
         helper.succeed();
     }

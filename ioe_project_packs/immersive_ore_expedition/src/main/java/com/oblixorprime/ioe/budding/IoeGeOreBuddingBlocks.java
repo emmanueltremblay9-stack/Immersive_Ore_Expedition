@@ -31,6 +31,12 @@ public final class IoeGeOreBuddingBlocks {
         registerGlowstoneProduct("medium_glowstone_bud", 4, 3, Blocks.MEDIUM_AMETHYST_BUD);
         registerGlowstoneProduct("large_glowstone_bud", 5, 3, Blocks.LARGE_AMETHYST_BUD);
         registerGlowstoneProduct("glowstone_cluster", 7, 3, Blocks.AMETHYST_CLUSTER);
+        // One permanent Entro identity only; native wearing phases remain ExtendedAE-owned.
+        if (ModList.get().isLoaded("extendedae")) {
+            var entro = BLOCKS.register("flawless_budding_entroized_fluix", () -> new EntroFlawlessBuddingBlock(
+                    BlockBehaviour.Properties.ofFullCopy(Blocks.BUDDING_AMETHYST).pushReaction(PushReaction.DESTROY)));
+            ITEMS.registerSimpleBlockItem("flawless_budding_entroized_fluix", entro);
+        }
         for (BuddingResourceFamily family : BuddingResourceFamily.values()) {
             if (!family.dependenciesPresent(ModList.get()::isLoaded)) continue;
             Map<BuddingRank, DeferredBlock<GeOreBuddingBlock>> ranks = new EnumMap<>(BuddingRank.class);

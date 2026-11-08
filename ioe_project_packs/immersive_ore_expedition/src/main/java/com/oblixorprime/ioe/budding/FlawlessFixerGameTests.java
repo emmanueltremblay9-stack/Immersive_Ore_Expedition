@@ -17,20 +17,78 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 @PrefixGameTestTemplate(false)
 public final class FlawlessFixerGameTests {
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void entroIdentityIsPermanentAndHarvestsMostly(GameTestHelper helper) {
+        var key = id("immersive_ore_expedition:flawless_budding_entroized_fluix");
+        if (!ModList.get().isLoaded("extendedae")) {
+            helper.assertFalse(BuiltInRegistries.BLOCK.containsKey(key), "Entro identity registered without ExtendedAE");
+            for (BuddingResourceFamily family : BuddingResourceFamily.values())
+                helper.assertFalse(helper.getLevel().getRecipeManager().byKey(id(
+                        "immersive_ore_expedition:fixer/flawless_budding_"+family.key())).isPresent(),
+                        "Optional Fixer recipe loaded without dependency");
+            helper.succeed(); return;
+        }
+        var block = BuiltInRegistries.BLOCK.get(key);
+        helper.assertTrue(block instanceof EntroFlawlessBuddingBlock, "Distinct permanent Entro identity missing");
+        var identity = BuddingBlockIdentity.of(block).orElseThrow();
+        helper.assertTrue(identity.rank()==BuddingRank.FLAWLESS
+                        && identity.family().equals(BuddingResourceFamily.ENTROIZED_FLUIX.identity()),
+                "Jade identity confused permanent Entro with native Fully or ordinary Fluix");
+        var mostly = BuiltInRegistries.BLOCK.get(id("extendedae:entro_budding_mostly"));
+        var fully = BuiltInRegistries.BLOCK.get(id("extendedae:entro_budding_fully"));
+        helper.assertTrue(block != fully && FlawlessFixerPayment.isFlawlessAttempt(mostly,block),
+                "Permanent Entro aliases Fully or does not recognize its Flawed input");
+        helper.assertFalse(FlawlessFixerPayment.isFlawlessAttempt(mostly,fully), "Ordinary Entro repair acquired premium cost");
+        var level = helper.getLevel();
+        var pos = helper.absolutePos(new BlockPos(5, 5, 5));
+        level.setBlockAndUpdate(pos,block.defaultBlockState());
+        var growth = new net.minecraft.world.level.levelgen.LegacyRandomSource(0) {
+            @Override public int nextInt(int bound) { return 0; }
+        };
+        for (int i=0;i<20;i++) {
+            level.removeBlock(pos.below(),false);
+            block.randomTick(block.defaultBlockState(),level,pos,growth);
+            helper.assertTrue(level.getBlockState(pos.below()).is(BuiltInRegistries.BLOCK.get(id("extendedae:entro_cluster_small"))),
+                    "Entro growth changed family");
+            helper.assertTrue(level.getBlockState(pos).is(block),"Permanent Entro degraded");
+        }
+        var enchantments = level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
+        for (boolean silk : new boolean[]{false,true}) {
+            var tool = new ItemStack(net.minecraft.world.item.Items.DIAMOND_PICKAXE);
+            if (silk) tool.enchant(enchantments.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH),1);
+            var drops = net.minecraft.world.level.block.Block.getDrops(block.defaultBlockState(),level,pos,null,null,tool);
+            helper.assertTrue(drops.size()==1 && drops.getFirst().is(mostly.asItem()) && drops.getFirst().getCount()==1,
+                    "Entro Flawless must harvest as native Mostly, including Silk Touch");
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
     public static void nativeFixerPaysOnceAcrossSaveLoadAndKeepsFuelRoll(GameTestHelper helper) throws Exception {
         if (!ModList.get().isLoaded("extendedae")) { helper.succeed(); return; }
+        verifyAttempt(helper, "extendedae:fixer/certus_flawed", "ae2:flawed_budding_quartz", "ae2:flawless_budding_quartz");
+        for (BuddingResourceFamily family : BuddingResourceFamily.values()) {
+            if (!IoeGeOreBuddingBlocks.available(family)) continue;
+            verifyAttempt(helper, "immersive_ore_expedition:fixer/flawless_budding_" + family.key(),
+                    "immersive_ore_expedition:flawed_budding_" + family.key(),
+                    "immersive_ore_expedition:flawless_budding_" + family.key());
+        }
+        helper.succeed();
+    }
+
+    private static void verifyAttempt(GameTestHelper helper, String recipeId, String inputId, String outputId) throws Exception {
         int oldCost = FlawlessFixerConfig.COST_FE.get();
         try {
             FlawlessFixerConfig.COST_FE.set(1000);
             var level = helper.getLevel();
             BlockPos pos = helper.absolutePos(new BlockPos(3, 3, 3));
             var state = BuiltInRegistries.BLOCK.get(id("extendedae:crystal_fixer")).defaultBlockState();
+            level.removeBlock(pos, false);
             level.setBlockAndUpdate(pos, state);
             BlockEntity host = level.getBlockEntity(pos);
             helper.assertTrue(host != null, "Native Crystal Fixer missing");
             Direction front = (Direction) invoke(host, "getFront");
             BlockPos target = pos.relative(front);
-            var flawed = BuiltInRegistries.BLOCK.get(id("ae2:flawed_budding_quartz"));
+            var flawed = BuiltInRegistries.BLOCK.get(id(inputId));
             level.setBlockAndUpdate(target, flawed.defaultBlockState());
             var fuel = BuiltInRegistries.ITEM.get(id("ae2:charged_certus_quartz_crystal"));
             Object inv = invoke(host, "getInternalInventory");
@@ -70,7 +128,7 @@ public final class FlawlessFixerGameTests {
             helper.assertTrue(((ItemStack) invoke(inv,"getStackInSlot",new Class<?>[]{int.class},0)).isEmpty(),
                     "Native attempt did not consume its one charged Certus fuel");
             helper.assertFalse(host.getPersistentData().contains("ioe_flawless_payment"),"Completed attempt retained paid credit");
-            var recipe = level.getRecipeManager().byKey(id("extendedae:fixer/certus_flawed")).orElseThrow().value();
+            var recipe = level.getRecipeManager().byKey(id(recipeId)).orElseThrow().value();
             helper.assertTrue((double) invoke(recipe,"getChance")==0.05,"Native five percent chance changed");
             var miss = new net.minecraft.world.level.levelgen.LegacyRandomSource(0) {
                 @Override public int nextInt(int bound) { return bound-1; }
@@ -78,9 +136,8 @@ public final class FlawlessFixerGameTests {
             helper.assertFalse((boolean) invoke(recipe,"roll",new Class<?>[]{net.minecraft.util.RandomSource.class},miss),
                     "Native failure roll was bypassed");
             var out = level.getBlockState(target).getBlock();
-            helper.assertTrue(out==flawed || out==BuiltInRegistries.BLOCK.get(id("ae2:flawless_budding_quartz")),
+            helper.assertTrue(out==flawed || out==BuiltInRegistries.BLOCK.get(id(outputId)),
                     "Attempt changed mineral family");
-            helper.succeed();
         } finally { FlawlessFixerConfig.COST_FE.set(oldCost); }
     }
     private static void tick(BlockEntity host) throws Exception {
