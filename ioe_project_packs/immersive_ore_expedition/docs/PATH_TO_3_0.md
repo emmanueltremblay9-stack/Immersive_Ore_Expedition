@@ -1,40 +1,34 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
-## Crystal Fixer — correction contractuelle qualifiée, PR65 brouillon
+## Crystal Fixer — nouvelle direction, paiement Certus en qualification
 
-Le contrat Budding §3 interdit toute fabrication de Flawless, y compris Certus
-natif, et plafonne la restauration à FLAWED. Les archives ExtendedAE 2.2.33 et
-2.2.41 fournissent `extendedae:fixer/certus_flawed` (Flawed → Flawless, chance 500).
-IOE neutralise uniquement cet identifiant avec la condition NeoForge false déjà
-utilisée pour l'Aggregator AE2CS. Aucun autre traitement ExtendedAE n'est modifié.
+La demande du 8 novembre remplace la neutralisation de Certus : coût configurable
+par défaut 1 000 000 RF/FE, combustible et tirage natifs conservés. « Par tentative »
+est l'interprétation de la proposition acceptée, pas une citation littérale isolée.
+Le premier raccord vise le Certus natif Flawed → Flawless (5 %, combustible natif).
+L'Aggregator AE2CS reste neutralisé. Les réparations ordinaires restent natives.
 
-Une régression GameTest vérifie son absence du RecipeManager et, lorsque
-ExtendedAE est chargé, la présence et le type Crystal Fixer des cinq recettes
-conservées : certus_damage, certus_chipped, entro_hardly, entro_half, entro_mostly.
-Les deux runtimes CI existants couvrent les deux versions supportées. Source testé :
-`33fec1977cdff5911da774e96ef020e25adcf923`. Dans chacune des deux configurations push :
-719 JUnit (zéro échec, erreur ou ignoré), 165 GameTests minimaux + 165 complets,
-puis streaming et reprise (un test chacun) réussis. Les reçus de reprise portent
-ce source exact. Les journaux GameTests sont agrégés, sans détail par test réussi.
+Le paiement est comptabilisé en FE réels, convertis via PowerUnit, sans multiplier
+une seconde fois le coût par le réglage global AE2. Le débit par passage reprend
+50 AE × progression native aléatoire (2 ou 3). Seuls les montants effectivement
+extraits sont crédités. Budget initial, cible et crédit sont persistés dans le NBT
+NeoForge de la machine ; un changement de cible invalide le crédit, une pénurie
+interrompt le paiement. Le tirage natif consomme le combustible une fois le coût
+payé, même si le tirage échoue. Pas de débit natif supplémentaire sur cette voie.
+Ce mécanisme ne garantit pas une transaction atomique face à un crash disque.
 
-- Push baseline : https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42390387427
-- Push TesT play2 : https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42390387882
-- PR baseline : https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42390410524
-- PR TesT play2 : https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42390410550
+Le coût serveur `flawlessAttemptCostFE` est configurable de 1 à 2147483647 FE,
+valeur initiale 1000000. Les tentatives en cours conservent leur budget initial.
+Les tests ajoutés couvrent le registre des recettes, le paiement partiel, son NBT,
+la reprise, le total débité, le tirage natif et les dépendances absentes. CI du
+nouveau source requise ; les anciens verts ne qualifient pas ce comportement.
 
-Les 16 jobs sont verts. Les runs PR vérifient le checkout temporaire de fusion
-`0bd068e0b9c9f2095e14e461fc62ae77bf97617c`, distinct du source push ci-dessus.
-[PR65](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/pull/65)
-reste en brouillon, non fusionnée. Le présent reçu est un successeur uniquement
-documentaire ; il ne transfère pas les preuves runtime à son propre SHA.
-
-[JAR du source push](https://github.com/emmanueltremblay9-stack/Immersive_Ore_Expedition/actions/runs/42390387427/artifacts/13582385360) :
-509 classes, métadonnées NeoForge et overlay embarqué vérifiés. SHA256 recalculé :
-`4fb72231ea51a4a1a43a2b2bc52c048df72f21747110f5f99c946178d2bb219a`.
-Aucune fabrication effective en machine ni validation client revendiquée.
-Aucune nouvelle recette pour les 75 cœurs.
-Cycle indépendant basé sur main ; la branche Journal et la sauvegarde PC restent
-intactes. Aucune installation, activation, fusion ou release.
+Les 15 familles IOE et Entro sont demandés mais pas encore raccordés : combustible
+inexistant à préciser pour les nouvelles recettes IOE ; récolte du nouveau cœur
+Flawless Entro à choisir (retour à Mostly selon rang IOE, ou poussière native).
+Entro Fully reste usurable ; il n'est pas renommé Flawless. Aucune activation de
+sites Entro, modification Nether, installation, fusion ou release. PR65 reste
+brouillon sur sa branche existante. Journal et sauvegarde sont préservés.
 
 ## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC
 

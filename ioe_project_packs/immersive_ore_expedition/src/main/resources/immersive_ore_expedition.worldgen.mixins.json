@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "com.oblixorprime.ioe.mixin.worldgen",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["IoeServerPacksSourceMixin", "IoeWorldPackConfigMixin"],
+  "mixins": ["IoeServerPacksSourceMixin", "IoeWorldPackConfigMixin", "IoeCrystalFixerMixin"],
   "injectors": {"defaultRequire": 1}
 }

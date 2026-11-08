@@ -275,3 +275,15 @@ pioche, 1 autrement. Les règles communes Fortune/Silk Touch sont conservées ;
 le détail et les cinq cœurs/quatre produits implémentés sont dans le contrat
 Crystal Cave. Le profil de récolte n'est plus en attente. Aucune recette ou
 distribution ajoutée ; rangs et budgets existants inchangés.
+
+
+### Amendement Crystal Fixer — 8 novembre 2026, priorité sur l'interdiction générale
+
+L'utilisateur demande désormais la fabrication Flawed → Flawless dans le Crystal
+Fixer avec un coût configurable de 1 000 000 RF/FE et les mécaniques normalisées
+combustible/chance. Le coût par tentative est l'interprétation de la proposition
+à laquelle il répond. Cette exception ne débloque ni l'Aggregator ni les autres
+voies ; le plafond de restauration ordinaire reste FLAWED. Le raccord Certus natif
+est en qualification ; familles IOE et Entro restent partiels selon PATH_TO_3_0.
+Entro doit recevoir une identité permanente distincte de son Fully natif usurable,
+sans déduire de cette fabrication une génération naturelle ou un changement IE.

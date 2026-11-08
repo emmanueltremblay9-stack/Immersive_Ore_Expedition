@@ -32,11 +32,12 @@ public final class IronBuddingGameTests {
     }
 
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
-    public static void crystalFixerCannotCreateFlawlessButRetainsOtherRepairs(GameTestHelper helper) {
+    public static void crystalFixerPaidFlawlessRecipeRetainsOtherRepairs(GameTestHelper helper) {
         var recipes = helper.getLevel().getRecipeManager();
-        helper.assertTrue(recipes.byKey(id("extendedae:fixer/certus_flawed")).isEmpty(),
-                "Crystal Fixer must not manufacture native Flawless Certus");
+        if (!net.neoforged.fml.ModList.get().isLoaded("extendedae"))
+            helper.assertTrue(recipes.byKey(id("extendedae:fixer/certus_flawed")).isEmpty(), "Absent dependency supplied a recipe");
         if (net.neoforged.fml.ModList.get().isLoaded("extendedae")) {
+            helper.assertTrue(recipes.byKey(id("extendedae:fixer/certus_flawed")).isPresent(), "Paid native Certus recipe missing");
             // Exact remaining recipe IDs in both supported ExtendedAE 2.2.33 and 2.2.41 archives.
             for (String path : List.of("certus_damage", "certus_chipped", "entro_hardly", "entro_half", "entro_mostly")) {
                 var recipe = recipes.byKey(id("extendedae:fixer/" + path));
