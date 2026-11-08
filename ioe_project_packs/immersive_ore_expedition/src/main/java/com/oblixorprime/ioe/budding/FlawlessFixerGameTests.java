@@ -45,10 +45,12 @@ public final class FlawlessFixerGameTests {
             @Override public int nextInt(int bound) { return 0; }
         };
         for (int i=0;i<20;i++) {
-            level.removeBlock(pos.below(),false);
+            int stage = i % 4;
+            if (stage == 0) level.removeBlock(pos.below(),false);
             ((EntroFlawlessBuddingBlock) block).randomTick(block.defaultBlockState(),level,pos,growth);
-            helper.assertTrue(level.getBlockState(pos.below()).is(BuiltInRegistries.BLOCK.get(id("extendedae:entro_cluster_small"))),
-                    "Entro growth changed family");
+            helper.assertTrue(level.getBlockState(pos.below()).is(BuiltInRegistries.BLOCK.get(
+                            BuddingResourceFamily.ENTROIZED_FLUIX.growthProductIds().get(stage))),
+                    "Entro growth changed family or skipped a growth stage");
             helper.assertTrue(level.getBlockState(pos).is(block),"Permanent Entro degraded");
         }
         var enchantments = level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT);
@@ -63,9 +65,67 @@ public final class FlawlessFixerGameTests {
     }
 
     @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
+    public static void entroFuelSelectsExactlyOneRecipeAndPreservesNativeRepair(GameTestHelper helper) throws Exception {
+        if (!ModList.get().isLoaded("extendedae")) { helper.succeed(); return; }
+        var level = helper.getLevel();
+        var pos = helper.absolutePos(new BlockPos(3, 3, 3));
+        level.setBlockAndUpdate(pos, BuiltInRegistries.BLOCK.get(id("extendedae:crystal_fixer")).defaultBlockState());
+        var host = level.getBlockEntity(pos);
+        var target = pos.relative((Direction) invoke(host,"getFront"));
+        var mostly = BuiltInRegistries.BLOCK.get(id("extendedae:entro_budding_mostly"));
+        var fully = BuiltInRegistries.BLOCK.get(id("extendedae:entro_budding_fully"));
+        var charged = BuiltInRegistries.ITEM.get(id("ae2:charged_certus_quartz_crystal"));
+        var dustTag = net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM, id("c:dusts/ender_pearl"));
+        var dusts = BuiltInRegistries.ITEM.getTag(dustTag).orElseThrow();
+        helper.assertTrue(dusts.size()>0 && !new ItemStack(charged).is(dustTag), "Entro fuels overlap or dust tag is empty");
+        var fuels = new java.util.ArrayList<net.minecraft.world.item.Item>();
+        fuels.add(charged);
+        dusts.forEach(holder -> fuels.add(holder.value()));
+        fuels.add(charged); // Re-select premium after ordinary repair in the same machine.
+        for (var fuel : fuels) {
+            boolean premium = fuel == charged;
+            var expected = id(premium ? "immersive_ore_expedition:fixer/flawless_budding_entroized_fluix"
+                    : "extendedae:fixer/entro_mostly");
+            level.setBlockAndUpdate(target,mostly.defaultBlockState());
+            var inv = invoke(host,"getInternalInventory");
+            invoke(inv,"setItemDirect",new Class<?>[]{int.class,ItemStack.class},0,new ItemStack(fuel));
+            invoke(host,"onChanged");
+            var ctx = invoke(host,"getContext");
+            var matches = new java.util.ArrayList<ResourceLocation>();
+            for (var recipe : level.getRecipeManager().getRecipes()) {
+                if (id("extendedae:crystal_fixer").equals(BuiltInRegistries.RECIPE_TYPE.getKey(recipe.value().getType()))
+                        && (boolean) invoke(ctx,"testRecipe",new Class<?>[]{net.minecraft.world.item.crafting.RecipeHolder.class},recipe))
+                    matches.add(recipe.id());
+            }
+            helper.assertTrue(matches.equals(java.util.List.of(expected)), "Ambiguous or wrong Entro fuel selection: "+matches);
+            invoke(ctx,"findRecipe");
+            var field = ctx.getClass().getField("currentRecipe"); field.setAccessible(true);
+            var selected = (net.minecraft.world.item.crafting.RecipeHolder<?>) field.get(ctx);
+            helper.assertTrue(selected != null && selected.id().equals(expected), "Native discovery selected another recipe");
+            helper.assertTrue(Math.abs((double) invoke(selected.value(),"getChance")-(premium ? .05 : .70))<1e-9,
+                    "Native repair or normalized fabrication chance changed");
+            Object handled = FlawlessFixerPayment.tick(host);
+            helper.assertTrue((handled != null)==premium, "Ordinary repair entered the premium payment path");
+            if (!premium) {
+                helper.assertFalse(host.getPersistentData().contains("ioe_flawless_payment"), "Ordinary repair retained premium credit");
+                // Complete the native executor's progress fixture; no claim about native energy cost.
+                invoke(host,"setProgress",new Class<?>[]{int.class},100);
+                tick(host);
+                helper.assertTrue(((ItemStack) invoke(inv,"getStackInSlot",new Class<?>[]{int.class},0)).isEmpty(),
+                        "Native ordinary repair did not consume its dust");
+                helper.assertTrue(level.getBlockState(target).is(mostly) || level.getBlockState(target).is(fully),
+                        "Ordinary Entro repair manufactured a permanent heart");
+            }
+        }
+        helper.succeed();
+    }
+
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 100)
     public static void nativeFixerPaysOnceAcrossSaveLoadAndKeepsFuelRoll(GameTestHelper helper) throws Exception {
         if (!ModList.get().isLoaded("extendedae")) { helper.succeed(); return; }
         verifyAttempt(helper, "extendedae:fixer/certus_flawed", "ae2:flawed_budding_quartz", "ae2:flawless_budding_quartz");
+        verifyAttempt(helper, "immersive_ore_expedition:fixer/flawless_budding_entroized_fluix",
+                "extendedae:entro_budding_mostly", "immersive_ore_expedition:flawless_budding_entroized_fluix");
         for (BuddingResourceFamily family : BuddingResourceFamily.values()) {
             if (!IoeGeOreBuddingBlocks.available(family)) continue;
             verifyAttempt(helper, "immersive_ore_expedition:fixer/flawless_budding_" + family.key(),

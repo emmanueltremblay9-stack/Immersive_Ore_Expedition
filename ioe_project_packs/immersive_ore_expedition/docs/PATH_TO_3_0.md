@@ -1,6 +1,6 @@
 # Parcours vers 3.0 — consolidation approuvée, aucune publication autorisée
 
-## Crystal Fixer — nouvelle direction, paiement Certus en qualification
+## Crystal Fixer — fabrication normalisée, qualification du candidat courant
 
 La demande du 8 novembre remplace la neutralisation de Certus : coût configurable
 par défaut 1 000 000 RF/FE, combustible et tirage natifs conservés. « Par tentative »
@@ -35,15 +35,18 @@ supplémentaire n'est rendu fabricable. Les conditions suivent les dépendances 
 
 Entro possède une identité IOE Flawless distincte, croissance native 1/3 sans usure,
 récolte en Mostly même avec Silk Touch, métadonnées Jade via la famille existante.
-Son Fully natif reste usurable. La recette Flawless Entro reste à raccorder : le
-couple Mostly + c:dusts/ender_pearl sélectionne déjà Mostly → Fully à 70 %. Ajouter
-une seconde recette identique à 5 % rendrait la sélection ambiguë. Il faut choisir
-entre remplacer cette seule réparation et définir une sélection explicite ; aucune
-priorité silencieuse ni nouveau combustible n'est inventé. Les cinq réparations
-natives demeurent présentes pendant cette clarification. Aucun site Entro ajouté.
+Son Fully natif reste usurable. La décision « Normalize every aspect » résout la
+collision : Mostly (rang Flawed) + un cristal Certus chargé → Flawless à 5 %, avec
+le même paiement configurable de 1 M FE par tentative. Mostly + poussière du tag
+c:dusts/ender_pearl → Fully à 70 % reste la réparation native, sans coût premium.
+Le combustible est le sélecteur existant ; aucun mode, priorité ou rang d'entrée
+supplémentaire n'est ajouté. Les tests vérifient l'unicité de la recette admissible
+pour chaque poussière chargée dans le tag et pour le Certus chargé, y compris le
+changement de combustible dans une même machine. Aucun site Entro ajouté.
 
 Les GameTests candidats vérifient le paiement/rechargement pour Certus et chaque
-famille disponible, plus la permanence et la récolte Entro. Ils nécessitent la CI
+famille disponible, Entro compris, plus sa sélection par combustible, sa croissance
+complète sans usure et sa récolte. Ils nécessitent la CI
 du nouveau SHA : les suites du prédécesseur partiel ne leur servent pas de preuve.
 Aucune activation, modification PC, fusion ou release. PR65 reste brouillon sur sa
 branche existante. Journal et sauvegarde sont préservés.

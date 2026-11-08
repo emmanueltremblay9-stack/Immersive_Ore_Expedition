@@ -101,6 +101,12 @@ def validate(jars=()):
         return textures
 
     try:
+        entro = json.loads(read(f'data/{MOD}/recipe/fixer/flawless_budding_entroized_fluix.json'))
+        assert {c['modid'] for c in entro['neoforge:conditions']} == {'extendedae', 'ae2'}
+        assert entro['type'] == 'extendedae:crystal_fixer' and entro['chance'] == 500
+        assert entro['input'] == {'count': 1, 'id': 'extendedae:entro_budding_mostly'}
+        assert entro['output'] == {'count': 1, 'id': f'{MOD}:flawless_budding_entroized_fluix'}
+        assert entro['fuel'] == {'ingredient': {'item': 'ae2:charged_certus_quartz_crystal'}}
         for name in ('small_glowstone_bud', 'medium_glowstone_bud', 'large_glowstone_bud', 'glowstone_cluster'):
             model_id = f'{MOD}:block/{name}'
             state = json.loads(read(f'assets/{MOD}/blockstates/{name}.json'))

@@ -283,15 +283,17 @@ L'utilisateur demande désormais la fabrication Flawed → Flawless dans le Crys
 Fixer avec un coût configurable de 1 000 000 RF/FE et les mécaniques normalisées
 combustible/chance. Le coût par tentative est l'interprétation de la proposition
 à laquelle il répond. Cette exception ne débloque ni l'Aggregator ni les autres
-voies ; le plafond de restauration ordinaire reste FLAWED. Le raccord Certus natif
-est en qualification ; familles IOE et Entro restent partiels selon PATH_TO_3_0.
+voies ; le plafond de restauration ordinaire reste FLAWED. Le raccord Certus, les quinze familles IOE et Entro suivent désormais cette
+exception ; leur qualification est suivie dans PATH_TO_3_0 et la PR65.
 Entro doit recevoir une identité permanente distincte de son Fully natif usurable,
 sans déduire de cette fabrication une génération naturelle ou un changement IE.
 
-Précision reçue : la récolte du nouveau Flawless Entro retourne Mostly, analogue
-au Flawed IOE. Son combustible de fabrication doit conserver c:dusts/ender_pearl ;
-le taux proposé pour Flawless est 5 %, distinct des réparations Entro natives à 70 %.
-La collision Mostly → Fully / Mostly → Flawless avec entrée et combustible identiques
-reste à résoudre explicitement ; la réparation native n'est pas supprimée implicitement.
-Les quinze recettes IOE reprennent le cristal Certus chargé des restaurations GeOre ;
-son extension Améthyste/Glowstone est l'hypothèse de normalisation documentée.
+Décision ultérieure « Normalize every aspect » : Entro suit la fabrication
+normalisée, Mostly (Flawed) + un cristal Certus chargé → Flawless permanent à 5 %,
+coût configurable de 1 000 000 RF/FE par tentative. Cette décision remplace la
+proposition antérieure de conserver la poussière comme combustible Flawless et
+n'ajoute pas d'étape Fully → Flawless. La réparation native Mostly + poussière du
+tag c:dusts/ender_pearl → Fully à 70 % reste inchangée ; le combustible distingue
+les deux recettes. Récolter le nouveau Flawless Entro retourne Mostly, même avec
+Silk Touch. Les quinze familles IOE utilisent aussi le cristal Certus chargé ;
+aucun autre accès Aggregator ni recette de rang usurable supplémentaire n'est ajouté.

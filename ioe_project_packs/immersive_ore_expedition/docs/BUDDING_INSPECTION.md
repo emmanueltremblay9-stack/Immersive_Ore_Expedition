@@ -105,3 +105,7 @@ famille ExtendedAE Entro et le rang FLAWLESS via le même inspecteur IOE. Il ne
 reclasse pas le Fully natif et ne reçoit aucune provenance de site par fabrication.
 La récolte retourne Mostly. Son modèle référence le Fully ExtendedAE ; les libellés
 restent distincts. Aucun contrôle visuel client n'est revendiqué pour cette identité.
+
+La fabrication Entro normalisée utilise Mostly + Certus chargé, 5 % et le même
+coût FE par tentative. La poussière de perle conserve la réparation native vers
+Fully à 70 % ; le combustible sélectionne la voie sans nouveau mode de machine.
