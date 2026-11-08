@@ -56,6 +56,28 @@ du nouveau SHA : les suites du prédécesseur partiel ne leur servent pas de pre
 Aucune activation, modification PC, fusion ou release. PR65 reste brouillon sur sa
 branche existante. Journal et sauvegarde sont préservés.
 
+### Qualification supplémentaire — client cloud et réseau AE
+
+Le checkout cloud est disponible, mais sans runtime Minecraft, compilateur Java,
+Gradle, lanceur ou affichage X/Wayland. Les deux profils existants de build.gradle
+sont des GameTestServer ; aucun profil client n'est configuré. Le contrôle ruOS
+ne trouve aucun bureau cloud complet existant, uniquement un navigateur léger.
+Aucune installation ni provision de remplacement n'est effectuée : la preuve
+visuelle client reste indisponible dans ces moyens.
+
+Un GameTest supplémentaire utilise six paires physiques Fixer/cellule AE dans la
+structure isolée déjà utilisée en CI : Certus, Fer, Améthyste, Glowstone, Entro
+Flawless et réparation Entro native. Les nœuds se créent et se connectent par leur
+cycle natif ; après amorçage sans énergie, le vrai tick manager AE conduit les
+tentatives. Seule la cellule est alimentée, le tampon interne du Fixer doit rester
+vide. Les assertions portent sur le débit réseau exact des tentatives Flawless,
+le coût natif de la réparation Entro, la consommation du combustible, les sorties
+compatibles avec le tirage et l'absence de second débit après achèvement.
+La fixture réduit le coût à 1000 FE uniquement pour amorcer les tentatives de test,
+puis restaure immédiatement la configuration ; les budgets capturés sont conservés.
+Ces nouvelles assertions nécessitent leur propre CI exacte ; les verts de 85178f2
+ne constituent pas leur preuve. Aucune validation client n'en est déduite.
+
 ## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC
 
 Statut : **signalée, non reproduite, non résolue**. Retour utilisateur
