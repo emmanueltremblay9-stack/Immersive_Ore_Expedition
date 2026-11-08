@@ -98,7 +98,7 @@ public final class FlawlessFixerGameTests {
                     matches.add(recipe.id());
             }
             helper.assertTrue(matches.equals(java.util.List.of(expected)), "Ambiguous or wrong Entro fuel selection: "+matches);
-            invoke(ctx,"findRecipe");
+            for (int i=0;i<3;i++) tick(host); // Exercise native cache invalidation through the actual tick hook.
             var field = ctx.getClass().getField("currentRecipe"); field.setAccessible(true);
             var selected = (net.minecraft.world.item.crafting.RecipeHolder<?>) field.get(ctx);
             helper.assertTrue(selected != null && selected.id().equals(expected), "Native discovery selected another recipe");
@@ -165,6 +165,14 @@ public final class FlawlessFixerGameTests {
             double paid = host.getPersistentData().getCompound("ioe_flawless_payment").getDouble("paid");
             double firstDebit = before - (double) invoke(host, "getAECurrentPower");
             helper.assertTrue(paid > 0 && paid < 1000, "Expected partial FE payment");
+            invoke(inv, "setItemDirect", new Class<?>[]{int.class, ItemStack.class}, 0, ItemStack.EMPTY);
+            invoke(host,"onChanged");
+            for (int i=0;i<3;i++) tick(host);
+            helper.assertTrue(host.getPersistentData().getCompound("ioe_flawless_payment").getDouble("paid")==paid
+                            && Math.abs((double) invoke(host,"getAECurrentPower")-(before-firstDebit))<1e-9,
+                    "Fuel interruption lost credit or charged energy");
+            invoke(inv, "setItemDirect", new Class<?>[]{int.class, ItemStack.class}, 0, new ItemStack(fuel));
+            invoke(host,"onChanged");
             var nbt = host.saveWithFullMetadata(level.registryAccess());
             level.removeBlockEntity(pos);
             host = BlockEntity.loadStatic(pos,state,nbt,level.registryAccess());

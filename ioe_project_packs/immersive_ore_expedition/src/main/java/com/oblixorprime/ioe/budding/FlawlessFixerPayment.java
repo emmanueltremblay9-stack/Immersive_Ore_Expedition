@@ -39,7 +39,24 @@ public final class FlawlessFixerPayment {
             Object recipe = holder.value();
             Block input = (Block) call(recipe, "getInput");
             Block output = (Block) call(recipe, "getOutput");
-            if (!isFlawlessAttempt(input, output)) {
+            boolean premium = isFlawlessAttempt(input, output);
+            boolean ordinaryEntro = BuiltInRegistries.BLOCK.getKey(input).toString().equals("extendedae:entro_budding_mostly")
+                    && BuiltInRegistries.BLOCK.getKey(output).toString().equals("extendedae:entro_budding_fully");
+            if (premium || ordinaryEntro) {
+                var facing = (net.minecraft.core.Direction) call(host, "getFront");
+                Object urgent = enumValue("appeng.api.networking.ticking.TickRateModulation", "URGENT");
+                if (!level.hasChunkAt(host.getBlockPos().relative(facing))) return urgent;
+                if (!(boolean) call(ctx, "testRecipe", RecipeHolder.class, holder)) {
+                    // Native inventory notifications mark dirty but retain currentRecipe. Re-select
+                    // before charging; an empty fuel slot pauses without discarding paid credit.
+                    field.set(ctx, null);
+                    call(host, "setProgress", int.class, 0);
+                    call(ctx, "findRecipe");
+                    call(host, "markForUpdate");
+                    return urgent;
+                }
+            }
+            if (!premium) {
                 clear(host);
                 return null;
             }

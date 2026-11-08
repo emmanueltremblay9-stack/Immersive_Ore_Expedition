@@ -43,6 +43,11 @@ Le combustible est le sélecteur existant ; aucun mode, priorité ou rang d'entr
 supplémentaire n'est ajouté. Les tests vérifient l'unicité de la recette admissible
 pour chaque poussière chargée dans le tag et pour le Certus chargé, y compris le
 changement de combustible dans une même machine. Aucun site Entro ajouté.
+Le cache natif conserve sa recette lors d'un changement d'inventaire : le raccord
+redemande donc la sélection native avant tout débit si une recette Flawless ou la
+réparation Entro Mostly ne correspond plus au combustible. Une absence de combustible
+conserve le crédit payé et suspend le débit ; sélectionner une réparation ordinaire
+ne réutilise pas le crédit d'une fabrication Flawless.
 
 Les GameTests candidats vérifient le paiement/rechargement pour Certus et chaque
 famille disponible, Entro compris, plus sa sélection par combustible, sa croissance
