@@ -21,10 +21,10 @@ import java.util.List;
 @GameTestHolder(ImmersiveOreExpeditionMod.MODID)
 @PrefixGameTestTemplate(false)
 public final class FlawlessFixerGridGameTests {
-    private static final double CELL_CHARGE_AE = 20_000;
-    private static final int ATTEMPT_FE = 1000;
+    private static final double CELL_CHARGE_AE = 600_000;
+    private static final int ATTEMPT_FE = 1_000_000;
 
-    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 500)
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 12_000)
     public static void realAeGridPowersRepresentativeFamiliesAndBothEntroRecipes(GameTestHelper helper) throws Exception {
         if (!ModList.get().isLoaded("extendedae")) { helper.succeed(); return; }
         var level = helper.getLevel();
@@ -49,7 +49,7 @@ public final class FlawlessFixerGridGameTests {
             var cellPos = pos.relative(front.getOpposite());
             var target = pos.relative(front);
             helper.assertTrue(level.hasChunkAt(cellPos) && level.hasChunkAt(target), "Grid fixture crossed an unloaded boundary");
-            level.setBlockAndUpdate(cellPos,block("ae2:energy_cell").defaultBlockState());
+            level.setBlockAndUpdate(cellPos,block("ae2:dense_energy_cell").defaultBlockState());
             var input = block(scenarios[i][0]);
             var output = block(scenarios[i][1]);
             level.setBlockAndUpdate(target,input.defaultBlockState());
@@ -74,9 +74,8 @@ public final class FlawlessFixerGridGameTests {
             grids.add(call(node,"getGrid"));
         }
         helper.assertTrue(grids.size()==fixtures.size(),"Independent grid fixtures unexpectedly connected");
-        int oldCost = FlawlessFixerConfig.COST_FE.get();
-        try {
-            FlawlessFixerConfig.COST_FE.set(ATTEMPT_FE);
+        helper.assertTrue(FlawlessFixerConfig.COST_FE.get()==ATTEMPT_FE, "Expected the real default million-FE budget");
+        {
             for (var fixture : fixtures) {
                 var node = call(call(fixture.fixer,"getMainNode"),"getNode");
                 var grid = call(node,"getGrid");
@@ -87,7 +86,7 @@ public final class FlawlessFixerGridGameTests {
                 call(call(fixture.fixer,"getInternalInventory"),"setItemDirect",
                         new Class<?>[]{int.class,ItemStack.class},0,fixture.fuel.copy());
                 call(fixture.fixer,"onChanged");
-                // Snapshot a small test budget while unpowered. No energy or progress is supplied to the Fixer.
+                // Snapshot the unchanged default budget while unpowered. No energy or progress is supplied to the Fixer.
                 for (int i=0;i<3;i++) call(fixture.fixer,"tickingRequest",
                         new Class<?>[]{Class.forName("appeng.api.networking.IGridNode"),int.class},node,1);
                 if (fixture.premium) {
@@ -103,7 +102,7 @@ public final class FlawlessFixerGridGameTests {
                 helper.assertTrue(overflow==0 && power(fixture.cell)==CELL_CHARGE_AE,"Native cell rejected the fixture charge");
                 call(fixture.fixer,"onChanged");
             }
-        } finally { FlawlessFixerConfig.COST_FE.set(oldCost); }
+        }
         // From here on, only the real AE tick manager executes the Fixers.
         later(helper, () -> observeAttempts(helper,fixtures,0));
     }
@@ -147,7 +146,7 @@ public final class FlawlessFixerGridGameTests {
             // Keep the energized grids ticking after all fuel is consumed to catch an extra debit.
             later(helper, () -> verifyQuietGrids(helper,fixtures,0));
         } else {
-            helper.assertTrue(elapsed<350,"AE tick manager did not complete the grid-powered attempts");
+            helper.assertTrue(elapsed<11_000,"AE tick manager did not complete the grid-powered attempts");
             later(helper, () -> observeAttempts(helper,fixtures,elapsed+1));
         }
     }
@@ -163,6 +162,79 @@ public final class FlawlessFixerGridGameTests {
             helper.getLevel().removeBlock(fixture.target,false);
         }
         helper.succeed();
+    }
+
+    /** Native IE generation -> NeoForge FE capability -> AE acceptor -> grid -> native Entro repair. */
+    @GameTest(template = "expedition_worldgen_empty", timeoutTicks = 3000)
+    public static void externalThermoelectricGeneratorPowersAeGrid(GameTestHelper helper) throws Exception {
+        if (!ModList.get().isLoaded("extendedae") || !ModList.get().isLoaded("immersiveengineering")) {
+            helper.succeed(); return;
+        }
+        var level = helper.getLevel();
+        var pos = helper.absolutePos(new BlockPos(10,8,10));
+        level.setBlockAndUpdate(pos,block("extendedae:crystal_fixer").defaultBlockState());
+        var fixer = level.getBlockEntity(pos);
+        var front = (Direction) call(fixer,"getFront");
+        var cellPos = pos.relative(front.getOpposite());
+        var acceptorPos = cellPos.below();
+        var generatorPos = acceptorPos.below();
+        var hotPos = generatorPos.east();
+        var coldPos = generatorPos.west();
+        var target = pos.relative(front);
+        var positions = List.of(pos,cellPos,acceptorPos,generatorPos,hotPos,coldPos,target);
+        for (var part : positions) helper.assertTrue(level.hasChunkAt(part),"External generator fixture crossed an unloaded boundary");
+        level.setBlockAndUpdate(cellPos,block("ae2:energy_cell").defaultBlockState());
+        level.setBlockAndUpdate(acceptorPos,block("ae2:energy_acceptor").defaultBlockState());
+        var input = block("extendedae:entro_budding_mostly");
+        var output = block("extendedae:entro_budding_fully");
+        level.setBlockAndUpdate(target,input.defaultBlockState());
+        var cell = level.getBlockEntity(cellPos);
+        helper.assertTrue(power(cell)==0 && power(fixer)==0,"External fixture did not start empty");
+        level.setBlockAndUpdate(generatorPos,block("immersiveengineering:thermoelectric_generator").defaultBlockState());
+        // Stable solid sources: no flowing fluid, forced generation call, injected charge or config change.
+        level.setBlockAndUpdate(hotPos,net.minecraft.world.level.block.Blocks.MAGMA_BLOCK.defaultBlockState());
+        level.setBlockAndUpdate(coldPos,net.minecraft.world.level.block.Blocks.BLUE_ICE.defaultBlockState());
+        var inlet = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.BLOCK,
+                acceptorPos,Direction.DOWN);
+        helper.assertTrue(inlet!=null && inlet.canReceive(),"AE acceptor exposes no FE inlet toward the generator");
+        var tag = net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM,id("c:dusts/ender_pearl"));
+        var dust = BuiltInRegistries.ITEM.getTag(tag).orElseThrow().iterator().next().value();
+        var fixture = new Fixture(pos,cellPos,target,fixer,cell,input,output,new ItemStack(dust),false);
+        later(helper, () -> observeExternalGenerator(helper,fixture,positions,acceptorPos,0,false,false));
+    }
+
+    private static void observeExternalGenerator(GameTestHelper helper, Fixture fixture, List<BlockPos> positions,
+            BlockPos acceptorPos, int elapsed, boolean fueled, boolean partial) throws Exception {
+        helper.assertTrue(elapsed<2900,"Native thermoelectric supply did not finish the native Entro repair");
+        helper.assertTrue(power(fixture.fixer)==0,"External fixture bypassed its AE network through the Fixer buffer");
+        helper.assertFalse(fixture.fixer.getPersistentData().contains("ioe_flawless_payment"),"Native repair acquired premium credit");
+        if (!fueled) {
+            var node = call(call(fixture.fixer,"getMainNode"),"getNode");
+            var cellNode = call(call(fixture.cell,"getMainNode"),"getNode");
+            var acceptor = helper.getLevel().getBlockEntity(acceptorPos);
+            var acceptorNode = call(call(acceptor,"getMainNode"),"getNode");
+            if (node!=null && cellNode!=null && acceptorNode!=null && power(fixture.cell)>0) {
+                helper.assertTrue(call(node,"getGrid")==call(cellNode,"getGrid")
+                        && call(node,"getGrid")==call(acceptorNode,"getGrid"),"Generator supplied a different AE grid");
+                call(call(fixture.fixer,"getInternalInventory"),"setItemDirect",
+                        new Class<?>[]{int.class,ItemStack.class},0,fixture.fuel.copy());
+                call(fixture.fixer,"onChanged");
+                fueled=true;
+            }
+        } else {
+            int progress = (int) call(fixture.fixer,"getProgress");
+            partial |= progress>0 && progress<100;
+            var fuel = (ItemStack) call(call(fixture.fixer,"getInternalInventory"),"getStackInSlot",new Class<?>[]{int.class},0);
+            if (fuel.isEmpty()) {
+                helper.assertTrue(partial,"No generator-powered native repair progress observed");
+                var result = helper.getLevel().getBlockState(fixture.target).getBlock();
+                helper.assertTrue(result==fixture.input || result==fixture.output,"External supply selected a different Entro recipe");
+                for (var part : positions) helper.getLevel().removeBlock(part,false);
+                helper.succeed(); return;
+            }
+        }
+        boolean nextFueled=fueled, nextPartial=partial;
+        later(helper, () -> observeExternalGenerator(helper,fixture,positions,acceptorPos,elapsed+1,nextFueled,nextPartial));
     }
 
     private static final class Fixture {

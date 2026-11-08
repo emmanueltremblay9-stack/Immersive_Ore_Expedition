@@ -73,10 +73,17 @@ tentatives. Seule la cellule est alimentée, le tampon interne du Fixer doit res
 vide. Les assertions portent sur le débit réseau exact des tentatives Flawless,
 le coût natif de la réparation Entro, la consommation du combustible, les sorties
 compatibles avec le tirage et l'absence de second débit après achèvement.
-La fixture réduit le coût à 1000 FE uniquement pour amorcer les tentatives de test,
-puis restaure immédiatement la configuration ; les budgets capturés sont conservés.
-Ces nouvelles assertions nécessitent leur propre CI exacte ; les verts de 85178f2
-ne constituent pas leur preuve. Aucune validation client n'en est déduite.
+Le cycle suivant utilise le budget réel par défaut de 1 000 000 FE, sans modifier
+la configuration : cinq tentatives premium et la réparation native sur six réseaux
+isolés, alimentés par cellules denses. Le délai borné du test est adapté aux ticks
+natifs nécessaires ; les jobs existants disposent de 45 minutes, sans nouveau profil.
+Une seconde fixture laisse un générateur thermoélectrique IE natif (magma/glace
+bleue) alimenter un accepteur FE AE, sa cellule et une réparation Entro native.
+Elle n'injecte aucune énergie par API et ne force aucun tick de génération. Cette
+preuve externe est distincte du paiement million-FE depuis une cellule préchargée.
+Ces assertions nécessitent une nouvelle CI exacte ; les verts de 4b10f939 ne les
+qualifient pas. La recherche client cloud a été répétée sans trouver de client,
+affichage ou bureau complet existant. Aucune installation, aucun monde personnel.
 
 ## Anomalie client ouverte — correspondance minerai/biome, 2026-10-17 08:42 UTC
 
