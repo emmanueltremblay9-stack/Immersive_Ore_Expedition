@@ -53,12 +53,13 @@ public final class FlawlessFixerGameTests {
             level.setBlockEntity(host);
             helper.assertTrue(host.getPersistentData().getCompound("ioe_flawless_payment").getDouble("paid")==paid,
                     "Partial payment lost during serialization");
-            // Isolate IOE credit persistence: native ExtendedAE omits parent energy/inventory persistence.
-            // Re-supply the fixture, without adding any credit to the paid ledger.
+            // Resume the actual saved machine without replacing its fuel or energy.
             inv = invoke(host, "getInternalInventory");
-            invoke(inv, "setItemDirect", new Class<?>[]{int.class, ItemStack.class}, 0, new ItemStack(fuel));
+            helper.assertTrue(((ItemStack) invoke(inv, "getStackInSlot", new Class<?>[]{int.class}, 0)).getCount()==1,
+                    "Saved fuel was lost during reload");
+            helper.assertTrue(Math.abs((double) invoke(host, "getAECurrentPower")-(before-firstDebit))<0.000001,
+                    "Saved energy was lost during reload");
             invoke(host,"onChanged");
-            invoke(host,"injectExternalPower",new Class<?>[]{ae.getClass(),double.class,modulate.getClass()},ae,4000.0,modulate);
             before = (double) invoke(host, "getAECurrentPower");
             FlawlessFixerConfig.COST_FE.set(2000); // In-flight attempt keeps its original 1000 FE budget.
             for (int i=0;i<20;i++) tick(host);

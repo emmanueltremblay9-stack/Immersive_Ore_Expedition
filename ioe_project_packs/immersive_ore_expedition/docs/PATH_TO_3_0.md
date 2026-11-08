@@ -16,10 +16,10 @@ NeoForge de la machine ; un changement de cible invalide le crédit, une pénuri
 interrompt le paiement. Le tirage natif consomme le combustible une fois le coût
 payé, même si le tirage échoue. Pas de débit natif supplémentaire sur cette voie.
 Ce mécanisme ne garantit pas une transaction atomique face à un crash disque.
-La classe ExtendedAE vérifiée omet les appels parents de sauvegarde/chargement :
-le crédit IOE utilise donc des hooks NBT explicites. Le test de reprise réapprovisionne
-le combustible et l'énergie de la fixture après recharge ; il prouve la conservation
-du crédit et du budget IOE, pas celle des ressources internes de la machine native.
+Le crédit IOE utilise des hooks NBT explicites. La vérification du bytecode épinglé
+confirme les appels parents ExtendedAE de sauvegarde/chargement (la note précédente
+les déclarant absents était incorrecte). Le test de reprise ne réapprovisionne ni
+combustible ni énergie : il vérifie aussi leur conservation avant de poursuivre.
 
 Le coût serveur `flawlessAttemptCostFE` est configurable de 1 à 2147483647 FE,
 valeur initiale 1000000. Les tentatives en cours conservent leur budget initial.
